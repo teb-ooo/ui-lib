@@ -19,7 +19,7 @@
     "@base-ui/react": "^1.8.0",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/react-router": "^1.170.0",
-    "@teb-ooo/cmdk": "^0.2.0",
+    "@teb-ooo/cmdk": "0.3.1",
     "@teb-ooo/ui": "file:..",
     "lucide-react": "^1.46.0",
     "react": "^19.3.0",
