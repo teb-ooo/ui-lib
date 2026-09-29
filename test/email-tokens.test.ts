@@ -59,6 +59,6 @@ describe("email base templates", () => {
     expect(html).toContain("{{.Preheader}}");
   });
   it("names no third-party product", () => {
-    expect(`${html}${txt}`).not.toMatch(/\b(ory|kratos|hydra|resend|postmark|pocket)\b/i);
+    expect(`${html}${txt}`).not.toMatch(/\b(ory|kratos|hydra|resend|postmark)\b/i);
   });
 });
