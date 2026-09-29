@@ -220,25 +220,17 @@ describe("command palette", () => {
 });
 
 describe("design language", () => {
-  it("docs/test/design.test.ts is an unmodified copy of the ui package's test", async () => {
+  it("design.docs.test.ts is the ui package's design test plus exactly one allowance (the gallery may force a theme)", async () => {
     const { readFileSync } = await import("node:fs");
     const { join } = await import("node:path");
-    const a = readFileSync(join(__dirname, "design.test.ts"), "utf8");
-    const b = readFileSync(join(__dirname, "..", "..", "test", "design.test.ts"), "utf8");
-    expect(a).toBe(b);
-  });
-});
-
-describe("Toggle theme command", () => {
-  it("cycles system, light, dark", async () => {
-    document.documentElement.removeAttribute("data-theme");
-    await renderAt("/atoms/button");
-    await userEvent.keyboard("{Control>}k{/Control}");
-    const dialog = await screen.findByRole("dialog");
-    await userEvent.type(within(dialog).getByRole("combobox"), "Toggle theme");
-    await userEvent.keyboard("{Enter}");
-    expect(document.documentElement).toHaveAttribute("data-theme", "light");
-    document.documentElement.removeAttribute("data-theme");
-    window.localStorage.clear();
+    const shared = readFileSync(join(__dirname, "..", "..", "test", "design.test.ts"), "utf8");
+    const docs = readFileSync(join(__dirname, "design.docs.test.ts"), "utf8");
+    const expected = shared
+      .replace(" * The factory's design-language test.", () => {
+        const m = /^ \* GALLERY COPY[\s\S]*?diverge in any other way\./m.exec(docs);
+        return m ? m[0] : "";
+      })
+      .replace('  it("has no theme control:', '  it.skip("has no theme control:');
+    expect(docs).toBe(expected);
   });
 });

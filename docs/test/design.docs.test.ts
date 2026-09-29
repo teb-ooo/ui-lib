@@ -1,5 +1,7 @@
 /**
- * The factory's design-language test.
+ * GALLERY COPY of the factory's design-language test (docs/test/design.docs.test.ts).
+ * Identical to lib/ui/test/design.test.ts except for one allowance: the gallery may force a theme, so the
+ * "no theme control" test is skipped. A test in gallery.test.tsx fails if the two diverge in any other way.
  *
  * Copy-ready: the same file lives at `lib/ui/test/design.test.ts` and at an app's `web/test/design.test.ts`.
  * It scans every .ts/.tsx/.css file under `../src` (relative to this file) and fails on anything that steps
@@ -27,8 +29,6 @@ function readPackageName(): string | null {
 }
 
 const IS_UI_PACKAGE = readPackageName() === "@teb-ooo/ui";
-/** The design gallery (lib/ui/docs) is the one place allowed to force a theme; nowhere else may. */
-const IS_UI_DOCS = readPackageName() === "@teb-ooo/ui-docs";
 /** The only file that may name palette values, and only inside the ui package. */
 const THEME_FILE = "theme.css";
 const THEME_PATH = join(PACKAGE_ROOT, THEME_FILE);
@@ -126,7 +126,7 @@ describe("design language", () => {
     expectNone(find(/(?<![-\w])dark:/), "components never branch on the theme");
   });
 
-  it.skipIf(IS_UI_DOCS)("has no theme control: no theme storage and no data-theme assignment (apps follow prefers-color-scheme)", () => {
+  it.skip("has no theme control: no theme storage and no data-theme assignment (apps follow prefers-color-scheme)", () => {
     expectNone(
       find(/\b(?:local|session)Storage\b[^\n]*(?:theme|color-scheme|prefers)|(?:theme|color-scheme|prefers)[^\n]*\b(?:local|session)Storage\b/i),
       "no stored theme preference",
