@@ -10,3 +10,5 @@ export { Avatar, initialsOf } from "./components/avatar";
 export type { AvatarProps, AvatarSize } from "./components/avatar";
 export { Badge } from "./components/badge";
 export type { BadgeProps, BadgeTone } from "./components/badge";
+export { Kbd } from "./components/kbd";
+export type { KbdProps } from "./components/kbd";

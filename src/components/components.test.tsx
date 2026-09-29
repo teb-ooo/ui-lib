@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createRef } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Avatar, Badge, Button, Dialog, Field, initialsOf, Input } from "../index";
+import { Avatar, Badge, Button, Dialog, Field, initialsOf, Input, Kbd } from "../index";
 
 describe("Button", () => {
   it("renders a real button, type=button by default", () => {
@@ -146,5 +146,48 @@ describe("Badge", () => {
     render(<Badge tone="accent">staging</Badge>);
     const b = screen.getByText("staging");
     expect(b).toHaveAttribute("data-tone", "accent");
+  });
+});
+
+describe("Kbd", () => {
+  const setPlatform = (platform: string) =>
+    Object.defineProperty(window.navigator, "platform", { value: platform, configurable: true });
+
+  it("renders each key as its own kbd and names the group", () => {
+    setPlatform("Linux x86_64");
+    const { container } = render(<Kbd shortcut="mod+k" />);
+    const keys = container.querySelectorAll("kbd");
+    expect([...keys].map((k) => k.textContent)).toEqual(["Ctrl", "K"]);
+    expect(screen.getByRole("group", { name: "Control K" })).toBeInTheDocument();
+  });
+  it("renders mod as Command on Apple platforms", () => {
+    setPlatform("MacIntel");
+    const { container } = render(<Kbd shortcut="mod+k" />);
+    expect([...container.querySelectorAll("kbd")].map((k) => k.textContent)).toEqual(["⌘", "K"]);
+    expect(screen.getByRole("group", { name: "Command K" })).toBeInTheDocument();
+    setPlatform("Linux x86_64");
+  });
+  it("renders sequences with then", () => {
+    const { container } = render(<Kbd shortcut="g i" />);
+    expect([...container.querySelectorAll("kbd")].map((k) => k.textContent)).toEqual(["G", "I"]);
+    expect(container).toHaveTextContent("then");
+    expect(screen.getByRole("group", { name: "G then I" })).toBeInTheDocument();
+  });
+  it("maps shift, enter, esc and arrows", () => {
+    const { container } = render(<Kbd shortcut="shift+enter up esc" />);
+    expect([...container.querySelectorAll("kbd")].map((k) => k.textContent)).toEqual(["⇧", "↵", "↑", "Esc"]);
+    expect(screen.getByRole("group", { name: "Shift Enter then Up arrow then Escape" })).toBeInTheDocument();
+  });
+  it("children override the shortcut", () => {
+    const { container } = render(<Kbd shortcut="mod+k">Any key</Kbd>);
+    expect(container.querySelectorAll("kbd")).toHaveLength(1);
+    expect(container).toHaveTextContent("Any key");
+    expect(container.querySelector("[aria-label]")).toBeNull();
+  });
+  it("renders on the server with the Ctrl default", async () => {
+    const { renderToString } = await import("react-dom/server");
+    setPlatform("MacIntel");
+    expect(renderToString(<Kbd shortcut="mod+k" />)).toContain("Ctrl");
+    setPlatform("Linux x86_64");
   });
 });
