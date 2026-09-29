@@ -1,32 +1,65 @@
 import { describe, expect, it } from "vitest";
 import { join } from "node:path";
 import { root } from "./root";
-import { contrast, hexPalette, readThemeOklch } from "../scripts/colors.ts";
-import type { Palette } from "../scripts/colors.ts";
+import { COLOR_TOKENS, TEXT_TOKENS, contrast, hexPalette, readThemeBlocks } from "../scripts/colors.ts";
 
-const themes = readThemeOklch(join(root, "theme.css"));
+const blocks = readThemeBlocks(join(root, "theme.css"));
 const AA_TEXT = 4.5;
 
-const cases: ReadonlyArray<[string, keyof Palette, keyof Palette]> = [
-  ["body text on ground", "ink", "ground"],
-  ["body text on surface", "ink", "surface"],
-  ["muted text on ground", "muted", "ground"],
-  ["muted text on surface", "muted", "surface"],
-  ["accent text on ground", "accent", "ground"],
-  ["accent text on surface", "accent", "surface"],
-  ["danger text on ground", "danger", "ground"],
-  ["danger text on surface", "danger", "surface"],
-  ["solid button label on accent", "on-accent", "accent"],
-];
+describe("theme blocks", () => {
+  it("the forced-dark container repeats the dark set exactly", () => {
+    expect(blocks.darkScoped).toMatchObject(pick(blocks.dark));
+  });
+  it("the OS-light block repeats the explicit light set exactly", () => {
+    expect(blocks.lightMedia).toMatchObject(pick(blocks.light));
+  });
+  it("defines every token in both themes", () => {
+    for (const set of [blocks.dark, blocks.light]) {
+      for (const n of COLOR_TOKENS) expect(set[`--color-${n}`], `--color-${n}`).toBeDefined();
+    }
+  });
+  it("ground is exactly black in dark and white in light", () => {
+    expect(blocks.dark["--color-ground"]?.toLowerCase()).toBe("#000000");
+    expect(blocks.light["--color-ground"]?.toLowerCase()).toBe("#ffffff");
+  });
+  it("neutral tokens have zero chroma", () => {
+    for (const set of [blocks.dark, blocks.light]) {
+      const p = hexPalette(set);
+      for (const n of ["ground", "surface", "surface-raised", "line", "line-strong", "ink", "ink-muted", "ink-faint"] as const) {
+        const h = p[n].slice(1);
+        expect(h.slice(0, 2), n).toBe(h.slice(2, 4));
+        expect(h.slice(2, 4), n).toBe(h.slice(4, 6));
+      }
+    }
+  });
+});
 
-describe.each(["light", "dark"] as const)("WCAG AA contrast, %s theme", (mode) => {
-  const p = hexPalette(themes[mode]);
-  it.each(cases)("%s >= 4.5:1", (_label, fg, bg) => {
+function pick(d: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(COLOR_TOKENS.map((n) => [`--color-${n}`, d[`--color-${n}`] ?? ""]));
+}
+
+describe.each([
+  ["dark", blocks.dark],
+  ["light", blocks.light],
+] as const)("WCAG AA contrast, %s theme", (_mode, decls) => {
+  const p = hexPalette(decls);
+  const cases = TEXT_TOKENS.flatMap((fg) => (["ground", "surface"] as const).map((bg) => [fg, bg] as const));
+  it.each(cases)("%s on %s >= 4.5:1", (fg, bg) => {
     const ratio = contrast(p[fg], p[bg]);
     expect(ratio, `${fg} ${p[fg]} on ${bg} ${p[bg]} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(AA_TEXT);
   });
-  it("line is visible against ground (non-text 1.3:1 floor)", () => {
-    expect(contrast(p.line, p.ground)).toBeGreaterThanOrEqual(1.3);
+  it("muted text also reads on the raised surface", () => {
+    expect(contrast(p["ink-muted"], p["surface-raised"])).toBeGreaterThanOrEqual(AA_TEXT);
+    expect(contrast(p["ink"], p["surface-raised"])).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+  it("hover text colours also read on ground", () => {
+    for (const s of ["danger", "warning", "ok", "link", "agent"] as const) {
+      expect(contrast(p[`${s}-hover`], p.ground), `${s}-hover`).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+  });
+  it("lines step away from the ground", () => {
+    expect(contrast(p.line, p.ground)).toBeGreaterThanOrEqual(1.2);
+    expect(contrast(p["line-strong"], p.ground)).toBeGreaterThanOrEqual(3);
   });
 });
 

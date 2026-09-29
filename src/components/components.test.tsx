@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createRef } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Avatar, Badge, Button, Dialog, Field, initialsOf, Input, Kbd } from "../index";
+import { Avatar, Badge, Button, Chip, Dialog, Field, initialsOf, Input, Kbd, LinkButton, Tooltip } from "../index";
 
 describe("Button", () => {
   it("renders a real button, type=button by default", () => {
@@ -141,11 +141,119 @@ describe("Avatar", () => {
   });
 });
 
-describe("Badge", () => {
-  it("renders text with a tone", () => {
+describe("Badge (deprecated alias of Chip)", () => {
+  it("renders a chip, mapping accent to the link tone", () => {
     render(<Badge tone="accent">staging</Badge>);
     const b = screen.getByText("staging");
-    expect(b).toHaveAttribute("data-tone", "accent");
+    expect(b).toHaveClass("chip", "chip-link");
+    expect(b).toHaveAttribute("data-tone", "link");
+  });
+});
+
+describe("Chip", () => {
+  it.each([
+    ["default", null],
+    ["ok", "chip-ok"],
+    ["warn", "chip-warn"],
+    ["muted", "chip-muted"],
+    ["danger", "chip-danger"],
+    ["link", "chip-link"],
+    ["agent", "chip-agent"],
+  ] as const)("tone %s", (tone, cls) => {
+    render(<Chip tone={tone}>x</Chip>);
+    const c = screen.getByText("x");
+    expect(c).toHaveClass("chip");
+    if (cls) expect(c).toHaveClass(cls);
+  });
+});
+
+describe("Button extras", () => {
+  it("warning intent uses the shared class", () => {
+    render(<Button intent="warning">Discard</Button>);
+    expect(screen.getByRole("button")).toHaveClass("btn", "btn-warning");
+  });
+  it("uses the shared button classes for solid and danger", () => {
+    render(<><Button intent="solid">a</Button><Button intent="danger">b</Button></>);
+    expect(screen.getByRole("button", { name: "a" })).toHaveClass("btn-solid");
+    expect(screen.getByRole("button", { name: "b" })).toHaveClass("btn-danger");
+  });
+  it("active sets aria-pressed and the active marker", () => {
+    render(<Button active>Filter</Button>);
+    expect(screen.getByRole("button")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button")).toHaveAttribute("data-active");
+  });
+  it("has no aria-pressed when active is not given", () => {
+    render(<Button>Go</Button>);
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-pressed");
+  });
+  it("icon-only is a square button named by its tip", () => {
+    render(<Button icon={<svg data-testid="i" />} tip="Delete" />);
+    const b = screen.getByRole("button", { name: "Delete" });
+    expect(b).toHaveClass("btn-icon");
+  });
+  it("shows the tip on keyboard focus", async () => {
+    const user = userEvent.setup();
+    render(<Button tip="Saves the draft">Save</Button>);
+    await user.tab();
+    expect(await screen.findByText("Saves the draft")).toBeInTheDocument();
+  });
+  it("dashed draws the add affordance", () => {
+    render(<Button dashed>add</Button>);
+    expect(screen.getByRole("button")).toHaveClass("btn-add");
+  });
+  it("never sets a title attribute", () => {
+    render(<Button tip="Tip" icon={<svg />} />);
+    expect(screen.getByRole("button")).not.toHaveAttribute("title");
+  });
+});
+
+describe("LinkButton", () => {
+  it("is a real link with the button look", () => {
+    render(<LinkButton href="/docs" intent="solid">Docs</LinkButton>);
+    const a = screen.getByRole("link", { name: "Docs" });
+    expect(a).toHaveAttribute("href", "/docs");
+    expect(a).toHaveClass("btn", "btn-solid");
+  });
+  it("marks the current page", () => {
+    render(<LinkButton href="/here" active>Here</LinkButton>);
+    expect(screen.getByRole("link")).toHaveAttribute("aria-current", "page");
+  });
+  it("icon-only takes its name from the tip", () => {
+    render(<LinkButton href="/x" icon={<svg />} tip="Open" />);
+    expect(screen.getByRole("link", { name: "Open" })).toHaveClass("btn-icon");
+  });
+});
+
+describe("Tooltip", () => {
+  it("opens on hover and describes the trigger", async () => {
+    const user = userEvent.setup();
+    render(<Tooltip tip="Hello" delay={0}><Button>Target</Button></Tooltip>);
+    await user.hover(screen.getByRole("button", { name: "Target" }));
+    expect(await screen.findByText("Hello")).toBeInTheDocument();
+  });
+});
+
+describe("Dialog placement", () => {
+  it("centre is the default", async () => {
+    render(<Dialog defaultOpen title="T" />);
+    expect((await screen.findByRole("dialog")).getAttribute("data-placement")).toBe("center");
+  });
+  it("top places the panel near the top", async () => {
+    render(<Dialog defaultOpen placement="top" title="T" />);
+    const d = await screen.findByRole("dialog");
+    expect(d).toHaveAttribute("data-placement", "top");
+    expect(d.className).toContain("top-[15vh]");
+    expect(d.className).toContain("max-w-lg");
+  });
+  it("bare has no close control and keeps the accessible name", async () => {
+    render(<Dialog defaultOpen bare title="Palette"><input aria-label="Search" /></Dialog>);
+    expect(await screen.findByRole("dialog", { name: "Palette" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Close" })).toBeNull();
+  });
+  it("can focus a chosen element on open", async () => {
+    const ref = createRef<HTMLInputElement>();
+    render(<Dialog defaultOpen bare title="P" initialFocus={ref}><input ref={ref} aria-label="Search" /></Dialog>);
+    await waitFor(() => expect(screen.getByLabelText("Search")).toHaveFocus());
   });
 });
 

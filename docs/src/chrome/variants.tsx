@@ -7,7 +7,7 @@ export type PreviewTheme = "system" | "light" | "dark";
 export function Variants({ entry, theme }: { entry: Entry; theme: PreviewTheme }) {
   return (
     <div
-      className="preview grid grid-cols-[repeat(auto-fill,minmax(min(100%,18rem),1fr))] gap-4"
+      className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,18rem),1fr))] gap-4"
       data-theme={theme === "system" ? undefined : theme}
       data-testid="variants"
     >

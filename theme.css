@@ -3,6 +3,7 @@
 /* Scan the built components so a consumer's Tailwind emits their classes. */
 @source "./dist";
 
+/* Faces. Geist Mono is the only text face; Nova Cut is the display face. */
 @font-face {
   font-family: "Geist Mono";
   src: url("./fonts/GeistMono-Variable.woff2") format("woff2");
@@ -10,88 +11,404 @@
   font-style: normal;
   font-display: swap;
 }
-
-/* Colour tokens. Light is the default; dark follows the OS unless overridden. */
-:root {
-  color-scheme: light;
-  --ground: oklch(0.985 0.003 260);
-  --surface: oklch(0.955 0.005 260);
-  --ink: oklch(0.2 0.02 260);
-  --muted: oklch(0.47 0.02 260);
-  --line: oklch(0.88 0.008 260);
-  --accent: oklch(0.5 0.19 265);
-  --on-accent: oklch(0.99 0.003 260);
-  --danger: oklch(0.5 0.19 27);
+@font-face {
+  font-family: "Nova Cut";
+  src: url("./fonts/NovaCut-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --ground: oklch(0.16 0.01 260);
-    --surface: oklch(0.21 0.012 260);
-    --ink: oklch(0.95 0.005 260);
-    --muted: oklch(0.72 0.015 260);
-    --line: oklch(0.32 0.014 260);
-    --accent: oklch(0.72 0.14 265);
-    --on-accent: oklch(0.16 0.01 260);
-    --danger: oklch(0.72 0.16 25);
+/* Both schemes are supported; the tokens below follow the OS. No app sets data-theme: the attribute exists so a gallery can force a theme. */
+:root {
+  color-scheme: light dark;
+}
+
+/*
+ * Semantic tokens. Components and apps name these, never a palette step or a literal
+ * colour, so a re-skin is a change in this file only. There are two themes and nothing
+ * else branches on them: dark is the default and light follows the OS
+ * (prefers-color-scheme: light). The data-theme selectors below repeat the same blocks so a gallery
+ * can force a theme; no app sets that attribute. Ground is pure black or pure white; surfaces, lines and inks are zero-chroma
+ * grays stepping away from it. Colour appears only as state: red (danger), amber (warning),
+ * emerald (ok), sky (link, references), violet (agent activity); each state has the text
+ * colour, -hover, -soft (tinted fill) and -line (tinted border), tuned for each ground.
+ */
+@theme static {
+  --color-ground: #000000;
+  --color-surface: oklch(0.19 0 0);
+  --color-surface-raised: oklch(0.25 0 0);
+  --color-line: oklch(0.3 0 0);
+  --color-line-strong: oklch(0.48 0 0);
+  --color-ink: #ffffff;
+  --color-ink-muted: oklch(0.78 0 0);
+  --color-ink-faint: oklch(0.68 0 0);
+  --color-danger: var(--color-red-400);
+  --color-danger-hover: var(--color-red-300);
+  --color-danger-soft: var(--color-red-950);
+  --color-danger-line: var(--color-red-900);
+  --color-warning: var(--color-amber-400);
+  --color-warning-hover: var(--color-amber-300);
+  --color-warning-soft: var(--color-amber-950);
+  --color-warning-line: var(--color-amber-900);
+  --color-ok: var(--color-emerald-400);
+  --color-ok-hover: var(--color-emerald-300);
+  --color-ok-soft: var(--color-emerald-950);
+  --color-ok-line: var(--color-emerald-900);
+  --color-link: var(--color-sky-400);
+  --color-link-hover: var(--color-sky-300);
+  --color-link-soft: var(--color-sky-950);
+  --color-link-line: var(--color-sky-900);
+  --color-agent: var(--color-violet-400);
+  --color-agent-hover: var(--color-violet-300);
+  --color-agent-soft: var(--color-violet-950);
+  --color-agent-line: var(--color-violet-900);
+}
+
+/* The dark set again, reachable by attribute so a gallery can force it, even inside a light page. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-ground: #000000;
+  --color-surface: oklch(0.19 0 0);
+  --color-surface-raised: oklch(0.25 0 0);
+  --color-line: oklch(0.3 0 0);
+  --color-line-strong: oklch(0.48 0 0);
+  --color-ink: #ffffff;
+  --color-ink-muted: oklch(0.78 0 0);
+  --color-ink-faint: oklch(0.68 0 0);
+  --color-danger: var(--color-red-400);
+  --color-danger-hover: var(--color-red-300);
+  --color-danger-soft: var(--color-red-950);
+  --color-danger-line: var(--color-red-900);
+  --color-warning: var(--color-amber-400);
+  --color-warning-hover: var(--color-amber-300);
+  --color-warning-soft: var(--color-amber-950);
+  --color-warning-line: var(--color-amber-900);
+  --color-ok: var(--color-emerald-400);
+  --color-ok-hover: var(--color-emerald-300);
+  --color-ok-soft: var(--color-emerald-950);
+  --color-ok-line: var(--color-emerald-900);
+  --color-link: var(--color-sky-400);
+  --color-link-hover: var(--color-sky-300);
+  --color-link-soft: var(--color-sky-950);
+  --color-link-line: var(--color-sky-900);
+  --color-agent: var(--color-violet-400);
+  --color-agent-hover: var(--color-violet-300);
+  --color-agent-soft: var(--color-violet-950);
+  --color-agent-line: var(--color-violet-900);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --color-ground: #ffffff;
+    --color-surface: oklch(0.965 0 0);
+    --color-surface-raised: oklch(0.93 0 0);
+    --color-line: oklch(0.9 0 0);
+    --color-line-strong: oklch(0.62 0 0);
+    --color-ink: #000000;
+    --color-ink-muted: oklch(0.42 0 0);
+    --color-ink-faint: oklch(0.5 0 0);
+    --color-danger: var(--color-red-700);
+    --color-danger-hover: var(--color-red-800);
+    --color-danger-soft: var(--color-red-50);
+    --color-danger-line: var(--color-red-200);
+    --color-warning: var(--color-amber-700);
+    --color-warning-hover: var(--color-amber-800);
+    --color-warning-soft: var(--color-amber-50);
+    --color-warning-line: var(--color-amber-200);
+    --color-ok: var(--color-emerald-700);
+    --color-ok-hover: var(--color-emerald-800);
+    --color-ok-soft: var(--color-emerald-50);
+    --color-ok-line: var(--color-emerald-200);
+    --color-link: var(--color-sky-700);
+    --color-link-hover: var(--color-sky-800);
+    --color-link-soft: var(--color-sky-50);
+    --color-link-line: var(--color-sky-200);
+    --color-agent: var(--color-violet-700);
+    --color-agent-hover: var(--color-violet-800);
+    --color-agent-soft: var(--color-violet-50);
+    --color-agent-line: var(--color-violet-200);
   }
 }
 
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --ground: oklch(0.16 0.01 260);
-  --surface: oklch(0.21 0.012 260);
-  --ink: oklch(0.95 0.005 260);
-  --muted: oklch(0.72 0.015 260);
-  --line: oklch(0.32 0.014 260);
-  --accent: oklch(0.72 0.14 265);
-  --on-accent: oklch(0.16 0.01 260);
-  --danger: oklch(0.72 0.16 25);
+[data-theme="light"] {
+  color-scheme: light;
+  --color-ground: #ffffff;
+  --color-surface: oklch(0.965 0 0);
+  --color-surface-raised: oklch(0.93 0 0);
+  --color-line: oklch(0.9 0 0);
+  --color-line-strong: oklch(0.62 0 0);
+  --color-ink: #000000;
+  --color-ink-muted: oklch(0.42 0 0);
+  --color-ink-faint: oklch(0.5 0 0);
+  --color-danger: var(--color-red-700);
+  --color-danger-hover: var(--color-red-800);
+  --color-danger-soft: var(--color-red-50);
+  --color-danger-line: var(--color-red-200);
+  --color-warning: var(--color-amber-700);
+  --color-warning-hover: var(--color-amber-800);
+  --color-warning-soft: var(--color-amber-50);
+  --color-warning-line: var(--color-amber-200);
+  --color-ok: var(--color-emerald-700);
+  --color-ok-hover: var(--color-emerald-800);
+  --color-ok-soft: var(--color-emerald-50);
+  --color-ok-line: var(--color-emerald-200);
+  --color-link: var(--color-sky-700);
+  --color-link-hover: var(--color-sky-800);
+  --color-link-soft: var(--color-sky-50);
+  --color-link-line: var(--color-sky-200);
+  --color-agent: var(--color-violet-700);
+  --color-agent-hover: var(--color-violet-800);
+  --color-agent-soft: var(--color-violet-50);
+  --color-agent-line: var(--color-violet-200);
 }
 
-/* Only the tokens below exist as utilities: everything else is reset. */
-@theme inline {
-  --color-*: initial;
-  --color-ground: var(--ground);
-  --color-surface: var(--surface);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-accent: var(--accent);
-  --color-on-accent: var(--on-accent);
-  --color-danger: var(--danger);
+/* A forced-theme container paints its own ground and ink. */
+:not(:root)[data-theme] {
+  background: var(--color-ground);
+  color: var(--color-ink);
 }
 
 @theme static {
-  --font-sans: "Geist Mono", ui-monospace, monospace;
+  --font-sans: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Type scale: exactly four steps. */
+  /* Exactly two type sizes. Components never set a size: body sets --text-body, .display-lg sets --text-display. */
   --text-*: initial;
-  --text-sm: 0.75rem;
-  --text-sm--line-height: 1.25rem;
-  --text-base: 0.875rem;
-  --text-base--line-height: 1.375rem;
-  --text-lg: 1.125rem;
-  --text-lg--line-height: 1.75rem;
-  --text-xl: 1.5rem;
-  --text-xl--line-height: 2rem;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.6;
+  --text-display: 2rem;
+  --text-display--line-height: 1.3;
 
-  --control-h: 2rem;
-  --radius: 4px;
+  /* The only control height and the only radius. */
+  --control-h: 1.75rem;
   --radius-*: initial;
-  --radius-ctl: var(--radius);
+  --radius: 0.25rem;
 }
 
 @layer base {
   html {
-    background: var(--ground);
-    color: var(--ink);
-    font-family: var(--font-sans);
-    font-size: 16px;
+    background: var(--color-ground);
+    color: var(--color-ink);
+  }
+  /* No exceptions: form controls and code included. */
+  html,
+  body,
+  button,
+  input,
+  optgroup,
+  select,
+  textarea,
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
   }
   body {
-    font-size: var(--text-base);
-    line-height: var(--text-base--line-height);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+  ::placeholder {
+    color: var(--color-ink-faint);
+    opacity: 1;
+  }
+  /* Weight and colour carry hierarchy; headings inherit the body size. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+}
+
+/* Display faces, un-layered so they outrank the base font rule above. */
+.display,
+input.display {
+  font-family: "Nova Cut", "Geist Mono", monospace;
+}
+/* The one larger size: page titles and empty-state headlines. */
+.display-lg,
+input.display-lg {
+  font-family: "Nova Cut", "Geist Mono", monospace;
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+}
+
+/*
+ * Control system. One height, one radius, one border scale. Every interactive
+ * control is a .btn or an .input, every static token is a .chip.
+ */
+@layer components {
+  .btn {
+    display: inline-flex;
+    height: var(--control-h);
+    cursor: pointer;
+    align-items: center;
+    gap: 0.375rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: transparent;
+    padding-inline: 0.5rem;
+    color: var(--color-ink-muted);
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .btn:hover,
+  .btn[data-active] {
+    border-color: var(--color-line-strong);
+    color: var(--color-ink);
+  }
+  .btn[data-active] {
+    background: var(--color-surface-raised);
+  }
+  .btn:focus-visible,
+  .input:focus-visible {
+    outline: 1px solid var(--color-ink-muted);
+    outline-offset: 2px;
+  }
+  .btn:disabled,
+  .btn[data-disabled],
+  .btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .btn:disabled:hover,
+  .btn[data-disabled]:hover {
+    border-color: var(--color-line);
+    color: var(--color-ink-muted);
+  }
+  .btn-solid {
+    border-color: var(--color-line-strong);
+    color: var(--color-ink);
+  }
+  .btn-solid:hover {
+    background: var(--color-surface-raised);
+  }
+  /* Intent accents: tinted text at rest, tinted border and fill on hover. */
+  .btn-danger {
+    color: var(--color-danger);
+  }
+  .btn-danger:hover {
+    border-color: var(--color-danger-line);
+    background: color-mix(in oklab, var(--color-danger-soft) 30%, transparent);
+    color: var(--color-danger-hover);
+  }
+  .btn-warning {
+    color: var(--color-warning);
+  }
+  .btn-warning:hover {
+    border-color: var(--color-warning-line);
+    background: color-mix(in oklab, var(--color-warning-soft) 30%, transparent);
+    color: var(--color-warning-hover);
+  }
+  .btn-icon {
+    width: var(--control-h);
+    justify-content: center;
+    padding-inline: 0;
+  }
+  .btn-add {
+    border-style: dashed;
+  }
+
+  .chip {
+    display: inline-flex;
+    height: var(--control-h);
+    align-items: center;
+    gap: 0.375rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    padding-inline: 0.5rem;
+    color: var(--color-ink-muted);
+    white-space: nowrap;
+  }
+  .chip-muted {
+    color: var(--color-ink-faint);
+  }
+  .chip-ok {
+    border-color: var(--color-ok-line);
+    background: color-mix(in oklab, var(--color-ok-soft) 40%, transparent);
+    color: var(--color-ok);
+  }
+  .chip-warn {
+    border-color: var(--color-warning-line);
+    background: color-mix(in oklab, var(--color-warning-soft) 40%, transparent);
+    color: var(--color-warning);
+  }
+  .chip-danger {
+    border-color: var(--color-danger-line);
+    background: color-mix(in oklab, var(--color-danger-soft) 40%, transparent);
+    color: var(--color-danger);
+  }
+  .chip-link {
+    border-color: var(--color-link-line);
+    background: color-mix(in oklab, var(--color-link-soft) 40%, transparent);
+    color: var(--color-link);
+  }
+  .chip-agent {
+    border-color: var(--color-agent-line);
+    background: color-mix(in oklab, var(--color-agent-soft) 40%, transparent);
+    color: var(--color-agent);
+  }
+
+  .input {
+    height: var(--control-h);
+    width: 100%;
+    min-width: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    padding-inline: 0.5rem;
+    color: var(--color-ink);
+    outline: none;
+  }
+  .input:focus {
+    background: var(--color-surface-raised);
+  }
+  .input[data-invalid],
+  .input[aria-invalid="true"] {
+    border-color: var(--color-danger-line);
+  }
+  .input:disabled,
+  .input[data-disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .panel {
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+  }
+
+  /* Popup transitions, driven by Base UI's data-starting-style and data-ending-style. */
+  .anim-fade {
+    transition:
+      opacity 120ms ease,
+      transform 120ms ease;
+  }
+  .anim-fade[data-starting-style],
+  .anim-fade[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  .anim-slide-right {
+    transition: transform 180ms ease;
+  }
+  .anim-slide-right[data-starting-style],
+  .anim-slide-right[data-ending-style] {
+    transform: translateX(100%);
+  }
+  .anim-backdrop {
+    transition: opacity 150ms ease;
+  }
+  .anim-backdrop[data-starting-style],
+  .anim-backdrop[data-ending-style] {
+    opacity: 0;
   }
 }

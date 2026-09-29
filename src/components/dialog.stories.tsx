@@ -34,3 +34,20 @@ export const WithForm = () => (
   </Dialog>
 );
 WithForm.storyMeta = { description: "A dialog holding a Field." } satisfies StoryMeta;
+
+export const TopPlacement = () => (
+  <Dialog
+    placement="top"
+    trigger={<Button>Open at top</Button>}
+    title="Search"
+    description="A wider panel near the top of the viewport."
+  />
+);
+TopPlacement.storyMeta = { description: "placement=top: the shape a command palette uses." } satisfies StoryMeta;
+
+export const Bare = () => (
+  <Dialog placement="top" bare trigger={<Button>Open bare</Button>} title="Palette">
+    <div className="p-4 text-ink-muted">Content fills the panel; the title is announced only.</div>
+  </Dialog>
+);
+Bare.storyMeta = { description: "bare: no padding, header or close control." } satisfies StoryMeta;

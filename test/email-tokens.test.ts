@@ -1,15 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { root as rootDir } from "./root";
-import { hexPalette, readThemeOklch, TOKEN_NAMES } from "../scripts/colors.ts";
+import { COLOR_TOKENS, hexPalette, readThemeBlocks, textSizePx } from "../scripts/colors.ts";
 
 const root = `${rootDir}/`;
 const tokens = JSON.parse(readFileSync(`${root}email/tokens.json`, "utf8")) as {
   light: Record<string, string>;
   dark: Record<string, string>;
+  text: { body: { size: string; lineHeight: string }; display: { size: string; lineHeight: string } };
   maxWidth: string;
 };
-const theme = readThemeOklch(`${root}theme.css`);
+const theme = readThemeBlocks(`${root}theme.css`);
+const themeCss = readFileSync(`${root}theme.css`, "utf8");
 const html = readFileSync(`${root}email/base.html.tmpl`, "utf8");
 const txt = readFileSync(`${root}email/base.txt.tmpl`, "utf8");
 
@@ -20,21 +22,29 @@ describe("email/tokens.json", () => {
   });
   it("holds literal hex values only", () => {
     for (const mode of [tokens.light, tokens.dark]) {
-      for (const n of TOKEN_NAMES) expect(mode[n]).toMatch(/^#[0-9a-f]{6}$/);
+      for (const n of COLOR_TOKENS) expect(mode[n]).toMatch(/^#[0-9a-f]{6}$/);
     }
   });
 });
 
 describe("email base templates", () => {
   it("html uses the light tokens as literal values and no CSS variables", () => {
-    for (const n of ["ground", "surface", "ink", "muted", "line"]) {
+    for (const n of ["ground", "surface", "ink", "ink-muted", "line"]) {
       expect(html).toContain(tokens.light[n] as string);
     }
     expect(html).not.toContain("var(--");
     expect(html).not.toMatch(/oklch/i);
   });
+  it("uses exactly the two type sizes, as literals from theme.css", () => {
+    expect(tokens.text.body).toEqual(textSizePx(themeCss, "body"));
+    expect(tokens.text.display).toEqual(textSizePx(themeCss, "display"));
+    expect(tokens.text.body).toEqual({ size: "14px", lineHeight: "1.6" });
+    expect(tokens.text.display).toEqual({ size: "32px", lineHeight: "1.3" });
+    const sizes = new Set([...html.matchAll(/font-size:\s*([\d.]+px)/g)].map((m) => m[1]).filter((v) => v !== "1px"));
+    expect([...sizes].sort()).toEqual(["14px", "32px"]);
+  });
   it("html dark-mode block uses the dark tokens", () => {
-    for (const n of ["ground", "surface", "ink", "muted", "line"]) {
+    for (const n of ["ground", "surface", "ink", "ink-muted", "line"]) {
       expect(html).toContain(tokens.dark[n] as string);
     }
   });

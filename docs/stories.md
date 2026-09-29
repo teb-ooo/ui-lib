@@ -35,4 +35,4 @@ Disabled.storyMeta = {
 
 ## Foundations
 
-`foundations/color`, `type`, `spacing` and `radius` render the tokens live from `theme.css` (custom properties, the four type steps, `--control-h`, `--radius`). There is no motion story because the theme defines no motion tokens.
+`foundations/color`, `type`, `spacing` and `radius` render the tokens live from `theme.css`: the semantic colour tokens in the current scheme, the two type sizes, `--control-h`, `--radius`. Stories inside `src` never set `data-theme` (the design test forbids it); showing dark and light side by side, and the theme control, live in the gallery under `docs/`. There is no motion story because the theme defines no motion tokens.

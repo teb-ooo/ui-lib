@@ -97,7 +97,7 @@ export function parseShortcut(shortcut: string, apple: boolean): KeyLabel[][] {
 }
 
 const kbdClass =
-  "inline-flex min-w-5 items-center justify-center rounded-ctl border border-line bg-surface px-1 font-sans text-sm text-muted";
+  "inline-flex min-w-5 items-center justify-center rounded border border-line bg-surface px-1 text-ink-muted";
 
 /** A keyboard-shortcut hint. Each key is its own `<kbd>`; the group carries a spoken label. */
 export const Kbd = forwardRef<HTMLSpanElement, KbdProps>(function Kbd(
@@ -121,7 +121,7 @@ export const Kbd = forwardRef<HTMLSpanElement, KbdProps>(function Kbd(
     <span ref={ref} role="group" aria-label={label || undefined} data-shortcut={shortcut} className={wrapper} {...rest}>
       {steps.map((step, i) => (
         <span key={i} aria-hidden="true" className="inline-flex items-center gap-1">
-          {i > 0 ? <span className="text-sm text-muted">then</span> : null}
+          {i > 0 ? <span className="text-ink-faint">then</span> : null}
           {step.map((k, j) => (
             <kbd key={j} className={kbdClass}>
               {k.glyph}

@@ -4,7 +4,7 @@ import type { StoryDefault } from "../stories";
 export default {
   title: "Badge",
   group: "Atoms",
-  description: "Small uppercase status label, such as the staging marker.",
+  description: "Deprecated: use Chip. A Badge renders a Chip and is kept until 1.0 for existing imports.",
   component: "Badge",
   source: "src/components/badge.tsx",
 } satisfies StoryDefault;

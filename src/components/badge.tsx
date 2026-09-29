@@ -1,38 +1,22 @@
 import { forwardRef } from "react";
-import type { HTMLAttributes } from "react";
-import { cn } from "../lib/cn";
+import { Chip } from "./chip";
+import type { ChipProps, ChipTone } from "./chip";
 
 export type BadgeTone = "default" | "accent" | "danger";
 
-export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, "className"> {
+export interface BadgeProps extends Omit<ChipProps, "tone"> {
   /**
-   * Colour of the border and text.
+   * `accent` renders as the `link` chip tone.
    * @default "default"
    */
   tone?: BadgeTone;
-  className?: string;
 }
 
-const tones: Record<BadgeTone, string> = {
-  default: "border-line text-muted",
-  accent: "border-accent text-accent",
-  danger: "border-danger text-danger",
-};
+const map: Record<BadgeTone, ChipTone> = { default: "default", accent: "link", danger: "danger" };
 
-export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
-  { tone = "default", className, ...rest },
-  ref,
-) {
-  return (
-    <span
-      ref={ref}
-      data-tone={tone}
-      className={cn(
-        "inline-flex items-center rounded-ctl border px-1.5 font-sans text-sm uppercase tracking-wide",
-        tones[tone],
-        className,
-      )}
-      {...rest}
-    />
-  );
+/**
+ * @deprecated Use `Chip`: a Badge is a Chip with fewer tones. Kept until 1.0 so existing imports keep working.
+ */
+export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge({ tone = "default", ...rest }, ref) {
+  return <Chip ref={ref} tone={map[tone]} {...rest} />;
 });

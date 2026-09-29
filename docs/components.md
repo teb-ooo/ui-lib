@@ -1,37 +1,59 @@
-# Components
+# Components and theme
 
-All components are named exports of `@teb-ooo/ui`, each with an exported `*Props` interface. Every component accepts `className` (layout utilities only) and the standard attributes of the element it renders.
+All components are named exports of `@teb-ooo/ui`, each with an exported `*Props` interface. Every component accepts `className` (layout utilities only) and the attributes of the element it renders. Components consume the shared classes in `theme.css` (`.btn`, `.chip`, `.input`, `.panel`, ...) and the semantic tokens; none sets a font size or names a palette value.
 
 ## Button
 The only button. Extends Base UI `Button` props.
-- `intent?: "default" | "solid" | "danger"` (default `"default"`): outlined, primary, destructive.
+- `intent?: "default" | "solid" | "danger" | "warning"` (default `"default"`): outlined, primary, and two tinted intents.
+- `icon?: ReactNode`: shown before the children. With no children the button is a square icon button.
+- `active?: boolean`: toggled-on look, sets `aria-pressed`.
+- `tip?: ReactNode`: tooltip; for an icon-only button a string tip is also the accessible name.
+- `dashed?: boolean`: the dashed add affordance.
 - `loading?: boolean`: spinner, `aria-busy`, activation blocked, stays focusable.
 - `disabled`, `onClick`, `type` (default `"button"`), ref to the `<button>`.
+
+## LinkButton
+The look of `Button` for anchors: `intent`, `icon`, `active` (`aria-current="page"`), `tip`, plus anchor attributes.
 
 ## Input
 Text input on Base UI `Input`; ref to the `<input>`. Inside a `Field` it takes id, description and invalid state from the field.
 
 ## Field
-Label + control + description + error, wired for assistive tech (label association, `aria-describedby`, `aria-invalid`, error in `role="alert"`).
-- `label: ReactNode` (required)
-- `error?: ReactNode`: when set, the field is invalid.
-- `description?: ReactNode`
-- `children`: the control, normally an `Input`.
+Label, control, description and error, wired for assistive tech (label association, `aria-describedby`, `aria-invalid`, error in `role="alert"`).
+- `label: ReactNode` (required), `error?: ReactNode` (sets invalid), `description?: ReactNode`, `children`: the control.
 
 ## Dialog
 Modal on Base UI `Dialog`: focus moves in, Escape closes, focus returns to the trigger.
 - `title: ReactNode` (required; the accessible name), `description?`, `footer?`, `children?`
 - `trigger?: ReactElement` (usually a `Button`), or control it with `open` / `onOpenChange(open, details)`; `defaultOpen`.
-- `closeLabel?: string` (default `"Close"`).
+- `placement?: "center" | "top"` (default `"center"`): `center` is a small centred panel (`max-w-md`); `top` is a wider panel (`max-w-lg`) at 15vh from the top, the shape of a command palette. Both use a `bg-black/50` backdrop and the `anim-backdrop` and `anim-fade` transitions.
+- `bare?: boolean`: no padding, header or close control; children fill the panel edge to edge and the title is announced but not drawn. A palette renders its own input and list inside a bare, top-placed dialog.
+- `initialFocus?: boolean | RefObject<HTMLElement | null>`: what to focus on open (`false` leaves focus alone).
+- `closeLabel?: string` (default `"Close"`), `className` (layout classes for the panel).
+
+What a command palette needs, without reaching into internals: `<Dialog open onOpenChange placement="top" bare initialFocus={inputRef} title="Command palette">...</Dialog>`, `Kbd` for shortcut hints, and the shared classes `.panel`, `.input`, `.btn`, `.chip`.
+
+## Tooltip
+The one tooltip mechanism (never a `title` attribute). `<Tooltip tip="Save"><Button>...</Button></Tooltip>`; `side?: "top" | "bottom" | "left" | "right"`, `delay?: number` (ms, default 400). `Button` and `LinkButton` take a `tip` prop that uses it.
+
+## Chip
+A static token: status, count or reference. `tone?: "default" | "ok" | "warn" | "muted" | "danger" | "link" | "agent"`.
+
+## Badge (deprecated)
+Renders a `Chip` (`accent` maps to `link`). Use `Chip`; `Badge` stays until 1.0.
+
+## Kbd
+Keyboard shortcut hint. `shortcut` (`mod+k`, `g i`) or free-text children. `mod` is the Command key on Apple platforms and Ctrl elsewhere.
 
 ## Avatar
-Square, image with fallback initials.
-- `name: string` (required; accessible name and initials), `src?: string`, `size?: "sm" | "md" | "lg"` (default `"md"`; 1.5, 2, 3 rem).
-- `initialsOf(name)` is exported.
-
-## Badge
-Small uppercase label, e.g. `staging`.
-- `tone?: "default" | "accent" | "danger"`; span attributes.
+Square, image with fallback initials. `name` (required), `src?`, `size?: "sm" | "md" | "lg"` (1.5rem, the control height, 3rem). `initialsOf(name)` is exported.
 
 ## Theme
-Utilities available: colours `ground surface ink muted line accent on-accent danger`, radius `rounded-ctl`, text sizes `text-sm | text-base | text-lg | text-xl` (exactly four), `font-sans` (Geist Mono), control height `h-(--control-h)`. Default Tailwind colours, text sizes and radii are reset, so anything else does not exist. Set `data-theme="light" | "dark"` on `<html>` to override the OS setting.
+Import once: `@import "@teb-ooo/ui/theme.css";`.
+- **Themes.** Dark is the default; light follows `prefers-color-scheme: light`. Tokens live under `:root`, are redefined inside the media query, and are also reachable through `[data-theme="dark"]` and `[data-theme="light"]`, which exist only so a gallery can force a theme. Apps never set `data-theme`, never store a theme preference and ship no theme script or toggle. Components never branch on the theme (no `dark:` variants).
+- **Colour tokens** (utilities like `bg-surface`, `text-ink-muted`, `border-line`): `ground` (exactly #000000 dark, #FFFFFF light), `surface`, `surface-raised`, `line`, `line-strong`, `ink`, `ink-muted`, `ink-faint`, and the state colours `danger`, `warning`, `ok`, `link`, `agent`, each with `-hover`, `-soft` and `-line`. Neutrals are zero-chroma grays. Colour is state only.
+- **Type.** Exactly two sizes: body 14px on a 1.6 line, set on `body`; display 32px on a 1.3 line, only through `.display-lg`, for page titles and empty-state headlines. `.display` changes the face only (Nova Cut at body size, for the brand). Components never set a size; hierarchy is weight (only inside `.display`) and colour. Geist Mono is `--font-sans` and `--font-mono`, including controls, `code`, `kbd` and `pre`.
+- **Shape.** One control height `--control-h` (1.75rem) and one radius `--radius` (0.25rem, the plain `rounded` utility).
+- **Shared classes** (components layer): `.btn`, `.btn-solid`, `.btn-danger`, `.btn-warning`, `.btn-icon`, `.btn-add`, `.chip` with `.chip-ok`, `.chip-warn`, `.chip-muted`, `.chip-danger`, `.chip-link`, `.chip-agent`, `.input`, `.panel`, and the popup transitions `anim-fade`, `anim-slide-right`, `anim-backdrop`.
+- **Fonts.** Geist Mono (variable) and Nova Cut, both OFL, are in `fonts/` with their licenses.
+- **Design test.** `test/design.test.ts` is the rule set (sizes, radius, weights, palette and literal colours, theme control, raw buttons, title attributes, product names). Copy it unchanged to an app's `web/test/`.

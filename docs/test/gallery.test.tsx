@@ -5,10 +5,8 @@ import { RouterProvider, createMemoryHistory } from "@tanstack/react-router";
 import { buildProps, scanAll } from "../scripts/scan-lib";
 import { entries, labelOf, slugOf } from "../src/registry";
 import { groupEntries } from "../src/chrome/sidebar";
-import { scopedThemeCss } from "../src/preview-theme";
 import { makeRouter } from "../src/router";
 import propsJson from "../src/generated/props.json";
-import themeCss from "../../theme.css?raw";
 
 async function renderAt(url: string) {
   const router = makeRouter(createMemoryHistory({ initialEntries: [url] }));
@@ -65,17 +63,6 @@ describe("props generation", () => {
 
   it("the generated file is current (run `npm run props`)", () => {
     expect(propsJson).toEqual(JSON.parse(JSON.stringify(docs)));
-  });
-});
-
-describe("preview theme", () => {
-  it("re-scopes the two token blocks of theme.css", () => {
-    const css = scopedThemeCss(themeCss);
-    expect(themeCss.length, "theme.css?raw is empty").toBeGreaterThan(100);
-    expect(css).toContain('.preview[data-theme="light"]{');
-    expect(css).toContain('.preview[data-theme="dark"]{');
-    expect(css).toMatch(/--ground: oklch\(0\.985/);
-    expect(css).toMatch(/--ground: oklch\(0\.16 /);
   });
 });
 

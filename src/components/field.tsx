@@ -22,12 +22,12 @@ export const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
   const hasError = error !== undefined && error !== null && error !== false && error !== "";
   return (
     <BaseField.Root ref={ref} invalid={hasError} className={cn("flex flex-col gap-1", className)} {...rest}>
-      <BaseField.Label className="text-sm text-ink">{label}</BaseField.Label>
+      <BaseField.Label className="text-ink-muted uppercase">{label}</BaseField.Label>
       {children}
       {description ? (
-        <BaseField.Description className="text-sm text-muted">{description}</BaseField.Description>
+        <BaseField.Description className="text-ink-faint">{description}</BaseField.Description>
       ) : null}
-      <BaseField.Error match={hasError} className="text-sm text-danger" role="alert">
+      <BaseField.Error match={hasError} className="text-danger" role="alert">
         {error}
       </BaseField.Error>
     </BaseField.Root>

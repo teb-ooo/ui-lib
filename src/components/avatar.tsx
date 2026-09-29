@@ -10,7 +10,7 @@ export interface AvatarProps extends Omit<BaseAvatar.Root.Props, "className" | "
   /** The person's name or username: source of the initials and the accessible name. */
   name: string;
   /**
-   * Edge length: sm 1.5rem, md 2rem, lg 3rem.
+   * Edge length: sm 1.5rem, md the control height (1.75rem), lg 3rem.
    * @default "md"
    */
   size?: AvatarSize;
@@ -18,9 +18,9 @@ export interface AvatarProps extends Omit<BaseAvatar.Root.Props, "className" | "
 }
 
 const sizes: Record<AvatarSize, string> = {
-  sm: "size-6 text-sm",
-  md: "size-8 text-base",
-  lg: "size-12 text-lg",
+  sm: "size-6",
+  md: "size-(--control-h)",
+  lg: "size-12",
 };
 
 /** Up to two initials: first letters of the first two words, or the first two letters of a single word. */
@@ -43,7 +43,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
       aria-label={name}
       data-size={size}
       className={cn(
-        "inline-flex shrink-0 select-none items-center justify-center overflow-hidden rounded-ctl border border-line bg-surface font-sans text-muted",
+        "inline-flex shrink-0 select-none items-center justify-center overflow-hidden rounded border border-line bg-surface text-ink-muted",
         sizes[size],
         className,
       )}

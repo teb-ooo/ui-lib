@@ -1,42 +1,55 @@
-import { useEffect, useState } from "react";
 import type { StoryDefault } from "../stories";
 
 export default {
   title: "Color tokens",
   group: "Foundations",
-  description: "The colour tokens as live custom properties. Toggle the theme to see both sets.",
+  description:
+    "The semantic colour tokens in the current scheme. Ground is pure black (dark) or pure white (light); neutrals are zero-chroma grays; colour appears only as state: red (danger), amber (warning), emerald (ok), sky (link), violet (agent). Components name these tokens, never a palette step or a literal.",
 } satisfies StoryDefault;
 
-const TOKENS = ["ground", "surface", "ink", "muted", "line", "accent", "on-accent", "danger"] as const;
+const SURFACES = ["ground", "surface", "surface-raised", "line", "line-strong"] as const;
+const INK = ["ink", "ink-muted", "ink-faint"] as const;
+const STATES = ["danger", "warning", "ok", "link", "agent"] as const;
+const VARIANTS = ["", "-hover", "-soft", "-line"] as const;
 
-function Swatch({ token }: { token: (typeof TOKENS)[number] }) {
-  const [value, setValue] = useState("");
-  useEffect(() => {
-    const read = () => setValue(getComputedStyle(document.documentElement).getPropertyValue(`--${token}`).trim());
-    read();
-    const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
-    mq?.addEventListener?.("change", read);
-    const obs = new MutationObserver(read);
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    return () => {
-      mq?.removeEventListener?.("change", read);
-      obs.disconnect();
-    };
-  }, [token]);
+function Swatch({ token }: { token: string }) {
   return (
-    <div className="flex w-40 flex-col gap-1 text-sm">
-      <div className="h-12 rounded-ctl border border-line" style={{ background: `var(--${token})` }} />
+    <div className="flex w-36 flex-col gap-1">
+      <div className="h-7 rounded border border-line" style={{ background: `var(--color-${token})` }} />
       <span className="text-ink">{token}</span>
-      <span className="text-muted">{value}</span>
     </div>
   );
 }
 
-export const Tokens = () => (
-  <div className="flex flex-wrap gap-4">
-    {TOKENS.map((t) => (
+export const Neutrals = () => (
+  <div className="flex flex-wrap gap-3">
+    {SURFACES.map((t) => (
       <Swatch key={t} token={t} />
     ))}
   </div>
 );
-Tokens.storyMeta = { description: "Every token with its current OKLCH value." };
+Neutrals.storyMeta = { description: "Ground, surfaces and lines." };
+
+export const Ink = () => (
+  <div className="flex flex-col gap-1">
+    {INK.map((t) => (
+      <span key={t} style={{ color: `var(--color-${t})` }}>
+        {t}: the quick brown fox jumps over the lazy dog
+      </span>
+    ))}
+  </div>
+);
+Ink.storyMeta = { description: "Text colours, strongest to faintest." };
+
+export const State = () => (
+  <div className="flex flex-col gap-3">
+    {STATES.map((s) => (
+      <div key={s} className="flex flex-wrap gap-3">
+        {VARIANTS.map((v) => (
+          <Swatch key={v} token={`${s}${v}`} />
+        ))}
+      </div>
+    ))}
+  </div>
+);
+State.storyMeta = { description: "Each state colour with its hover, soft and line variants." };
