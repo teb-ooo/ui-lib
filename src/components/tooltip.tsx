@@ -25,7 +25,7 @@ export function Tooltip({ tip, children, side = "top", delay = 400 }: TooltipPro
         <BaseTooltip.Trigger delay={delay} render={children} />
         <BaseTooltip.Portal>
           <BaseTooltip.Positioner side={side} sideOffset={6} className="z-50">
-            <BaseTooltip.Popup className="anim-fade panel px-2 text-ink">{tip}</BaseTooltip.Popup>
+            <BaseTooltip.Popup className="anim-fade panel panel-float px-2 text-ink">{tip}</BaseTooltip.Popup>
           </BaseTooltip.Positioner>
         </BaseTooltip.Portal>
       </BaseTooltip.Root>

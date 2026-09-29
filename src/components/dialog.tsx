@@ -70,7 +70,7 @@ export function Dialog({
           data-placement={placement}
           {...(initialFocus !== undefined ? { initialFocus } : {})}
           className={cn(
-            "anim-fade panel fixed left-1/2 z-50 w-[calc(100vw-2rem)] -translate-x-1/2 text-ink outline-none",
+            "anim-fade panel panel-float fixed left-1/2 z-50 w-[calc(100vw-2rem)] -translate-x-1/2 text-ink outline-none",
             placements[placement],
             bare ? "overflow-hidden" : "flex flex-col gap-4 p-4",
             className,
