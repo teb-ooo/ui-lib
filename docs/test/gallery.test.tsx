@@ -118,21 +118,56 @@ describe("routing and chrome", () => {
     expect(screen.queryByRole("navigation")).toBeNull();
     expect(screen.queryByRole("banner")).toBeNull();
     expect(screen.queryByRole("heading", { name: "Props" })).toBeNull();
-    expect(screen.getByTestId("variants")).toHaveAttribute("data-theme", "dark");
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    document.documentElement.removeAttribute("data-theme");
   });
 
-  it("switches the preview theme with the toggle", async () => {
+  it("has exactly one theme control, in the header, that sets data-theme on <html> for everything", async () => {
+    window.localStorage.clear();
     await renderAt("/atoms/button");
-    await userEvent.click(await screen.findByRole("button", { name: "dark" }));
-    expect(screen.getByTestId("variants")).toHaveAttribute("data-theme", "dark");
+    const group = await screen.findByRole("group", { name: "Theme" });
+    expect(screen.getAllByRole("group", { name: /theme/i })).toHaveLength(1);
+    expect(group.closest("header")).toHaveClass("sticky");
+    expect(within(group).getByRole("button", { name: "system" })).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(within(group).getByRole("button", { name: "dark" }));
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    expect(window.localStorage.getItem("theme")).toBe("dark");
+    expect(within(group).getByRole("button", { name: "dark" })).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(within(group).getByRole("button", { name: "light" }));
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+    await userEvent.click(within(group).getByRole("button", { name: "system" }));
+    expect(document.documentElement).not.toHaveAttribute("data-theme");
+    expect(window.localStorage.getItem("theme")).toBeNull();
+    // previews are in the page (no per-variant toggles, no iframes) so they inherit
+    expect(screen.getByTestId("variants").querySelector("iframe")).toBeNull();
+    expect(screen.getByTestId("variants")).not.toHaveAttribute("data-theme");
   });
 
-  it("shows an email entry as an iframe with the placeholders substituted", async () => {
+  it("shows both grounds at once on the colour tokens page", async () => {
+    await renderAt("/foundations/color");
+    await screen.findByRole("heading", { level: 1, name: "Color tokens" });
+    const dark = screen.getAllByLabelText("dark theme");
+    const light = screen.getAllByLabelText("light theme");
+    expect(dark.length).toBeGreaterThan(0);
+    expect(dark).toHaveLength(light.length);
+    for (const el of dark) expect(el).toHaveAttribute("data-theme", "dark");
+    for (const el of light) expect(el).toHaveAttribute("data-theme", "light");
+  });
+
+  it("renders each email twice, Light and Dark, with dark literals substituted", async () => {
     await renderAt("/email/base");
-    const frame = (await screen.findAllByTitle("Email preview"))[0] as HTMLIFrameElement;
-    const html = frame.getAttribute("srcdoc") ?? "";
-    expect(html).toContain("Set up your passkey");
-    expect(html).not.toContain("{{");
+    const light = (await screen.findAllByTitle("Email preview, light"))[0] as HTMLIFrameElement;
+    const dark = (await screen.findAllByTitle("Email preview, dark"))[0] as HTMLIFrameElement;
+    const l = light.getAttribute("srcdoc") ?? "";
+    const d = dark.getAttribute("srcdoc") ?? "";
+    expect(l).toContain("Set up your passkey");
+    expect(l).not.toContain("{{");
+    expect(l).toContain("background-color:#ffffff");
+    expect(d).toContain("background-color:#000000");
+    expect(d).not.toContain("background-color:#ffffff");
+    expect(l).not.toContain("prefers-color-scheme: dark");
+    expect(screen.getAllByText("Light").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Dark").length).toBeGreaterThan(0);
   });
 
   it("shows not found for an unknown entry", async () => {
@@ -171,7 +206,7 @@ describe("command palette", () => {
     expect(options[0]).toHaveTextContent("Copy import statement");
   });
 
-  it("does not offer Copy import statement on the email entry, and Toggle theme is built in", async () => {
+  it("does not offer Copy import statement on the email entry, and Toggle theme is a gallery command", async () => {
     await renderAt("/email/base");
     await userEvent.keyboard("{Control>}k{/Control}");
     const dialog = await screen.findByRole("dialog");
@@ -181,5 +216,29 @@ describe("command palette", () => {
     await userEvent.clear(within(dialog).getByRole("combobox"));
     await userEvent.type(within(dialog).getByRole("combobox"), "Copy import");
     expect(within(dialog).queryAllByRole("option").map((o) => o.textContent).join("|")).not.toContain("Copy import statement");
+  });
+});
+
+describe("design language", () => {
+  it("docs/test/design.test.ts is an unmodified copy of the ui package's test", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const a = readFileSync(join(__dirname, "design.test.ts"), "utf8");
+    const b = readFileSync(join(__dirname, "..", "..", "test", "design.test.ts"), "utf8");
+    expect(a).toBe(b);
+  });
+});
+
+describe("Toggle theme command", () => {
+  it("cycles system, light, dark", async () => {
+    document.documentElement.removeAttribute("data-theme");
+    await renderAt("/atoms/button");
+    await userEvent.keyboard("{Control>}k{/Control}");
+    const dialog = await screen.findByRole("dialog");
+    await userEvent.type(within(dialog).getByRole("combobox"), "Toggle theme");
+    await userEvent.keyboard("{Enter}");
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+    document.documentElement.removeAttribute("data-theme");
+    window.localStorage.clear();
   });
 });

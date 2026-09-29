@@ -27,7 +27,7 @@ export interface Entry {
 type StoryModule = { default: StoryDefault } & Record<string, unknown>;
 
 const modules = import.meta.glob<StoryModule>(
-  ["../../src/**/*.stories.tsx", "../../../cmdk/src/**/*.stories.tsx"],
+  ["../../src/**/*.stories.tsx", "../../../cmdk/src/**/*.stories.tsx", "./stories/**/*.stories.tsx"],
   { eager: true },
 );
 
@@ -48,7 +48,9 @@ export function slugOf(path: string, group: string): string {
 
 export function buildEntries(mods: Record<string, StoryModule>): Entry[] {
   const entries: Entry[] = [];
-  for (const [path, mod] of Object.entries(mods)) {
+  const isLocal = (path: string): boolean => path.startsWith("./stories/");
+  const ordered = Object.entries(mods).sort(([a], [b]) => Number(isLocal(a)) - Number(isLocal(b)));
+  for (const [path, mod] of ordered) {
     const def = mod.default;
     const pkg = PACKAGES.find((p) => path.includes(p.marker))?.name ?? "@teb-ooo/ui";
     const variants: Variant[] = Object.entries(mod)
@@ -73,7 +75,10 @@ export function buildEntries(mods: Record<string, StoryModule>): Entry[] {
       variants,
     });
   }
-  return entries.sort(
+  // A gallery-local story replaces a package story with the same slug (used for the both-themes colour page).
+  const bySlug = new Map<string, Entry>();
+  for (const e of entries) bySlug.set(e.slug, e);
+  return [...bySlug.values()].sort(
     (a, b) => GROUPS.indexOf(a.group) - GROUPS.indexOf(b.group) || a.title.localeCompare(b.title),
   );
 }

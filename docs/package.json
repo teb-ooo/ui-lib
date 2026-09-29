@@ -19,7 +19,7 @@
     "@base-ui/react": "^1.8.0",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/react-router": "^1.170.0",
-    "@teb-ooo/cmdk": "^0.1.0",
+    "@teb-ooo/cmdk": "^0.2.0",
     "@teb-ooo/ui": "file:..",
     "lucide-react": "^1.46.0",
     "react": "^19.3.0",
@@ -38,10 +38,5 @@
     "typescript": "^6.0.3",
     "vite": "^7.3.0",
     "vitest": "^5.0.0"
-  },
-  "overrides": {
-    "@teb-ooo/cmdk": {
-      "@teb-ooo/ui": "$@teb-ooo/ui"
-    }
   }
 }

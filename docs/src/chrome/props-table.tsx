@@ -26,13 +26,13 @@ export function PropsTable({ component }: { component: string | null }) {
   if (!doc) return null;
   return (
     <section className="flex flex-col gap-3" aria-labelledby="props-heading">
-      <h2 id="props-heading" className="m-0 text-lg">
+      <h2 id="props-heading" className="m-0 text-ink-muted uppercase">
         Props
       </h2>
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-left text-sm">
+        <table className="w-full border-collapse text-left">
           <thead>
-            <tr className="border-b border-line text-muted">
+            <tr className="border-b border-line text-ink-muted">
               <th className="py-2 pr-4 font-normal">Name</th>
               <th className="py-2 pr-4 font-normal">Type</th>
               <th className="py-2 pr-4 font-normal">Default</th>
@@ -46,16 +46,16 @@ export function PropsTable({ component }: { component: string | null }) {
                   {p.name}
                   {p.required ? <span className="text-danger"> *</span> : null}
                 </td>
-                <td className="py-2 pr-4 text-muted">{p.type}</td>
-                <td className="py-2 pr-4 text-muted">{p.default ?? ""}</td>
-                <td className="py-2 text-muted">{p.description}</td>
+                <td className="py-2 pr-4 text-ink-muted">{p.type}</td>
+                <td className="py-2 pr-4 text-ink-muted">{p.default ?? ""}</td>
+                <td className="py-2 text-ink-muted">{p.description}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       {doc.extends.length > 0 ? (
-        <p className="m-0 text-sm text-muted">
+        <p className="m-0 text-ink-muted">
           Also accepts the props of {doc.extends.map((e) => `\`${e}\``).join(", ")}.
         </p>
       ) : null}

@@ -1,11 +1,12 @@
 import baseHtml from "../../email/base.html.tmpl?raw";
+import tokens from "../../email/tokens.json";
 import type { StoryDefault, StoryMeta } from "../stories";
 
 export default {
   title: "Base layout",
   group: "Email",
   description:
-    "The base email layout with sample data. Placeholders: {{.Title}}, {{.Preheader}}, {{.FactoryName}}, {{.Footer}} and {{template \"content\" .}}. Mail clients ignore CSS variables, so the layout uses literal values from email/tokens.json.",
+    "The base email layout with sample data, rendered twice: Light and Dark. Mail clients ignore CSS variables, so the layout uses literal values from email/tokens.json, and the dark rendering swaps the light literals for the dark ones.",
 } satisfies StoryDefault;
 
 const sample = {
@@ -25,24 +26,54 @@ function renderSample(template: string, data: Record<string, string>, body: stri
     .replace(/\{\{\.(\w+)\}\}/g, (_m, key: string) => data[key] ?? "");
 }
 
-function Frame({ html, height }: { html: string; height: number }) {
+/** Removes the template's own dark-mode media block so a preview shows exactly one scheme. */
+function withoutDarkMedia(html: string): string {
+  const start = html.indexOf("@media (prefers-color-scheme: dark)");
+  if (start < 0) return html;
+  let i = html.indexOf("{", start) + 1;
+  for (let depth = 1; depth > 0 && i < html.length; i++) {
+    if (html[i] === "{") depth++;
+    else if (html[i] === "}") depth--;
+  }
+  return html.slice(0, start) + html.slice(i);
+}
+
+type Palette = Record<string, string>;
+
+/** Replaces every light literal with the dark literal of the same token, in one pass so results are never re-replaced. */
+function toDark(html: string, lightSet: Palette, darkSet: Palette): string {
+  const map = new Map<string, string>();
+  for (const name of Object.keys(lightSet)) {
+    const from = lightSet[name]?.toLowerCase();
+    const to = darkSet[name];
+    if (from && to && !map.has(from)) map.set(from, to);
+  }
+  return html.replace(/#[0-9a-f]{6}/gi, (hex) => map.get(hex.toLowerCase()) ?? hex);
+}
+
+function Frame({ label, html, height }: { label: string; html: string; height: number }) {
   return (
-    <iframe
-      title="Email preview"
-      srcDoc={html}
-      sandbox=""
-      className="w-full max-w-xl rounded border border-line bg-ground"
-      style={{ height }}
-    />
+    <figure className="m-0 flex min-w-0 flex-1 flex-col gap-2">
+      <figcaption className="text-ink-muted uppercase">{label}</figcaption>
+      <iframe title={`Email preview, ${label.toLowerCase()}`} srcDoc={html} sandbox="" className="w-full rounded border border-line" style={{ height }} />
+    </figure>
   );
 }
 
-export const Welcome = () => <Frame html={renderSample(baseHtml, sample, content)} height={520} />;
-Welcome.storyMeta = { description: "Rendered in an iframe with sample data." } satisfies StoryMeta;
+function Pair({ html, height }: { html: string; height: number }) {
+  const light = withoutDarkMedia(html);
+  const dark = toDark(light, tokens.light, tokens.dark);
+  return (
+    <div className="flex w-full flex-col gap-4 lg:flex-row">
+      <Frame label="Light" html={light} height={height} />
+      <Frame label="Dark" html={dark} height={height} />
+    </div>
+  );
+}
+
+export const Welcome = () => <Pair html={renderSample(baseHtml, sample, content)} height={520} />;
+Welcome.storyMeta = { description: "Light and Dark, rendered in sandboxed iframes with sample data." } satisfies StoryMeta;
 
 export const Minimal = () => (
-  <Frame
-    html={renderSample(baseHtml, { ...sample, Title: "Your code" }, '<p style="margin:0;">Your code is 123456.</p>')}
-    height={380}
-  />
+  <Pair html={renderSample(baseHtml, { ...sample, Title: "Your code" }, '<p style="margin:0;">Your code is 123456.</p>')} height={380} />
 );

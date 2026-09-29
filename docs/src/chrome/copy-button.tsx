@@ -22,8 +22,8 @@ export function CopyButton({ text, label = "Copy" }: { text: string; label?: str
           setTimeout(() => setDone(false), 1500);
         }
       }}
+      icon={done ? <Check aria-hidden="true" className="size-4" /> : <Copy aria-hidden="true" className="size-4" />}
     >
-      {done ? <Check aria-hidden="true" className="size-4" /> : <Copy aria-hidden="true" className="size-4" />}
       {done ? "Copied" : label}
     </Button>
   );

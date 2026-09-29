@@ -12,7 +12,7 @@ export function groupEntries(list: Entry[]): Array<{ group: string; items: Entry
 
 /**
  * Grouped navigation, one level deep. Candidate for the ui package as a nav list atom:
- * the row style below is built from theme utilities only.
+ * rows are the shared .btn class with the active marker.
  */
 export function Sidebar({ current, onNavigate }: { current: string | null; onNavigate?: () => void }) {
   const [closed, setClosed] = useState<Record<string, boolean>>({});
@@ -24,12 +24,12 @@ export function Sidebar({ current, onNavigate }: { current: string | null; onNav
         return (
           <div key={group} className="flex flex-col gap-1">
             <Button
-              className="w-full justify-start border-transparent text-muted"
+              className="w-full justify-start border-transparent"
+              icon={collapsed ? <ChevronRight aria-hidden="true" className="size-4" /> : <ChevronDown aria-hidden="true" className="size-4" />}
               aria-expanded={!collapsed}
               aria-controls={listId}
               onClick={() => setClosed({ ...closed, [group]: !collapsed })}
             >
-              {collapsed ? <ChevronRight aria-hidden="true" className="size-4" /> : <ChevronDown aria-hidden="true" className="size-4" />}
               {group}
             </Button>
             <ul id={listId} hidden={collapsed} className="m-0 flex list-none flex-col gap-1 p-0">
@@ -40,9 +40,8 @@ export function Sidebar({ current, onNavigate }: { current: string | null; onNav
                     params={{ group: e.group.toLowerCase(), slug: e.slug.split("/")[1] ?? "" }}
                     onClick={onNavigate}
                     aria-current={current === e.slug ? "page" : undefined}
-                    className={`flex h-(--control-h) items-center rounded-ctl px-3 pl-9 text-base outline-none focus-visible:outline-2 focus-visible:outline-accent ${
-                      current === e.slug ? "bg-surface text-ink" : "text-muted hover:bg-surface hover:text-ink"
-                    }`}
+                    className="btn w-full justify-start border-transparent pl-8"
+                    data-active={current === e.slug ? "" : undefined}
                   >
                     {e.title}
                   </Link>

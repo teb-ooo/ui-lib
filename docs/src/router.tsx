@@ -10,8 +10,10 @@ import {
 import { EntryPage } from "./chrome/entry-page";
 import { Shell } from "./chrome/shell";
 import { Variants } from "./chrome/variants";
-import type { PreviewTheme } from "./chrome/variants";
+import { useEffect } from "react";
+import { setPageTheme } from "./gallery-theme";
 import { entries, findEntry } from "./registry";
+import type { Entry } from "./registry";
 
 export interface EntrySearch {
   /** `1` renders the variants only, without chrome, for screenshots. */
@@ -29,7 +31,7 @@ function parseSearch(s: Record<string, unknown>): EntrySearch {
 function NotFound() {
   return (
     <Shell current={null}>
-      <p className="text-base text-muted">No such entry.</p>
+      <p className="m-0 text-ink-muted">No such entry.</p>
     </Shell>
   );
 }
@@ -46,18 +48,25 @@ const indexRoute = createRoute({
   },
 });
 
+/** Variants only, no chrome. `?theme=` forces a scheme for this load without remembering it, for screenshots. */
+function Frame({ entry, theme }: { entry: Entry; theme: "light" | "dark" | undefined }) {
+  useEffect(() => {
+    if (theme) setPageTheme(theme);
+  }, [theme]);
+  return (
+    <div className="min-h-dvh bg-ground p-4 text-ink" data-testid="frame">
+      <Variants entry={entry} />
+    </div>
+  );
+}
+
 function EntryRoute() {
   const { group, slug } = useParams({ from: "/$group/$slug" });
   const search = useSearch({ from: "/$group/$slug" }) as EntrySearch;
   const entry = findEntry(group, slug);
   if (!entry) return <NotFound />;
   if (search.frame === "1") {
-    const theme: PreviewTheme = search.theme ?? "system";
-    return (
-      <div className="min-h-dvh bg-ground p-4 text-ink" data-testid="frame">
-        <Variants entry={entry} theme={theme} />
-      </div>
-    );
+    return <Frame entry={entry} theme={search.theme} />;
   }
   return (
     <Shell current={entry.slug}>
