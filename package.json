@@ -10,7 +10,7 @@
     "url": "git+https://github.com/teb-ooo/ui.git"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "http://npm-registry:4873/"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
