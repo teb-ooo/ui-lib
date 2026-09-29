@@ -1,18 +1,16 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { Menu, X } from "lucide-react";
-import { CommandProvider, CommandTrigger } from "@teb-ooo/cmdk";
+import { CommandTrigger } from "@teb-ooo/cmdk";
 import { Button, Chip } from "@teb-ooo/ui";
-import { GalleryCommands } from "./gallery-commands";
 import { Sidebar } from "./sidebar";
 import { ThemeControl } from "./theme-control";
 
-/** Command palette provider, header with the theme control and trigger, sidebar (a menu on phones) and content pane. */
+/** Header with the theme control and palette trigger, sidebar (a menu on phones) and content pane. The palette provider lives in the root route, above every page. */
 export function Shell({ current, children }: { current: string | null; children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <CommandProvider>
-      <GalleryCommands />
+    <>
       <div className="flex min-h-dvh flex-col bg-ground text-ink">
         <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-line bg-ground px-4">
           <Button
@@ -40,6 +38,6 @@ export function Shell({ current, children }: { current: string | null; children:
           <main className={`${menuOpen ? "hidden md:block" : "block"} min-w-0 flex-1 p-4 md:p-8`}>{children}</main>
         </div>
       </div>
-    </CommandProvider>
+    </>
   );
 }

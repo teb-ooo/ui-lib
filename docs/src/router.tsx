@@ -7,7 +7,9 @@ import {
   useParams,
   useSearch,
 } from "@tanstack/react-router";
+import { CommandProvider } from "@teb-ooo/cmdk";
 import { EntryPage } from "./chrome/entry-page";
+import { GalleryCommands } from "./chrome/gallery-commands";
 import { Shell } from "./chrome/shell";
 import { Variants } from "./chrome/variants";
 import { useEffect } from "react";
@@ -36,7 +38,17 @@ function NotFound() {
   );
 }
 
-const rootRoute = createRootRoute({ component: Outlet, notFoundComponent: NotFound });
+/** The palette provider sits here, above the routed content, so it is not remounted on navigation. */
+function Root() {
+  return (
+    <CommandProvider>
+      <GalleryCommands />
+      <Outlet />
+    </CommandProvider>
+  );
+}
+
+const rootRoute = createRootRoute({ component: Root, notFoundComponent: NotFound });
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
