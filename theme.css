@@ -3,18 +3,11 @@
 /* Scan the built components so a consumer's Tailwind emits their classes. */
 @source "./dist";
 
-/* Faces. Geist Mono is the only text face; Nova Cut is the display face. */
+/* One typeface: Geist Mono, everywhere. */
 @font-face {
   font-family: "Geist Mono";
   src: url("./fonts/GeistMono-Variable.woff2") format("woff2");
   font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nova Cut";
-  src: url("./fonts/NovaCut-Regular.woff2") format("woff2");
-  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
@@ -226,16 +219,11 @@
   }
 }
 
-/* Display faces, un-layered so they outrank the base font rule above. */
-.display,
-input.display {
-  font-family: "Nova Cut", "Geist Mono", monospace;
-}
-/* The one larger size: page titles and empty-state headlines. */
+/* The one larger size, and the only heavier weight in the system: page titles and empty-state headlines. */
 .display-lg,
 input.display-lg {
-  font-family: "Nova Cut", "Geist Mono", monospace;
   font-size: var(--text-display);
+  font-weight: 700;
   line-height: var(--text-display--line-height);
 }
 

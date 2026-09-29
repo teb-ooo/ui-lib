@@ -1,7 +1,7 @@
 import type { StoryDefault } from "../stories";
 
 export default {
-  title: "Control height and spacing",
+  title: "Spacing",
   group: "Foundations",
   description: "One control height, 1.75rem (--control-h), shared by buttons, inputs, chips and avatars; gaps use the Tailwind spacing unit (0.25rem).",
 } satisfies StoryDefault;

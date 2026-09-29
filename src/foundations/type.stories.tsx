@@ -4,7 +4,7 @@ export default {
   title: "Type",
   group: "Foundations",
   description:
-    "Two sizes. Body is 14px on a 1.6 line for everything: labels, controls, cells, captions. Display is 32px, only for page titles and empty-state headlines, through the display-lg class. Inside a size, hierarchy is weight and colour.",
+    "One typeface, Geist Mono, in two sizes. Body is 14px on a 1.6 line for everything: labels, controls, cells, captions, the brand. Display is 32px on a 1.3 line and the only heavier weight, for page titles and empty-state headlines, through the display-lg class. Inside body size, hierarchy is colour.",
 } satisfies StoryDefault;
 
 export const Body = () => (
@@ -17,10 +17,7 @@ export const Body = () => (
 Body.storyMeta = { description: "One size, three colours." };
 
 export const Display = () => <h1 className="display-lg m-0">Page title</h1>;
-Display.storyMeta = { description: "The only larger size, in the display face." };
-
-export const Brand = () => <span className="display">factory</span>;
-Brand.storyMeta = { description: "The display face at body size: the brand wordmark." };
+Display.storyMeta = { description: "The only larger size and the only heavier weight." };
 
 export const Mono = () => <code>Geist Mono: 0123456789 {"{ } [ ] ( ) =>"}</code>;
-Mono.storyMeta = { description: "One text face everywhere, code and controls included." };
+Mono.storyMeta = { description: "One typeface everywhere, code and controls included." };

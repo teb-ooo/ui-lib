@@ -23,7 +23,7 @@ export function Shell({ current, children }: { current: string | null; children:
             aria-controls="sidebar"
             onClick={() => setMenuOpen(!menuOpen)}
           />
-          <span className="display">Design</span>
+          <span className="text-ink">Design</span>
           <Chip tone="muted">ui</Chip>
           <div className="ml-auto flex items-center gap-2">
             <ThemeControl />
