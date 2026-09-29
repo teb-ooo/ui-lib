@@ -22,9 +22,9 @@ export const WithTrigger = () => (
 );
 WithTrigger.storyMeta = { description: "Opens from its trigger." } satisfies StoryMeta;
 
-export const OpenWithForm = () => (
+export const WithForm = () => (
   <Dialog
-    defaultOpen
+    trigger={<Button>Rename</Button>}
     title="Rename"
     footer={<Button intent="solid">Save</Button>}
   >
@@ -33,4 +33,4 @@ export const OpenWithForm = () => (
     </Field>
   </Dialog>
 );
-OpenWithForm.storyMeta = { description: "Rendered already open, for screenshots." } satisfies StoryMeta;
+WithForm.storyMeta = { description: "A dialog holding a Field." } satisfies StoryMeta;

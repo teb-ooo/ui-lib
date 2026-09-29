@@ -9,6 +9,10 @@ export interface AvatarProps extends Omit<BaseAvatar.Root.Props, "className" | "
   src?: string;
   /** The person's name or username: source of the initials and the accessible name. */
   name: string;
+  /**
+   * Edge length: sm 1.5rem, md 2rem, lg 3rem.
+   * @default "md"
+   */
   size?: AvatarSize;
   className?: string;
 }

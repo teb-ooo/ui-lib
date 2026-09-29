@@ -1,6 +1,6 @@
 # @teb-ooo/ui
 
-The factory design system: a Tailwind 4 theme (`theme.css`, Geist Mono self-hosted, OKLCH tokens in light and dark), a small set of atomic React components built on Base UI, and the base layout for every email the factory sends (`email/`). It is purely atomic: no shell, navigation, layouts or auth state. Run the tests with `npm test`, type-check with `npm run typecheck`, and look at everything with `npm run gallery`.
+The factory design system: a Tailwind 4 theme (`theme.css`, Geist Mono self-hosted, OKLCH tokens in light and dark), a small set of atomic React components built on Base UI, and the base layout for every email the factory sends (`email/`). It is purely atomic: no shell, navigation, layouts or auth state. Run the tests with `npm test`, type-check with `npm run typecheck`, and browse everything in the design gallery (`docs/`; `npm run docs:build` writes the static site to `docs/dist`, which is git-ignored build output; `npm run release` builds the package and the gallery).
 
 Stories: every component has a co-located `*.stories.tsx` (format in [docs/stories.md](docs/stories.md)); they stay out of the published package.
 

@@ -5,6 +5,10 @@ import { cn } from "../lib/cn";
 export type BadgeTone = "default" | "accent" | "danger";
 
 export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, "className"> {
+  /**
+   * Colour of the border and text.
+   * @default "default"
+   */
   tone?: BadgeTone;
   className?: string;
 }

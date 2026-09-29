@@ -6,9 +6,15 @@ import { cn } from "../lib/cn";
 export type ButtonIntent = "default" | "solid" | "danger";
 
 export interface ButtonProps extends Omit<BaseButton.Props, "className"> {
-  /** Visual weight. `default` is outlined, `solid` is the primary action, `danger` is destructive. */
+  /**
+   * Visual weight. `default` is outlined, `solid` is the primary action, `danger` is destructive.
+   * @default "default"
+   */
   intent?: ButtonIntent;
-  /** Shows a spinner and blocks activation while keeping the button focusable. */
+  /**
+   * Shows a spinner and blocks activation while keeping the button focusable.
+   * @default false
+   */
   loading?: boolean;
   className?: string;
 }

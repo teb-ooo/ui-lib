@@ -15,7 +15,10 @@ export interface DialogProps {
   /** Actions row, typically `Button`s. */
   footer?: ReactNode;
   children?: ReactNode;
-  /** Label for the close control, for localisation. */
+  /**
+   * Label for the close control, for localisation.
+   * @default "Close"
+   */
   closeLabel?: string;
   className?: string;
 }

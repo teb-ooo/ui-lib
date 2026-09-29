@@ -8,12 +8,15 @@
     "strict": true,
     "verbatimModuleSyntax": true,
     "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
     "isolatedModules": true,
     "skipLibCheck": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "types": ["vite/client", "node", "@testing-library/jest-dom/vitest"]
+    "resolveJsonModule": true,
+    "types": ["vite/client", "node", "@testing-library/jest-dom/vitest"],
+    "paths": {
+      "@teb-ooo/ui": ["../src/index.ts"]
+    }
   },
-  "include": ["src", "test", "scripts", "vite.config.ts", "vitest.config.ts"]
+  "include": ["src", "test", "scripts", "vite.config.ts", "vitest.config.ts", "../src/**/*.stories.tsx", "../src/stories.ts"]
 }
