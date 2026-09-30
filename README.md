@@ -7,3 +7,5 @@ Stories: every component has a co-located `*.stories.tsx` (format in [docs/stori
 Usage: `@import "@teb-ooo/ui/theme.css";` in the app's CSS, then `import { Button } from "@teb-ooo/ui"`. Component props are in [docs/components.md](docs/components.md); the email placeholder contract is in [docs/email.md](docs/email.md). After editing `theme.css` run `npm run build:email-tokens` to regenerate `email/tokens.json` (a test fails if they drift).
 
 Releasing (bump, test, tag, push, publish with `scripts/publish.sh`): [docs/release.md](docs/release.md).
+
+The Cmd+K command palette is the subpath `@teb-ooo/ui/cmdk` ([docs/cmdk.md](docs/cmdk.md)).

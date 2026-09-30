@@ -1,0 +1,62 @@
+# Command palette (`@teb-ooo/ui/cmdk`)
+
+The Cmd+K command palette for every playground app: a provider that owns the registry, recents and global shortcuts, a hook to register contextual commands, and a keyboard-first, phone-friendly palette built on `@teb-ooo/ui`. It has built-ins in every app (navigation to each route, Claude app, profile, sign out, keyboard shortcuts, assistant) and its own fuzzy scorer, with no runtime dependencies. Run the tests with `npm test`, type-check with `npm run typecheck`, and build with `npm run build`.
+
+## Usage
+
+Peers: `react`, `react-dom`, `@tanstack/react-router` (optional for the rest of `@teb-ooo/ui`, required here) and `lucide-react`. The palette is part of `@teb-ooo/ui` (one version); until 0.6.0 it was the separate package `@teb-ooo/cmdk`.
+
+CSS: nothing extra. `@import "@teb-ooo/ui/theme.css";` already scans the palette classes and defines the `--cmdk-loaded` sentinel.
+
+Mount the provider once, inside the router, and put the trigger in the header (`web/src/routes/__root.tsx`):
+
+```tsx
+import { CommandProvider, CommandTrigger } from "@teb-ooo/ui/cmdk";
+import { Outlet, createRootRoute } from "@tanstack/react-router";
+
+export const Route = createRootRoute({
+  component: () => (
+    <CommandProvider>
+      <header><CommandTrigger /></header>
+      <Outlet />
+    </CommandProvider>
+  ),
+});
+```
+
+Register commands where the action lives. They exist while the component is mounted:
+
+```tsx
+import { useRegisterCommands } from "@teb-ooo/ui/cmdk";
+import { Plus } from "lucide-react";
+
+function ItemsPage() {
+  const navigate = useNavigate();
+  useRegisterCommands([
+    { id: "items.new", title: "New item", group: "Items", keywords: ["create", "add"],
+      shortcut: "n i", icon: Plus, run: () => navigate({ to: "/items/new" }) },
+    { id: "items.export", title: "Export CSV", group: "Items", run: async () => { await exportCsv(); } },
+    { id: "items.move", title: "Move to...", group: "Items", children: [/* Command[] */] },
+  ]);
+  // ...
+}
+```
+
+`run` may return a promise (spinner, inline error on failure) or a `Command[]` (opens a nested view). `deps` (second argument) says when the list itself changed; `run` and `when` always see the latest render. `shortcut` is a chord (`mod+shift+n`) or a sequence (`g i`). `useCommandPalette()` returns `{ open, close, isOpen }`.
+
+Give every route a title so it reads well under "Go to": `createFileRoute("/items")({ staticData: { title: "Items" }, component: ItemsPage })`. The `title?: string` field is added to TanStack's `StaticDataRouteOption` by this package.
+
+The palette has no theme handling: it uses the ui tokens, so it follows the system colour scheme like the rest of the app. Built-ins read `window.__PLAYGROUND__` (`env`, `assistant`, `claude_session_url`, `app_name`; camelCase keys are accepted too) and are safe when it is absent.
+
+## Focus, and development warnings
+
+- **After the palette closes.** `run(ctx)` receives `ctx.afterClose(fn)`: `fn` runs once the palette has closed and focus has gone back to where it was, so a command can move focus or scroll without `requestAnimationFrame`. (When a shortcut ran the command and no palette is open, it runs on a microtask.)
+
+  ```tsx
+  run: (ctx) => ctx.afterClose(() => nameInput.current?.focus())
+  ```
+- **Router.** `CommandProvider` belongs inside `RouterProvider` (navigation commands come from the router). With no router, development builds warn once; pass `standalone` when that is intended (a gallery, a test).
+- **`deps`.** `useRegisterCommands(commands, deps)`: pass what the list (ids, titles, groups, shortcuts) depends on. If the list changes while `deps` does not, development builds warn once.
+- **`theme.css`.** It also defines `--cmdk-loaded`; if the app forgot `@import "@teb-ooo/ui/theme.css"`, development builds warn once instead of rendering an unstyled palette silently.
+
+The warnings never run in production builds or under jsdom.

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { setViewportWidth } from "../../test/cmdk/viewport";
 import { Shell } from "./shell";
 import { Sidebar } from "./sidebar";
 
@@ -29,7 +30,18 @@ describe("Sidebar", () => {
 });
 
 describe("Shell", () => {
+  it("on a wide screen shows the sidebar as a column with no menu button", () => {
+    render(
+      <Shell sidebar={<Sidebar items={items} />} header="Title">
+        <p>Content</p>
+      </Shell>,
+    );
+    expect(screen.getByRole("navigation", { name: "Main" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Open menu" })).toBeNull();
+  });
+
   it("on a phone shows a menu button that opens the sidebar as a drawer", () => {
+    setViewportWidth(390);
     render(
       <Shell sidebar={<Sidebar items={items} collapsed onCollapsedChange={() => undefined} />} header="Title">
         <p>Content</p>

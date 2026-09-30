@@ -1,6 +1,6 @@
 {
   "name": "@teb-ooo/ui",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "The playground design system: theme, atomic components, email base layout.",
   "license": "UNLICENSED",
   "private": false,
@@ -27,7 +27,12 @@
     "./stories/*": "./stories/*",
     "./theme.css": "./theme.css",
     "./email/*": "./email/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./cmdk": {
+      "types": "./dist/cmdk/index.d.ts",
+      "import": "./dist/cmdk/index.js",
+      "default": "./dist/cmdk/index.js"
+    }
   },
   "files": [
     "dist",
@@ -57,7 +62,8 @@
     "lucide-react": "^1.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.0"
+    "tailwindcss": "^4.0.0",
+    "@tanstack/react-router": "^1.0.0"
   },
   "devDependencies": {
     "@base-ui/react": "^1.0.0",
@@ -79,9 +85,16 @@
     "tailwindcss": "^4.3.3",
     "typescript": "6.0.3",
     "vite": "^7.3.6",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "@tanstack/react-router": "^1.170.36",
+    "@testing-library/dom": "^10.4.2"
   },
   "engines": {
     "node": ">=24"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/react-router": {
+      "optional": true
+    }
   }
 }

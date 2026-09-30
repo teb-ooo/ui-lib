@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { setViewportWidth } from "../../test/cmdk/viewport";
 import { DataTable } from "./data-table";
 import type { Column } from "./data-table";
 
@@ -97,7 +98,14 @@ describe("DataTable", () => {
     expect(onLoadMore).not.toHaveBeenCalled();
   });
 
+  it("shows the table instead of cards at and above the breakpoint", () => {
+    render(<DataTable {...base} renderCard={(r) => <span>card {r.name}</span>} />);
+    expect(screen.getByRole("grid", { name: "Things" })).toBeTruthy();
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
   it("shows cards instead of the table below the breakpoint", () => {
+    setViewportWidth(390);
     render(<DataTable {...base} renderCard={(r) => <span>card {r.name}</span>} />);
     expect(screen.getByRole("listbox", { name: "Things" })).toBeTruthy();
     expect(screen.getByText("card Beta")).toBeTruthy();

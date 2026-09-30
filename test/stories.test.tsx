@@ -11,8 +11,8 @@ const modules = import.meta.glob<Record<string, unknown>>("../src/**/*.stories.t
 const NON_COMPONENT_ALLOWLIST = new Set(["initialsOf", "useMediaQuery", "useMinWidth", "BREAKPOINTS"]);
 const GROUPS = new Set(["Foundations", "Atoms", "Molecules", "Email"]);
 
-function valueExports(): Array<{ name: string; from: string }> {
-  const src = readFileSync(join(root, "src/index.ts"), "utf8");
+function valueExports(index = "src/index.ts"): Array<{ name: string; from: string }> {
+  const src = readFileSync(join(root, index), "utf8");
   const out: Array<{ name: string; from: string }> = [];
   for (const m of src.matchAll(/^export\s*\{([^}]*)\}\s*from\s*"([^"]+)";?$/gm)) {
     for (const n of (m[1] ?? "").split(",").map((s) => s.trim()).filter(Boolean)) {
@@ -56,7 +56,9 @@ describe.each(Object.entries(modules))("story module %s", (path, mod) => {
     expect(typeof def?.description).toBe("string");
     expect(def?.description.length).toBeGreaterThan(0);
     if (def?.component !== undefined) {
-      expect(valueExports().map((e) => e.name), `${path}: component "${def.component}" is not exported`).toContain(def.component);
+      // Stories under src/cmdk describe the cmdk entry's exports, the others the root entry's.
+      const index = path.startsWith("../src/cmdk/") ? "src/cmdk/index.ts" : "src/index.ts";
+      expect(valueExports(index).map((e) => e.name), `${path}: component "${def.component}" is not exported by ${index}`).toContain(def.component);
       expect(typeof def.source).toBe("string");
     }
   });

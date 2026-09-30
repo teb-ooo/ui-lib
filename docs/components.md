@@ -85,6 +85,9 @@ The filter row. `Option` is `{ value: string; label: string; count?: number }`; 
 - `Sidebar`: `items: {id, label, href, icon?, active?, badge?, group?}[]`, `header?`, `footer?`, `collapsed?` + `onCollapsedChange?` (icons only, with tooltips; shows the toggle), `label?`, and `renderLink?(item, content, props)` to draw links with the app's router (put `props` on the element, `content` inside it).
 - `Shell`: `sidebar`, `header?`, `children`; the full viewport height. From `md` the sidebar is a left column; below it a menu button opens the sidebar as a drawer (always expanded, closes on navigation). `menuLabel?`, `drawerLabel?`, `closeLabel?`. No routing or navigation content of its own; use it once at the root of a page.
 
+## Command palette
+`@teb-ooo/ui/cmdk` (a subpath export, part of this package since 0.6.0; formerly `@teb-ooo/cmdk`): `CommandProvider`, `CommandTrigger`, `useRegisterCommands`, `useCommandPalette`, `fuzzyMatch`. Needs `@tanstack/react-router` (an optional peer of the package, required only for this subpath). Full guide: [cmdk.md](cmdk.md).
+
 ## Hooks
 `useMinWidth("sm" | "md" | "lg")` and `useMediaQuery(query)`; `BREAKPOINTS` holds the widths (40rem, 48rem, 64rem).
 

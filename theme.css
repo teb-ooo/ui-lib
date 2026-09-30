@@ -157,6 +157,11 @@
   --color-agent-line: var(--color-violet-200);
 }
 
+/* Sentinel for @teb-ooo/ui/cmdk: the palette warns in development when this variable is missing (theme.css was not imported). */
+:root {
+  --cmdk-loaded: 1;
+}
+
 /* A forced-theme container paints its own ground and ink. */
 :not(:root)[data-theme] {
   background: var(--color-ground);
