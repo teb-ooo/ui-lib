@@ -1,6 +1,6 @@
 # Story format
 
-Every component (and every foundation) has a co-located `*.stories.tsx`: `src/components/button.stories.tsx` beside `button.tsx`, and `src/foundations/*.stories.tsx` for the theme. The design gallery discovers them with `import.meta.glob("../src/**/*.stories.tsx")` (the gallery's Tailwind must also `@source` the `src` directory so story classes exist). Stories are in the repo only: they are never part of the published package. A test fails when an exported component has no story or a story module is malformed.
+Every component (and every foundation) has a co-located `*.stories.tsx`: `src/components/button.stories.tsx` beside `button.tsx`, and `src/foundations/*.stories.tsx` for the theme. The design gallery discovers them with `import.meta.glob("../src/**/*.stories.tsx")` (the gallery's Tailwind must also `@source` the `src` directory so story classes exist). The published package also ships them for consuming apps (the `ui` gallery app): `npm run build` (run by `prepack`) copies `src/**/*.stories.tsx` to `stories/**` with relative imports rewritten to `@teb-ooo/ui`, `@teb-ooo/ui/stories` (types) and `@teb-ooo/ui/email/*`, so an app globs `node_modules/@teb-ooo/ui/stories/**/*.stories.tsx` (and `@source`s that directory for Tailwind). `stories/` is generated and git-ignored; test files are never shipped. A test fails when an exported component has no story or a story module is malformed.
 
 Types live in `src/stories.ts` (`StoryDefault`, `StoryMeta`, `Story`, `StoryGroup`, `StoryState`).
 

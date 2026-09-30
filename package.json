@@ -1,6 +1,6 @@
 {
   "name": "@teb-ooo/ui",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The playground design system: theme, atomic components, email base layout.",
   "license": "UNLICENSED",
   "private": false,
@@ -24,12 +24,14 @@
     "./stories": {
       "types": "./dist/stories.d.ts"
     },
+    "./stories/*": "./stories/*",
     "./theme.css": "./theme.css",
     "./email/*": "./email/*",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
+    "stories",
     "theme.css",
     "fonts",
     "email",
@@ -40,7 +42,8 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json",
+    "build": "vite build && tsc -p tsconfig.build.json && npm run build:stories",
+    "build:stories": "node --experimental-strip-types --no-warnings scripts/build-stories.ts",
     "build:email-tokens": "node --experimental-strip-types --no-warnings scripts/build-email-tokens.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
