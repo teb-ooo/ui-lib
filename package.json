@@ -45,7 +45,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepack": "npm run build",
-    "check:release-age": "node /srv/factory/rules/tools/check-release-age.mjs .",
+    "check:release-age": "node /srv/factory/rules/rules/tools/check-release-age.mjs .",
     "docs:build": "npm --prefix docs ci && npm --prefix docs run build",
     "release": "npm run build && npm run docs:build"
   },
