@@ -1,7 +1,7 @@
 import { useCallback, useSyncExternalStore } from "react";
 
 /**
- * The gallery's theme control, the only one in the factory: it forces a scheme by setting `data-theme` on
+ * The gallery's theme control, the only one in the playground: it forces a scheme by setting `data-theme` on
  * <html> (system removes the attribute so the OS decides) and remembers the choice in localStorage.
  * Apps and components never do this; the design test allows it in this package only.
  */

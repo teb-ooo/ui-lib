@@ -63,11 +63,11 @@ describe("email base templates", () => {
     ["html", html],
     ["txt", txt],
   ])("%s honours the placeholder contract", (_n, src) => {
-    for (const p of ["{{.Title}}", "{{.FactoryName}}", "{{.Footer}}", '{{template "content" .}}']) {
+    for (const p of ["{{.Title}}", "{{.PlaygroundName}}", "{{.Footer}}", '{{template "content" .}}']) {
       expect(src).toContain(p);
     }
     const actions = [...src.matchAll(/\{\{[^}]*\}\}/g)].map((m) => m[0]);
-    const allowed = new Set(["{{.Title}}", "{{.Preheader}}", "{{.FactoryName}}", "{{.Footer}}", '{{template "content" .}}']);
+    const allowed = new Set(["{{.Title}}", "{{.Preheader}}", "{{.PlaygroundName}}", "{{.Footer}}", '{{template "content" .}}']);
     for (const a of actions) expect(allowed.has(a), `unexpected action ${a}`).toBe(true);
   });
   it("html carries the preheader", () => {

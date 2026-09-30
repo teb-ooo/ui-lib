@@ -1,5 +1,5 @@
 /**
- * GALLERY COPY of the factory's design-language test (docs/test/design.docs.test.ts).
+ * GALLERY COPY of the playground's design-language test (docs/test/design.docs.test.ts).
  * Identical to lib/ui/test/design.test.ts except for one allowance: the gallery may force a theme, so the
  * "no theme control" test is skipped. A test in gallery.test.tsx fails if the two diverge in any other way.
  *

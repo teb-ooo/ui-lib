@@ -226,7 +226,7 @@ describe("design language", () => {
     const shared = readFileSync(join(__dirname, "..", "..", "test", "design.test.ts"), "utf8");
     const docs = readFileSync(join(__dirname, "design.docs.test.ts"), "utf8");
     const expected = shared
-      .replace(" * The factory's design-language test.", () => {
+      .replace(" * The playground's design-language test.", () => {
         const m = /^ \* GALLERY COPY[\s\S]*?diverge in any other way\./m.exec(docs);
         return m ? m[0] : "";
       })
