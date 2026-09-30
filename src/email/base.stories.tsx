@@ -12,7 +12,7 @@ export default {
 const sample = {
   Title: "Set up your passkey",
   Preheader: "You have been invited. This link expires in one hour.",
-  FactoryName: "teb.ooo",
+  PlaygroundName: "teb.ooo",
   Footer: "You received this message because an administrator invited you.",
 };
 

@@ -4,7 +4,7 @@
 
 - `{{.Title}}` page title and heading
 - `{{.Preheader}}` hidden inbox preview text (HTML only)
-- `{{.FactoryName}}` wordmark text
+- `{{.PlaygroundName}}` wordmark text
 - `{{.Footer}}` footer line
 - `{{template "content" .}}` the body: the caller defines a `content` template
 
