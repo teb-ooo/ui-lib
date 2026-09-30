@@ -72,6 +72,19 @@ Dense keyboard-driven table for many rows. The props table in the gallery is gen
 - `renderCard` + `cardsBelow` (default `"md"`): below the breakpoint a list of cards replaces the table (cards are not windowed).
 - Rows are one control-height line and are windowed past 100 rows. Keys: Up, Down, PageUp, PageDown, Home, End move the active row; Enter opens; Space toggles selection. Give it a parent with a height.
 
+## FilterBar, SearchInput, ToggleGroup, Select, Combobox, ViewMenu
+The filter row. `Option` is `{ value: string; label: string; count?: number }`; values are strings.
+- `FilterBar`: a wrapping flex row; `end?: ReactNode` sits at the right (a count, a `ViewMenu`).
+- `SearchInput`: `value`, `onValueChange`, `label?` ("Search"), `clearLabel?`; clear button when non-empty, Escape clears; ref to the input.
+- `ToggleGroup`: `options`, `label`, `value` and `onValueChange` (`string | null`, or `string[]` with `multiple`).
+- `Select`: `options`, `value` (`string | null`), `onValueChange`, `label`, `placeholder?`, `disabled?`.
+- `Combobox`: searchable; `options`, `label`, `placeholder?`, `emptyLabel?`, `value`/`onValueChange` as `Select`, or `multiple` with `string[]` and chips.
+- `ViewMenu`: `views: {id, name}[]`, `activeId`, `onSelect(id | null)`, `onSave?(name)`, `onDelete?(id)`, `defaultLabel?`. The app stores the views.
+
+## Sidebar and Shell
+- `Sidebar`: `items: {id, label, href, icon?, active?, badge?, group?}[]`, `header?`, `footer?`, `collapsed?` + `onCollapsedChange?` (icons only, with tooltips; shows the toggle), `label?`, and `renderLink?(item, content, props)` to draw links with the app's router (put `props` on the element, `content` inside it).
+- `Shell`: `sidebar`, `header?`, `children`; the full viewport height. From `md` the sidebar is a left column; below it a menu button opens the sidebar as a drawer (always expanded, closes on navigation). `menuLabel?`, `drawerLabel?`, `closeLabel?`. No routing or navigation content of its own; use it once at the root of a page.
+
 ## Hooks
 `useMinWidth("sm" | "md" | "lg")` and `useMediaQuery(query)`; `BREAKPOINTS` holds the widths (40rem, 48rem, 64rem).
 
