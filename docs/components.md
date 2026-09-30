@@ -48,6 +48,33 @@ Keyboard shortcut hint. `shortcut` (`mod+k`, `g i`) or free-text children. `mod`
 ## Avatar
 Square, image with fallback initials. `name` (required), `src?`, `size?: "sm" | "md" | "lg"` (1.5rem, the control height, 3rem). `initialsOf(name)` is exported.
 
+## Textarea
+Multi-line text input; like `Input` it takes id, description and invalid state from a `Field`. `rows?: number` (default 3); resizes vertically only; native textarea attributes; ref to the `<textarea>`.
+
+## Checkbox
+Base UI Checkbox: `checked`, `defaultChecked`, `onCheckedChange(checked)`, `indeterminate`, `disabled`, `name`. Give it an `aria-label` or wrap it in a `<label>`.
+
+## Container
+Centres page content with the page gutter. `width?: "narrow" | "default" | "wide" | "full"` (40rem, 64rem, 90rem, none; default `"default"`).
+
+## SplitPane
+List and detail. Side by side from the `lg` breakpoint; below it the list fills the screen and an open detail is a full-screen sheet.
+- `list`, `detail`: ReactNodes; `detailOpen: boolean`, `onDetailClose()`; `detailLabel: string` (accessible name); `placeholder?` (wide, while nothing is open).
+- `resizable?` (drag the divider, or arrow keys/Home/End on it), `defaultSize?` (list width in rem, 28), `minSize?` (16), `maxSize?` (48), `onSizeChange?(rem)`, `closeLabel?`.
+- Fill the height its parent gives it.
+
+## DataTable
+Dense keyboard-driven table for many rows. The props table in the gallery is generated from the types.
+- `columns: Column<T>[]` (`id`, `header`, `cell(row)`, `sortable?`, `width?`, `align?`, `hideBelow?: "sm" | "md" | "lg"`, `hideable?`), `rows`, `rowKey(row)`, `label`.
+- Sorting is controlled: `sort`, `onSortChange`; the app sorts. `columnVisibility` + `onColumnVisibilityChange` add a Columns menu.
+- `activeKey` (matched by key, so it survives re-sorts) + `onActiveKeyChange`; `onRowClick` (click, or Enter on the active row); `selectedKeys` + `onSelectedKeysChange` add a checkbox column.
+- `loading`, `empty`, `error`; `hasMore` + `onLoadMore` for cursor paging (called when the end is within 400px of view).
+- `renderCard` + `cardsBelow` (default `"md"`): below the breakpoint a list of cards replaces the table (cards are not windowed).
+- Rows are one control-height line and are windowed past 100 rows. Keys: Up, Down, PageUp, PageDown, Home, End move the active row; Enter opens; Space toggles selection. Give it a parent with a height.
+
+## Hooks
+`useMinWidth("sm" | "md" | "lg")` and `useMediaQuery(query)`; `BREAKPOINTS` holds the widths (40rem, 48rem, 64rem).
+
 ## Theme
 Import once: `@import "@teb-ooo/ui/theme.css";`.
 - **Themes.** Dark is the default; light follows `prefers-color-scheme: light`. Tokens live under `:root`, are redefined inside the media query, and are also reachable through `[data-theme="dark"]` and `[data-theme="light"]`, which exist only so a gallery can force a theme. Apps never set `data-theme`, never store a theme preference and ship no theme script or toggle. Components never branch on the theme (no `dark:` variants).
