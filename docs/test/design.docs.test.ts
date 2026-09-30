@@ -1,9 +1,9 @@
 /**
  * GALLERY COPY of the playground's design-language test (docs/test/design.docs.test.ts).
- * Identical to lib/ui/test/design.test.ts except for one allowance: the gallery may force a theme, so the
+ * Identical to lib/ui-lib/test/design.test.ts except for one allowance: the gallery may force a theme, so the
  * "no theme control" test is skipped. A test in gallery.test.tsx fails if the two diverge in any other way.
  *
- * Copy-ready: the same file lives at `lib/ui/test/design.test.ts` and at an app's `web/test/design.test.ts`.
+ * Copy-ready: the same file lives at `lib/ui-lib/test/design.test.ts` and at an app's `web/test/design.test.ts`.
  * It scans every .ts/.tsx/.css file under `../src` (relative to this file) and fails on anything that steps
  * outside the design system: one typeface, one body size, one display size, one radius, semantic tokens only.
  *
