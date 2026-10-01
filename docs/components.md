@@ -71,10 +71,11 @@ List and detail. Side by side from the `lg` breakpoint; below it the list fills 
 
 ## DataTable
 Dense keyboard-driven table for many rows. The props table in the gallery is generated from the types.
-- `columns: Column<T>[]` (`id`, `header`, `cell(row)`, `sortable?`, `width?`, `align?`, `hideBelow?: "sm" | "md" | "lg"`, `hideable?`), `rows`, `rowKey(row)`, `label`.
+- `columns: Column<T>[]` (`id`, `header`, `cell(row)`, `sortable?`, `width?`, `align?`, `hideBelow?: "sm" | "md" | "lg"` (hidden while the table itself is narrower than 24, 36 or 48rem, so a narrow pane drops columns by itself; the Columns menu says how many are hidden), `hideable?`), `rows`, `rowKey(row)`, `label`.
 - Sorting is controlled: `sort`, `onSortChange`; the app sorts. `columnVisibility` + `onColumnVisibilityChange` add a Columns menu; `persistKey` (a string) saves the column configuration in `localStorage` (key `teb-ui:data-table:<persistKey>`) and restores it on the next visit, and also adds the menu. A controlled `columnVisibility` wins over the saved one.
 - `activeKey` (matched by key, so it survives re-sorts) + `onActiveKeyChange`; `onRowClick` (click, or Enter on the active row); `selectedKeys` + `onSelectedKeysChange` add a checkbox column.
 - `loading`, `empty`, `error`; `hasMore` + `onLoadMore` for cursor paging (called when the end is within 400px of view).
+- `bleed`: edge to edge, no outer border, radius or background; header rule and row dividers run the full width.
 - `renderCard` + `cardsBelow` (default `"md"`): below the breakpoint a list of cards replaces the table (cards are not windowed).
 - Rows are one control-height line and are windowed past 100 rows. Keys: Up, Down, PageUp, PageDown, Home, End move the active row; Enter opens; Space toggles selection. Give it a parent with a height.
 
@@ -83,6 +84,7 @@ The filter row. `Option` is `{ value: string; label: string; count?: number }`; 
 - `FilterBar`: a wrapping flex row; `end?: ReactNode` sits at the right (a count, a `ViewMenu`).
 - `SearchInput`: `value`, `onValueChange`, `label?` ("Search"), `clearLabel?`; clear button when non-empty, Escape clears; ref to the input.
 - `ToggleGroup`: `options`, `label`, `value` and `onValueChange` (`string | null`, or `string[]` with `multiple`).
+- `Select` and single `Combobox` share one field look (border, background, height, one chevron); Combobox adds typing and a clear button once it has a value.
 - `Select`: `options`, `value` (`string | null`), `onValueChange`, `label`, `placeholder?`, `disabled?`.
 - `Combobox`: searchable; `options`, `label`, `placeholder?`, `emptyLabel?`, `value`/`onValueChange` as `Select`, or `multiple` with `string[]` and chips.
 - `ViewMenu`: `views: {id, name}[]`, `activeId`, `onSelect(id | null)`, `onSave?(name)`, `onDelete?(id)`, `defaultLabel?`. The app stores the views.

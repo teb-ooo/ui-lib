@@ -42,6 +42,23 @@ describe("DataTable column configuration", () => {
   });
 });
 
+describe("DataTable bleed and width", () => {
+  it("bleed removes the frame", () => {
+    const { rerender } = render(<DataTable {...base} />);
+    expect(screen.getByRole("grid").className).toContain("panel");
+    rerender(<DataTable {...base} bleed />);
+    expect(screen.getByRole("grid").className).not.toContain("panel");
+  });
+  it("hideBelow follows the table's width, not the screen's", () => {
+    const wide: Column<Row>[] = [...columns, { id: "extra", header: "Extra", cell: () => "x", hideBelow: "md" }];
+    const { rerender } = render(<DataTable {...base} columns={wide} />);
+    // jsdom has no layout: the table assumes a wide default until measured, so the column shows.
+    expect(screen.getByRole("columnheader", { name: /Extra/ })).toBeTruthy();
+    rerender(<DataTable {...base} columns={wide} columnVisibility={{ extra: false }} />);
+    expect(screen.queryByRole("columnheader", { name: /Extra/ })).toBeNull();
+  });
+});
+
 describe("DataTable row affordance", () => {
   const rowOf = (name: string) => screen.getByText(name).closest("[role=row]") as HTMLElement;
   it("clickable rows show a pointer and a hover state; plain rows do not get the pointer", () => {

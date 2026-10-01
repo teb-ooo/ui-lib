@@ -17,7 +17,10 @@ export interface Column<T> {
   /** A CSS length or an fr value such as "12rem" or "2fr". Default "1fr" (at least 8rem). */
   width?: string;
   align?: "start" | "end";
-  /** The column is hidden below this breakpoint. */
+  /**
+   * The column is hidden while the table itself is narrower than this: sm 24rem, md 36rem, lg 48rem (the table's
+   * width, not the screen's, so a narrow list pane drops columns by itself).
+   */
   hideBelow?: Breakpoint;
   /**
    * Whether the column menu may turn it off.
@@ -67,10 +70,15 @@ export interface DataTableProps<T> {
   /** More rows exist; `onLoadMore` is called when the end scrolls into view. */
   hasMore?: boolean;
   onLoadMore?: () => void;
-  /** Below `cardsBelow` the table is replaced by a list of these cards. */
+  /** Below `cardsBelow` (a screen width) the table is replaced by a list of these cards. */
   renderCard?: (row: T) => ReactNode;
   /** @default "md" */
   cardsBelow?: Breakpoint;
+  /**
+   * Edge to edge: no outer border, radius or background, and the header rule and row dividers run the full width.
+   * @default false
+   */
+  bleed?: boolean;
   className?: string;
 }
 
@@ -100,6 +108,8 @@ const OVERSCAN = 8;
 const CHECK_WIDTH = "2.25rem";
 const MIN_FR = "8rem";
 const NEAR_END_PX = 400;
+/** Table widths, in rem, at which `hideBelow` columns appear. */
+const COLUMN_WIDTHS: Record<Breakpoint, number> = { sm: 24, md: 36, lg: 48 };
 
 function trackOf(c: { width?: string }): string {
   const w = c.width ?? "1fr";
@@ -110,7 +120,17 @@ function minOf(c: { width?: string }): string {
   return w.endsWith("fr") ? MIN_FR : w;
 }
 
-function ColumnMenu<T>({ columns, visibility, onChange }: { columns: Column<T>[]; visibility: Record<string, boolean>; onChange: (v: Record<string, boolean>) => void }) {
+function ColumnMenu<T>({
+  columns,
+  visibility,
+  onChange,
+  hiddenByWidth,
+}: {
+  columns: Column<T>[];
+  visibility: Record<string, boolean>;
+  onChange: (v: Record<string, boolean>) => void;
+  hiddenByWidth: number;
+}) {
   const hideable = columns.filter((c) => c.hideable !== false);
   return (
     <Menu.Root>
@@ -134,6 +154,11 @@ function ColumnMenu<T>({ columns, visibility, onChange }: { columns: Column<T>[]
                 {c.header}
               </Menu.CheckboxItem>
             ))}
+            {hiddenByWidth > 0 ? (
+              <p className="border-t border-line px-2 pt-2 pb-1 text-ink-faint">
+                {hiddenByWidth} {hiddenByWidth === 1 ? "column is" : "columns are"} hidden: the table is too narrow.
+              </p>
+            ) : null}
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>
@@ -168,11 +193,12 @@ export function DataTable<T>({
   onLoadMore,
   renderCard,
   cardsBelow = "md",
+  bleed = false,
   className,
 }: DataTableProps<T>) {
   const uid = useId();
-  const up = { sm: useMinWidth("sm"), md: useMinWidth("md"), lg: useMinWidth("lg") };
-  const cards = renderCard !== undefined && !up[cardsBelow];
+  const wideScreen = useMinWidth(cardsBelow);
+  const cards = renderCard !== undefined && !wideScreen;
   const selectable = selectedKeys !== undefined && onSelectedKeysChange !== undefined;
   const [saved, setSaved] = useState(() => readSaved(persistKey));
   useEffect(() => setSaved(readSaved(persistKey)), [persistKey]);
@@ -183,11 +209,11 @@ export function DataTable<T>({
     onColumnVisibilityChange?.(next);
   };
   const hasColumnMenu = onColumnVisibilityChange !== undefined || persistKey !== undefined;
-  const shown = columns.filter((c) => columnVisibility[c.id] !== false && (c.hideBelow === undefined || up[c.hideBelow]));
 
   const scroller = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewport, setViewport] = useState(600);
+  const [width, setWidth] = useState(1024);
   const [rowH, setRowH] = useState(28);
   useLayoutEffect(() => {
     setRowH(1.75 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16));
@@ -195,11 +221,21 @@ export function DataTable<T>({
   useEffect(() => {
     const el = scroller.current;
     if (!el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => setViewport(el.clientHeight || 600));
+    const measure = () => {
+      setViewport(el.clientHeight || 600);
+      setWidth(el.clientWidth || 1024);
+    };
+    const ro = new ResizeObserver(measure);
     ro.observe(el);
-    setViewport(el.clientHeight || 600);
+    measure();
     return () => ro.disconnect();
   }, []);
+
+  const widthRem = width / (rowH / 1.75);
+  const fits = (c: Column<T>) => c.hideBelow === undefined || widthRem >= COLUMN_WIDTHS[c.hideBelow];
+  const wanted = columns.filter((c) => columnVisibility[c.id] !== false);
+  const shown = wanted.filter(fits);
+  const hiddenByWidth = wanted.length - shown.length;
 
   const virtual = !cards && rows.length > VIRTUALIZE_ABOVE;
   const first = virtual ? Math.max(0, Math.floor(scrollTop / rowH) - OVERSCAN) : 0;
@@ -306,7 +342,7 @@ export function DataTable<T>({
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
       {hasColumnMenu && !cards ? (
         <div className="flex justify-end pb-2">
-          <ColumnMenu columns={columns} visibility={columnVisibility} onChange={changeVisibility} />
+          <ColumnMenu columns={columns} visibility={columnVisibility} onChange={changeVisibility} hiddenByWidth={hiddenByWidth} />
         </div>
       ) : null}
       <div
@@ -322,7 +358,7 @@ export function DataTable<T>({
           checkNearEnd();
         }}
         onKeyDown={onKeyDown}
-        className="panel min-h-0 flex-1 overflow-auto outline-none focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-ink-muted"
+        className={cn("min-h-0 flex-1 overflow-auto outline-none focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-ink-muted", !bleed && "panel")}
       >
         {cards ? (
           <div>

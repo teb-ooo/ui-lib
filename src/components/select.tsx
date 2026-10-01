@@ -1,5 +1,5 @@
 import { Select as BaseSelect } from "@base-ui/react/select";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { cn } from "../lib/cn";
 
 export interface Option {
@@ -26,10 +26,10 @@ export interface SelectProps {
 export function Select({ options, value, onValueChange, label, placeholder, disabled, className }: SelectProps) {
   return (
     <BaseSelect.Root items={options} value={value} onValueChange={onValueChange} disabled={disabled}>
-      <BaseSelect.Trigger aria-label={label} className={cn("btn min-w-36 justify-between gap-2 data-[popup-open]:border-line-strong data-[popup-open]:text-ink", className)}>
+      <BaseSelect.Trigger aria-label={label} className={cn("input flex w-56 max-w-full cursor-pointer items-center justify-between gap-2 text-left data-[popup-open]:border-ink-muted data-[disabled]:cursor-not-allowed", className)}>
         <BaseSelect.Value placeholder={placeholder ?? label} className="truncate data-[placeholder]:text-ink-faint" />
-        <BaseSelect.Icon>
-          <ChevronsUpDown aria-hidden="true" className="size-3" />
+        <BaseSelect.Icon className="text-ink-faint">
+          <ChevronDown aria-hidden="true" className="size-3" />
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal>

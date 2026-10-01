@@ -107,6 +107,25 @@ RemembersColumns.storyMeta = {
   description: "With persistKey the table remembers which columns are shown in this browser: hide one in the Columns menu, then reload.",
 } satisfies StoryMeta;
 
+export const Bleed = () => {
+  const [active, setActive] = useState<string | null>("item-2");
+  return (
+    <div className="h-72">
+      <DataTable label="Tasks" columns={columns} rows={makeItems(20)} rowKey={(r) => r.id} activeKey={active} onActiveKeyChange={setActive} bleed />
+    </div>
+  );
+};
+Bleed.storyMeta = { description: "bleed: no frame; the header rule and row dividers run edge to edge. Use it when the table is the page." } satisfies StoryMeta;
+
+export const NarrowPane = () => (
+  <div className="h-60 w-80 max-w-full">
+    <DataTable label="Tasks" columns={columns} rows={makeItems(12)} rowKey={(r) => r.id} persistKey="gallery-narrow" />
+  </div>
+);
+NarrowPane.storyMeta = {
+  description: "hideBelow follows the table's own width: in this narrow box the status and owner columns drop out by themselves, and the Columns menu says how many are hidden.",
+} satisfies StoryMeta;
+
 export const Thousands = () => <Demo count={5000} />;
 Thousands.storyMeta = { description: "5,000 rows; only the visible rows are in the page." } satisfies StoryMeta;
 
