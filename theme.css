@@ -445,6 +445,9 @@ input.display-lg {
     text-decoration: underline;
     text-underline-offset: 0.2em;
   }
+  .diff-del + .diff-add {
+    margin-inline-start: 0.25em;
+  }
   .diff-del {
     background: color-mix(in oklab, var(--color-danger-soft) 60%, transparent);
     color: var(--color-danger);

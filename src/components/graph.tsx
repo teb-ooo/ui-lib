@@ -51,6 +51,8 @@ export interface GraphProps {
   className?: string;
 }
 
+const clip = (s: string, n = 18) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+
 export interface LaidOutNode extends GraphNode {
   x: number;
   y: number;
@@ -107,7 +109,8 @@ export function layoutGraph(nodes: GraphNode[], edges: GraphEdge[], centerId: st
   }
   const live = edges.filter((e) => pos.has(e.source) && pos.has(e.target));
   const ids = nodes.map((n) => n.id);
-  const ideal = Math.max(60, Math.min(120, radius / maxHop));
+  const labelOf = new Map(nodes.map((n) => [n.id, n.label]));
+  const ideal = Math.max(60, Math.min(110, radius / maxHop));
   for (let step = 0; step < 200; step++) {
     const cool = 1 - step / 200;
     const force = new Map(ids.map((id) => [id, { x: 0, y: 0 }]));
@@ -155,11 +158,13 @@ export function layoutGraph(nodes: GraphNode[], edges: GraphEdge[], centerId: st
       const p = pos.get(id);
       const f = force.get(id);
       if (!p || !f || id === centerId) continue;
-      f.x += (cx - p.x) * 0.02;
-      f.y += (cy - p.y) * 0.02;
+      f.x += (cx - p.x) * 0.05;
+      f.y += (cy - p.y) * 0.05;
       const len = Math.sqrt(f.x * f.x + f.y * f.y) || 1;
       const move = Math.min(len, 12 * cool + 0.5);
-      p.x = Math.min(width - 28, Math.max(28, p.x + (f.x / len) * move));
+      // The label hangs below the node and is centred on it: keep the whole label inside.
+      const half = Math.max(24, Math.min(clip(labelOf.get(id) ?? "").length, 18) * 4.5 + 4);
+      p.x = Math.min(width - half, Math.max(half, p.x + (f.x / len) * move));
       p.y = Math.min(height - 36, Math.max(24, p.y + (f.y / len) * move));
     }
   }
@@ -193,8 +198,6 @@ function shapePath(shape: Shape, r: number): string {
       return `M${-r},0a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0z`;
   }
 }
-
-const clip = (s: string, n = 18) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 /**
  * An ego network: one node in the middle and what it relates to, one or two hops out. Colour is state only, so a node's
@@ -301,7 +304,7 @@ export function Graph({
               {laid.map((n) => {
                 const center = n.id === centerId;
                 const kind = kindOf(n.kind);
-                const r = center ? 15 : 11;
+                const r = center ? 16 : 12;
                 const Icon = kind.icon;
                 const name = `${n.label}, ${kind.label}${n.draft ? ", draft" : ""}${center ? ", centre" : `, ${n.depth} ${n.depth === 1 ? "hop" : "hops"}`}`;
                 const body = (
@@ -314,7 +317,7 @@ export function Graph({
                     />
                     {Icon ? (
                       <g className={cn("text-ink-muted", n.draft && "opacity-60")}>
-                        <Icon aria-hidden="true" size={center ? 16 : 12} x={center ? -8 : -6} y={center ? -8 : -6} />
+                        <Icon aria-hidden="true" size={center ? 18 : 14} x={center ? -9 : -7} y={center ? -9 : -7} />
                       </g>
                     ) : null}
                     <text y={r + 14} textAnchor="middle" className={cn(n.draft ? "fill-ink-muted" : "fill-ink")} aria-hidden="true">
