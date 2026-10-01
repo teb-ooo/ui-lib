@@ -61,7 +61,7 @@ An on/off preference that applies immediately (`role="switch"`, `aria-checked`).
 A button that opens the file chooser. `onFiles(files: File[])` (the chooser resets afterwards, so the same file can be chosen twice), `accept?`, `multiple?`, `children` (the label), `icon?`, `intent?`, `loading?`, `disabled?`. A ref exposes `open()` so a Cmd+K command can open the chooser.
 
 ## LiveIndicator
-A small dot for whether a screen gets live updates. `status: "live" | "reconnecting" | "degraded" | "off"` (what `useLive()` from `@teb-ooo/web` reports), `showLabel?` adds the word. It has `role="status"` and an accessible label; degraded is an amber ring, reconnecting pulses (unless the user prefers reduced motion).
+A single dot for whether a screen gets live updates, placed in the app header right next to the "staging" label. It is only a dot: never a chip, never visible text. `status: "live" | "reconnecting" | "degraded" | "off"` (what `useLive()` from `@teb-ooo/web` reports). `tip` adds a tooltip (`true` for the status name, or your text). It has `role="status"` and an accessible label; degraded is an amber ring, reconnecting pulses (unless the user prefers reduced motion).
 
 ## Container
 Centres page content with the page gutter. `width?: "narrow" | "default" | "wide" | "full"` (40rem, 64rem, 90rem, none; default `"default"`).

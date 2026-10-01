@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../lib/cn";
+import { Tooltip } from "./tooltip";
 
 export type LiveStatus = "live" | "reconnecting" | "degraded" | "off";
 
@@ -8,10 +9,10 @@ export interface LiveIndicatorProps extends Omit<HTMLAttributes<HTMLSpanElement>
   /** The status `useLive()` from `@teb-ooo/web` reports. */
   status: LiveStatus;
   /**
-   * Show the word next to the dot.
-   * @default false
+   * Add a tooltip: `true` shows the status name ("Live"), or give the text. The dot becomes focusable so the tooltip
+   * works from the keyboard. Off by default.
    */
-  showLabel?: boolean;
+  tip?: ReactNode | true;
   className?: string;
 }
 
@@ -30,12 +31,28 @@ const dots: Record<LiveStatus, string> = {
   off: "bg-ink-faint",
 };
 
-/** A small dot for whether a screen is receiving live updates, with an accessible label (and the word, with `showLabel`). */
-export const LiveIndicator = forwardRef<HTMLSpanElement, LiveIndicatorProps>(function LiveIndicator({ status, showLabel = false, className, ...rest }, ref) {
-  return (
-    <span ref={ref} role="status" aria-label={showLabel ? undefined : labels[status]} data-status={status} className={cn("inline-flex items-center gap-2 text-ink-muted", className)} {...rest}>
-      <span aria-hidden="true" className={cn("inline-block size-2 shrink-0 rounded", dots[status], status === "reconnecting" && "motion-safe:animate-pulse")} />
-      {showLabel ? <span>{labels[status]}</span> : null}
+/**
+ * A single dot for whether a screen is receiving live updates, with an accessible label for assistive technology.
+ * Place it in the app header right next to the "staging" label (or where that label would be). It is only a dot:
+ * never a chip, never visible text.
+ */
+export const LiveIndicator = forwardRef<HTMLSpanElement, LiveIndicatorProps>(function LiveIndicator({ status, tip, className, ...rest }, ref) {
+  const dot = (
+    <span
+      ref={ref}
+      role="status"
+      aria-label={labels[status]}
+      data-status={status}
+      {...(tip !== undefined && tip !== false ? { tabIndex: 0 } : {})}
+      className={cn("inline-flex items-center", className)}
+      {...rest}
+    >
+      <span
+        aria-hidden="true"
+        className={cn("inline-block size-2 shrink-0 rounded", dots[status], status === "reconnecting" && "motion-safe:animate-pulse")}
+      />
     </span>
   );
+  if (tip === undefined || tip === false) return dot;
+  return <Tooltip tip={tip === true ? labels[status] : tip}>{dot}</Tooltip>;
 });

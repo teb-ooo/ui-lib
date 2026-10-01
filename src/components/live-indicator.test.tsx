@@ -15,8 +15,14 @@ describe("LiveIndicator", () => {
     const el = screen.getByRole("status", { name });
     expect(el.getAttribute("data-status")).toBe(status);
   });
-  it("showLabel puts the word beside the dot", () => {
-    render(<LiveIndicator status="live" showLabel />);
-    expect(screen.getByRole("status").textContent).toBe("Live");
+  it("has no tooltip unless asked, and is then focusable", () => {
+    const { rerender } = render(<LiveIndicator status="live" />);
+    expect(screen.getByRole("status").getAttribute("tabindex")).toBeNull();
+    rerender(<LiveIndicator status="live" tip="Updates arrive live" />);
+    expect(screen.getByRole("status").getAttribute("tabindex")).toBe("0");
+  });
+  it("is only a dot: no visible text", () => {
+    render(<LiveIndicator status="live" />);
+    expect(screen.getByRole("status").textContent).toBe("");
   });
 });
