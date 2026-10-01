@@ -14,12 +14,13 @@ export default {
 
 const items = ["Fix login redirect", "Write release notes", "Upgrade Base UI", "Add dark screenshots"];
 
-function Demo({ resizable }: { resizable: boolean }) {
+function Demo({ resizable, persistKey }: { resizable: boolean; persistKey?: string }) {
   const [open, setOpen] = useState<string | null>(null);
   return (
     <div className="panel h-80 overflow-hidden">
       <SplitPane
         resizable={resizable}
+        {...(persistKey ? { persistKey } : {})}
         defaultSize={16}
         minSize={10}
         maxSize={30}
@@ -49,3 +50,8 @@ Default.storyMeta = { description: "Fixed list width. On a phone, choosing an it
 
 export const Resizable = () => <Demo resizable />;
 Resizable.storyMeta = { description: "Drag the divider, or focus it and use the arrow keys, Home and End." } satisfies StoryMeta;
+
+export const RemembersWidth = () => <Demo resizable persistKey="gallery-split" />;
+RemembersWidth.storyMeta = {
+  description: "With persistKey the dragged width is kept in this browser and restored on reload; double-click the divider to reset it.",
+} satisfies StoryMeta;
