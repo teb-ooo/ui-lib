@@ -121,7 +121,7 @@ describe("design language", () => {
   });
 
   it("uses no neutral- scale, no important, and no near-white text steps", () => {
-    expectNone(find(/neutral-/), "the neutrals are semantic tokens (ink, ink-muted, ink-faint)");
+    expectNone(find(/neutral-/, { skip: isTheme }), "the neutrals are semantic tokens (ink, ink-muted, ink-faint, surface, line)");
     expectNone(find(/!important/), "no !important");
     expectNone(find(/text-(neutral|stone)-(100|200)\b/), "use text-ink");
   });

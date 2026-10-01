@@ -1,6 +1,7 @@
 import { parse, formatHex, converter } from "culori";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { join } from "node:path";
 
 type State = "danger" | "warning" | "ok" | "link" | "agent";
 export type TokenName =
@@ -79,12 +80,15 @@ export function readThemeBlocks(cssPath: string): ThemeBlocks {
   };
 }
 
+/** Semantic ramps (`--color-danger-400: var(--color-red-400)`) declared in theme.css itself. */
+const ownTheme = readFileSync(join(process.cwd(), "theme.css"), "utf8");
+
 function resolveValue(raw: string): string {
   const v = raw.trim();
   const ref = /^var\((--[\w-]+)\)$/.exec(v);
   if (!ref) return v;
   const name = ref[1] ?? "";
-  const m = new RegExp(`${name}:\\s*([^;]+);`).exec(tailwindTheme);
+  const m = new RegExp(`(?:^|\\n)\\s*${name}:\\s*([^;]+);`).exec(ownTheme) ?? new RegExp(`${name}:\\s*([^;]+);`).exec(tailwindTheme);
   if (!m) throw new Error(`theme.css references unknown palette variable ${name}`);
   return resolveValue(m[1] ?? "");
 }
