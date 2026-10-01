@@ -8,7 +8,7 @@ export default {
   title: "Dialog",
   group: "Atoms",
   description: "Modal dialog with a title, optional description and footer. Focus moves in and returns on close.",
-  aliases: ["modal", "popup", "overlay", "lightbox", "sheet", "confirm", "alert dialog", "prompt"],
+  aliases: ["drawer", "side panel", "modal", "popup", "overlay", "lightbox", "sheet", "confirm", "alert dialog", "prompt"],
   component: "Dialog",
   source: "src/components/dialog.tsx",
 } satisfies StoryDefault;
@@ -43,3 +43,10 @@ export const Bare = () => (
   </Dialog>
 );
 Bare.storyMeta = { description: "bare: no padding, header or close control." } satisfies StoryMeta;
+
+export const Drawer = () => (
+  <Dialog placement="right" trigger={<Button>Open drawer</Button>} title="Revisions" description="A side panel docked to the right edge; full width on a phone.">
+    <p className="text-ink-muted">Anything that sits beside the page: a history, an inspector, a long form.</p>
+  </Dialog>
+);
+Drawer.storyMeta = { description: "placement=right: a full-height drawer that slides in from the right." } satisfies StoryMeta;

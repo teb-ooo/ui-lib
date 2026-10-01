@@ -439,6 +439,18 @@ input.display-lg {
     color: var(--color-agent);
   }
 
+  .diff-add {
+    background: color-mix(in oklab, var(--color-ok-soft) 60%, transparent);
+    color: var(--color-ok);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .diff-del {
+    background: color-mix(in oklab, var(--color-danger-soft) 60%, transparent);
+    color: var(--color-danger);
+    text-decoration: line-through;
+  }
+
   .input {
     height: var(--control-h);
     width: 100%;

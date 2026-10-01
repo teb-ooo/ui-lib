@@ -26,18 +26,32 @@ Label, control, description and error, wired for assistive tech (label associati
 Modal on Base UI `Dialog`: focus moves in, Escape closes, focus returns to the trigger.
 - `title: ReactNode` (required; the accessible name), `description?`, `footer?`, `children?`
 - `trigger?: ReactElement` (usually a `Button`), or control it with `open` / `onOpenChange(open, details)`; `defaultOpen`.
-- `placement?: "center" | "top"` (default `"center"`): `center` is a small centred panel (`max-w-md`); `top` is a wider panel (`max-w-lg`) at 15vh from the top, the shape of a command palette. Both use a `bg-black/50` backdrop and the `anim-backdrop` and `anim-fade` transitions.
+- `placement?: "center" | "top" | "right"` (default `"center"`): `center` is a small centred panel (`max-w-md`); `top` is a wider panel (`max-w-lg`) at 15vh from the top, the shape of a command palette; `right` is a full-height drawer docked to the right edge (`max-w-xl`, full width on a phone) that slides in (`anim-slide-right`), for a history, an inspector or any side panel. All use a `bg-black/50` backdrop and the `anim-backdrop` and `anim-fade` transitions.
 - `bare?: boolean`: no padding, header or close control; children fill the panel edge to edge and the title is announced but not drawn. A palette renders its own input and list inside a bare, top-placed dialog.
 - `initialFocus?: boolean | RefObject<HTMLElement | null>`: what to focus on open (`false` leaves focus alone).
 - `closeLabel?: string` (default `"Close"`), `className` (layout classes for the panel).
 
 What a command palette needs, without reaching into internals: `<Dialog open onOpenChange placement="top" bare initialFocus={inputRef} title="Command palette">...</Dialog>`, `Kbd` for shortcut hints, and the shared classes `.panel`, `.input`, `.btn`, `.chip`.
 
+## FieldGrid, FieldRow
+A record's fields as rows (a `dl`): label rail on the left (8rem, right-aligned), value on the right; stacked on a phone. `FieldGrid` takes `label` (accessible name). `FieldRow` takes `label`, `children`, `draft?` (muted value), `actions?` (shown on row hover and focus, always on touch).
+
+## SuggestionList, handleSuggestionKey
+A listbox at the text caret for a rich-text editor's suggestions (`[[` mentions, `@`, `/`). The editor owns open, items and active index, because the keys arrive at the editor; the list draws and positions (Base UI Popover, focus is never taken). Props: `open`, `items: {id, label, hint?}[]`, `activeIndex`, `onActiveIndexChange?` (hover), `onSelect(item)`, `onClose?`, `anchor` (a function returning the caret `DOMRect`, or an element), `label`, `id?` (options are `${id}-option-${i}`: put it in the editor's `aria-controls` and `aria-activedescendant`), `emptyLabel?`. `handleSuggestionKey(event, {count, activeIndex, onActiveIndexChange, onSelect, onClose})` returns whether it used the key: Up/Down wrap, Enter/Tab choose, Escape closes.
+
+## Diff, diffWords
+Word-level difference: `<Diff before after />` or `<Diff tokens />` (`{kind: "same" | "add" | "del", text}[]`, an app's own algorithm). `layout?: "inline" | "split"` (split is before and after side by side, stacked on a phone), `beforeLabel?`, `afterLabel?`. Additions are on the ok ground and underlined, removals on the danger ground and struck through, with screen-reader text, so colour is never the only signal. `diffWords(a, b)` is exported.
+
+## Graph
+An ego network (`nodes`, `edges`, `centerId`). Colour is state only, so a node's type is its shape (by sorted kind), an optional Lucide icon from `kinds[kind].icon`, and a legend entry; a draft node or edge is dashed and faint; the centre is larger with an ink outline. The layout is a deterministic force layout (`layoutGraph`, `hopsFrom` are exported), laid out at the real pixel width so labels keep their size on a phone. Depth control (1 to `maxDepth` hops; `depth` / `onDepthChange` to control it), a Graph/List switch (the list gives every node, its hops and relations as text), nodes are focusable (Enter or Space chooses; `onNodeSelect`, and `nodeHref` for real links). `label` names it for assistive tech.
+
 ## Tooltip
 The one tooltip mechanism (never a `title` attribute). `<Tooltip tip="Save"><Button>...</Button></Tooltip>`; `side?: "top" | "bottom" | "left" | "right"`, `delay?: number` (ms, default 400). `Button` and `LinkButton` take a `tip` prop that uses it.
 
 ## Chip
 A static token: status, count or reference. `tone?: "default" | "ok" | "warn" | "muted" | "danger" | "link" | "agent"`.
+
+Actions (0.22.0): `onRemove` (+ `removeLabel`) adds an X; `locked` with `onLockedChange` (+ `lockLabel`, `unlockLabel`) adds a padlock toggle whose accessible name is the action it performs (a draft to canon promotion, for example). Both are real buttons inside the chip.
 
 **Badge was removed in 0.21.0.** It was only a Chip with fewer tones. Use `Chip`: change `import { Badge }` to `import { Chip }`, `<Badge>` to `<Chip>`, and the tone `accent` to `link` (`default` and `danger` keep their names). Searching "badge" in the gallery finds Chip.
 
