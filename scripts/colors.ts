@@ -135,9 +135,8 @@ export function textSizePx(css: string, name: "body" | "display"): { size: strin
   return { size: `${Number(size) * 16}px`, lineHeight: lh };
 }
 
-/** The one heavier weight, declared inside the `.display-lg` rule. */
+/** The display weight: whatever the `.display-lg` rule declares, else the normal weight of body text (there is no heavier one). */
 export function displayWeight(css: string): string {
-  const w = /^\.display-lg,[\s\S]*?font-weight:\s*(\d+);/m.exec(css)?.[1];
-  if (!w) throw new Error("theme.css: .display-lg font-weight not found");
-  return w;
+  const rule = /^\.display-lg,[\s\S]*?\}/m.exec(css)?.[0] ?? "";
+  return /font-weight:\s*(\d+);/.exec(rule)?.[1] ?? "400";
 }

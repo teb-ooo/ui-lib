@@ -37,9 +37,9 @@ describe("email base templates", () => {
   });
   it("uses exactly the two type sizes, as literals from theme.css", () => {
     expect(tokens.text.body).toEqual(textSizePx(themeCss, "body"));
-    expect(tokens.text.display).toEqual({ ...textSizePx(themeCss, "display"), weight: "700" });
+    expect(tokens.text.display).toEqual({ ...textSizePx(themeCss, "display"), weight: "400" });
     expect(tokens.text.body).toEqual({ size: "14px", lineHeight: "1.6" });
-    expect(tokens.text.display).toEqual({ size: "32px", lineHeight: "1.3", weight: "700" });
+    expect(tokens.text.display).toEqual({ size: "32px", lineHeight: "1.3", weight: "400" });
     const sizes = new Set([...html.matchAll(/font-size:\s*([\d.]+px)/g)].map((m) => m[1]).filter((v) => v !== "1px"));
     expect([...sizes].sort()).toEqual(["14px", "32px"]);
   });

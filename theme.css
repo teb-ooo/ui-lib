@@ -224,11 +224,10 @@
   }
 }
 
-/* The one larger size, and the only heavier weight in the system: page titles and empty-state headlines. */
+/* The one larger size: page titles and empty-state headlines. Same weight as body: size, not boldness, makes a title. */
 .display-lg,
 input.display-lg {
   font-size: var(--text-display);
-  font-weight: 700;
   line-height: var(--text-display--line-height);
 }
 
