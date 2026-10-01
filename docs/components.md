@@ -39,8 +39,7 @@ The one tooltip mechanism (never a `title` attribute). `<Tooltip tip="Save"><But
 ## Chip
 A static token: status, count or reference. `tone?: "default" | "ok" | "warn" | "muted" | "danger" | "link" | "agent"`.
 
-## Badge (deprecated)
-Renders a `Chip` (`accent` maps to `link`). Use `Chip`; `Badge` stays until 1.0.
+**Badge was removed in 0.21.0.** It was only a Chip with fewer tones. Use `Chip`: change `import { Badge }` to `import { Chip }`, `<Badge>` to `<Chip>`, and the tone `accent` to `link` (`default` and `danger` keep their names). Searching "badge" in the gallery finds Chip.
 
 ## Kbd
 Keyboard shortcut hint. `shortcut` (`mod+k`, `g i`) or free-text children. `mod` is the Command key on Apple platforms and Ctrl elsewhere. Each key is a square keycap (1.5rem each way for a single character, wider for words such as Ctrl, with the glyph centred) and it reacts, subtly, to its own real key being pressed: it darkens a touch and sits a pixel lower (`data-pressed`). One shared set of window listeners serves every keycap on the page; keys let go on window blur, and with Command held a letter lets go by itself.

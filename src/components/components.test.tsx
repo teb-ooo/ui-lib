@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createRef } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Avatar, Badge, Button, Chip, Dialog, Field, initialsOf, Input, Kbd, LinkButton, Tooltip } from "../index";
+import { Avatar, Button, Chip, Dialog, Field, initialsOf, Input, Kbd, LinkButton, Tooltip } from "../index";
 
 describe("Button", () => {
   it("renders a real button, type=button by default", () => {
@@ -141,14 +141,6 @@ describe("Avatar", () => {
   });
 });
 
-describe("Badge (deprecated alias of Chip)", () => {
-  it("renders a chip, mapping accent to the link tone", () => {
-    render(<Badge tone="accent">staging</Badge>);
-    const b = screen.getByText("staging");
-    expect(b).toHaveClass("chip", "chip-link");
-    expect(b).toHaveAttribute("data-tone", "link");
-  });
-});
 
 describe("Chip", () => {
   it.each([
