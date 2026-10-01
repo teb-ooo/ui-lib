@@ -46,6 +46,8 @@ function ItemsPage() {
 
 `CommandProvider` takes `signOutPath?: string | false` (default `"/auth/logout"`): where the built-in "Sign out" goes, or `false` to leave it out when the app has its own.
 
+`useFeedbackCommand(feedback)` registers "Send feedback" while `feedback.available` (from `useFeedback()` in `@teb-ooo/web`); it is how the feedback panel is opened.
+
 Give every route a title so it reads well under "Go to": `createFileRoute("/items")({ staticData: { title: "Items" }, component: ItemsPage })`. The `title?: string` field is added to TanStack's `StaticDataRouteOption` by this package.
 
 The palette has no theme handling: it uses the ui tokens, so it follows the system colour scheme like the rest of the app. Built-ins read `window.__PLAYGROUND__` (`env`, `assistant`, `claude_session_url`, `app_name`; camelCase keys are accepted too) and are safe when it is absent.

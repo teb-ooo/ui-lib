@@ -63,6 +63,9 @@ A button that opens the file chooser. `onFiles(files: File[])` (the chooser rese
 ## LiveIndicator
 A single dot for whether a screen gets live updates, placed in the app header right next to the "staging" label. It is only a dot: never a chip, never visible text. `status: "live" | "reconnecting" | "degraded" | "off"` (what `useLive()` from `@teb-ooo/web` reports). `tip` adds a tooltip (`true` for the status name, or your text). It has `role="status"` and an accessible label; degraded is an amber ring, reconnecting pulses (unless the user prefers reduced motion).
 
+## FeedbackPanel
+The feedback dialog, driven by `useFeedback()` from `@teb-ooo/web`: `feedback` (its return value). Free text, an optional picked element, an optional screenshot with a preview, a line saying what is sent, and the result (`Sent, tracked as <bead>`, and whether the agent was reached). It renders nothing unless `feedback.available` (the superadmin or the app's owner). It is reached only through Cmd+K: `useFeedbackCommand(feedback)` from `@teb-ooo/ui/cmdk` registers "Send feedback"; there is no header button. Its nodes carry `data-feedback-ignore` so the screenshot and the element picker leave them out. The `FeedbackController` type describes what it needs, so this package does not depend on `@teb-ooo/web`.
+
 ## Container
 Centres page content with the page gutter. `width?: "narrow" | "default" | "wide" | "full"` (40rem, 64rem, 90rem, none; default `"default"`).
 
