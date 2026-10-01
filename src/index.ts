@@ -50,3 +50,5 @@ export { Switch } from "./components/switch";
 export type { SwitchProps } from "./components/switch";
 export { FilePicker } from "./components/file-picker";
 export type { FilePickerProps, FilePickerHandle } from "./components/file-picker";
+export { LiveIndicator } from "./components/live-indicator";
+export type { LiveIndicatorProps, LiveStatus } from "./components/live-indicator";
