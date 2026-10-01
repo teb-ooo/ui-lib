@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { setViewportWidth } from "../../test/cmdk/viewport";
@@ -39,6 +40,76 @@ describe("DataTable column configuration", () => {
     render(<DataTable {...base} columnVisibility={{ id: false }} onColumnVisibilityChange={() => undefined} />);
     expect(screen.queryByRole("columnheader", { name: /Id/ })).toBeNull();
     expect(window.localStorage.length).toBe(0);
+  });
+});
+
+describe("DataTable range selection", () => {
+  const many: Row[] = ["a", "b", "c", "d", "e", "f"].map((id) => ({ id, name: id.toUpperCase() }));
+  let latest: ReadonlySet<string> = new Set();
+  function Controlled({ initial = [] as string[], list = many, activeKey }: { initial?: string[]; list?: Row[]; activeKey?: string }) {
+    const [sel, setSel] = useState<ReadonlySet<string>>(new Set(initial));
+    const [active, setActive] = useState<string | null>(activeKey ?? null);
+    latest = sel;
+    return <DataTable {...base} rows={list} selectedKeys={sel} onSelectedKeysChange={setSel} activeKey={active} onActiveKeyChange={setActive} />;
+  }
+  const boxes = () => screen.getAllByRole("checkbox", { name: "Select row" });
+  const keys = () => [...latest].sort().join("");
+
+  it("shift+click selects the rows between the anchor and the clicked row", () => {
+    render(<Controlled />);
+    fireEvent.click(boxes()[1] as HTMLElement);
+    fireEvent.click(boxes()[4] as HTMLElement, { shiftKey: true });
+    expect(keys()).toBe("bcde");
+  });
+
+  it("shift+click takes the anchor's state: an unchecked anchor removes the range", () => {
+    render(<Controlled initial={["a", "b", "c", "d", "e", "f"]} />);
+    fireEvent.click(boxes()[1] as HTMLElement); // uncheck b: it is the anchor
+    fireEvent.click(boxes()[3] as HTMLElement, { shiftKey: true });
+    expect(keys()).toBe("aef");
+  });
+
+  it("a plain click toggles only that row and moves the anchor", () => {
+    render(<Controlled />);
+    fireEvent.click(boxes()[0] as HTMLElement);
+    fireEvent.click(boxes()[2] as HTMLElement);
+    expect(keys()).toBe("ac");
+    fireEvent.click(boxes()[4] as HTMLElement, { shiftKey: true });
+    expect(keys()).toBe("acde");
+  });
+
+  it("shift+click does not start a text selection", () => {
+    render(<Controlled />);
+    const cell = (boxes()[0] as HTMLElement).closest("[role=gridcell]") as HTMLElement;
+    expect(fireEvent.mouseDown(cell, { shiftKey: true })).toBe(false);
+    expect(fireEvent.mouseDown(cell)).toBe(true);
+  });
+
+  it("shift+Down extends from the active row and shift+Up shrinks it back", () => {
+    render(<Controlled activeKey="b" />);
+    const grid = screen.getByRole("grid");
+    fireEvent.keyDown(grid, { key: "ArrowDown", shiftKey: true });
+    fireEvent.keyDown(grid, { key: "ArrowDown", shiftKey: true });
+    expect(keys()).toBe("bcd");
+    fireEvent.keyDown(grid, { key: "ArrowUp", shiftKey: true });
+    expect(keys()).toBe("bc");
+  });
+
+  it("shift+Space selects from the anchor to the active row", () => {
+    render(<Controlled activeKey="e" />);
+    fireEvent.click(boxes()[1] as HTMLElement);
+    fireEvent.keyDown(screen.getByRole("grid"), { key: " ", shiftKey: true });
+    expect(keys()).toBe("bcde");
+  });
+
+  it("the header checkbox selects and clears this page's rows only, and the selection survives a refetch", () => {
+    const { rerender } = render(<Controlled initial={["x", "a"]} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select all rows" }));
+    expect(keys()).toBe("abcdefx");
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select all rows" }));
+    expect(keys()).toBe("x");
+    rerender(<Controlled initial={["x"]} list={[...many].reverse()} />);
+    expect(keys()).toBe("x");
   });
 });
 

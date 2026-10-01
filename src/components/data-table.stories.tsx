@@ -93,7 +93,7 @@ export const Default = () => <Demo />;
 Default.storyMeta = { description: "Sort by a header; the active row keeps its highlight through a re-sort. Columns drop out on narrower screens." } satisfies StoryMeta;
 
 export const Selectable = () => <Demo selectable />;
-Selectable.storyMeta = { description: "A checkbox column with select all; Space toggles the active row." } satisfies StoryMeta;
+Selectable.storyMeta = { description: "A checkbox column with select all. Shift+click a second checkbox to select the range; Space toggles the active row, Shift+Space and Shift+Up/Down extend the selection." } satisfies StoryMeta;
 
 export const ColumnMenu = () => <Demo menu />;
 ColumnMenu.storyMeta = { description: "Giving onColumnVisibilityChange adds a Columns menu; the app keeps the state." } satisfies StoryMeta;

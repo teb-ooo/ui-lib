@@ -418,11 +418,52 @@ export function DataTable<T>({
     }
   };
 
+  // Range selection, like a mail client. The anchor is the row last toggled; `extent` remembers what a keyboard
+  // extension (Shift+Up/Down) added, so moving back shrinks it again.
+  const anchor = useRef<string | null>(null);
+  const extent = useRef<{ anchor: string; added: Set<string> } | null>(null);
+  const keysBetween = (a: string, b: string): string[] | null => {
+    const i = rows.findIndex((r) => rowKey(r) === a);
+    const j = rows.findIndex((r) => rowKey(r) === b);
+    return i < 0 || j < 0 ? null : rows.slice(Math.min(i, j), Math.max(i, j) + 1).map(rowKey);
+  };
   const toggleKey = (key: string) => {
     if (!selectable) return;
     const next = new Set(selectedKeys);
     if (!next.delete(key)) next.add(key);
+    anchor.current = key;
+    extent.current = null;
     onSelectedKeysChange(next);
+  };
+  /** Shift+click: every row from the anchor to this one takes the anchor row's state (selected adds, unselected removes). */
+  const rangeTo = (key: string) => {
+    if (!selectable) return;
+    const a = anchor.current;
+    const between = a === null ? null : keysBetween(a, key);
+    if (a === null || between === null) return toggleKey(key);
+    const next = new Set(selectedKeys);
+    const on = selectedKeys.has(a);
+    for (const k of between) {
+      if (on) next.add(k);
+      else next.delete(k);
+    }
+    extent.current = null;
+    onSelectedKeysChange(next);
+  };
+  /** Shift+Up/Down: select from the anchor to the row at `index`, undoing what the previous step added. */
+  const extendTo = (index: number, from: string | null) => {
+    const row = rows[index];
+    if (!selectable || !row) return;
+    const toKey = rowKey(row);
+    const anchorKey = extent.current?.anchor ?? anchor.current ?? from ?? toKey;
+    const between = keysBetween(anchorKey, toKey) ?? [toKey];
+    const base = new Set(selectedKeys);
+    for (const k of extent.current?.added ?? []) base.delete(k);
+    const added = new Set(between.filter((k) => !base.has(k)));
+    for (const k of between) base.add(k);
+    anchor.current = anchorKey;
+    extent.current = { anchor: anchorKey, added };
+    onSelectedKeysChange(base);
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
@@ -433,6 +474,20 @@ export function DataTable<T>({
         e.preventDefault();
         goToPage(e.key === "PageDown" ? 1 : -1);
       }
+      return;
+    }
+    if (e.shiftKey && selectable && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+      e.preventDefault();
+      const target = Math.min(rows.length - 1, Math.max(0, e.key === "ArrowDown" ? activeIndex + 1 : activeIndex < 0 ? 0 : activeIndex - 1));
+      const current = rows[activeIndex];
+      activate(target);
+      extendTo(target, current ? rowKey(current) : null);
+      return;
+    }
+    if (e.shiftKey && selectable && e.key === " ") {
+      e.preventDefault();
+      const row = rows[activeIndex];
+      if (row) rangeTo(rowKey(row));
       return;
     }
     const actions: Record<string, () => void> = {
@@ -565,7 +620,17 @@ export function DataTable<T>({
                       aria-label="Select all rows"
                       checked={rows.length > 0 && selectedCount === rows.length}
                       indeterminate={selectedCount > 0 && selectedCount < rows.length}
-                      onCheckedChange={(checked) => onSelectedKeysChange(checked ? new Set(allKeys) : new Set())}
+                      onCheckedChange={(checked) => {
+                        // The header box works on this page's rows only; selections made elsewhere stay.
+                        const next = new Set(selectedKeys);
+                        for (const k of allKeys) {
+                          if (checked) next.add(k);
+                          else next.delete(k);
+                        }
+                        anchor.current = null;
+                        extent.current = null;
+                        onSelectedKeysChange(next);
+                      }}
                     />
                   </div>
                 ) : null}
@@ -638,7 +703,20 @@ export function DataTable<T>({
                           className={cn("grid h-[var(--control-h)] items-center", bleed && "px-2", rowClasses(key))}
                         >
                           {selectable ? (
-                            <div role="gridcell" className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                            <div
+                              role="gridcell"
+                              className="flex items-center justify-center select-none"
+                              onClick={(e) => e.stopPropagation()}
+                              onMouseDownCapture={(e) => {
+                                if (e.shiftKey) e.preventDefault(); // no text selection while extending
+                              }}
+                              onClickCapture={(e) => {
+                                if (!e.shiftKey) return;
+                                e.preventDefault();
+                                e.stopPropagation();
+                                rangeTo(key);
+                              }}
+                            >
                               <Checkbox aria-label="Select row" checked={selectedKeys.has(key)} onCheckedChange={() => toggleKey(key)} />
                             </div>
                           ) : null}
