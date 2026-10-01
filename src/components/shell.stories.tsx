@@ -42,3 +42,14 @@ export const Default = () => {
   );
 };
 Default.storyMeta = { description: "Shown in a framed box here; a real page uses the whole window. The bar is the platform's: there is no header prop." } satisfies StoryMeta;
+
+export const NoSidebar = () => (
+  <QueryClientProvider client={client}>
+    <div className="panel h-72 overflow-hidden [&>div]:!h-full">
+      <Shell>
+        <p className="p-4 text-ink-muted">An app with no sidebar: the page takes the full width at every breakpoint and the bar has no menu icon.</p>
+      </Shell>
+    </div>
+  </QueryClientProvider>
+);
+NoSidebar.storyMeta = { description: "Leave `sidebar` out: no column, no menu icon, no drawer." } satisfies StoryMeta;

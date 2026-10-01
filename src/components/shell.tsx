@@ -13,8 +13,12 @@ import { usePlatformCommands } from "./platform-commands";
 import { ShellContext } from "./shell-context";
 
 export interface ShellProps {
-  /** Usually a `Sidebar`. From the md breakpoint it is a column on the left; below it, a drawer opened from the bar's menu icon. */
-  sidebar: ReactNode;
+  /**
+   * Usually a `Sidebar`. From the md breakpoint it is a column on the left; below it, a drawer opened from the bar's menu icon.
+   * Leave it out (or `null`) for an app with no sidebar: there is then no column, no menu icon and no drawer, and the page
+   * takes the full width at every breakpoint.
+   */
+  sidebar?: ReactNode;
   children: ReactNode;
   /** Label of the phone menu icon. @default "Open menu" */
   menuLabel?: string;
@@ -33,8 +37,9 @@ export interface ShellProps {
  * feedback panel, so mount it inside `CommandProvider` (and the router and query client). App navigation and actions
  * belong in the sidebar, the page and Cmd+K commands.
  */
-export function Shell({ sidebar, children, menuLabel = "Open menu", drawerLabel = "Menu", closeLabel = "Close", className }: ShellProps) {
+export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawerLabel = "Menu", closeLabel = "Close", className }: ShellProps) {
   const wide = useMinWidth("md");
+  const hasSidebar = sidebar !== null && sidebar !== undefined && sidebar !== false;
   const [open, setOpen] = useState(false);
   const host = useCommandHost();
   const live = useLiveStatus();
@@ -56,14 +61,14 @@ export function Shell({ sidebar, children, menuLabel = "Open menu", drawerLabel 
         onOpenPalette={() => host?.open()}
         paletteOpen={host?.isOpen ?? false}
         {...(feedback.available ? { onFeedback: feedback.open } : {})}
-        {...(wide ? {} : { onOpenMenu: () => setOpen(true), menuLabel })}
+        {...(wide || !hasSidebar ? {} : { onOpenMenu: () => setOpen(true), menuLabel })}
       />
       <FeedbackPanel feedback={feedback} />
       <div className="flex min-h-0 flex-1">
-        {wide ? <aside className="shrink-0 border-r border-line">{sidebar}</aside> : null}
+        {wide && hasSidebar ? <aside className="shrink-0 border-r border-line">{sidebar}</aside> : null}
         <main className="min-h-0 min-w-0 flex-1 overflow-auto">{children}</main>
       </div>
-      {wide ? null : (
+      {wide || !hasSidebar ? null : (
         <BaseDialog.Root open={open} onOpenChange={setOpen}>
           <BaseDialog.Portal>
             <BaseDialog.Backdrop className="anim-backdrop fixed inset-0 z-50 bg-black/50" />

@@ -161,6 +161,27 @@ describe("Shell", () => {
     expect(screen.queryByRole("button", { name: "Expand sidebar" })).toBeNull();
   });
 
+  it("without a sidebar there is no column, no menu icon and no drawer, at any width", () => {
+    for (const width of [1024, 390]) {
+      setViewportWidth(width);
+      window.__PLAYGROUND__ = { app_name: "tracker" } as never;
+      vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 401 })));
+      const { container, unmount } = render(
+        <QueryClientProvider client={new QueryClient()}>
+          <Shell>
+            <p>Content</p>
+          </Shell>
+        </QueryClientProvider>,
+      );
+      expect(container.querySelector("aside")).toBeNull();
+      expect(screen.queryByRole("button", { name: "Open menu" })).toBeNull();
+      expect(screen.getByText("Content")).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Open command palette" })).toBeTruthy();
+      unmount();
+    }
+    setViewportWidth(1024);
+  });
+
   it("works without a CommandProvider: the trigger is inert", () => {
     window.__PLAYGROUND__ = { app_name: "tracker" } as never;
     vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 401 })));
