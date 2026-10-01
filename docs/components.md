@@ -43,7 +43,7 @@ A static token: status, count or reference. `tone?: "default" | "ok" | "warn" | 
 Renders a `Chip` (`accent` maps to `link`). Use `Chip`; `Badge` stays until 1.0.
 
 ## Kbd
-Keyboard shortcut hint. `shortcut` (`mod+k`, `g i`) or free-text children. `mod` is the Command key on Apple platforms and Ctrl elsewhere.
+Keyboard shortcut hint. `shortcut` (`mod+k`, `g i`) or free-text children. `mod` is the Command key on Apple platforms and Ctrl elsewhere. Each key is a square keycap (1.5rem each way for a single character, wider for words such as Ctrl, with the glyph centred) and it reacts, subtly, to its own real key being pressed: it darkens a touch and sits a pixel lower (`data-pressed`). One shared set of window listeners serves every keycap on the page; keys let go on window blur, and with Command held a letter lets go by itself.
 
 ## Avatar
 Square, image with fallback initials. `name` (required), `src?`, `size?: "sm" | "md" | "lg"` (1.5rem, the control height, 3rem). `initialsOf(name)` is exported.
