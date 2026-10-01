@@ -134,7 +134,7 @@ function ColumnMenu<T>({
   const hideable = columns.filter((c) => c.hideable !== false);
   return (
     <Menu.Root>
-      <Menu.Trigger render={<Button icon={<Columns3 aria-hidden="true" className="size-4" />}>Columns</Button>} />
+      <Menu.Trigger render={<Button icon={<Columns3 aria-hidden="true" className="size-4" />} tip="Columns" className="border-transparent" />} />
       <Menu.Portal>
         <Menu.Positioner align="end" sideOffset={4} className="z-50">
           <Menu.Popup className="anim-fade panel panel-float min-w-40 p-1 text-ink outline-none">
@@ -306,8 +306,10 @@ export function DataTable<T>({
     else onSortChange(null);
   };
 
-  const template = [selectable ? CHECK_WIDTH : null, ...shown.map(trackOf)].filter(Boolean).join(" ");
-  const minWidth = `calc(${[selectable ? CHECK_WIDTH : null, ...shown.map(minOf)].filter(Boolean).join(" + ")})`;
+  // The Columns button is the last cell of the header row, so every row carries one more (empty) track.
+  const menuCell = hasColumnMenu && !cards;
+  const template = [selectable ? CHECK_WIDTH : null, ...shown.map(trackOf), menuCell ? CHECK_WIDTH : null].filter(Boolean).join(" ");
+  const minWidth = `calc(${[selectable ? CHECK_WIDTH : null, ...shown.map(minOf), menuCell ? CHECK_WIDTH : null, bleed ? "1rem" : null].filter(Boolean).join(" + ")})`;
   const rowStyle: CSSProperties = { gridTemplateColumns: template };
   const allKeys = rows.map(rowKey);
   const selectedCount = selectable ? allKeys.filter((k) => selectedKeys.has(k)).length : 0;
@@ -340,11 +342,6 @@ export function DataTable<T>({
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
-      {hasColumnMenu && !cards ? (
-        <div className="flex justify-end pb-2">
-          <ColumnMenu columns={columns} visibility={columnVisibility} onChange={changeVisibility} hiddenByWidth={hiddenByWidth} />
-        </div>
-      ) : null}
       <div
         ref={scroller}
         tabIndex={0}
@@ -384,7 +381,7 @@ export function DataTable<T>({
           </div>
         ) : (
           <div role="presentation" style={{ minWidth }}>
-            <div role="row" style={rowStyle} className="sticky top-0 z-10 grid h-[var(--control-h)] items-center border-b border-line bg-ground">
+            <div role="row" style={rowStyle} className={cn("sticky top-0 z-10 grid h-[var(--control-h)] items-center border-b border-line bg-ground", bleed && "px-2")}>
               {selectable ? (
                 <div role="columnheader" className="flex items-center justify-center">
                   <Checkbox
@@ -426,6 +423,11 @@ export function DataTable<T>({
                   </div>
                 );
               })}
+              {menuCell ? (
+                <div role="columnheader" aria-label="Columns" className="flex items-center justify-center">
+                  <ColumnMenu columns={columns} visibility={columnVisibility} onChange={changeVisibility} hiddenByWidth={hiddenByWidth} />
+                </div>
+              ) : null}
             </div>
             {stateBody ?? (
               <div role="rowgroup" style={virtual ? { height: rows.length * rowH, position: "relative" } : undefined}>
@@ -444,7 +446,7 @@ export function DataTable<T>({
                           onActiveKeyChange?.(key);
                           onRowClick?.(row);
                         }}
-                        className={cn("grid h-[var(--control-h)] items-center", rowClasses(key))}
+                        className={cn("grid h-[var(--control-h)] items-center", bleed && "px-2", rowClasses(key))}
                       >
                         {selectable ? (
                           <div role="gridcell" className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
@@ -456,6 +458,7 @@ export function DataTable<T>({
                             {c.cell(row)}
                           </div>
                         ))}
+                        {menuCell ? <div role="gridcell" /> : null}
                       </div>
                     );
                   })}

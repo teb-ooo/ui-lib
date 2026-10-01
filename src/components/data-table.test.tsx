@@ -42,6 +42,22 @@ describe("DataTable column configuration", () => {
   });
 });
 
+describe("DataTable header row", () => {
+  it("the Columns button is in the header row, not above the table", () => {
+    render(<DataTable {...base} persistKey="hdr" />);
+    const header = screen.getAllByRole("row")[0] as HTMLElement;
+    expect(header.contains(screen.getByRole("button", { name: "Columns" }))).toBe(true);
+    // every body row has one extra empty cell so the tracks line up
+    const body = screen.getAllByRole("row")[1] as HTMLElement;
+    expect(body.querySelectorAll("[role=gridcell]").length).toBe(columns.length + 1);
+  });
+  it("bleed insets the first and last cell from the edges", () => {
+    render(<DataTable {...base} bleed />);
+    expect((screen.getAllByRole("row")[0] as HTMLElement).className).toContain("px-2");
+    expect((screen.getAllByRole("row")[1] as HTMLElement).className).toContain("px-2");
+  });
+});
+
 describe("DataTable bleed and width", () => {
   it("bleed removes the frame", () => {
     const { rerender } = render(<DataTable {...base} />);
