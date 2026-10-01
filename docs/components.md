@@ -54,6 +54,12 @@ Multi-line text input; like `Input` it takes id, description and invalid state f
 ## Checkbox
 Base UI Checkbox: `checked`, `defaultChecked`, `onCheckedChange(checked)`, `indeterminate`, `disabled`, `name`. Give it an `aria-label` or wrap it in a `<label>`.
 
+## Switch
+An on/off preference that applies immediately (`role="switch"`, `aria-checked`). `label` (visible text and accessible name), `description?`, `checked`/`defaultChecked`, `onCheckedChange(checked)`, `disabled`, `name`. Use `Checkbox` for choices that wait for a submit.
+
+## FilePicker
+A button that opens the file chooser. `onFiles(files: File[])` (the chooser resets afterwards, so the same file can be chosen twice), `accept?`, `multiple?`, `children` (the label), `icon?`, `intent?`, `loading?`, `disabled?`. A ref exposes `open()` so a Cmd+K command can open the chooser.
+
 ## Container
 Centres page content with the page gutter. `width?: "narrow" | "default" | "wide" | "full"` (40rem, 64rem, 90rem, none; default `"default"`).
 

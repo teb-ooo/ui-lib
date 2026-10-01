@@ -98,6 +98,21 @@ describe("environment-dependent entries", () => {
     expect(external.assignLocation).toHaveBeenCalledWith("/auth/logout");
   });
 
+  it("Sign out goes to a configured path, and can be left out", async () => {
+    const user = userEvent.setup();
+    await renderApp({ signOutPath: "/logout" });
+    await openPalette(user);
+    await user.keyboard("sign out{Enter}");
+    expect(external.assignLocation).toHaveBeenCalledWith("/logout");
+  });
+
+  it("signOutPath false removes the Sign out command", async () => {
+    const user = userEvent.setup();
+    await renderApp({ signOutPath: false });
+    await openPalette(user);
+    expect(has("Sign out")).toBe(false);
+  });
+
   it("Profile links to the id app derived from the host, and is skipped when not derivable", async () => {
     const user = userEvent.setup();
     await renderApp(); // jsdom url: hello-staging.teb.ooo

@@ -44,6 +44,8 @@ function ItemsPage() {
 
 `run` may return a promise (spinner, inline error on failure) or a `Command[]` (opens a nested view). `deps` (second argument) says when the list itself changed; `run` and `when` always see the latest render. `shortcut` is a chord (`mod+shift+n`) or a sequence (`g i`). `useCommandPalette()` returns `{ open, close, isOpen }`.
 
+`CommandProvider` takes `signOutPath?: string | false` (default `"/auth/logout"`): where the built-in "Sign out" goes, or `false` to leave it out when the app has its own.
+
 Give every route a title so it reads well under "Go to": `createFileRoute("/items")({ staticData: { title: "Items" }, component: ItemsPage })`. The `title?: string` field is added to TanStack's `StaticDataRouteOption` by this package.
 
 The palette has no theme handling: it uses the ui tokens, so it follows the system colour scheme like the rest of the app. Built-ins read `window.__PLAYGROUND__` (`env`, `assistant`, `claude_session_url`, `app_name`; camelCase keys are accepted too) and are safe when it is absent.

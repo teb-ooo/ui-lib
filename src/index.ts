@@ -46,3 +46,7 @@ export { Sidebar } from "./components/sidebar";
 export type { SidebarProps, SidebarItem, SidebarLinkProps } from "./components/sidebar";
 export { Shell } from "./components/shell";
 export type { ShellProps } from "./components/shell";
+export { Switch } from "./components/switch";
+export type { SwitchProps } from "./components/switch";
+export { FilePicker } from "./components/file-picker";
+export type { FilePickerProps, FilePickerHandle } from "./components/file-picker";

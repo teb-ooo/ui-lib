@@ -20,13 +20,18 @@ export interface CommandProviderProps {
   sequenceTimeout?: number;
   /** Set when there is deliberately no router (a gallery, a test): silences the development warning about it. */
   standalone?: boolean;
+  /**
+   * Where the built-in "Sign out" navigates. Pass `false` to leave the command out (an app that has its own).
+   * @default "/auth/logout"
+   */
+  signOutPath?: string | false;
 }
 
 /**
  * Owns the palette: open state, the command registry, recents, and the global shortcuts.
  * Mount it once at the root of the app, inside `RouterProvider`, and render `<CommandTrigger />` in the header.
  */
-export function CommandProvider({ children, sequenceTimeout = 1000, standalone = false }: CommandProviderProps) {
+export function CommandProvider({ children, sequenceTimeout = 1000, standalone = false, signOutPath = "/auth/logout" }: CommandProviderProps) {
   // Outside a RouterProvider (tests, gallery) there is no router: navigation commands are simply absent.
   const router = useRouter({ warn: false }) as ReturnType<typeof useRouter> | undefined;
   const registry = useMemo(() => new CommandRegistry(), []);
@@ -63,7 +68,7 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
     const getAll = (): Command[] => {
       const seen = new Set<string>();
       const out: Command[] = [];
-      const builtins = builtinCommands({ router: routerRef.current, listShortcuts: shortcuts });
+      const builtins = builtinCommands({ router: routerRef.current, listShortcuts: shortcuts, signOutPath });
       for (const c of [...registry.all(), ...builtins]) {
         if (seen.has(c.id)) continue;
         seen.add(c.id);
@@ -72,7 +77,7 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
       return out;
     };
     return getAll();
-  }, [registry]);
+  }, [registry, signOutPath]);
 
   const openPalette = useCallback((next: PaletteInitial = {}) => {
     if (isOpenRef.current) return;

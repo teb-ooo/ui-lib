@@ -40,10 +40,12 @@ export interface BuiltinDeps {
   router: AnyRouter | undefined;
   /** All currently registered commands with a shortcut, for the "Keyboard shortcuts" view. */
   listShortcuts: () => Command[];
+  /** Where "Sign out" goes, or false to leave the command out. */
+  signOutPath: string | false;
 }
 
 /** The commands the provider registers in every app. */
-export function builtinCommands({ router, listShortcuts }: BuiltinDeps): Command[] {
+export function builtinCommands({ router, listShortcuts, signOutPath }: BuiltinDeps): Command[] {
   const playground = readPlayground;
   return [
     ...navigationCommands(router),
@@ -68,14 +70,18 @@ export function builtinCommands({ router, listShortcuts }: BuiltinDeps): Command
         if (url) assignLocation(url);
       },
     },
-    {
-      id: "builtin:sign-out",
-      title: "Sign out",
-      group: "Account",
-      keywords: ["logout", "log out"],
-      icon: LogOut,
-      run: () => assignLocation("/auth/logout"),
-    },
+    ...(signOutPath === false
+      ? []
+      : [
+          {
+            id: "builtin:sign-out",
+            title: "Sign out",
+            group: "Account",
+            keywords: ["logout", "log out"],
+            icon: LogOut,
+            run: () => assignLocation(signOutPath),
+          },
+        ]),
     {
       id: SHORTCUTS_ID,
       title: "Keyboard shortcuts",
