@@ -51,6 +51,9 @@ export interface GraphProps {
   className?: string;
 }
 
+/** A halo in the panel colour behind text, so a line or another label under it does not cut the letters. */
+const halo = (fill: string) => cn(fill, "stroke-surface [paint-order:stroke] [stroke-linejoin:round] [stroke-width:3px]");
+
 const clip = (s: string, n = 18) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 export interface LaidOutNode extends GraphNode {
@@ -242,6 +245,43 @@ export function Graph({
   const laid = useMemo(() => layoutGraph(shown, shownEdges, centerId, width, height), [shown, shownEdges, centerId, width, height]);
   const at = useMemo(() => new Map(laid.map((n) => [n.id, n])), [laid]);
 
+  // Relation labels sit on their line but step along it, or are dropped clear, rather than land on a node, a node's name
+  // or another relation label.
+  const edgeLabelAt = useMemo(() => {
+    const char = 8.6;
+    type Box = { x: number; y: number; w: number; h: number };
+    const hit = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+    const taken: Box[] = [];
+    for (const n of laid) {
+      const r = n.id === centerId ? 16 : 12;
+      const w = clip(n.label).length * char;
+      taken.push({ x: n.x - r, y: n.y - r, w: 2 * r, h: 2 * r }, { x: n.x - w / 2, y: n.y + r + 2, w, h: 17 });
+    }
+    const out = new Map<number, { x: number; y: number }>();
+    shownEdges.forEach((e, i) => {
+      const a = at.get(e.source);
+      const b = at.get(e.target);
+      if (!a || !b || !e.label) return;
+      const w = clip(e.label, 16).length * char;
+      let chosen: { x: number; y: number; box: Box } | null = null;
+      for (const t of [0.5, 0.38, 0.62, 0.28, 0.72]) {
+        const x = Math.min(width - w / 2 - 2, Math.max(w / 2 + 2, a.x + (b.x - a.x) * t));
+        const y = a.y + (b.y - a.y) * t - 3;
+        const box = { x: x - w / 2, y: y - 13, w, h: 17 };
+        chosen ??= { x, y, box };
+        if (!taken.some((o) => hit(box, o))) {
+          chosen = { x, y, box };
+          break;
+        }
+      }
+      if (chosen) {
+        taken.push(chosen.box);
+        out.set(i, { x: chosen.x, y: chosen.y });
+      }
+    });
+    return out;
+  }, [laid, shownEdges, at, centerId, width]);
+
   const kindKeys = useMemo(() => [...new Set(nodes.map((n) => n.kind))].sort(), [nodes]);
   const shapeOf = (kind: string): Shape => SHAPES[Math.max(0, kindKeys.indexOf(kind)) % SHAPES.length] ?? "circle";
   const kindOf = (kind: string): GraphKind => kinds[kind] ?? { label: kind };
@@ -293,8 +333,8 @@ export function Graph({
                     <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} strokeDasharray={e.draft ? "4 3" : undefined} className="stroke-line-strong" strokeWidth={1}>
                       <title>{text}</title>
                     </line>
-                    {showEdgeLabels && e.label ? (
-                      <text x={(a.x + b.x) / 2} y={(a.y + b.y) / 2 - 3} textAnchor="middle" className="fill-ink-faint" aria-hidden="true">
+                    {showEdgeLabels && e.label && edgeLabelAt.get(i) ? (
+                      <text x={edgeLabelAt.get(i)?.x} y={edgeLabelAt.get(i)?.y} textAnchor="middle" className={halo("fill-ink-faint")} aria-hidden="true">
                         {clip(e.label, 16)}
                       </text>
                     ) : null}
@@ -320,7 +360,7 @@ export function Graph({
                         <Icon aria-hidden="true" size={center ? 18 : 14} x={center ? -9 : -7} y={center ? -9 : -7} />
                       </g>
                     ) : null}
-                    <text y={r + 14} textAnchor="middle" className={cn(n.draft ? "fill-ink-muted" : "fill-ink")} aria-hidden="true">
+                    <text y={r + 14} textAnchor="middle" className={halo(n.draft ? "fill-ink-muted" : "fill-ink")} aria-hidden="true">
                       {clip(n.label)}
                     </text>
                   </>

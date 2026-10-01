@@ -581,7 +581,7 @@ export function DataTable<T>({
           }}
           onKeyDown={onKeyDown}
           className={cn(
-            "min-h-0 flex-1 overflow-auto outline-none focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-ink-muted",
+            "min-h-0 flex-1 overflow-auto outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ink-muted",
             !bleed && !pagination && "panel",
           )}
         >

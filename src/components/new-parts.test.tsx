@@ -206,3 +206,29 @@ describe("Graph", () => {
     expect(document.querySelector('a[href="/e/a"]')).not.toBeNull();
   });
 });
+
+describe("Graph labels", () => {
+  it("keeps relation labels clear of each other and of node names", () => {
+    const names = ["Centre", "Alpha", "Bravo", "Charlie", "Delta", "Echo"];
+    const nodes = names.map((label, i) => ({ id: `n${i}`, label, kind: "k" }));
+    const edges = names.slice(1).map((_, i) => ({ source: "n0", target: `n${i + 1}`, label: `relation ${i + 1}` }));
+    const { container } = render(<Graph nodes={nodes} edges={edges} centerId="n0" />);
+    const boxes = [...container.querySelectorAll("svg text")].map((t) => {
+      const w = (t.textContent ?? "").length * 8.6;
+      // A node's name is drawn relative to its group's translate; a relation label is in absolute coordinates.
+      const m = /translate\(([-\d.]+) ([-\d.]+)\)/.exec(t.closest("[transform]")?.getAttribute("transform") ?? "");
+      const ox = Number(m?.[1] ?? 0);
+      const oy = Number(m?.[2] ?? 0);
+      return { text: t.textContent ?? "", x: ox + Number(t.getAttribute("x") ?? 0) - w / 2, y: oy + Number(t.getAttribute("y") ?? 0) - 13, w, h: 17 };
+    });
+    expect(boxes.length).toBeGreaterThanOrEqual(10);
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i]!;
+        const b = boxes[j]!;
+        const overlap = a.x < b.x + b.w - 1 && b.x < a.x + a.w - 1 && a.y < b.y + b.h - 1 && b.y < a.y + a.h - 1;
+        expect(overlap, `${a.text} / ${b.text}`).toBe(false);
+      }
+    }
+  });
+});
