@@ -98,6 +98,46 @@ Selectable.storyMeta = { description: "A checkbox column with select all; Space 
 export const ColumnMenu = () => <Demo menu />;
 ColumnMenu.storyMeta = { description: "Giving onColumnVisibilityChange adds a Columns menu; the app keeps the state." } satisfies StoryMeta;
 
+export const Paginated = () => {
+  const total = 3455;
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(100);
+  const rows = useMemo(() => makeItems(Math.max(0, Math.min(pageSize, total - page * pageSize)), page * pageSize), [page, pageSize]);
+  return (
+    <div className="h-96">
+      <DataTable
+        label="Tasks"
+        columns={columns}
+        rows={rows}
+        rowKey={(r) => r.id}
+        pagination={{ page, pageSize, total, onPageChange: setPage, pageSizes: [25, 50, 100], onPageSizeChange: (n) => { setPageSize(n); setPage(0); } }}
+      />
+    </div>
+  );
+};
+Paginated.storyMeta = {
+  description:
+    "pagination: the table shows the page it is given and a footer says \"1-100 of 3455\" (the server's total) with Previous, Next and a rows-per-page select. Alt+PageUp and Alt+PageDown change page. totalIsLowerBound shows \"500+\".",
+} satisfies StoryMeta;
+
+export const PaginatedBleed = () => {
+  const [page, setPage] = useState(0);
+  return (
+    <div className="h-72">
+      <DataTable
+        label="Tasks"
+        columns={columns}
+        rows={makeItems(25, page * 25)}
+        rowKey={(r) => r.id}
+        bleed
+        renderCard={card}
+        pagination={{ page, pageSize: 25, total: 500, totalIsLowerBound: true, onPageChange: setPage }}
+      />
+    </div>
+  );
+};
+PaginatedBleed.storyMeta = { description: "With bleed the footer has the same edge-to-edge rule and inset as the cells; on a phone the cards get the same footer; \"500+\" marks a lower-bound total." } satisfies StoryMeta;
+
 export const ResizableColumns = () => (
   <div className="h-72">
     <DataTable

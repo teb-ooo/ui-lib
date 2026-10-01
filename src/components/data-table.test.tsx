@@ -42,6 +42,68 @@ describe("DataTable column configuration", () => {
   });
 });
 
+describe("DataTable pagination", () => {
+  const page = (p: Partial<NonNullable<React.ComponentProps<typeof DataTable<Row>>["pagination"]>> = {}) => ({
+    page: 0,
+    pageSize: 3,
+    total: 7,
+    onPageChange: vi.fn(),
+    ...p,
+  });
+
+  it("shows the range of the page out of the server's total, and a plus for a lower bound", () => {
+    const { rerender } = render(<DataTable {...base} pagination={page()} />);
+    expect(screen.getByRole("navigation", { name: "Pagination" }).textContent).toContain("1-3 of 7");
+    rerender(<DataTable {...base} rows={[rows[0] as Row]} pagination={page({ page: 2 })} />);
+    expect(screen.getByRole("navigation", { name: "Pagination" }).textContent).toContain("7-7 of 7");
+    rerender(<DataTable {...base} pagination={page({ total: 500, totalIsLowerBound: true })} />);
+    expect(screen.getByRole("navigation", { name: "Pagination" }).textContent).toContain("1-3 of 500+");
+    rerender(<DataTable {...base} rows={[]} pagination={page({ total: 0 })} empty="None" />);
+    expect(screen.getByRole("navigation", { name: "Pagination" }).textContent).toContain("0 of 0");
+  });
+
+  it("Previous and Next change page and are disabled at the ends", () => {
+    const first = page();
+    const { rerender } = render(<DataTable {...base} pagination={first} />);
+    expect(screen.getByRole("button", { name: "Previous page" }).hasAttribute("disabled")).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Next page" }));
+    expect(first.onPageChange).toHaveBeenCalledWith(1);
+    const lastP = page({ page: 2 });
+    rerender(<DataTable {...base} pagination={lastP} />);
+    expect(screen.getByRole("button", { name: "Next page" }).hasAttribute("disabled")).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Previous page" }));
+    expect(lastP.onPageChange).toHaveBeenCalledWith(1);
+  });
+
+  it("with a lower-bound total Next stays on while a full page came back", () => {
+    const p = page({ page: 1, total: 6, totalIsLowerBound: true });
+    const { rerender } = render(<DataTable {...base} pagination={p} />);
+    expect(screen.getByRole("button", { name: "Next page" }).hasAttribute("disabled")).toBe(false);
+    rerender(<DataTable {...base} rows={[rows[0] as Row]} pagination={p} />);
+    expect(screen.getByRole("button", { name: "Next page" }).hasAttribute("disabled")).toBe(true);
+  });
+
+  it("Alt+PageDown and Alt+PageUp change page, plain PageDown still moves rows, and onLoadMore is not called", () => {
+    const p = page({ page: 1 });
+    const onLoadMore = vi.fn();
+    const onActiveKeyChange = vi.fn();
+    render(<DataTable {...base} pagination={p} hasMore onLoadMore={onLoadMore} activeKey="a" onActiveKeyChange={onActiveKeyChange} />);
+    const grid = screen.getByRole("grid");
+    fireEvent.keyDown(grid, { key: "PageDown", altKey: true });
+    expect(p.onPageChange).toHaveBeenLastCalledWith(2);
+    fireEvent.keyDown(grid, { key: "PageUp", altKey: true });
+    expect(p.onPageChange).toHaveBeenLastCalledWith(0);
+    fireEvent.keyDown(grid, { key: "PageDown" });
+    expect(onActiveKeyChange).toHaveBeenCalled();
+    expect(onLoadMore).not.toHaveBeenCalled();
+  });
+
+  it("offers a rows-per-page select when page sizes are given", () => {
+    render(<DataTable {...base} pagination={page({ pageSizes: [25, 50, 100], onPageSizeChange: () => undefined })} />);
+    expect(screen.getByRole("combobox", { name: "Rows per page" })).toBeTruthy();
+  });
+});
+
 describe("DataTable resizable columns", () => {
   const widthOf = () => (screen.getAllByRole("row")[0] as HTMLElement).style.gridTemplateColumns;
   beforeEach(() => {

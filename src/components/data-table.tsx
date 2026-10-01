@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
 import { Menu } from "@base-ui/react/menu";
-import { ArrowDown, ArrowUp, Check, ChevronsUpDown, Columns3 } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, ChevronsUpDown, Columns3 } from "lucide-react";
 import { useMinWidth } from "../hooks/use-media-query";
 import type { Breakpoint } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
+import { Select } from "./select";
 
 export interface Column<T> {
   id: string;
@@ -34,6 +35,20 @@ export interface Column<T> {
 export interface Sort {
   columnId: string;
   direction: "asc" | "desc";
+}
+
+export interface Pagination {
+  /** The page shown, counting from 0. */
+  page: number;
+  pageSize: number;
+  /** Rows matching the filters on the server, not the rows loaded. */
+  total: number;
+  /** The total is a count up to a limit ("500+"): Next stays on while a full page was returned. */
+  totalIsLowerBound?: boolean;
+  onPageChange: (page: number) => void;
+  /** Giving this with `pageSizes` adds a rows-per-page select. */
+  onPageSizeChange?: (pageSize: number) => void;
+  pageSizes?: number[];
 }
 
 export interface DataTableProps<T> {
@@ -83,6 +98,12 @@ export interface DataTableProps<T> {
   /** More rows exist; `onLoadMore` is called when the end scrolls into view. */
   hasMore?: boolean;
   onLoadMore?: () => void;
+  /**
+   * Pages instead of paging by scrolling: the table shows only the rows it is given (one page) and a footer under it
+   * says "1-100 of 3455" with Previous and Next. `onLoadMore` and `hasMore` are not used. Alt+PageUp and Alt+PageDown
+   * change page from the grid.
+   */
+  pagination?: Pagination;
   /** Below `cardsBelow` (a screen width) the table is replaced by a list of these cards. */
   renderCard?: (row: T) => ReactNode;
   /** @default "md" */
@@ -139,7 +160,19 @@ const MIN_COLUMN_REM = 4;
 const NUDGE_PX = 16;
 
 /** The drag handle on a header cell's right edge. It measures its cell, so `fr` widths turn into pixels on the first move. */
-function ResizeHandle({ label, minPx, onResize, onCommit, onReset }: { label: string; minPx: number; onResize: (px: number) => void; onCommit: () => void; onReset: () => void }) {
+function ResizeHandle({
+  label,
+  minPx,
+  onResize,
+  onCommit,
+  onReset,
+}: {
+  label: string;
+  minPx: number;
+  onResize: (px: number) => void;
+  onCommit: () => void;
+  onReset: () => void;
+}) {
   const drag = useRef<{ x: number; width: number } | null>(null);
   const cellWidth = (el: HTMLElement) => el.parentElement?.offsetWidth ?? 0;
   return (
@@ -271,6 +304,7 @@ export function DataTable<T>({
   renderCard,
   cardsBelow = "md",
   bleed = false,
+  pagination,
   className,
 }: DataTableProps<T>) {
   const uid = useId();
@@ -338,9 +372,32 @@ export function DataTable<T>({
 
   const checkNearEnd = useCallback(() => {
     const el = scroller.current;
-    if (el && hasMore && !loading && onLoadMore && el.scrollHeight - el.scrollTop - el.clientHeight < NEAR_END_PX) onLoadMore();
-  }, [hasMore, loading, onLoadMore]);
+    if (el && !pagination && hasMore && !loading && onLoadMore && el.scrollHeight - el.scrollTop - el.clientHeight < NEAR_END_PX) onLoadMore();
+  }, [hasMore, loading, onLoadMore, pagination]);
   useEffect(checkNearEnd, [checkNearEnd, rows.length]);
+  // A new page starts at the top.
+  const pageNow = pagination?.page;
+  useEffect(() => {
+    if (scroller.current) scroller.current.scrollTop = 0;
+  }, [pageNow]);
+
+  const lastPage = pagination
+    ? pagination.totalIsLowerBound
+      ? rows.length < pagination.pageSize
+      : (pagination.page + 1) * pagination.pageSize >= pagination.total
+    : true;
+  const rangeStart = pagination ? pagination.page * pagination.pageSize + 1 : 0;
+  const rangeEnd = pagination
+    ? rows.length > 0
+      ? pagination.page * pagination.pageSize + rows.length
+      : Math.min((pagination.page + 1) * pagination.pageSize, pagination.total)
+    : 0;
+  const goToPage = (delta: number) => {
+    if (!pagination) return;
+    const next = pagination.page + delta;
+    if (next < 0 || (delta > 0 && lastPage)) return;
+    pagination.onPageChange(next);
+  };
 
   const rowId = (key: string) => `${uid}-${key}`;
   const activeIndex = activeKey === null ? -1 : rows.findIndex((r) => rowKey(r) === activeKey);
@@ -371,6 +428,13 @@ export function DataTable<T>({
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.target !== e.currentTarget) return;
     const page = Math.max(1, Math.floor(viewport / rowH) - 2);
+    if (e.altKey && (e.key === "PageDown" || e.key === "PageUp")) {
+      if (pagination) {
+        e.preventDefault();
+        goToPage(e.key === "PageDown" ? 1 : -1);
+      }
+      return;
+    }
     const actions: Record<string, () => void> = {
       ArrowDown: () => activate(activeIndex + 1),
       ArrowUp: () => activate(activeIndex < 0 ? 0 : activeIndex - 1),
@@ -402,14 +466,25 @@ export function DataTable<T>({
 
   // The Columns button is the last cell of the header row, so every row carries one more (empty) track.
   const menuCell = hasColumnMenu && !cards;
-  const template = [selectable ? CHECK_WIDTH : null, ...shown.map((c) => (widths[c.id] !== undefined ? `${widths[c.id]}px` : trackOf(c))), menuCell ? CHECK_WIDTH : null].filter(Boolean).join(" ");
+  const template = [
+    selectable ? CHECK_WIDTH : null,
+    ...shown.map((c) => (widths[c.id] !== undefined ? `${widths[c.id]}px` : trackOf(c))),
+    menuCell ? CHECK_WIDTH : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
   const minWidth = `calc(${[selectable ? CHECK_WIDTH : null, ...shown.map((c) => (widths[c.id] !== undefined ? `${widths[c.id]}px` : minOf(c))), menuCell ? CHECK_WIDTH : null, bleed ? "1rem" : null].filter(Boolean).join(" + ")})`;
   const rowStyle: CSSProperties = { gridTemplateColumns: template };
   const allKeys = rows.map(rowKey);
   const selectedCount = selectable ? allKeys.filter((k) => selectedKeys.has(k)).length : 0;
 
   const body = (): ReactNode => {
-    if (error) return <div role="alert" className="p-4 text-danger">{error}</div>;
+    if (error)
+      return (
+        <div role="alert" className="p-4 text-danger">
+          {error}
+        </div>
+      );
     if (rows.length === 0 && loading) {
       return Array.from({ length: 8 }, (_, i) => (
         <div key={i} aria-hidden="true" className="flex h-[var(--control-h)] items-center border-b border-line px-2">
@@ -436,144 +511,186 @@ export function DataTable<T>({
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
-      <div
-        ref={scroller}
-        tabIndex={0}
-        role={cards ? "listbox" : "grid"}
-        aria-label={label}
-        aria-busy={loading}
-        aria-rowcount={cards ? undefined : rows.length + 1}
-        aria-activedescendant={activeIndex >= 0 && activeIndex >= first && activeIndex < last ? rowId(rowKey(rows[activeIndex] as T)) : undefined}
-        onScroll={(e) => {
-          setScrollTop(e.currentTarget.scrollTop);
-          checkNearEnd();
-        }}
-        onKeyDown={onKeyDown}
-        className={cn("min-h-0 flex-1 overflow-auto outline-none focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-ink-muted", !bleed && "panel")}
-      >
-        {cards ? (
-          <div>
-            {stateBody ??
-              rows.map((row) => {
-                const key = rowKey(row);
-                return (
-                  <div
-                    key={key}
-                    id={rowId(key)}
-                    role="option"
-                    aria-selected={key === activeKey}
-                    onClick={() => {
-                      onActiveKeyChange?.(key);
-                      onRowClick?.(row);
-                    }}
-                    className={cn("p-3", rowClasses(key))}
-                  >
-                    {renderCard?.(row)}
+      <div className={cn("flex min-h-0 flex-1 flex-col", pagination && !bleed && "panel overflow-hidden")}>
+        <div
+          ref={scroller}
+          tabIndex={0}
+          role={cards ? "listbox" : "grid"}
+          aria-label={label}
+          aria-busy={loading}
+          aria-rowcount={cards ? undefined : rows.length + 1}
+          aria-activedescendant={activeIndex >= 0 && activeIndex >= first && activeIndex < last ? rowId(rowKey(rows[activeIndex] as T)) : undefined}
+          onScroll={(e) => {
+            setScrollTop(e.currentTarget.scrollTop);
+            checkNearEnd();
+          }}
+          onKeyDown={onKeyDown}
+          className={cn(
+            "min-h-0 flex-1 overflow-auto outline-none focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-ink-muted",
+            !bleed && !pagination && "panel",
+          )}
+        >
+          {cards ? (
+            <div>
+              {stateBody ??
+                rows.map((row) => {
+                  const key = rowKey(row);
+                  return (
+                    <div
+                      key={key}
+                      id={rowId(key)}
+                      role="option"
+                      aria-selected={key === activeKey}
+                      onClick={() => {
+                        onActiveKeyChange?.(key);
+                        onRowClick?.(row);
+                      }}
+                      className={cn("p-3", rowClasses(key))}
+                    >
+                      {renderCard?.(row)}
+                    </div>
+                  );
+                })}
+            </div>
+          ) : (
+            <div role="presentation" style={{ minWidth }}>
+              <div
+                role="row"
+                style={rowStyle}
+                className={cn("sticky top-0 z-10 grid h-[var(--control-h)] items-center border-b border-line bg-ground", bleed && "px-2")}
+              >
+                {selectable ? (
+                  <div role="columnheader" className="flex items-center justify-center">
+                    <Checkbox
+                      aria-label="Select all rows"
+                      checked={rows.length > 0 && selectedCount === rows.length}
+                      indeterminate={selectedCount > 0 && selectedCount < rows.length}
+                      onCheckedChange={(checked) => onSelectedKeysChange(checked ? new Set(allKeys) : new Set())}
+                    />
                   </div>
-                );
-              })}
-          </div>
-        ) : (
-          <div role="presentation" style={{ minWidth }}>
-            <div role="row" style={rowStyle} className={cn("sticky top-0 z-10 grid h-[var(--control-h)] items-center border-b border-line bg-ground", bleed && "px-2")}>
-              {selectable ? (
-                <div role="columnheader" className="flex items-center justify-center">
-                  <Checkbox
-                    aria-label="Select all rows"
-                    checked={rows.length > 0 && selectedCount === rows.length}
-                    indeterminate={selectedCount > 0 && selectedCount < rows.length}
-                    onCheckedChange={(checked) => onSelectedKeysChange(checked ? new Set(allKeys) : new Set())}
+                ) : null}
+                {shown.map((c) => {
+                  const dir = sort?.columnId === c.id ? sort.direction : null;
+                  return (
+                    <div
+                      key={c.id}
+                      role="columnheader"
+                      aria-sort={c.sortable ? (dir === "asc" ? "ascending" : dir === "desc" ? "descending" : "none") : undefined}
+                      className={cn("relative flex min-w-0 items-center px-2 text-ink-muted uppercase", c.align === "end" && "justify-end")}
+                    >
+                      {c.sortable ? (
+                        <Button
+                          className="-mx-2 border-transparent uppercase"
+                          onClick={() => cycleSort(c)}
+                          icon={
+                            dir === "asc" ? (
+                              <ArrowUp aria-hidden="true" className="size-3" />
+                            ) : dir === "desc" ? (
+                              <ArrowDown aria-hidden="true" className="size-3" />
+                            ) : (
+                              <ChevronsUpDown aria-hidden="true" className="size-3" />
+                            )
+                          }
+                        >
+                          {c.header}
+                        </Button>
+                      ) : (
+                        <span className="truncate">{c.header}</span>
+                      )}
+                      {resizable && c.resizable !== false ? (
+                        <ResizeHandle
+                          label={typeof c.header === "string" ? c.header : c.id}
+                          minPx={MIN_COLUMN_REM * (rowH / 1.75)}
+                          onResize={(px) => changeWidth(c.id, px)}
+                          onCommit={commitWidths}
+                          onReset={() => {
+                            changeWidth(c.id, null);
+                            commitWidths();
+                          }}
+                        />
+                      ) : null}
+                    </div>
+                  );
+                })}
+                {menuCell ? (
+                  <div role="columnheader" aria-label="Columns" className="flex items-center justify-center">
+                    <ColumnMenu columns={columns} visibility={columnVisibility} onChange={changeVisibility} hiddenByWidth={hiddenByWidth} />
+                  </div>
+                ) : null}
+              </div>
+              {stateBody ?? (
+                <div role="rowgroup" style={virtual ? { height: rows.length * rowH, position: "relative" } : undefined}>
+                  <div style={virtual ? { transform: `translateY(${first * rowH}px)` } : undefined}>
+                    {visibleRows.map((row, i) => {
+                      const key = rowKey(row);
+                      return (
+                        <div
+                          key={key}
+                          id={rowId(key)}
+                          role="row"
+                          aria-rowindex={first + i + 2}
+                          aria-selected={key === activeKey}
+                          style={rowStyle}
+                          onClick={() => {
+                            onActiveKeyChange?.(key);
+                            onRowClick?.(row);
+                          }}
+                          className={cn("grid h-[var(--control-h)] items-center", bleed && "px-2", rowClasses(key))}
+                        >
+                          {selectable ? (
+                            <div role="gridcell" className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                              <Checkbox aria-label="Select row" checked={selectedKeys.has(key)} onCheckedChange={() => toggleKey(key)} />
+                            </div>
+                          ) : null}
+                          {shown.map((c) => (
+                            <div key={c.id} role="gridcell" className={cn("min-w-0 truncate px-2", c.align === "end" && "text-right")}>
+                              {c.cell(row)}
+                            </div>
+                          ))}
+                          {menuCell ? <div role="gridcell" /> : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {rows.length > 0 && loading ? <div className="p-2 text-ink-faint">Loading</div> : null}
+        </div>
+        {pagination ? (
+          <div
+            role="navigation"
+            aria-label="Pagination"
+            className={cn("flex shrink-0 flex-wrap items-center gap-2 border-t border-line py-1", bleed ? "px-4" : "px-2")}
+          >
+            <span aria-live="polite" className="text-ink-muted">
+              {pagination.total === 0 ? "0 of 0" : `${rangeStart}-${rangeEnd} of ${pagination.total}${pagination.totalIsLowerBound ? "+" : ""}`}
+            </span>
+            <div className="ml-auto flex items-center gap-2">
+              {pagination.onPageSizeChange && pagination.pageSizes ? (
+                <div className="w-24">
+                  <Select
+                    label="Rows per page"
+                    options={pagination.pageSizes.map((n) => ({
+                      value: String(n),
+                      label: String(n),
+                    }))}
+                    value={String(pagination.pageSize)}
+                    onValueChange={(v) => v && pagination.onPageSizeChange?.(Number(v))}
                   />
                 </div>
               ) : null}
-              {shown.map((c) => {
-                const dir = sort?.columnId === c.id ? sort.direction : null;
-                return (
-                  <div
-                    key={c.id}
-                    role="columnheader"
-                    aria-sort={c.sortable ? (dir === "asc" ? "ascending" : dir === "desc" ? "descending" : "none") : undefined}
-                    className={cn("relative flex min-w-0 items-center px-2 text-ink-muted uppercase", c.align === "end" && "justify-end")}
-                  >
-                    {c.sortable ? (
-                      <Button
-                        className="-mx-2 border-transparent uppercase"
-                        onClick={() => cycleSort(c)}
-                        icon={
-                          dir === "asc" ? (
-                            <ArrowUp aria-hidden="true" className="size-3" />
-                          ) : dir === "desc" ? (
-                            <ArrowDown aria-hidden="true" className="size-3" />
-                          ) : (
-                            <ChevronsUpDown aria-hidden="true" className="size-3" />
-                          )
-                        }
-                      >
-                        {c.header}
-                      </Button>
-                    ) : (
-                      <span className="truncate">{c.header}</span>
-                    )}
-                    {resizable && c.resizable !== false ? (
-                      <ResizeHandle
-                        label={typeof c.header === "string" ? c.header : c.id}
-                        minPx={MIN_COLUMN_REM * (rowH / 1.75)}
-                        onResize={(px) => changeWidth(c.id, px)}
-                        onCommit={commitWidths}
-                        onReset={() => {
-                          changeWidth(c.id, null);
-                          commitWidths();
-                        }}
-                      />
-                    ) : null}
-                  </div>
-                );
-              })}
-              {menuCell ? (
-                <div role="columnheader" aria-label="Columns" className="flex items-center justify-center">
-                  <ColumnMenu columns={columns} visibility={columnVisibility} onChange={changeVisibility} hiddenByWidth={hiddenByWidth} />
-                </div>
-              ) : null}
+              <Button
+                icon={<ChevronLeft aria-hidden="true" className="size-4" />}
+                tip="Previous page"
+                disabled={pagination.page <= 0}
+                onClick={() => goToPage(-1)}
+              />
+              <Button icon={<ChevronRight aria-hidden="true" className="size-4" />} tip="Next page" disabled={lastPage} onClick={() => goToPage(1)} />
             </div>
-            {stateBody ?? (
-              <div role="rowgroup" style={virtual ? { height: rows.length * rowH, position: "relative" } : undefined}>
-                <div style={virtual ? { transform: `translateY(${first * rowH}px)` } : undefined}>
-                  {visibleRows.map((row, i) => {
-                    const key = rowKey(row);
-                    return (
-                      <div
-                        key={key}
-                        id={rowId(key)}
-                        role="row"
-                        aria-rowindex={first + i + 2}
-                        aria-selected={key === activeKey}
-                        style={rowStyle}
-                        onClick={() => {
-                          onActiveKeyChange?.(key);
-                          onRowClick?.(row);
-                        }}
-                        className={cn("grid h-[var(--control-h)] items-center", bleed && "px-2", rowClasses(key))}
-                      >
-                        {selectable ? (
-                          <div role="gridcell" className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                            <Checkbox aria-label="Select row" checked={selectedKeys.has(key)} onCheckedChange={() => toggleKey(key)} />
-                          </div>
-                        ) : null}
-                        {shown.map((c) => (
-                          <div key={c.id} role="gridcell" className={cn("min-w-0 truncate px-2", c.align === "end" && "text-right")}>
-                            {c.cell(row)}
-                          </div>
-                        ))}
-                        {menuCell ? <div role="gridcell" /> : null}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
-        )}
-        {rows.length > 0 && loading ? <div className="p-2 text-ink-faint">Loading</div> : null}
+        ) : null}
       </div>
     </div>
   );
