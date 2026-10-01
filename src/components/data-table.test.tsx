@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { setViewportWidth } from "../../test/cmdk/viewport";
 import { DataTable } from "./data-table";
@@ -39,6 +39,55 @@ describe("DataTable column configuration", () => {
     render(<DataTable {...base} columnVisibility={{ id: false }} onColumnVisibilityChange={() => undefined} />);
     expect(screen.queryByRole("columnheader", { name: /Id/ })).toBeNull();
     expect(window.localStorage.length).toBe(0);
+  });
+});
+
+describe("DataTable resizable columns", () => {
+  const widthOf = () => (screen.getAllByRole("row")[0] as HTMLElement).style.gridTemplateColumns;
+  beforeEach(() => {
+    window.localStorage.clear();
+    Object.defineProperty(HTMLElement.prototype, "offsetWidth", { configurable: true, get: () => 200 });
+  });
+  afterEach(() => {
+    delete (HTMLElement.prototype as { offsetWidth?: number }).offsetWidth;
+  });
+
+  it("no handles unless resizable, and a column can opt out", () => {
+    const { rerender } = render(<DataTable {...base} />);
+    expect(screen.queryAllByRole("separator")).toHaveLength(0);
+    rerender(<DataTable {...base} resizable columns={[columns[0] as Column<Row>, { ...(columns[1] as Column<Row>), resizable: false }]} />);
+    expect(screen.getAllByRole("separator")).toHaveLength(1);
+  });
+
+  it("dragging a handle sets that column's width in pixels, with a minimum, and does not sort", () => {
+    const onSortChange = vi.fn();
+    render(<DataTable {...base} resizable onSortChange={onSortChange} persistKey="rz" columnMenu={false} />);
+    const handle = screen.getByRole("separator", { name: "Resize Id" });
+    fireEvent.pointerDown(handle, { clientX: 100, pointerId: 1 });
+    fireEvent.pointerMove(handle, { clientX: 150, pointerId: 1 });
+    expect(widthOf()).toContain("250px");
+    fireEvent.pointerMove(handle, { clientX: -500, pointerId: 1 });
+    expect(widthOf()).toContain("64px");
+    fireEvent.pointerUp(handle, { pointerId: 1 });
+    fireEvent.click(handle);
+    expect(onSortChange).not.toHaveBeenCalled();
+    expect(JSON.parse(window.localStorage.getItem("teb-ui:data-table:rz:widths") ?? "null")).toEqual({ id: 64 });
+    expect(screen.queryByRole("button", { name: "Columns" })).toBeNull();
+  });
+
+  it("restores saved widths, nudges with the arrow keys and resets with Home and a double-click", () => {
+    window.localStorage.setItem("teb-ui:data-table:rz2:widths", JSON.stringify({ id: 120 }));
+    render(<DataTable {...base} resizable persistKey="rz2" />);
+    expect(widthOf()).toContain("120px");
+    const handle = screen.getByRole("separator", { name: "Resize Id" });
+    fireEvent.keyDown(handle, { key: "ArrowRight" });
+    expect(widthOf()).toContain("216px");
+    fireEvent.keyDown(handle, { key: "Home" });
+    expect(widthOf()).not.toContain("px ");
+    fireEvent.keyDown(handle, { key: "ArrowLeft" });
+    expect(widthOf()).toContain("184px");
+    fireEvent.doubleClick(handle);
+    expect(JSON.parse(window.localStorage.getItem("teb-ui:data-table:rz2:widths") ?? "null")).toEqual({});
   });
 });
 

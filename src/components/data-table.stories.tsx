@@ -98,6 +98,24 @@ Selectable.storyMeta = { description: "A checkbox column with select all; Space 
 export const ColumnMenu = () => <Demo menu />;
 ColumnMenu.storyMeta = { description: "Giving onColumnVisibilityChange adds a Columns menu; the app keeps the state." } satisfies StoryMeta;
 
+export const ResizableColumns = () => (
+  <div className="h-72">
+    <DataTable
+      label="Tasks"
+      columns={columns.map((c) => (c.id === "priority" ? { ...c, resizable: false } : c))}
+      rows={makeItems(12)}
+      rowKey={(r) => r.id}
+      resizable
+      persistKey="gallery-resizable"
+      columnMenu={false}
+    />
+  </div>
+);
+ResizableColumns.storyMeta = {
+  description:
+    "resizable: drag the right edge of a header, or focus it and press Left and Right (Home or a double-click resets). Widths are remembered with persistKey; columnMenu={false} saves them without the Columns menu. The P column opts out.",
+} satisfies StoryMeta;
+
 export const RemembersColumns = () => (
   <div className="h-72">
     <DataTable label="Tasks" columns={columns} rows={makeItems(12)} rowKey={(r) => r.id} persistKey="gallery-tasks" />

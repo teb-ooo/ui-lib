@@ -27,6 +27,8 @@ export interface Column<T> {
    * @default true
    */
   hideable?: boolean;
+  /** Set false to keep this column's width fixed when the table is `resizable`. */
+  resizable?: boolean;
 }
 
 export interface Sort {
@@ -53,6 +55,17 @@ export interface DataTableProps<T> {
    * unavailable or holds something unexpected is ignored.
    */
   persistKey?: string;
+  /**
+   * Lets a column be resized by dragging the right edge of its header (or focusing the handle and pressing Left and
+   * Right; Home or a double-click resets). Widths are saved with `persistKey` when given, else kept in the table.
+   * @default false
+   */
+  resizable?: boolean;
+  /**
+   * Show the Columns menu. By default it shows when `onColumnVisibilityChange` or `persistKey` is given; pass false to
+   * keep saving columns and widths without the menu.
+   */
+  columnMenu?: boolean;
   /** The highlighted row, matched by key so it survives a re-sort or a refetch. It usually drives a detail pane. */
   activeKey?: string | null;
   onActiveKeyChange?: (key: string) => void;
@@ -101,6 +114,68 @@ function writeSaved(key: string, value: Record<string, boolean>): void {
   } catch {
     // storage is full or blocked: the configuration just is not remembered
   }
+}
+
+function readWidths(key: string | undefined): Record<string, number> {
+  if (!key) return {};
+  try {
+    const parsed: unknown = JSON.parse(window.localStorage.getItem(`${STORAGE_PREFIX}${key}:widths`) ?? "null");
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return Object.fromEntries(Object.entries(parsed).filter((e): e is [string, number] => typeof e[1] === "number" && e[1] > 0));
+  } catch {
+    return {};
+  }
+}
+
+function writeWidths(key: string, value: Record<string, number>): void {
+  try {
+    window.localStorage.setItem(`${STORAGE_PREFIX}${key}:widths`, JSON.stringify(value));
+  } catch {
+    // not remembered
+  }
+}
+
+const MIN_COLUMN_REM = 4;
+const NUDGE_PX = 16;
+
+/** The drag handle on a header cell's right edge. It measures its cell, so `fr` widths turn into pixels on the first move. */
+function ResizeHandle({ label, minPx, onResize, onCommit, onReset }: { label: string; minPx: number; onResize: (px: number) => void; onCommit: () => void; onReset: () => void }) {
+  const drag = useRef<{ x: number; width: number } | null>(null);
+  const cellWidth = (el: HTMLElement) => el.parentElement?.offsetWidth ?? 0;
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={`Resize ${label}`}
+      tabIndex={0}
+      onClick={(e) => e.stopPropagation()}
+      onDoubleClick={onReset}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        drag.current = { x: e.clientX, width: cellWidth(e.currentTarget) };
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+      }}
+      onPointerMove={(e) => {
+        const d = drag.current;
+        if (d) onResize(Math.max(minPx, Math.round(d.width + e.clientX - d.x)));
+      }}
+      onPointerUp={() => {
+        if (drag.current) onCommit();
+        drag.current = null;
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Home") onReset();
+        else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+          onResize(Math.max(minPx, cellWidth(e.currentTarget) + (e.key === "ArrowRight" ? NUDGE_PX : -NUDGE_PX)));
+          onCommit();
+        } else return;
+        e.preventDefault();
+      }}
+      className="group absolute inset-y-0 right-0 z-10 w-2 cursor-col-resize touch-none outline-none"
+    >
+      <span className="mx-auto block h-full w-px bg-transparent group-hover:bg-ink-muted group-focus-visible:bg-ink-muted" />
+    </div>
+  );
 }
 
 const VIRTUALIZE_ABOVE = 100;
@@ -181,6 +256,8 @@ export function DataTable<T>({
   columnVisibility: controlledVisibility,
   onColumnVisibilityChange,
   persistKey,
+  resizable = false,
+  columnMenu,
   activeKey = null,
   onActiveKeyChange,
   onRowClick,
@@ -208,7 +285,24 @@ export function DataTable<T>({
     if (persistKey) writeSaved(persistKey, next);
     onColumnVisibilityChange?.(next);
   };
-  const hasColumnMenu = onColumnVisibilityChange !== undefined || persistKey !== undefined;
+  const hasColumnMenu = columnMenu ?? (onColumnVisibilityChange !== undefined || persistKey !== undefined);
+  const [widths, setWidths] = useState(() => readWidths(persistKey));
+  const widthsRef = useRef(widths);
+  useEffect(() => {
+    const next = readWidths(persistKey);
+    widthsRef.current = next;
+    setWidths(next);
+  }, [persistKey]);
+  const changeWidth = (id: string, px: number | null) => {
+    const next = { ...widthsRef.current };
+    if (px === null) delete next[id];
+    else next[id] = px;
+    widthsRef.current = next;
+    setWidths(next);
+  };
+  const commitWidths = () => {
+    if (persistKey) writeWidths(persistKey, widthsRef.current);
+  };
 
   const scroller = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
@@ -308,8 +402,8 @@ export function DataTable<T>({
 
   // The Columns button is the last cell of the header row, so every row carries one more (empty) track.
   const menuCell = hasColumnMenu && !cards;
-  const template = [selectable ? CHECK_WIDTH : null, ...shown.map(trackOf), menuCell ? CHECK_WIDTH : null].filter(Boolean).join(" ");
-  const minWidth = `calc(${[selectable ? CHECK_WIDTH : null, ...shown.map(minOf), menuCell ? CHECK_WIDTH : null, bleed ? "1rem" : null].filter(Boolean).join(" + ")})`;
+  const template = [selectable ? CHECK_WIDTH : null, ...shown.map((c) => (widths[c.id] !== undefined ? `${widths[c.id]}px` : trackOf(c))), menuCell ? CHECK_WIDTH : null].filter(Boolean).join(" ");
+  const minWidth = `calc(${[selectable ? CHECK_WIDTH : null, ...shown.map((c) => (widths[c.id] !== undefined ? `${widths[c.id]}px` : minOf(c))), menuCell ? CHECK_WIDTH : null, bleed ? "1rem" : null].filter(Boolean).join(" + ")})`;
   const rowStyle: CSSProperties = { gridTemplateColumns: template };
   const allKeys = rows.map(rowKey);
   const selectedCount = selectable ? allKeys.filter((k) => selectedKeys.has(k)).length : 0;
@@ -399,7 +493,7 @@ export function DataTable<T>({
                     key={c.id}
                     role="columnheader"
                     aria-sort={c.sortable ? (dir === "asc" ? "ascending" : dir === "desc" ? "descending" : "none") : undefined}
-                    className={cn("flex min-w-0 items-center px-2 text-ink-muted uppercase", c.align === "end" && "justify-end")}
+                    className={cn("relative flex min-w-0 items-center px-2 text-ink-muted uppercase", c.align === "end" && "justify-end")}
                   >
                     {c.sortable ? (
                       <Button
@@ -420,6 +514,18 @@ export function DataTable<T>({
                     ) : (
                       <span className="truncate">{c.header}</span>
                     )}
+                    {resizable && c.resizable !== false ? (
+                      <ResizeHandle
+                        label={typeof c.header === "string" ? c.header : c.id}
+                        minPx={MIN_COLUMN_REM * (rowH / 1.75)}
+                        onResize={(px) => changeWidth(c.id, px)}
+                        onCommit={commitWidths}
+                        onReset={() => {
+                          changeWidth(c.id, null);
+                          commitWidths();
+                        }}
+                      />
+                    ) : null}
                   </div>
                 );
               })}
