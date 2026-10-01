@@ -40,10 +40,16 @@ export interface DataTableProps<T> {
   /** Controlled sort. The table only shows the state and reports changes; the app sorts, in memory or on the server. */
   sort?: Sort | null;
   onSortChange?: (sort: Sort | null) => void;
-  /** Column id to visible; an absent id is visible. */
+  /** Column id to visible; an absent id is visible. Controlled: when given, it wins over the saved configuration. */
   columnVisibility?: Record<string, boolean>;
-  /** Giving this shows a "Columns" menu. */
+  /** Called when the Columns menu changes a column. Giving this, or `persistKey`, shows the "Columns" menu. */
   onColumnVisibilityChange?: (visibility: Record<string, boolean>) => void;
+  /**
+   * Saves the column configuration in `localStorage` under this key (shared by every table with the same key) and
+   * restores it on the next visit. Without `columnVisibility` the table keeps the state itself. Storage that is
+   * unavailable or holds something unexpected is ignored.
+   */
+  persistKey?: string;
   /** The highlighted row, matched by key so it survives a re-sort or a refetch. It usually drives a detail pane. */
   activeKey?: string | null;
   onActiveKeyChange?: (key: string) => void;
@@ -66,6 +72,27 @@ export interface DataTableProps<T> {
   /** @default "md" */
   cardsBelow?: Breakpoint;
   className?: string;
+}
+
+const STORAGE_PREFIX = "teb-ui:data-table:";
+
+function readSaved(key: string | undefined): Record<string, boolean> {
+  if (!key) return {};
+  try {
+    const parsed: unknown = JSON.parse(window.localStorage.getItem(STORAGE_PREFIX + key) ?? "null");
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return Object.fromEntries(Object.entries(parsed).filter((e): e is [string, boolean] => typeof e[1] === "boolean"));
+  } catch {
+    return {};
+  }
+}
+
+function writeSaved(key: string, value: Record<string, boolean>): void {
+  try {
+    window.localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
+  } catch {
+    // storage is full or blocked: the configuration just is not remembered
+  }
 }
 
 const VIRTUALIZE_ABOVE = 100;
@@ -126,8 +153,9 @@ export function DataTable<T>({
   label,
   sort = null,
   onSortChange,
-  columnVisibility,
+  columnVisibility: controlledVisibility,
   onColumnVisibilityChange,
+  persistKey,
   activeKey = null,
   onActiveKeyChange,
   onRowClick,
@@ -146,7 +174,16 @@ export function DataTable<T>({
   const up = { sm: useMinWidth("sm"), md: useMinWidth("md"), lg: useMinWidth("lg") };
   const cards = renderCard !== undefined && !up[cardsBelow];
   const selectable = selectedKeys !== undefined && onSelectedKeysChange !== undefined;
-  const shown = columns.filter((c) => columnVisibility?.[c.id] !== false && (c.hideBelow === undefined || up[c.hideBelow]));
+  const [saved, setSaved] = useState(() => readSaved(persistKey));
+  useEffect(() => setSaved(readSaved(persistKey)), [persistKey]);
+  const columnVisibility = controlledVisibility ?? saved;
+  const changeVisibility = (next: Record<string, boolean>) => {
+    setSaved(next);
+    if (persistKey) writeSaved(persistKey, next);
+    onColumnVisibilityChange?.(next);
+  };
+  const hasColumnMenu = onColumnVisibilityChange !== undefined || persistKey !== undefined;
+  const shown = columns.filter((c) => columnVisibility[c.id] !== false && (c.hideBelow === undefined || up[c.hideBelow]));
 
   const scroller = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
@@ -253,17 +290,23 @@ export function DataTable<T>({
   };
   const stateBody = body();
 
+  // Rows that do something on click look it: a pointer and a visible hover. The active row has its own marker
+  // (a bar on its left edge), so hover and active are never the same look.
+  const clickable = onRowClick !== undefined || onActiveKeyChange !== undefined;
   const rowClasses = (key: string) =>
     cn(
-      "cursor-default border-b border-line",
-      key === activeKey ? "bg-surface-raised" : selectedKeys?.has(key) ? "bg-surface" : "hover:bg-surface",
+      "border-b border-line",
+      clickable ? "cursor-pointer" : "cursor-default",
+      key === activeKey
+        ? "bg-surface-raised shadow-[inset_2px_0_0_0_var(--color-ink-muted)]"
+        : cn(selectedKeys?.has(key) && "bg-surface", clickable ? "hover:bg-surface-raised" : "hover:bg-surface"),
     );
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
-      {onColumnVisibilityChange && !cards ? (
+      {hasColumnMenu && !cards ? (
         <div className="flex justify-end pb-2">
-          <ColumnMenu columns={columns} visibility={columnVisibility ?? {}} onChange={onColumnVisibilityChange} />
+          <ColumnMenu columns={columns} visibility={columnVisibility} onChange={changeVisibility} />
         </div>
       ) : null}
       <div

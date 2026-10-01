@@ -19,6 +19,47 @@ const rows: Row[] = [
 ];
 const base = { columns, rows, rowKey: (r: Row) => r.id, label: "Things" };
 
+describe("DataTable column configuration", () => {
+  it("restores the saved columns, saves a change from the Columns menu, and ignores unusable storage", async () => {
+    window.localStorage.setItem("teb-ui:data-table:t", JSON.stringify({ name: false }));
+    const { unmount } = render(<DataTable {...base} persistKey="t" />);
+    expect(screen.queryByRole("columnheader", { name: /Name/ })).toBeNull();
+    expect(screen.getByRole("columnheader", { name: /Id/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Columns" }));
+    fireEvent.click(await screen.findByRole("menuitemcheckbox", { name: "Name" }));
+    expect(JSON.parse(window.localStorage.getItem("teb-ui:data-table:t") ?? "null")).toEqual({ name: true });
+    unmount();
+    window.localStorage.setItem("teb-ui:data-table:t", "not json");
+    render(<DataTable {...base} persistKey="t" />);
+    expect(screen.getByRole("columnheader", { name: /Name/ })).toBeTruthy();
+  });
+
+  it("without persistKey nothing is stored, and a controlled columnVisibility wins over the saved one", () => {
+    window.localStorage.clear();
+    render(<DataTable {...base} columnVisibility={{ id: false }} onColumnVisibilityChange={() => undefined} />);
+    expect(screen.queryByRole("columnheader", { name: /Id/ })).toBeNull();
+    expect(window.localStorage.length).toBe(0);
+  });
+});
+
+describe("DataTable row affordance", () => {
+  const rowOf = (name: string) => screen.getByText(name).closest("[role=row]") as HTMLElement;
+  it("clickable rows show a pointer and a hover state; plain rows do not get the pointer", () => {
+    const { unmount } = render(<DataTable {...base} onRowClick={() => undefined} />);
+    expect(rowOf("Beta").className).toContain("cursor-pointer");
+    expect(rowOf("Beta").className).toContain("hover:bg-surface-raised");
+    unmount();
+    render(<DataTable {...base} />);
+    expect(rowOf("Beta").className).toContain("cursor-default");
+    expect(rowOf("Beta").className).not.toContain("cursor-pointer");
+  });
+  it("the active row is marked apart from hover", () => {
+    render(<DataTable {...base} activeKey="b" onRowClick={() => undefined} />);
+    expect(rowOf("Beta").className).toContain("inset");
+    expect(rowOf("Alpha").className).not.toContain("inset");
+  });
+});
+
 describe("DataTable", () => {
   it("renders the header and one row per item", () => {
     render(<DataTable {...base} />);

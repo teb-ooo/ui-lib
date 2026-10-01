@@ -96,7 +96,16 @@ export const Selectable = () => <Demo selectable />;
 Selectable.storyMeta = { description: "A checkbox column with select all; Space toggles the active row." } satisfies StoryMeta;
 
 export const ColumnMenu = () => <Demo menu />;
-ColumnMenu.storyMeta = { description: "Giving onColumnVisibilityChange adds a Columns menu." } satisfies StoryMeta;
+ColumnMenu.storyMeta = { description: "Giving onColumnVisibilityChange adds a Columns menu; the app keeps the state." } satisfies StoryMeta;
+
+export const RemembersColumns = () => (
+  <div className="h-72">
+    <DataTable label="Tasks" columns={columns} rows={makeItems(12)} rowKey={(r) => r.id} persistKey="gallery-tasks" />
+  </div>
+);
+RemembersColumns.storyMeta = {
+  description: "With persistKey the table remembers which columns are shown in this browser: hide one in the Columns menu, then reload.",
+} satisfies StoryMeta;
 
 export const Thousands = () => <Demo count={5000} />;
 Thousands.storyMeta = { description: "5,000 rows; only the visible rows are in the page." } satisfies StoryMeta;
