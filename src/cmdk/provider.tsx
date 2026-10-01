@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "@tanstack/react-router";
+import { CommandHostContext } from "@teb-ooo/ui";
+import type { CommandHost } from "@teb-ooo/ui";
 import { ASK_ASSISTANT_ID, builtinCommands } from "./builtins";
 import { InternalsContext, PaletteApiContext } from "./context";
 import type { CommandInternals, CommandPaletteApi, PaletteInitial } from "./context";
@@ -21,17 +23,16 @@ export interface CommandProviderProps {
   /** Set when there is deliberately no router (a gallery, a test): silences the development warning about it. */
   standalone?: boolean;
   /**
-   * Where the built-in "Sign out" navigates. Pass `false` to leave the command out (an app that has its own).
-   * @default "/auth/logout"
+   * @deprecated Sign out is one of the platform commands the `Shell` registers; this is ignored.
    */
   signOutPath?: string | false;
 }
 
 /**
  * Owns the palette: open state, the command registry, recents, and the global shortcuts.
- * Mount it once at the root of the app, inside `RouterProvider`, and render `<CommandTrigger />` in the header.
+ * Mount it once at the root of the app, inside `RouterProvider`, and the `Shell` inside it draws the trigger and registers the platform commands.
  */
-export function CommandProvider({ children, sequenceTimeout = 1000, standalone = false, signOutPath = "/auth/logout" }: CommandProviderProps) {
+export function CommandProvider({ children, sequenceTimeout = 1000, standalone = false }: CommandProviderProps) {
   // Outside a RouterProvider (tests, gallery) there is no router: navigation commands are simply absent.
   const router = useRouter({ warn: false }) as ReturnType<typeof useRouter> | undefined;
   const registry = useMemo(() => new CommandRegistry(), []);
@@ -68,7 +69,7 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
     const getAll = (): Command[] => {
       const seen = new Set<string>();
       const out: Command[] = [];
-      const builtins = builtinCommands({ router: routerRef.current, listShortcuts: shortcuts, signOutPath });
+      const builtins = builtinCommands({ router: routerRef.current, listShortcuts: shortcuts });
       for (const c of [...registry.all(), ...builtins]) {
         if (seen.has(c.id)) continue;
         seen.add(c.id);
@@ -77,7 +78,7 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
       return out;
     };
     return getAll();
-  }, [registry, signOutPath]);
+  }, [registry]);
 
   const openPalette = useCallback((next: PaletteInitial = {}) => {
     if (isOpenRef.current) return;
@@ -124,6 +125,11 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
   const api = useMemo<CommandPaletteApi>(
     () => ({ open: () => openPalette(), close: closePalette, isOpen }),
     [openPalette, closePalette, isOpen],
+  );
+
+  const host = useMemo<CommandHost>(
+    () => ({ open: () => openPalette(), isOpen, register: (get) => registry.register(get) }),
+    [openPalette, isOpen, registry],
   );
 
   const internals = useMemo<CommandInternals>(
@@ -193,8 +199,10 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
   return (
     <PaletteApiContext.Provider value={api}>
       <InternalsContext.Provider value={internals}>
-        {children}
-        {isOpen ? <Palette key={openCount} /> : null}
+        <CommandHostContext.Provider value={host}>
+          {children}
+          {isOpen ? <Palette key={openCount} /> : null}
+        </CommandHostContext.Provider>
       </InternalsContext.Provider>
     </PaletteApiContext.Provider>
   );

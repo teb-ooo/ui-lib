@@ -2,7 +2,6 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { isNavigableRoute } from "../../src/cmdk/builtins";
-import { profileUrl } from "../../src/cmdk/external";
 import { readPlayground } from "../../src/cmdk/playground-global";
 import { renderApp } from "./harness";
 
@@ -90,40 +89,12 @@ describe("environment-dependent entries", () => {
     expect(has("Open in Claude app")).toBe(true);
   });
 
-  it("Sign out navigates to /auth/logout", async () => {
+  it("has no Sign out or Profile of its own: the Shell registers them as platform commands", async () => {
     const user = userEvent.setup();
     await renderApp();
     await openPalette(user);
-    await user.keyboard("sign out{Enter}");
-    expect(external.assignLocation).toHaveBeenCalledWith("/auth/logout");
-  });
-
-  it("Sign out goes to a configured path, and can be left out", async () => {
-    const user = userEvent.setup();
-    await renderApp({ signOutPath: "/logout" });
-    await openPalette(user);
-    await user.keyboard("sign out{Enter}");
-    expect(external.assignLocation).toHaveBeenCalledWith("/logout");
-  });
-
-  it("signOutPath false removes the Sign out command", async () => {
-    const user = userEvent.setup();
-    await renderApp({ signOutPath: false });
-    await openPalette(user);
     expect(has("Sign out")).toBe(false);
-  });
-
-  it("Profile links to the id app derived from the host, and is skipped when not derivable", async () => {
-    const user = userEvent.setup();
-    await renderApp(); // jsdom url: hello-staging.teb.ooo
-    await openPalette(user);
-    await user.keyboard("profile{Enter}");
-    expect(external.assignLocation).toHaveBeenCalledWith("https://id.teb.ooo/profile");
-    expect(profileUrl("localhost")).toBeNull();
-    expect(profileUrl("127.0.0.1")).toBeNull();
-    expect(profileUrl("teb.ooo")).toBeNull();
-    expect(profileUrl("hello.teb.ooo")).toBe("https://id.teb.ooo/profile");
-    expect(profileUrl("a.b.example.co")).toBe("https://id.b.example.co/profile");
+    expect(has("Profile")).toBe(false);
   });
 });
 

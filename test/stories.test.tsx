@@ -8,7 +8,7 @@ import type { StoryDefault } from "../src/stories";
 const modules = import.meta.glob<Record<string, unknown>>("../src/**/*.stories.tsx", { eager: true });
 
 /** Exports of src/index.ts that are not components and need no story. */
-const NON_COMPONENT_ALLOWLIST = new Set(["initialsOf", "useMediaQuery", "useMinWidth", "BREAKPOINTS"]);
+const NON_COMPONENT_ALLOWLIST = new Set(["initialsOf", "useMediaQuery", "useMinWidth", "BREAKPOINTS", "CommandHostContext"]);
 const GROUPS = new Set(["Foundations", "Atoms", "Molecules", "Email"]);
 
 function valueExports(index = "src/index.ts"): Array<{ name: string; from: string }> {

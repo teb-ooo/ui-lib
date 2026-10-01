@@ -1,19 +1,22 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
-import { Menu, X } from "lucide-react";
+import { X } from "lucide-react";
+import { LOGOUT_PATH, platformLinks, playground, useFeedback, useLiveStatus, useUser } from "@teb-ooo/web";
 import { useMinWidth } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
+import { useCommandHost } from "./command-host";
+import { FeedbackPanel } from "./feedback-panel";
+import { PlatformBar } from "./platform-bar";
+import { usePlatformCommands } from "./platform-commands";
 import { ShellContext } from "./shell-context";
 
 export interface ShellProps {
-  /** Usually a `Sidebar`. From the md breakpoint it is a column on the left; below it, a drawer opened from the header. */
+  /** Usually a `Sidebar`. From the md breakpoint it is a column on the left; below it, a drawer opened from the bar's menu icon. */
   sidebar: ReactNode;
-  /** The top bar of the content area (page title, search, user). On a phone the menu button sits before it. */
-  header?: ReactNode;
   children: ReactNode;
-  /** Label of the phone menu button. @default "Open menu" */
+  /** Label of the phone menu icon. @default "Open menu" */
   menuLabel?: string;
   /** Accessible name of the phone drawer. @default "Menu" */
   drawerLabel?: string;
@@ -23,20 +26,41 @@ export interface ShellProps {
 }
 
 /**
- * The page frame: sidebar and content, the full viewport height. The content area scrolls; the sidebar stays.
- * It has no routing or navigation content of its own: the app supplies the sidebar and the header.
+ * The closed platform shell: the platform's top bar (`PlatformBar`, built in), the sidebar and the content, the full
+ * viewport height. The content scrolls; the sidebar stays. There is no header prop, no slot and nothing an app can put
+ * in the bar: the app name, the live dot, the environment mark, the palette trigger, Send feedback (owner only) and the
+ * person menu come from the platform. The shell also registers the platform commands in the palette and owns the
+ * feedback panel, so mount it inside `CommandProvider` (and the router and query client). App navigation and actions
+ * belong in the sidebar, the page and Cmd+K commands.
  */
-export function Shell({ sidebar, header, children, menuLabel = "Open menu", drawerLabel = "Menu", closeLabel = "Close", className }: ShellProps) {
+export function Shell({ sidebar, children, menuLabel = "Open menu", drawerLabel = "Menu", closeLabel = "Close", className }: ShellProps) {
   const wide = useMinWidth("md");
   const [open, setOpen] = useState(false);
+  const host = useCommandHost();
+  const live = useLiveStatus();
+  const { user, isLoading } = useUser();
+  const feedback = useFeedback();
+  usePlatformCommands({ signedIn: user !== null && user !== undefined, feedback });
+  const next = encodeURIComponent(typeof window === "undefined" ? "/" : window.location.pathname + window.location.search);
+  const profile = platformLinks().find((l) => l.id === "platform:profile");
   return (
-    <div className={cn("flex h-dvh w-full overflow-hidden bg-ground text-ink", className)}>
-      {wide ? <aside className="shrink-0 border-r border-line">{sidebar}</aside> : null}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex min-h-12 shrink-0 items-center gap-2 border-b border-line px-4">
-          {wide ? null : <Button icon={<Menu aria-hidden="true" className="size-4" />} aria-label={menuLabel} onClick={() => setOpen(true)} />}
-          {header}
-        </header>
+    <div className={cn("flex h-dvh w-full flex-col overflow-hidden bg-ground text-ink", className)}>
+      <PlatformBar
+        appName={playground.appName || "app"}
+        env={playground.env}
+        live={live}
+        user={isLoading ? undefined : user ? { name: user.username || user.email, email: user.email } : null}
+        profileHref={profile?.href ?? null}
+        signOutHref={LOGOUT_PATH}
+        signInHref={`/auth/login?next=${next}`}
+        onOpenPalette={() => host?.open()}
+        paletteOpen={host?.isOpen ?? false}
+        {...(feedback.available ? { onFeedback: feedback.open } : {})}
+        {...(wide ? {} : { onOpenMenu: () => setOpen(true), menuLabel })}
+      />
+      <FeedbackPanel feedback={feedback} />
+      <div className="flex min-h-0 flex-1">
+        {wide ? <aside className="shrink-0 border-r border-line">{sidebar}</aside> : null}
         <main className="min-h-0 min-w-0 flex-1 overflow-auto">{children}</main>
       </div>
       {wide ? null : (

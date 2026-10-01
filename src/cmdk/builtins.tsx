@@ -1,6 +1,6 @@
-import { Compass, ExternalLink, Keyboard, LogOut, Sparkles, User } from "lucide-react";
+import { Compass, ExternalLink, Keyboard, Sparkles } from "lucide-react";
 import type { AnyRouter } from "@tanstack/react-router";
-import { assignLocation, openInNewTab, profileUrl } from "./external";
+import { openInNewTab } from "./external";
 import { readPlayground } from "./playground-global";
 import type { Command } from "./types";
 
@@ -40,12 +40,10 @@ export interface BuiltinDeps {
   router: AnyRouter | undefined;
   /** All currently registered commands with a shortcut, for the "Keyboard shortcuts" view. */
   listShortcuts: () => Command[];
-  /** Where "Sign out" goes, or false to leave the command out. */
-  signOutPath: string | false;
 }
 
 /** The commands the provider registers in every app. */
-export function builtinCommands({ router, listShortcuts, signOutPath }: BuiltinDeps): Command[] {
+export function builtinCommands({ router, listShortcuts }: BuiltinDeps): Command[] {
   const playground = readPlayground;
   return [
     ...navigationCommands(router),
@@ -58,30 +56,6 @@ export function builtinCommands({ router, listShortcuts, signOutPath }: BuiltinD
       when: () => playground().claudeSessionUrl !== "",
       run: () => openInNewTab(playground().claudeSessionUrl),
     },
-    {
-      id: "builtin:profile",
-      title: "Profile",
-      group: "Account",
-      keywords: ["account", "passkey", "settings"],
-      icon: User,
-      when: () => profileUrl() !== null,
-      run: () => {
-        const url = profileUrl();
-        if (url) assignLocation(url);
-      },
-    },
-    ...(signOutPath === false
-      ? []
-      : [
-          {
-            id: "builtin:sign-out",
-            title: "Sign out",
-            group: "Account",
-            keywords: ["logout", "log out"],
-            icon: LogOut,
-            run: () => assignLocation(signOutPath),
-          },
-        ]),
     {
       id: SHORTCUTS_ID,
       title: "Keyboard shortcuts",

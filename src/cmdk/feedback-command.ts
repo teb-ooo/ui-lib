@@ -8,6 +8,9 @@ export interface FeedbackCommandSource {
 }
 
 /**
+ * @deprecated The `Shell` registers Send feedback itself (and draws the icon in the bar), so an app calls neither
+ * this nor `useFeedback` any more. This hook now only registers the same command id again, which the palette dedupes.
+ *
  * Registers "Send feedback" in the palette, only while `feedback.available` (the superadmin or the app's owner, not a
  * test browser), so nobody else sees it. Feedback is reached only through Cmd+K: there is no header button.
  */
