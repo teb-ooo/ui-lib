@@ -63,6 +63,14 @@ describe.each(Object.entries(modules))("story module %s", (path, mod) => {
     }
   });
 
+  it("has curated aliases: a few lower-case words or short phrases, no duplicates, none repeating the title", () => {
+    const aliases = def?.aliases ?? [];
+    expect(aliases.length, `${path}: every entry lists the other names people search for`).toBeGreaterThanOrEqual(2);
+    for (const a of aliases) expect(a, `${path}: alias ${a}`).toMatch(/^[a-z0-9][a-z0-9 -]*$/);
+    expect(new Set(aliases).size).toBe(aliases.length);
+    expect(aliases).not.toContain(def?.title.toLowerCase());
+  });
+
   const variants = Object.entries(mod).filter(([k]) => k !== "default");
 
   it("has at least one PascalCase variant that is a function component", () => {

@@ -5,6 +5,7 @@ export default {
   title: "Input",
   group: "Atoms",
   description: "Single-line text input. Put it inside a Field to get a label, description and error.",
+  aliases: ["text field", "textbox", "text input", "form input", "entry"],
   component: "Input",
   source: "src/components/input.tsx",
 } satisfies StoryDefault;

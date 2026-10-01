@@ -7,6 +7,7 @@ export default {
   title: "Select",
   group: "Atoms",
   description: "Choose one option from a short list. For long lists that need searching, use Combobox.",
+  aliases: ["dropdown", "drop down", "picker", "listbox", "choose one", "menu", "option list"],
   component: "Select",
   source: "src/components/select.tsx",
 } satisfies StoryDefault;

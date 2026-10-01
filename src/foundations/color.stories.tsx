@@ -5,6 +5,7 @@ export default {
   group: "Foundations",
   description:
     "The semantic colour tokens in the current scheme. Ground is pure black (dark) or pure white (light); neutrals are zero-chroma grays; colour appears only as state: red (danger), amber (warning), emerald (ok), sky (link), violet (agent). Components name these tokens, never a palette step or a literal.",
+  aliases: ["colour", "colors", "theme", "tokens", "semantic colors", "dark mode", "light mode", "palette roles"],
 } satisfies StoryDefault;
 
 const SURFACES = ["ground", "surface", "surface-raised", "line", "line-strong"] as const;

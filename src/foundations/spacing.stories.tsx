@@ -3,7 +3,9 @@ import type { StoryDefault } from "../stories";
 export default {
   title: "Spacing",
   group: "Foundations",
-  description: "One control height, 1.75rem (--control-h), shared by buttons, inputs, chips and avatars; gaps use the Tailwind spacing unit (0.25rem).",
+  description:
+    "One control height, 1.75rem (--control-h), shared by buttons, inputs, chips and avatars; gaps use the Tailwind spacing unit (0.25rem).",
+  aliases: ["control height", "size", "padding", "margin", "gap", "dimensions", "rhythm"],
 } satisfies StoryDefault;
 
 export const ControlHeight = () => (

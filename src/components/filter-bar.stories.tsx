@@ -11,7 +11,9 @@ import type { StoryDefault, StoryMeta } from "../stories";
 export default {
   title: "FilterBar",
   group: "Molecules",
-  description: "A row of filter controls that wraps on a phone, with an end slot for a count or a view menu. Compose it from SearchInput, ToggleGroup, Select, Combobox and ViewMenu.",
+  description:
+    "A row of filter controls that wraps on a phone, with an end slot for a count or a view menu. Compose it from SearchInput, ToggleGroup, Select, Combobox and ViewMenu.",
+  aliases: ["filters", "toolbar", "facets", "search bar", "query builder", "faceted search"],
   component: "FilterBar",
   source: "src/components/filter-bar.tsx",
 } satisfies StoryDefault;
@@ -34,8 +36,25 @@ export const Composed = () => {
       }
     >
       <SearchInput value={q} onValueChange={setQ} placeholder="Search tasks" />
-      <ToggleGroup multiple label="Type" options={[{ value: "bug", label: "Bug" }, { value: "feature", label: "Feature" }]} value={type} onValueChange={setType} />
-      <Select label="Owner" options={[{ value: "ada", label: "Ada" }, { value: "grace", label: "Grace" }]} value={owner} onValueChange={setOwner} />
+      <ToggleGroup
+        multiple
+        label="Type"
+        options={[
+          { value: "bug", label: "Bug" },
+          { value: "feature", label: "Feature" },
+        ]}
+        value={type}
+        onValueChange={setType}
+      />
+      <Select
+        label="Owner"
+        options={[
+          { value: "ada", label: "Ada" },
+          { value: "grace", label: "Grace" },
+        ]}
+        value={owner}
+        onValueChange={setOwner}
+      />
       <Combobox multiple label="Labels" options={labels} value={tags} onValueChange={setTags} />
     </FilterBar>
   );

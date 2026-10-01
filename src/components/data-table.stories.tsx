@@ -10,6 +10,7 @@ export default {
   group: "Molecules",
   description:
     "A dense, keyboard-driven table for many rows: sticky header, sortable columns, column menu, checkbox selection, an active row that can drive a detail pane, cursor paging and windowing past 100 rows. Below a breakpoint it can show cards. It fills its parent's height and scrolls inside it. Click the table, then use the arrow keys, Home, End, Enter and Space.",
+  aliases: ["table", "grid", "data grid", "datagrid", "list", "rows", "spreadsheet", "sortable", "pagination", "virtual list"],
   component: "DataTable",
   source: "src/components/data-table.tsx",
 } satisfies StoryDefault;
@@ -63,7 +64,17 @@ const card = (r: Item) => (
   </div>
 );
 
-function Demo({ count = 30, selectable = false, menu = false, cards = false }: { count?: number; selectable?: boolean; menu?: boolean; cards?: boolean }) {
+function Demo({
+  count = 30,
+  selectable = false,
+  menu = false,
+  cards = false,
+}: {
+  count?: number;
+  selectable?: boolean;
+  menu?: boolean;
+  cards?: boolean;
+}) {
   const [sort, setSort] = useState<Sort | null>(null);
   const [active, setActive] = useState<string | null>("item-2");
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
@@ -90,10 +101,15 @@ function Demo({ count = 30, selectable = false, menu = false, cards = false }: {
 }
 
 export const Default = () => <Demo />;
-Default.storyMeta = { description: "Sort by a header; the active row keeps its highlight through a re-sort. Columns drop out on narrower screens." } satisfies StoryMeta;
+Default.storyMeta = {
+  description: "Sort by a header; the active row keeps its highlight through a re-sort. Columns drop out on narrower screens.",
+} satisfies StoryMeta;
 
 export const Selectable = () => <Demo selectable />;
-Selectable.storyMeta = { description: "A checkbox column with select all. Shift+click a second checkbox to select the range; Space toggles the active row, Shift+Space and Shift+Up/Down extend the selection." } satisfies StoryMeta;
+Selectable.storyMeta = {
+  description:
+    "A checkbox column with select all. Shift+click a second checkbox to select the range; Space toggles the active row, Shift+Space and Shift+Up/Down extend the selection.",
+} satisfies StoryMeta;
 
 export const ColumnMenu = () => <Demo menu />;
 ColumnMenu.storyMeta = { description: "Giving onColumnVisibilityChange adds a Columns menu; the app keeps the state." } satisfies StoryMeta;
@@ -110,14 +126,24 @@ export const Paginated = () => {
         columns={columns}
         rows={rows}
         rowKey={(r) => r.id}
-        pagination={{ page, pageSize, total, onPageChange: setPage, pageSizes: [25, 50, 100], onPageSizeChange: (n) => { setPageSize(n); setPage(0); } }}
+        pagination={{
+          page,
+          pageSize,
+          total,
+          onPageChange: setPage,
+          pageSizes: [25, 50, 100],
+          onPageSizeChange: (n) => {
+            setPageSize(n);
+            setPage(0);
+          },
+        }}
       />
     </div>
   );
 };
 Paginated.storyMeta = {
   description:
-    "pagination: the table shows the page it is given and a footer says \"1-100 of 3455\" (the server's total) with Previous, Next and a rows-per-page select. Alt+PageUp and Alt+PageDown change page. totalIsLowerBound shows \"500+\".",
+    'pagination: the table shows the page it is given and a footer says "1-100 of 3455" (the server\'s total) with Previous, Next and a rows-per-page select. Alt+PageUp and Alt+PageDown change page. totalIsLowerBound shows "500+".',
 } satisfies StoryMeta;
 
 export const PaginatedBleed = () => {
@@ -136,7 +162,10 @@ export const PaginatedBleed = () => {
     </div>
   );
 };
-PaginatedBleed.storyMeta = { description: "With bleed the footer has the same edge-to-edge rule and inset as the cells; on a phone the cards get the same footer; \"500+\" marks a lower-bound total." } satisfies StoryMeta;
+PaginatedBleed.storyMeta = {
+  description:
+    'With bleed the footer has the same edge-to-edge rule and inset as the cells; on a phone the cards get the same footer; "500+" marks a lower-bound total.',
+} satisfies StoryMeta;
 
 export const ResizableColumns = () => (
   <div className="h-72">
@@ -173,7 +202,9 @@ export const Bleed = () => {
     </div>
   );
 };
-Bleed.storyMeta = { description: "bleed: no frame; the header rule and row dividers run edge to edge. Use it when the table is the page." } satisfies StoryMeta;
+Bleed.storyMeta = {
+  description: "bleed: no frame; the header rule and row dividers run edge to edge. Use it when the table is the page.",
+} satisfies StoryMeta;
 
 export const NarrowPane = () => (
   <div className="h-60 w-80 max-w-full">
@@ -181,7 +212,8 @@ export const NarrowPane = () => (
   </div>
 );
 NarrowPane.storyMeta = {
-  description: "hideBelow follows the table's own width: in this narrow box the status and owner columns drop out by themselves, and the Columns menu says how many are hidden.",
+  description:
+    "hideBelow follows the table's own width: in this narrow box the status and owner columns drop out by themselves, and the Columns menu says how many are hidden.",
 } satisfies StoryMeta;
 
 export const Thousands = () => <Demo count={5000} />;

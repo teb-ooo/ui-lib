@@ -5,6 +5,7 @@ export default {
   title: "Chip",
   group: "Atoms",
   description: "A static token: a status, a count or a reference. Colour is state only.",
+  aliases: ["tag", "pill", "badge", "label", "status", "token", "lozenge"],
   component: "Chip",
   source: "src/components/chip.tsx",
 } satisfies StoryDefault;

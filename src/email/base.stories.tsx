@@ -7,6 +7,7 @@ export default {
   group: "Email",
   description:
     "The base email layout with sample data, rendered twice: Light and Dark. Mail clients ignore CSS variables, so the layout uses literal values from email/tokens.json, and the dark rendering swaps the light literals for the dark ones.",
+  aliases: ["email template", "mail", "html email", "newsletter", "message layout", "transactional"],
 } satisfies StoryDefault;
 
 const sample = {
@@ -21,9 +22,7 @@ const content =
 
 /** Simple string replace of the Go template placeholders; the real rendering happens in Go. */
 function renderSample(template: string, data: Record<string, string>, body: string): string {
-  return template
-    .replace('{{template "content" .}}', body)
-    .replace(/\{\{\.(\w+)\}\}/g, (_m, key: string) => data[key] ?? "");
+  return template.replace('{{template "content" .}}', body).replace(/\{\{\.(\w+)\}\}/g, (_m, key: string) => data[key] ?? "");
 }
 
 /** Removes the template's own dark-mode media block so a preview shows exactly one scheme. */
@@ -55,7 +54,13 @@ function Frame({ label, html, height }: { label: string; html: string; height: n
   return (
     <figure className="m-0 flex min-w-0 flex-1 flex-col gap-2">
       <figcaption className="text-ink-muted uppercase">{label}</figcaption>
-      <iframe title={`Email preview, ${label.toLowerCase()}`} srcDoc={html} sandbox="" className="w-full rounded border border-line" style={{ height }} />
+      <iframe
+        title={`Email preview, ${label.toLowerCase()}`}
+        srcDoc={html}
+        sandbox=""
+        className="w-full rounded border border-line"
+        style={{ height }}
+      />
     </figure>
   );
 }

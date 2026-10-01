@@ -6,6 +6,7 @@ export default {
   title: "Field",
   group: "Molecules",
   description: "Label, control, description and error, wired together for assistive technology.",
+  aliases: ["form field", "label", "form group", "form control", "validation", "error message", "input wrapper"],
   component: "Field",
   source: "src/components/field.tsx",
 } satisfies StoryDefault;

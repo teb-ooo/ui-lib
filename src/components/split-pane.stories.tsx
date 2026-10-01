@@ -8,6 +8,7 @@ export default {
   group: "Molecules",
   description:
     "List and detail. From the lg breakpoint they sit side by side, with an optional draggable divider; below it the list fills the screen and an open detail becomes a full-screen sheet.",
+  aliases: ["master detail", "list detail", "resizable panes", "splitter", "two pane", "inspector", "divider"],
   component: "SplitPane",
   source: "src/components/split-pane.tsx",
 } satisfies StoryDefault;

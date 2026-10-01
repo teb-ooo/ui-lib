@@ -9,6 +9,7 @@ export default {
   group: "Molecules",
   description:
     "The page frame: a sidebar and a content area with a top bar, the full viewport height. From the md breakpoint the sidebar is a column; below it a menu button opens it as a drawer. The app supplies the sidebar and the header; the Shell has no routing or navigation of its own. Use it once, at the root of a page.",
+  aliases: ["app shell", "layout", "page frame", "scaffold", "chrome", "frame", "drawer layout"],
   component: "Shell",
   source: "src/components/shell.tsx",
 } satisfies StoryDefault;

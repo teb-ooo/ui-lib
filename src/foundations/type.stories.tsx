@@ -5,6 +5,7 @@ export default {
   group: "Foundations",
   description:
     "One typeface, Geist Mono, in two sizes. Body is 14px on a 1.6 line for everything: labels, controls, cells, captions, the brand. Display is 32px on a 1.3 line at the same weight (titles are larger, not bolder), for page titles and empty-state headlines, through the display-lg class. Inside body size, hierarchy is colour.",
+  aliases: ["typography", "font", "fonts", "text size", "headings", "font size", "monospace", "geist mono", "title"],
 } satisfies StoryDefault;
 
 export const Body = () => (

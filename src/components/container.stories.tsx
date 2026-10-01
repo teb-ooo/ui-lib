@@ -5,7 +5,9 @@ import type { StoryDefault, StoryMeta } from "../stories";
 export default {
   title: "Container",
   group: "Molecules",
-  description: "Page-width variants: narrow for reading and forms, default for most pages, wide for tables, full for edge to edge. The gutter is fixed.",
+  description:
+    "Page-width variants: narrow for reading and forms, default for most pages, wide for tables, full for edge to edge. The gutter is fixed.",
+  aliases: ["wrapper", "page width", "max width", "layout", "gutter", "centered column"],
   component: "Container",
   source: "src/components/container.tsx",
 } satisfies StoryDefault;

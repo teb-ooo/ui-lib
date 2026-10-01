@@ -7,6 +7,7 @@ export default {
   group: "Atoms",
   description:
     "A single dot that says whether a screen is receiving live updates: live (green), reconnecting (amber, pulsing), degraded (an amber ring: open, but a source is down so changes may be missed) or not live. Put it in the app header right next to the staging label. It is only a dot, never a chip and never visible text; its accessible label names the state. It takes the status useLive() from @teb-ooo/web reports.",
+  aliases: ["status dot", "online", "connection", "realtime", "sse", "presence", "connected", "heartbeat"],
   component: "LiveIndicator",
   source: "src/components/live-indicator.tsx",
 } satisfies StoryDefault;
@@ -24,7 +25,9 @@ export const NotLive = () => <LiveIndicator status="off" />;
 NotLive.storyMeta = { state: "disabled" } satisfies StoryMeta;
 
 export const WithTooltip = () => <LiveIndicator status="degraded" tip />;
-WithTooltip.storyMeta = { description: "tip adds a tooltip (true shows the status name, or pass text); the dot becomes focusable. Hover or focus it." } satisfies StoryMeta;
+WithTooltip.storyMeta = {
+  description: "tip adds a tooltip (true shows the status name, or pass text); the dot becomes focusable. Hover or focus it.",
+} satisfies StoryMeta;
 
 export const NextToTheStagingLabel = () => (
   <div className="flex items-center gap-2">

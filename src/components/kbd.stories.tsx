@@ -5,6 +5,7 @@ export default {
   title: "Kbd",
   group: "Atoms",
   description: "Keyboard shortcut hint. `mod` shows the Command key on Apple platforms and Ctrl elsewhere.",
+  aliases: ["keyboard shortcut", "hotkey", "key", "keycap", "shortcut hint", "keybinding"],
   component: "Kbd",
   source: "src/components/kbd.tsx",
 } satisfies StoryDefault;

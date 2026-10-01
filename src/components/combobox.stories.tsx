@@ -6,16 +6,20 @@ import type { StoryDefault, StoryMeta } from "../stories";
 export default {
   title: "Combobox",
   group: "Atoms",
-  description: "A search-as-you-type list for long option lists such as assignees or labels. Single choice, or multiple with the chosen options shown as chips. Options may carry a count.",
+  description:
+    "A search-as-you-type list for long option lists such as assignees or labels. Single choice, or multiple with the chosen options shown as chips. Options may carry a count.",
+  aliases: ["autocomplete", "typeahead", "autosuggest", "searchable select", "dropdown", "multi select", "picker"],
   component: "Combobox",
   source: "src/components/combobox.tsx",
 } satisfies StoryDefault;
 
-const people: Option[] = ["Ada Lovelace", "Grace Hopper", "Linus Torvalds", "Margaret Hamilton", "Alan Turing", "Barbara Liskov", "Donald Knuth"].map((name, i) => ({
-  value: name.toLowerCase().replace(" ", "-"),
-  label: name,
-  count: (i * 7) % 13,
-}));
+const people: Option[] = ["Ada Lovelace", "Grace Hopper", "Linus Torvalds", "Margaret Hamilton", "Alan Turing", "Barbara Liskov", "Donald Knuth"].map(
+  (name, i) => ({
+    value: name.toLowerCase().replace(" ", "-"),
+    label: name,
+    count: (i * 7) % 13,
+  }),
+);
 
 export const Single = () => {
   const [value, setValue] = useState<string | null>(null);

@@ -5,10 +5,30 @@ export default {
   group: "Foundations",
   description:
     "Direct colours: every hue in OKLCH from 50 to 950, plus one pure gray ramp (neutral). They name a colour, not a purpose. Apps do not use them in components; an app points its semantic colours (danger, link, ...) at them in one place. Below them, the semantic ramps the package itself defines.",
+  aliases: ["colour palette", "colors", "hues", "swatches", "ramps", "oklch", "tailwind colors", "shades"],
 } satisfies StoryDefault;
 
 const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
-const HUES = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose", "neutral"] as const;
+const HUES = [
+  "red",
+  "orange",
+  "amber",
+  "yellow",
+  "lime",
+  "green",
+  "emerald",
+  "teal",
+  "cyan",
+  "sky",
+  "blue",
+  "indigo",
+  "violet",
+  "purple",
+  "fuchsia",
+  "pink",
+  "rose",
+  "neutral",
+] as const;
 const SEMANTIC = ["danger", "warning", "ok", "link", "agent", "gray"] as const;
 
 function Ramp({ name, steps = STEPS }: { name: string; steps?: readonly number[] }) {
@@ -18,7 +38,10 @@ function Ramp({ name, steps = STEPS }: { name: string; steps?: readonly number[]
       <div className="flex">
         {steps.map((n) => (
           <div key={n} className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="h-7 border-y border-line first:rounded-l first:border-l last:rounded-r last:border-r" style={{ background: `var(--color-${name}-${n})` }} />
+            <div
+              className="h-7 border-y border-line first:rounded-l first:border-l last:rounded-r last:border-r"
+              style={{ background: `var(--color-${name}-${n})` }}
+            />
             <span className="truncate text-center text-ink-faint">{n}</span>
           </div>
         ))}
@@ -34,7 +57,9 @@ export const Direct = () => (
     ))}
   </div>
 );
-Direct.storyMeta = { description: "Seventeen hues and the neutral gray, 50 (lightest) to 950 (darkest). Use as --color-<hue>-<step>." } satisfies StoryMeta;
+Direct.storyMeta = {
+  description: "Seventeen hues and the neutral gray, 50 (lightest) to 950 (darkest). Use as --color-<hue>-<step>.",
+} satisfies StoryMeta;
 
 export const Semantic = () => (
   <div className="flex flex-col gap-4">

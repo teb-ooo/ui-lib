@@ -5,6 +5,7 @@ export default {
   title: "Badge",
   group: "Atoms",
   description: "Deprecated: use Chip. A Badge renders a Chip and is kept until 1.0 for existing imports.",
+  aliases: ["tag", "pill", "label", "status", "counter"],
   component: "Badge",
   source: "src/components/badge.tsx",
 } satisfies StoryDefault;
