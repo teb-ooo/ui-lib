@@ -65,6 +65,7 @@ function agentLine(agent: string, status: string): string {
  */
 export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
   const toast = useOptionalToast();
+  const textRef = useRef<HTMLTextAreaElement | null>(null);
   const announced = useRef<unknown>(null);
   const sent = f.status === "sent" && f.result;
   // A sent message is confirmed with a toast and the dialog closes; without a toast host the dialog says it itself.
@@ -83,6 +84,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
         <BaseDialog.Popup
           {...IGNORE}
           aria-label="Send feedback"
+          initialFocus={textRef}
           className="anim-fade panel panel-float fixed top-[10vh] left-1/2 z-50 flex max-h-[80vh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 flex-col gap-4 overflow-y-auto p-4 text-ink outline-none"
         >
           <div className="flex items-start justify-between gap-4">
@@ -100,6 +102,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
               {f.restoredDraft ? <p className="text-ink-faint">Your unsent text from last time is back.</p> : null}
               <Field label="What should change?">
                 <Textarea
+                  ref={textRef}
                   value={f.text}
                   onChange={(e) => f.setText(e.target.value)}
                   onKeyDown={(e) => {

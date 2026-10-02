@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { FeedbackPanel } from "./feedback-panel";
 import { ToastProvider } from "./toast";
 import type { FeedbackController } from "./feedback-panel";
@@ -67,6 +67,11 @@ describe("FeedbackPanel", () => {
     expect(await screen.findByText("Feedback sent, tracked as ui-9")).toBeTruthy();
     expect(screen.getByText("ui was notified.")).toBeTruthy();
     expect(f.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("puts the cursor in the text when the dialog shows", async () => {
+    render(<FeedbackPanel feedback={controller()} />);
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "What should change?" })));
   });
 
   it("marks its own nodes so the screenshot and the picker leave them out", () => {

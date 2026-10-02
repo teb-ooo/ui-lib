@@ -78,7 +78,7 @@ export function PlatformBar({
           <MenuIcon aria-hidden="true" className="size-4" />
         </Icon>
       ) : null}
-      <span className="truncate px-1 text-ink">{appName}</span>
+      <span className="truncate px-1 text-ink uppercase">{appName}</span>
       {dot ? (
         <LiveIndicator status={dot} tip className="size-7 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
       ) : null}
