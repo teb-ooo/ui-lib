@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { Crosshair, X } from "lucide-react";
 import { Button } from "./button";
@@ -5,6 +6,7 @@ import { Chip } from "./chip";
 import { Field } from "./field";
 import { Switch } from "./switch";
 import { Textarea } from "./textarea";
+import { useOptionalToast } from "./toast";
 
 /** A page element the person picked, as `useFeedback()` from `@teb-ooo/web` reports it. */
 export interface FeedbackElement {
@@ -57,13 +59,23 @@ function agentLine(agent: string, status: string): string {
 }
 
 /**
- * The feedback dialog: free text, an optional picked element, an optional screenshot with a preview, and a line saying
- * what is sent. Opened from Cmd+K ("Send feedback", `useFeedbackCommand` in `@teb-ooo/ui/cmdk`), never from a header
+ * The feedback dialog: free text (Enter sends, Shift+Enter adds a line), an optional picked element and an optional
+ * screenshot with a preview. A sent message is confirmed with a toast, and the dialog closes. Opened from Cmd+K ("Send feedback", `useFeedbackCommand` in `@teb-ooo/ui/cmdk`), never from a header
  * button. While an element is being picked the dialog steps aside so the page can be clicked.
  */
 export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
-  if (!f.available) return null;
+  const toast = useOptionalToast();
+  const announced = useRef<unknown>(null);
   const sent = f.status === "sent" && f.result;
+  // A sent message is confirmed with a toast and the dialog closes; without a toast host the dialog says it itself.
+  useEffect(() => {
+    if (!toast || !sent || announced.current === sent) return;
+    announced.current = sent;
+    toast.show({ title: `Feedback sent, tracked as ${sent.bead}`, description: agentLine(sent.agent, sent.status), tone: "ok" });
+    f.close();
+  }, [toast, sent, f]);
+  if (!f.available) return null;
+  const confirm = Boolean(sent) && !toast;
   return (
     <BaseDialog.Root open={f.isOpen && !f.picking} onOpenChange={(open) => (open ? undefined : f.close())}>
       <BaseDialog.Portal>
@@ -78,17 +90,26 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
             <BaseDialog.Close render={<Button icon={<X aria-hidden="true" className="size-4" />} aria-label="Close" className="border-transparent" />} />
           </div>
 
-          {sent ? (
+          {confirm ? (
             <div role="status" className="flex flex-col gap-2">
               <p className="text-ink">Sent, tracked as {f.result?.bead}.</p>
               <p className="text-ink-muted">{agentLine(f.result?.agent ?? "", f.result?.status ?? "")}</p>
             </div>
           ) : (
             <>
-              <BaseDialog.Description className="text-ink-muted">It goes to the agent of this app as a task, with the page it came from.</BaseDialog.Description>
               {f.restoredDraft ? <p className="text-ink-faint">Your unsent text from last time is back.</p> : null}
               <Field label="What should change?">
-                <Textarea value={f.text} onChange={(e) => f.setText(e.target.value)} rows={4} />
+                <Textarea
+                  value={f.text}
+                  onChange={(e) => f.setText(e.target.value)}
+                  onKeyDown={(e) => {
+                    // Enter sends; Shift+Enter adds a line. Not while an input method is composing a character.
+                    if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
+                    e.preventDefault();
+                    if (f.text.trim() !== "" && !f.capturing && f.status !== "sending") void f.submit();
+                  }}
+                  rows={4}
+                />
               </Field>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -123,15 +144,6 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
                 ) : null}
               </div>
 
-              <div className="flex flex-col gap-1">
-                <span className="text-ink-muted">What is sent besides your text</span>
-                <ul className="flex flex-col text-ink-faint">
-                  {f.sends.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              </div>
-
               {f.status === "failed" ? (
                 <div role="alert" className="flex flex-col gap-1">
                   <p className="text-danger">{f.error ?? "The feedback could not be sent."}</p>
@@ -142,8 +154,8 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
           )}
 
           <div className="flex justify-end gap-2">
-            <Button onClick={f.close}>{sent ? "Close" : "Cancel"}</Button>
-            {sent ? null : (
+            <Button onClick={f.close}>{confirm ? "Close" : "Cancel"}</Button>
+            {confirm ? null : (
               <Button intent="solid" loading={f.status === "sending"} disabled={f.text.trim() === "" || f.capturing} onClick={() => void f.submit()}>
                 Send
               </Button>

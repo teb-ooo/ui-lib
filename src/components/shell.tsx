@@ -9,6 +9,7 @@ import { Button } from "./button";
 import { useCommandHost } from "./command-host";
 import { FeedbackPanel } from "./feedback-panel";
 import { PlatformBar } from "./platform-bar";
+import { ToastProvider } from "./toast";
 import { usePlatformCommands } from "./platform-commands";
 import { ShellContext } from "./shell-context";
 
@@ -50,6 +51,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
   const next = encodeURIComponent(typeof window === "undefined" ? "/" : window.location.pathname + window.location.search);
   const profile = platformLinks().find((l) => l.id === "platform:profile");
   return (
+    <ToastProvider>
     <div className={cn("flex h-dvh w-full flex-col overflow-hidden bg-ground text-ink", className)}>
       <PlatformBar
         appName={playground.appName || "app"}
@@ -86,5 +88,6 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
         </BaseDialog.Root>
       )}
     </div>
+    </ToastProvider>
   );
 }

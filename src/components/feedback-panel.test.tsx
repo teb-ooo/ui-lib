@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { FeedbackPanel } from "./feedback-panel";
+import { ToastProvider } from "./toast";
 import type { FeedbackController } from "./feedback-panel";
 
 function controller(over: Partial<FeedbackController> = {}): FeedbackController {
@@ -22,11 +23,13 @@ describe("FeedbackPanel", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("takes the text, says what is sent, and only sends when there is text", () => {
+  it("takes the text and only sends when there is text", () => {
     const f = controller();
     const { rerender } = render(<FeedbackPanel feedback={f} />);
     expect(screen.getByRole("dialog", { name: "Send feedback" })).toBeTruthy();
-    expect(screen.getByText("The page: /x")).toBeTruthy();
+    // What is sent is no longer listed in the dialog.
+    expect(screen.queryByText("The page: /x")).toBeNull();
+    expect(screen.queryByText(/It goes to the agent/)).toBeNull();
     fireEvent.change(screen.getByRole("textbox", { name: "What should change?" }), { target: { value: "hello" } });
     expect(f.setText).toHaveBeenCalledWith("hello");
     expect(screen.getByRole("button", { name: "Send" }).hasAttribute("disabled")).toBe(true);
@@ -34,6 +37,36 @@ describe("FeedbackPanel", () => {
     rerender(<FeedbackPanel feedback={g} />);
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
     expect(g.submit).toHaveBeenCalled();
+  });
+
+  it("Enter sends, Shift+Enter does not, and an empty text never sends", () => {
+    const empty = controller();
+    const { rerender } = render(<FeedbackPanel feedback={empty} />);
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "What should change?" }), { key: "Enter" });
+    expect(empty.submit).not.toHaveBeenCalled();
+    const f = controller({ text: "hello" });
+    rerender(<FeedbackPanel feedback={f} />);
+    const box = screen.getByRole("textbox", { name: "What should change?" });
+    fireEvent.keyDown(box, { key: "Enter", shiftKey: true });
+    expect(f.submit).not.toHaveBeenCalled();
+    fireEvent.keyDown(box, { key: "Enter" });
+    expect(f.submit).toHaveBeenCalledTimes(1);
+    const busy = controller({ text: "hello", status: "sending" });
+    rerender(<FeedbackPanel feedback={busy} />);
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "What should change?" }), { key: "Enter" });
+    expect(busy.submit).not.toHaveBeenCalled();
+  });
+
+  it("with a toast host a sent message is a toast and the dialog closes", async () => {
+    const f = controller({ status: "sent", result: { bead: "ui-9", agent: "ui", status: "idle" } });
+    render(
+      <ToastProvider>
+        <FeedbackPanel feedback={f} />
+      </ToastProvider>,
+    );
+    expect(await screen.findByText("Feedback sent, tracked as ui-9")).toBeTruthy();
+    expect(screen.getByText("ui was notified.")).toBeTruthy();
+    expect(f.close).toHaveBeenCalledTimes(1);
   });
 
   it("marks its own nodes so the screenshot and the picker leave them out", () => {
@@ -59,7 +92,7 @@ describe("FeedbackPanel", () => {
     expect(f.setIncludeScreenshot).toHaveBeenCalledWith(false);
   });
 
-  it("says Sent with the bead and whether the agent was reached", () => {
+  it("without a toast host the dialog says Sent with the bead and whether the agent was reached", () => {
     const { rerender } = render(<FeedbackPanel feedback={controller({ status: "sent", result: { bead: "ui-9", agent: "ui", status: "idle" } })} />);
     expect(screen.getByText("Sent, tracked as ui-9.")).toBeTruthy();
     expect(screen.getByText("ui was notified.")).toBeTruthy();
