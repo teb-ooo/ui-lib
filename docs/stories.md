@@ -11,6 +11,7 @@ export default {
   title: "Button",                 // sidebar and search name
   group: "Atoms",                  // "Foundations" | "Atoms" | "Molecules" | "Email"
   description: "One or two sentences of usage notes.",
+  aliases: ["btn", "cta"],          // other names people search for (two or more, lower case)
   component: "Button",             // optional: exported component name, for the props table
   source: "src/components/button.tsx", // optional: file that declares its props interface
 } satisfies StoryDefault;
@@ -36,3 +37,7 @@ Disabled.storyMeta = {
 ## Foundations
 
 `foundations/color`, `type`, `spacing` and `radius` render the tokens live from `theme.css`: the semantic colour tokens in the current scheme, the two type sizes, `--control-h`, `--radius`. Stories inside `src` never set `data-theme` (the design test forbids it); showing dark and light side by side, and the theme control, live in the gallery under `docs/`. There is no motion story because the theme defines no motion tokens.
+
+## Aliases
+
+`aliases` lists the other names people use for the entry, so the gallery's search (also the MCP tool `search-entries`) finds it: Tooltip lists `popover`, `popper`, `hint`. Two or more, lower case, words or short phrases; keep them current when the entry changes. A test fails when an entry has none.

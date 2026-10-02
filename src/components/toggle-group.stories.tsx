@@ -6,6 +6,7 @@ export default {
   title: "ToggleGroup",
   group: "Atoms",
   description: "A group of toggle chips for facets: choose one (choose it again to clear) or, with multiple, any number. Each chip may show a count.",
+  aliases: ["segmented control", "button group", "facet chips", "radio group", "tabs", "filter chips", "toggle buttons"],
   component: "ToggleGroup",
   source: "src/components/toggle-group.tsx",
 } satisfies StoryDefault;

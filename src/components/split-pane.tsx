@@ -33,8 +33,13 @@ export interface SplitPaneProps {
   minSize?: number;
   /** @default 48 */
   maxSize?: number;
-  /** Called with the list width in rem after each change, so an app can remember it. */
+  /** Called with the list width in rem after each change. */
   onSizeChange?: (rem: number) => void;
+  /**
+   * Saves the list width in `localStorage` under this key when the divider is moved, restores it (within min and max)
+   * on the next visit, and a double-click on the divider resets it to `defaultSize` and forgets it.
+   */
+  persistKey?: string;
   /** Label of the sheet's close button. @default "Close" */
   closeLabel?: string;
   className?: string;
@@ -55,17 +60,48 @@ export function SplitPane({
   minSize = 16,
   maxSize = 48,
   onSizeChange,
+  persistKey,
   closeLabel = "Close",
   className,
 }: SplitPaneProps) {
   const wide = useMinWidth("lg");
-  const [size, setSize] = useState(defaultSize);
+  const storageKey = persistKey ? `teb-ui:split-pane:${persistKey}` : null;
+  const [size, setSize] = useState(() => {
+    if (storageKey) {
+      try {
+        const saved = Number(window.localStorage.getItem(storageKey));
+        if (Number.isFinite(saved) && saved > 0) return Math.min(maxSize, Math.max(minSize, saved));
+      } catch {
+        // storage blocked: use the default
+      }
+    }
+    return defaultSize;
+  });
+  const sizeRef = useRef(size);
   const dragging = useRef<{ startX: number; startSize: number } | null>(null);
 
   const change = (rem: number) => {
     const next = Math.min(maxSize, Math.max(minSize, rem));
+    sizeRef.current = next;
     setSize(next);
     onSizeChange?.(next);
+  };
+  const save = () => {
+    if (!storageKey) return;
+    try {
+      window.localStorage.setItem(storageKey, String(sizeRef.current));
+    } catch {
+      // not remembered
+    }
+  };
+  const reset = () => {
+    change(defaultSize);
+    if (!storageKey) return;
+    try {
+      window.localStorage.removeItem(storageKey);
+    } catch {
+      // nothing to forget
+    }
   };
   const remPx = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
 
@@ -97,6 +133,7 @@ export function SplitPane({
     else if (e.key === "End") change(maxSize);
     else return;
     e.preventDefault();
+    save();
   };
   const onPointerDown = (e: PointerEvent) => {
     dragging.current = { startX: e.clientX, startSize: size };
@@ -124,8 +161,19 @@ export function SplitPane({
           onKeyDown={onKeyDown}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
-          onPointerUp={() => (dragging.current = null)}
-          className="w-1 shrink-0 cursor-col-resize touch-none border-x border-line outline-none hover:bg-surface-raised focus-visible:bg-surface-raised"
+          onPointerUp={() => {
+            if (dragging.current) save();
+            dragging.current = null;
+          }}
+          onDoubleClick={reset}
+          className={cn(
+            // At rest it is the 1px rule of the fixed pane. The grab area is 12px wide (the ::before) and the rule grows to
+            // 3px (the ::after) on hover, focus and drag, over its neighbours, so no layout space is taken.
+            "relative z-10 w-px shrink-0 cursor-col-resize touch-none bg-line outline-none",
+            "before:absolute before:inset-y-0 before:-left-1.5 before:w-3 before:content-['']",
+            "after:pointer-events-none after:absolute after:inset-y-0 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-ink-muted after:opacity-0 after:transition-[width,opacity]",
+            "hover:after:w-[3px] hover:after:opacity-100 focus-visible:after:w-[3px] focus-visible:after:opacity-100 active:after:w-[3px] active:after:opacity-100",
+          )}
         />
       ) : (
         <div className="w-px shrink-0 bg-line" />

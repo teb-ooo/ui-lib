@@ -8,7 +8,7 @@ import type { StoryDefault } from "../src/stories";
 const modules = import.meta.glob<Record<string, unknown>>("../src/**/*.stories.tsx", { eager: true });
 
 /** Exports of src/index.ts that are not components and need no story. */
-const NON_COMPONENT_ALLOWLIST = new Set(["initialsOf", "useMediaQuery", "useMinWidth", "BREAKPOINTS"]);
+const NON_COMPONENT_ALLOWLIST = new Set(["initialsOf", "useMediaQuery", "useMinWidth", "BREAKPOINTS", "CommandHostContext"]);
 const GROUPS = new Set(["Foundations", "Atoms", "Molecules", "Email"]);
 
 function valueExports(index = "src/index.ts"): Array<{ name: string; from: string }> {
@@ -61,6 +61,14 @@ describe.each(Object.entries(modules))("story module %s", (path, mod) => {
       expect(valueExports(index).map((e) => e.name), `${path}: component "${def.component}" is not exported by ${index}`).toContain(def.component);
       expect(typeof def.source).toBe("string");
     }
+  });
+
+  it("has curated aliases: a few lower-case words or short phrases, no duplicates, none repeating the title", () => {
+    const aliases = def?.aliases ?? [];
+    expect(aliases.length, `${path}: every entry lists the other names people search for`).toBeGreaterThanOrEqual(2);
+    for (const a of aliases) expect(a, `${path}: alias ${a}`).toMatch(/^[a-z0-9][a-z0-9 -]*$/);
+    expect(new Set(aliases).size).toBe(aliases.length);
+    expect(aliases).not.toContain(def?.title.toLowerCase());
   });
 
   const variants = Object.entries(mod).filter(([k]) => k !== "default");

@@ -8,6 +8,8 @@ export type { CommandPaletteApi } from "./context";
 export { CommandTrigger } from "./command-trigger";
 export type { CommandTriggerProps } from "./command-trigger";
 export type { Command, CommandContext, CommandIcon, CommandIconProps, CommandResult } from "./types";
+export { useFeedbackCommand } from "./feedback-command";
+export type { FeedbackCommandSource } from "./feedback-command";
 export { fuzzyMatch } from "./fuzzy";
 // Exported so the gallery's static palette story can render the surface without a provider.
 export { buildPaletteModel } from "./palette-model";

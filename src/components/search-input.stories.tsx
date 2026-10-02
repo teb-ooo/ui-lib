@@ -6,6 +6,7 @@ export default {
   title: "SearchInput",
   group: "Atoms",
   description: "Search box with a clear button; Escape clears it too. Its ref reaches the input, so an app can focus it from a shortcut such as /.",
+  aliases: ["search box", "search field", "find", "query", "clearable input", "search bar"],
   component: "SearchInput",
   source: "src/components/search-input.tsx",
 } satisfies StoryDefault;

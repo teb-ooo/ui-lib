@@ -6,6 +6,7 @@ export default {
   group: "Molecules",
   description:
     "The button that opens the command palette: search icon, label and shortcut hint on desktop, an icon-only square button below 640px. Mount it in the app header.",
+  aliases: ["command menu button", "search button", "cmd k", "cmdk trigger", "palette button", "spotlight"],
   component: "CommandTrigger",
   source: "src/cmdk/command-trigger.tsx",
 } satisfies StoryDefault;
@@ -28,4 +29,7 @@ export const InHeader = () => (
     </div>
   </CommandProvider>
 );
-InHeader.storyMeta = { description: "As placed in an app header. Resize below 640px to see the icon-only form.", background: "surface" } satisfies StoryMeta;
+InHeader.storyMeta = {
+  description: "As placed in an app header. Resize below 640px to see the icon-only form.",
+  background: "surface",
+} satisfies StoryMeta;

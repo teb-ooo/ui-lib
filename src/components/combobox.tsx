@@ -81,12 +81,12 @@ export function Combobox(props: ComboboxProps) {
   return (
     <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
       <BaseCombobox.InputGroup className={cn("relative w-56 max-w-full", className)}>
-        <BaseCombobox.Input aria-label={label} placeholder={placeholder ?? label} className="input pr-14" />
+        <BaseCombobox.Input aria-label={label} placeholder={placeholder ?? label} className="input pr-[3.25rem]" />
         <div className="absolute top-0 right-0 flex h-full items-center">
-          <BaseCombobox.Clear aria-label="Clear" className="flex size-6 cursor-pointer items-center justify-center text-ink-faint hover:text-ink">
+          <BaseCombobox.Clear aria-label="Clear" className="flex size-7 cursor-pointer items-center justify-center text-ink-faint hover:text-ink">
             <X aria-hidden="true" className="size-3" />
           </BaseCombobox.Clear>
-          <BaseCombobox.Trigger aria-label="Open list" className="flex size-6 cursor-pointer items-center justify-center text-ink-faint hover:text-ink">
+          <BaseCombobox.Trigger aria-label="Open list" className="flex size-7 cursor-pointer items-center justify-center text-ink-faint hover:text-ink">
             <ChevronDown aria-hidden="true" className="size-3" />
           </BaseCombobox.Trigger>
         </div>

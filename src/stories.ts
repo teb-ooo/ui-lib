@@ -10,6 +10,11 @@ export interface StoryDefault {
   group: StoryGroup;
   /** One or two sentences of usage notes. */
   description: string;
+  /**
+   * Other names people use for it, so a search finds it ("popover" and "popper" for Tooltip). Curated by the person who
+   * changes the entry; lower-case words or short phrases. The gallery's search ranks them just below the name.
+   */
+  aliases?: string[];
   /** Exported component name (from `src/index.ts`) whose props table the gallery generates. */
   component?: string;
   /** Path of the component source relative to the package root, for the props table script. */

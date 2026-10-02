@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Home, ListChecks } from "lucide-react";
 import { Shell } from "./shell";
 import { Sidebar } from "./sidebar";
@@ -8,14 +9,18 @@ export default {
   title: "Shell",
   group: "Molecules",
   description:
-    "The page frame: a sidebar and a content area with a top bar, the full viewport height. From the md breakpoint the sidebar is a column; below it a menu button opens it as a drawer. The app supplies the sidebar and the header; the Shell has no routing or navigation of its own. Use it once, at the root of a page.",
+    "The closed platform shell: the platform's slim top bar (built in, nothing an app can add), a sidebar and the content, the full viewport height. From the md breakpoint the sidebar is a column; below it the bar's menu icon opens it as a drawer. The shell also registers the platform commands in Cmd+K and owns the feedback panel. The app supplies only the sidebar and the page. Use it once, at the root, inside CommandProvider, the router and the query client.",
+  aliases: ["top bar", "header", "app bar", "navbar", "platform bar", "app shell", "layout", "page frame", "scaffold", "chrome", "frame", "drawer layout"],
   component: "Shell",
   source: "src/components/shell.tsx",
 } satisfies StoryDefault;
 
+const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 export const Default = () => {
   const [collapsed, setCollapsed] = useState(false);
   return (
+    <QueryClientProvider client={client}>
     <div className="panel h-96 overflow-hidden [&>div]:!h-full">
       <Shell
         sidebar={
@@ -29,11 +34,22 @@ export const Default = () => {
             ]}
           />
         }
-        header={<span className="text-ink">Home</span>}
       >
-        <p className="p-4 text-ink-muted">Page content. On a phone the menu button in the top bar opens the sidebar as a drawer.</p>
+        <p className="p-4 text-ink-muted">Page content. On a phone the menu icon in the bar opens the sidebar as a drawer.</p>
       </Shell>
     </div>
+    </QueryClientProvider>
   );
 };
-Default.storyMeta = { description: "Shown in a framed box here; a real page uses the whole window." } satisfies StoryMeta;
+Default.storyMeta = { description: "Shown in a framed box here; a real page uses the whole window. The bar is the platform's: there is no header prop." } satisfies StoryMeta;
+
+export const NoSidebar = () => (
+  <QueryClientProvider client={client}>
+    <div className="panel h-72 overflow-hidden [&>div]:!h-full">
+      <Shell>
+        <p className="p-4 text-ink-muted">An app with no sidebar: the page takes the full width at every breakpoint and the bar has no menu icon.</p>
+      </Shell>
+    </div>
+  </QueryClientProvider>
+);
+NoSidebar.storyMeta = { description: "Leave `sidebar` out: no column, no menu icon, no drawer." } satisfies StoryMeta;

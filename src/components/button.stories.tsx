@@ -7,6 +7,7 @@ export default {
   group: "Atoms",
   description:
     "The only button. Default is outlined, solid is the one primary action, danger and warning tint the text. Icon, active state and tooltip are props.",
+  aliases: ["btn", "cta", "action", "submit", "click", "press"],
   component: "Button",
   source: "src/components/button.tsx",
 } satisfies StoryDefault;

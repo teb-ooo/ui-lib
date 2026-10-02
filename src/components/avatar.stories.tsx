@@ -5,6 +5,7 @@ export default {
   title: "Avatar",
   group: "Atoms",
   description: "Square avatar: the image when it loads, otherwise up to two initials.",
+  aliases: ["profile picture", "user image", "initials", "photo", "userpic"],
   component: "Avatar",
   source: "src/components/avatar.tsx",
 } satisfies StoryDefault;

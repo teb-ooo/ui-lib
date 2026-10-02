@@ -6,6 +6,7 @@ export default {
   title: "Checkbox",
   group: "Atoms",
   description: "A checkbox with an indeterminate state, for row selection and multi-choice lists.",
+  aliases: ["tick", "check", "check box", "multi select", "boolean"],
   component: "Checkbox",
   source: "src/components/checkbox.tsx",
 } satisfies StoryDefault;

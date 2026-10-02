@@ -6,7 +6,9 @@ import type { StoryDefault, StoryMeta } from "../stories";
 export default {
   title: "ViewMenu",
   group: "Molecules",
-  description: "Saved filter views. It lists them, asks for a name when saving and reports choices; the app stores the views and knows what each one filters.",
+  description:
+    "Saved filter views. It lists them, asks for a name when saving and reports choices; the app stores the views and knows what each one filters.",
+  aliases: ["saved views", "saved filters", "bookmarks", "presets", "view switcher", "views dropdown"],
   component: "ViewMenu",
   source: "src/components/view-menu.tsx",
 } satisfies StoryDefault;

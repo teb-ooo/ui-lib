@@ -7,7 +7,9 @@ import type { StoryDefault, StoryMeta } from "../stories";
 export default {
   title: "Sidebar",
   group: "Molecules",
-  description: "Left navigation: items with an icon, label, badge and current-page state, collapsible to icons with tooltips. The app supplies the items and, through renderLink, its router's link. Inside a Shell it becomes the phone drawer.",
+  description:
+    "Left navigation: items with an icon, label, badge and current-page state, collapsible to icons with tooltips. The app supplies the items and, through renderLink, its router's link. Inside a Shell it becomes the phone drawer.",
+  aliases: ["navigation", "nav", "side menu", "navbar", "menu", "left nav", "drawer", "rail"],
   component: "Sidebar",
   source: "src/components/sidebar.tsx",
 } satisfies StoryDefault;

@@ -6,6 +6,7 @@ export default {
   title: "Textarea",
   group: "Atoms",
   description: "Multi-line text input. Put it inside a Field for a label, description and error; it resizes vertically only.",
+  aliases: ["multiline", "text area", "multi line input", "long text", "comment box", "notes field"],
   component: "Textarea",
   source: "src/components/textarea.tsx",
 } satisfies StoryDefault;

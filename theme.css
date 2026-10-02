@@ -1,4 +1,7 @@
-@import "tailwindcss";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme) theme(static);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
 
 /* Scan the built components so a consumer's Tailwind emits their classes. */
 @source "./dist";
@@ -18,144 +21,233 @@
 }
 
 /*
- * Semantic tokens. Components and apps name these, never a palette step or a literal
- * colour, so a re-skin is a change in this file only. There are two themes and nothing
- * else branches on them: dark is the default and light follows the OS
- * (prefers-color-scheme: light). The data-theme selectors below repeat the same blocks so a gallery
- * can force a theme; no app sets that attribute. Ground is pure black or pure white; surfaces, lines and inks are zero-chroma
- * grays stepping away from it. Colour appears only as state: red (danger), amber (warning),
- * emerald (ok), sky (link, references), violet (agent activity); each state has the text
- * colour, -hover, -soft (tinted fill) and -line (tinted border), tuned for each ground.
+ * Colour has two layers.
+ *
+ * DIRECT colours are the palette: every Tailwind hue in OKLCH, 50 to 950 (--color-red-500, --color-teal-200, ...), plus
+ * one pure gray ramp, --color-neutral-50 to 950. The tinted grays (slate, zinc, stone, ...) are not offered.
+ *
+ * SEMANTIC colours say what a colour is for. Each state (danger, warning, ok, link, agent) and the gray used for chrome
+ * (surfaces, lines, ink) has a ramp of its own, --color-danger-50 to 950, that points at a direct colour. The role tokens
+ * below (--color-danger, --color-surface, ...) pick steps of those ramps for each scheme, and components use only the
+ * role tokens. An app changes what "danger" means by repointing its ramp once, in its own CSS after this file:
+ *
+ *   :root { --color-danger-50: var(--color-rose-50); ... --color-danger-950: var(--color-rose-950); }
+ *
+ * Ground is pure black or pure white, and stays literal. Colour appears only as state.
  */
 @theme static {
+  /* Offer one gray: the tinted ramps are removed, the pure one stays. */
+  --color-slate-*: initial;
+  --color-gray-*: initial;
+  --color-zinc-*: initial;
+  --color-stone-*: initial;
+  --color-mauve-*: initial;
+  --color-olive-*: initial;
+  --color-mist-*: initial;
+  --color-taupe-*: initial;
+}
+
+/* Semantic ramps: each points at a direct colour and is the one place an app repoints a meaning. */
+@theme static {
+  --color-gray-50: var(--color-neutral-50);
+  --color-gray-100: var(--color-neutral-100);
+  --color-gray-200: var(--color-neutral-200);
+  --color-gray-300: var(--color-neutral-300);
+  --color-gray-400: var(--color-neutral-400);
+  --color-gray-500: var(--color-neutral-500);
+  --color-gray-600: var(--color-neutral-600);
+  --color-gray-700: var(--color-neutral-700);
+  --color-gray-800: var(--color-neutral-800);
+  --color-gray-900: var(--color-neutral-900);
+  --color-gray-950: var(--color-neutral-950);
+  --color-danger-50: var(--color-red-50);
+  --color-danger-100: var(--color-red-100);
+  --color-danger-200: var(--color-red-200);
+  --color-danger-300: var(--color-red-300);
+  --color-danger-400: var(--color-red-400);
+  --color-danger-500: var(--color-red-500);
+  --color-danger-600: var(--color-red-600);
+  --color-danger-700: var(--color-red-700);
+  --color-danger-800: var(--color-red-800);
+  --color-danger-900: var(--color-red-900);
+  --color-danger-950: var(--color-red-950);
+  --color-warning-50: var(--color-amber-50);
+  --color-warning-100: var(--color-amber-100);
+  --color-warning-200: var(--color-amber-200);
+  --color-warning-300: var(--color-amber-300);
+  --color-warning-400: var(--color-amber-400);
+  --color-warning-500: var(--color-amber-500);
+  --color-warning-600: var(--color-amber-600);
+  --color-warning-700: var(--color-amber-700);
+  --color-warning-800: var(--color-amber-800);
+  --color-warning-900: var(--color-amber-900);
+  --color-warning-950: var(--color-amber-950);
+  --color-ok-50: var(--color-emerald-50);
+  --color-ok-100: var(--color-emerald-100);
+  --color-ok-200: var(--color-emerald-200);
+  --color-ok-300: var(--color-emerald-300);
+  --color-ok-400: var(--color-emerald-400);
+  --color-ok-500: var(--color-emerald-500);
+  --color-ok-600: var(--color-emerald-600);
+  --color-ok-700: var(--color-emerald-700);
+  --color-ok-800: var(--color-emerald-800);
+  --color-ok-900: var(--color-emerald-900);
+  --color-ok-950: var(--color-emerald-950);
+  --color-link-50: var(--color-sky-50);
+  --color-link-100: var(--color-sky-100);
+  --color-link-200: var(--color-sky-200);
+  --color-link-300: var(--color-sky-300);
+  --color-link-400: var(--color-sky-400);
+  --color-link-500: var(--color-sky-500);
+  --color-link-600: var(--color-sky-600);
+  --color-link-700: var(--color-sky-700);
+  --color-link-800: var(--color-sky-800);
+  --color-link-900: var(--color-sky-900);
+  --color-link-950: var(--color-sky-950);
+  --color-agent-50: var(--color-violet-50);
+  --color-agent-100: var(--color-violet-100);
+  --color-agent-200: var(--color-violet-200);
+  --color-agent-300: var(--color-violet-300);
+  --color-agent-400: var(--color-violet-400);
+  --color-agent-500: var(--color-violet-500);
+  --color-agent-600: var(--color-violet-600);
+  --color-agent-700: var(--color-violet-700);
+  --color-agent-800: var(--color-violet-800);
+  --color-agent-900: var(--color-violet-900);
+  --color-agent-950: var(--color-violet-950);
+}
+
+/* Role tokens for the dark scheme, the default. */
+@theme static {
   --color-ground: #000000;
-  --color-surface: oklch(0.19 0 0);
-  --color-surface-raised: oklch(0.25 0 0);
-  --color-line: oklch(0.3 0 0);
-  --color-line-strong: oklch(0.48 0 0);
+  --color-surface: var(--color-gray-900);
+  --color-surface-raised: var(--color-gray-800);
+  --color-line: var(--color-gray-700);
+  --color-line-strong: var(--color-gray-500);
   --color-ink: #ffffff;
-  --color-ink-muted: oklch(0.78 0 0);
-  --color-ink-faint: oklch(0.68 0 0);
-  --color-danger: var(--color-red-400);
-  --color-danger-hover: var(--color-red-300);
-  --color-danger-soft: var(--color-red-950);
-  --color-danger-line: var(--color-red-900);
-  --color-warning: var(--color-amber-400);
-  --color-warning-hover: var(--color-amber-300);
-  --color-warning-soft: var(--color-amber-950);
-  --color-warning-line: var(--color-amber-900);
-  --color-ok: var(--color-emerald-400);
-  --color-ok-hover: var(--color-emerald-300);
-  --color-ok-soft: var(--color-emerald-950);
-  --color-ok-line: var(--color-emerald-900);
-  --color-link: var(--color-sky-400);
-  --color-link-hover: var(--color-sky-300);
-  --color-link-soft: var(--color-sky-950);
-  --color-link-line: var(--color-sky-900);
-  --color-agent: var(--color-violet-400);
-  --color-agent-hover: var(--color-violet-300);
-  --color-agent-soft: var(--color-violet-950);
-  --color-agent-line: var(--color-violet-900);
+  --color-ink-muted: var(--color-gray-300);
+  --color-ink-faint: var(--color-gray-400);
+  --color-danger: var(--color-danger-400);
+  --color-danger-hover: var(--color-danger-300);
+  --color-danger-soft: var(--color-danger-950);
+  --color-danger-line: var(--color-danger-900);
+  --color-warning: var(--color-warning-400);
+  --color-warning-hover: var(--color-warning-300);
+  --color-warning-soft: var(--color-warning-950);
+  --color-warning-line: var(--color-warning-900);
+  --color-ok: var(--color-ok-400);
+  --color-ok-hover: var(--color-ok-300);
+  --color-ok-soft: var(--color-ok-950);
+  --color-ok-line: var(--color-ok-900);
+  --color-link: var(--color-link-400);
+  --color-link-hover: var(--color-link-300);
+  --color-link-soft: var(--color-link-950);
+  --color-link-line: var(--color-link-900);
+  --color-agent: var(--color-agent-400);
+  --color-agent-hover: var(--color-agent-300);
+  --color-agent-soft: var(--color-agent-950);
+  --color-agent-line: var(--color-agent-900);
 }
 
 /* The dark set again, reachable by attribute so a gallery can force it, even inside a light page. */
 [data-theme="dark"] {
   color-scheme: dark;
   --color-ground: #000000;
-  --color-surface: oklch(0.19 0 0);
-  --color-surface-raised: oklch(0.25 0 0);
-  --color-line: oklch(0.3 0 0);
-  --color-line-strong: oklch(0.48 0 0);
+  --color-surface: var(--color-gray-900);
+  --color-surface-raised: var(--color-gray-800);
+  --color-line: var(--color-gray-700);
+  --color-line-strong: var(--color-gray-500);
   --color-ink: #ffffff;
-  --color-ink-muted: oklch(0.78 0 0);
-  --color-ink-faint: oklch(0.68 0 0);
-  --color-danger: var(--color-red-400);
-  --color-danger-hover: var(--color-red-300);
-  --color-danger-soft: var(--color-red-950);
-  --color-danger-line: var(--color-red-900);
-  --color-warning: var(--color-amber-400);
-  --color-warning-hover: var(--color-amber-300);
-  --color-warning-soft: var(--color-amber-950);
-  --color-warning-line: var(--color-amber-900);
-  --color-ok: var(--color-emerald-400);
-  --color-ok-hover: var(--color-emerald-300);
-  --color-ok-soft: var(--color-emerald-950);
-  --color-ok-line: var(--color-emerald-900);
-  --color-link: var(--color-sky-400);
-  --color-link-hover: var(--color-sky-300);
-  --color-link-soft: var(--color-sky-950);
-  --color-link-line: var(--color-sky-900);
-  --color-agent: var(--color-violet-400);
-  --color-agent-hover: var(--color-violet-300);
-  --color-agent-soft: var(--color-violet-950);
-  --color-agent-line: var(--color-violet-900);
+  --color-ink-muted: var(--color-gray-300);
+  --color-ink-faint: var(--color-gray-400);
+  --color-danger: var(--color-danger-400);
+  --color-danger-hover: var(--color-danger-300);
+  --color-danger-soft: var(--color-danger-950);
+  --color-danger-line: var(--color-danger-900);
+  --color-warning: var(--color-warning-400);
+  --color-warning-hover: var(--color-warning-300);
+  --color-warning-soft: var(--color-warning-950);
+  --color-warning-line: var(--color-warning-900);
+  --color-ok: var(--color-ok-400);
+  --color-ok-hover: var(--color-ok-300);
+  --color-ok-soft: var(--color-ok-950);
+  --color-ok-line: var(--color-ok-900);
+  --color-link: var(--color-link-400);
+  --color-link-hover: var(--color-link-300);
+  --color-link-soft: var(--color-link-950);
+  --color-link-line: var(--color-link-900);
+  --color-agent: var(--color-agent-400);
+  --color-agent-hover: var(--color-agent-300);
+  --color-agent-soft: var(--color-agent-950);
+  --color-agent-line: var(--color-agent-900);
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     color-scheme: light;
     --color-ground: #ffffff;
-    --color-surface: oklch(0.965 0 0);
-    --color-surface-raised: oklch(0.93 0 0);
-    --color-line: oklch(0.9 0 0);
-    --color-line-strong: oklch(0.62 0 0);
+    --color-surface: var(--color-gray-100);
+    --color-surface-raised: var(--color-gray-200);
+    --color-line: var(--color-gray-300);
+    --color-line-strong: var(--color-gray-500);
     --color-ink: #000000;
-    --color-ink-muted: oklch(0.42 0 0);
-    --color-ink-faint: oklch(0.5 0 0);
-    --color-danger: var(--color-red-700);
-    --color-danger-hover: var(--color-red-800);
-    --color-danger-soft: var(--color-red-50);
-    --color-danger-line: var(--color-red-200);
-    --color-warning: var(--color-amber-700);
-    --color-warning-hover: var(--color-amber-800);
-    --color-warning-soft: var(--color-amber-50);
-    --color-warning-line: var(--color-amber-200);
-    --color-ok: var(--color-emerald-700);
-    --color-ok-hover: var(--color-emerald-800);
-    --color-ok-soft: var(--color-emerald-50);
-    --color-ok-line: var(--color-emerald-200);
-    --color-link: var(--color-sky-700);
-    --color-link-hover: var(--color-sky-800);
-    --color-link-soft: var(--color-sky-50);
-    --color-link-line: var(--color-sky-200);
-    --color-agent: var(--color-violet-700);
-    --color-agent-hover: var(--color-violet-800);
-    --color-agent-soft: var(--color-violet-50);
-    --color-agent-line: var(--color-violet-200);
+    --color-ink-muted: var(--color-gray-700);
+    --color-ink-faint: var(--color-gray-600);
+    --color-danger: var(--color-danger-700);
+    --color-danger-hover: var(--color-danger-800);
+    --color-danger-soft: var(--color-danger-50);
+    --color-danger-line: var(--color-danger-200);
+    --color-warning: var(--color-warning-700);
+    --color-warning-hover: var(--color-warning-800);
+    --color-warning-soft: var(--color-warning-50);
+    --color-warning-line: var(--color-warning-200);
+    --color-ok: var(--color-ok-700);
+    --color-ok-hover: var(--color-ok-800);
+    --color-ok-soft: var(--color-ok-50);
+    --color-ok-line: var(--color-ok-200);
+    --color-link: var(--color-link-700);
+    --color-link-hover: var(--color-link-800);
+    --color-link-soft: var(--color-link-50);
+    --color-link-line: var(--color-link-200);
+    --color-agent: var(--color-agent-700);
+    --color-agent-hover: var(--color-agent-800);
+    --color-agent-soft: var(--color-agent-50);
+    --color-agent-line: var(--color-agent-200);
   }
 }
 
 [data-theme="light"] {
   color-scheme: light;
   --color-ground: #ffffff;
-  --color-surface: oklch(0.965 0 0);
-  --color-surface-raised: oklch(0.93 0 0);
-  --color-line: oklch(0.9 0 0);
-  --color-line-strong: oklch(0.62 0 0);
+  --color-surface: var(--color-gray-100);
+  --color-surface-raised: var(--color-gray-200);
+  --color-line: var(--color-gray-300);
+  --color-line-strong: var(--color-gray-500);
   --color-ink: #000000;
-  --color-ink-muted: oklch(0.42 0 0);
-  --color-ink-faint: oklch(0.5 0 0);
-  --color-danger: var(--color-red-700);
-  --color-danger-hover: var(--color-red-800);
-  --color-danger-soft: var(--color-red-50);
-  --color-danger-line: var(--color-red-200);
-  --color-warning: var(--color-amber-700);
-  --color-warning-hover: var(--color-amber-800);
-  --color-warning-soft: var(--color-amber-50);
-  --color-warning-line: var(--color-amber-200);
-  --color-ok: var(--color-emerald-700);
-  --color-ok-hover: var(--color-emerald-800);
-  --color-ok-soft: var(--color-emerald-50);
-  --color-ok-line: var(--color-emerald-200);
-  --color-link: var(--color-sky-700);
-  --color-link-hover: var(--color-sky-800);
-  --color-link-soft: var(--color-sky-50);
-  --color-link-line: var(--color-sky-200);
-  --color-agent: var(--color-violet-700);
-  --color-agent-hover: var(--color-violet-800);
-  --color-agent-soft: var(--color-violet-50);
-  --color-agent-line: var(--color-violet-200);
+  --color-ink-muted: var(--color-gray-700);
+  --color-ink-faint: var(--color-gray-600);
+  --color-danger: var(--color-danger-700);
+  --color-danger-hover: var(--color-danger-800);
+  --color-danger-soft: var(--color-danger-50);
+  --color-danger-line: var(--color-danger-200);
+  --color-warning: var(--color-warning-700);
+  --color-warning-hover: var(--color-warning-800);
+  --color-warning-soft: var(--color-warning-50);
+  --color-warning-line: var(--color-warning-200);
+  --color-ok: var(--color-ok-700);
+  --color-ok-hover: var(--color-ok-800);
+  --color-ok-soft: var(--color-ok-50);
+  --color-ok-line: var(--color-ok-200);
+  --color-link: var(--color-link-700);
+  --color-link-hover: var(--color-link-800);
+  --color-link-soft: var(--color-link-50);
+  --color-link-line: var(--color-link-200);
+  --color-agent: var(--color-agent-700);
+  --color-agent-hover: var(--color-agent-800);
+  --color-agent-soft: var(--color-agent-50);
+  --color-agent-line: var(--color-agent-200);
 }
+
 
 /* Sentinel for @teb-ooo/ui/cmdk: the palette warns in development when this variable is missing (theme.css was not imported). */
 :root {
@@ -224,11 +316,10 @@
   }
 }
 
-/* The one larger size, and the only heavier weight in the system: page titles and empty-state headlines. */
+/* The one larger size: page titles and empty-state headlines. Same weight as body: size, not boldness, makes a title. */
 .display-lg,
 input.display-lg {
   font-size: var(--text-display);
-  font-weight: 700;
   line-height: var(--text-display--line-height);
 }
 
@@ -346,6 +437,21 @@ input.display-lg {
     border-color: var(--color-agent-line);
     background: color-mix(in oklab, var(--color-agent-soft) 40%, transparent);
     color: var(--color-agent);
+  }
+
+  .diff-add {
+    background: color-mix(in oklab, var(--color-ok-soft) 60%, transparent);
+    color: var(--color-ok);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .diff-del + .diff-add {
+    margin-inline-start: 0.25em;
+  }
+  .diff-del {
+    background: color-mix(in oklab, var(--color-danger-soft) 60%, transparent);
+    color: var(--color-danger);
+    text-decoration: line-through;
   }
 
   .input {

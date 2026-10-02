@@ -121,7 +121,7 @@ describe("design language", () => {
   });
 
   it("uses no neutral- scale, no important, and no near-white text steps", () => {
-    expectNone(find(/neutral-/), "the neutrals are semantic tokens (ink, ink-muted, ink-faint)");
+    expectNone(find(/neutral-/, { skip: isTheme }), "the neutrals are semantic tokens (ink, ink-muted, ink-faint, surface, line)");
     expectNone(find(/!important/), "no !important");
     expectNone(find(/text-(neutral|stone)-(100|200)\b/), "use text-ink");
   });
@@ -242,12 +242,12 @@ describe.skipIf(!IS_UI_PACKAGE)("theme.css (ui package only)", () => {
     expect(customFamilies.sort()).toEqual(["--font-mono:", "--font-sans:"]);
   });
 
-  it("puts the only heavier weight inside the .display-lg rule", () => {
+  it("has no heavier weight: titles differ by size, not boldness", () => {
     const withoutFace = css.replace(/@font-face\s*\{[^}]*\}/g, "");
     const weights = [...withoutFace.matchAll(/(^|[^-\w])font-weight:\s*([^;]+);/g)].map((m) => (m[2] ?? "").trim());
-    expect(weights.sort()).toEqual(["700", "inherit"]);
+    expect(weights.sort()).toEqual(["inherit"]);
     const rule = /^\.display-lg,[\s\S]*?\}/m.exec(css)?.[0] ?? "";
-    expect(rule).toMatch(/font-weight:\s*700;/);
+    expect(rule).not.toMatch(/font-weight/);
   });
 
   it("this test file is the copy-ready one: it has the same name everywhere", () => {

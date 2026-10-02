@@ -8,6 +8,7 @@ export default {
   title: "Dialog",
   group: "Atoms",
   description: "Modal dialog with a title, optional description and footer. Focus moves in and returns on close.",
+  aliases: ["drawer", "side panel", "modal", "popup", "overlay", "lightbox", "sheet", "confirm", "alert dialog", "prompt"],
   component: "Dialog",
   source: "src/components/dialog.tsx",
 } satisfies StoryDefault;
@@ -23,11 +24,7 @@ export const WithTrigger = () => (
 WithTrigger.storyMeta = { description: "Opens from its trigger." } satisfies StoryMeta;
 
 export const WithForm = () => (
-  <Dialog
-    trigger={<Button>Rename</Button>}
-    title="Rename"
-    footer={<Button intent="solid">Save</Button>}
-  >
+  <Dialog trigger={<Button>Rename</Button>} title="Rename" footer={<Button intent="solid">Save</Button>}>
     <Field label="Name">
       <Input defaultValue="Laptop" />
     </Field>
@@ -36,12 +33,7 @@ export const WithForm = () => (
 WithForm.storyMeta = { description: "A dialog holding a Field." } satisfies StoryMeta;
 
 export const TopPlacement = () => (
-  <Dialog
-    placement="top"
-    trigger={<Button>Open at top</Button>}
-    title="Search"
-    description="A wider panel near the top of the viewport."
-  />
+  <Dialog placement="top" trigger={<Button>Open at top</Button>} title="Search" description="A wider panel near the top of the viewport." />
 );
 TopPlacement.storyMeta = { description: "placement=top: the shape a command palette uses." } satisfies StoryMeta;
 
@@ -51,3 +43,10 @@ export const Bare = () => (
   </Dialog>
 );
 Bare.storyMeta = { description: "bare: no padding, header or close control." } satisfies StoryMeta;
+
+export const Drawer = () => (
+  <Dialog placement="right" trigger={<Button>Open drawer</Button>} title="Revisions" description="A side panel docked to the right edge; full width on a phone.">
+    <p className="text-ink-muted">Anything that sits beside the page: a history, an inspector, a long form.</p>
+  </Dialog>
+);
+Drawer.storyMeta = { description: "placement=right: a full-height drawer that slides in from the right." } satisfies StoryMeta;

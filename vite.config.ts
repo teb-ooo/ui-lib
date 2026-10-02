@@ -12,7 +12,7 @@ export default defineConfig({
     },
     rollupOptions: {
       // @teb-ooo/ui is external so the cmdk entry imports the package itself instead of bundling a second copy of the components.
-      external: [/^react($|\/)/, /^react-dom($|\/)/, /^@base-ui\/react($|\/)/, /^lucide-react($|\/)/, /^@tanstack\//, /^@teb-ooo\/ui($|\/)/],
+      external: [/^react($|\/)/, /^react-dom($|\/)/, /^@base-ui\/react($|\/)/, /^lucide-react($|\/)/, /^@tanstack\//, /^@teb-ooo\/ui($|\/)/, /^@teb-ooo\/web($|\/)/],
     },
     emptyOutDir: true,
   },

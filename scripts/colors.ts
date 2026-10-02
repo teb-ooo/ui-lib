@@ -1,6 +1,7 @@
 import { parse, formatHex, converter } from "culori";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { join } from "node:path";
 
 type State = "danger" | "warning" | "ok" | "link" | "agent";
 export type TokenName =
@@ -79,12 +80,15 @@ export function readThemeBlocks(cssPath: string): ThemeBlocks {
   };
 }
 
+/** Semantic ramps (`--color-danger-400: var(--color-red-400)`) declared in theme.css itself. */
+const ownTheme = readFileSync(join(process.cwd(), "theme.css"), "utf8");
+
 function resolveValue(raw: string): string {
   const v = raw.trim();
   const ref = /^var\((--[\w-]+)\)$/.exec(v);
   if (!ref) return v;
   const name = ref[1] ?? "";
-  const m = new RegExp(`${name}:\\s*([^;]+);`).exec(tailwindTheme);
+  const m = new RegExp(`(?:^|\\n)\\s*${name}:\\s*([^;]+);`).exec(ownTheme) ?? new RegExp(`${name}:\\s*([^;]+);`).exec(tailwindTheme);
   if (!m) throw new Error(`theme.css references unknown palette variable ${name}`);
   return resolveValue(m[1] ?? "");
 }
@@ -135,9 +139,8 @@ export function textSizePx(css: string, name: "body" | "display"): { size: strin
   return { size: `${Number(size) * 16}px`, lineHeight: lh };
 }
 
-/** The one heavier weight, declared inside the `.display-lg` rule. */
+/** The display weight: whatever the `.display-lg` rule declares, else the normal weight of body text (there is no heavier one). */
 export function displayWeight(css: string): string {
-  const w = /^\.display-lg,[\s\S]*?font-weight:\s*(\d+);/m.exec(css)?.[1];
-  if (!w) throw new Error("theme.css: .display-lg font-weight not found");
-  return w;
+  const rule = /^\.display-lg,[\s\S]*?\}/m.exec(css)?.[0] ?? "";
+  return /font-weight:\s*(\d+);/.exec(rule)?.[1] ?? "400";
 }

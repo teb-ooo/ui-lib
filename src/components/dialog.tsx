@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
 
-export type DialogPlacement = "center" | "top";
+export type DialogPlacement = "center" | "top" | "right";
 
 export interface DialogProps {
   open?: boolean;
@@ -20,7 +20,8 @@ export interface DialogProps {
   children?: ReactNode;
   /**
    * `center` is a small centred panel. `top` is a wider panel near the top of the viewport (15vh),
-   * the shape a command palette or a search box wants.
+   * the shape a command palette or a search box wants. `right` is a full-height drawer docked to the right edge
+   * (full width on a phone) that slides in, for a side panel such as a revision history or an inspector.
    * @default "center"
    */
   placement?: DialogPlacement;
@@ -42,8 +43,9 @@ export interface DialogProps {
 }
 
 const placements: Record<DialogPlacement, string> = {
-  center: "top-1/2 max-w-md -translate-y-1/2",
-  top: "top-[15vh] max-w-lg",
+  center: "anim-fade panel panel-float left-1/2 top-1/2 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2",
+  top: "anim-fade panel panel-float left-1/2 top-[15vh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2",
+  right: "anim-slide-right panel panel-float right-0 top-0 h-dvh w-full max-w-xl overflow-y-auto rounded-none border-y-0 border-r-0",
 };
 
 export function Dialog({
@@ -70,7 +72,7 @@ export function Dialog({
           data-placement={placement}
           {...(initialFocus !== undefined ? { initialFocus } : {})}
           className={cn(
-            "anim-fade panel panel-float fixed left-1/2 z-50 w-[calc(100vw-2rem)] -translate-x-1/2 text-ink outline-none",
+            "fixed z-50 text-ink outline-none",
             placements[placement],
             bare ? "overflow-hidden" : "flex flex-col gap-4 p-4",
             className,

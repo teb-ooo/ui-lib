@@ -1,6 +1,7 @@
 import { forwardRef, useSyncExternalStore } from "react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../lib/cn";
+import { keysFor, useKeysPressed } from "./kbd-pressed";
 
 export interface KbdProps extends Omit<HTMLAttributes<HTMLSpanElement>, "className" | "children"> {
   /**
@@ -18,6 +19,8 @@ interface KeyLabel {
   glyph: string;
   /** What assistive technology says. */
   spoken: string;
+  /** The key this label stands for (lower-case), for noticing it being pressed. */
+  token: string;
 }
 
 function subscribe(): () => void {
@@ -38,6 +41,10 @@ export function useIsApple(): boolean {
 
 /** Label for one key token (already lower-cased) on the given platform. */
 export function keyLabel(token: string, apple: boolean): KeyLabel {
+  return { ...baseLabel(token, apple), token };
+}
+
+function baseLabel(token: string, apple: boolean): Omit<KeyLabel, "token"> {
   switch (token) {
     case "mod":
       return apple ? { glyph: "⌘", spoken: "Command" } : { glyph: "Ctrl", spoken: "Control" };
@@ -96,8 +103,28 @@ export function parseShortcut(shortcut: string, apple: boolean): KeyLabel[][] {
     );
 }
 
+// One key is a square keycap: as tall as it is wide for a single character (1.5rem both ways), wider only for words
+// such as Ctrl or Space. A fixed height with the line height reset centres the glyph in the box instead of in a taller line box.
 const kbdClass =
-  "inline-flex min-w-5 items-center justify-center rounded border border-line bg-surface px-1 text-ink-muted";
+  "inline-flex h-6 min-w-6 items-center justify-center rounded border border-line bg-surface px-1.5 leading-none text-ink-muted " +
+  // Subtle: while the real key is down, the keycap darkens a touch and sits a pixel lower.
+  "transition-colors data-[pressed]:translate-y-px data-[pressed]:border-line-strong data-[pressed]:bg-surface-raised data-[pressed]:text-ink";
+
+// Letters, digits and most symbols sit exactly in the middle of the square. These symbol glyphs come from a fallback
+// font with other vertical metrics, so each is nudged (CSS px, down is positive) to put its ink in the middle, measured
+// at 8x on a 24px keycap.
+const glyphNudge: Record<string, number> = { "⌃": 3.9, "↵": 0.75, "⌥": -0.6, "⌘": -0.4 };
+
+/** One keycap that notices its own key being pressed. */
+function KeyCap({ token, apple, children }: { token: string; apple: boolean; children: ReactNode }) {
+  const pressed = useKeysPressed(keysFor(token, apple));
+  const nudge = typeof children === "string" ? glyphNudge[children] : undefined;
+  return (
+    <kbd className={kbdClass} data-pressed={pressed ? "" : undefined}>
+      {nudge === undefined ? children : <span style={{ transform: `translateY(${nudge}px)` }}>{children}</span>}
+    </kbd>
+  );
+}
 
 /** A keyboard-shortcut hint. Each key is its own `<kbd>`; the group carries a spoken label. */
 export const Kbd = forwardRef<HTMLSpanElement, KbdProps>(function Kbd(
@@ -110,7 +137,9 @@ export const Kbd = forwardRef<HTMLSpanElement, KbdProps>(function Kbd(
   if (children !== undefined && children !== null && children !== false) {
     return (
       <span ref={ref} className={wrapper} {...rest}>
-        <kbd className={kbdClass}>{children}</kbd>
+        <KeyCap token={typeof children === "string" ? children.trim().toLowerCase() : ""} apple={apple}>
+          {children}
+        </KeyCap>
       </span>
     );
   }
@@ -123,9 +152,9 @@ export const Kbd = forwardRef<HTMLSpanElement, KbdProps>(function Kbd(
         <span key={i} aria-hidden="true" className="inline-flex items-center gap-1">
           {i > 0 ? <span className="text-ink-faint">then</span> : null}
           {step.map((k, j) => (
-            <kbd key={j} className={kbdClass}>
+            <KeyCap key={j} token={k.token} apple={apple}>
               {k.glyph}
-            </kbd>
+            </KeyCap>
           ))}
         </span>
       ))}

@@ -8,21 +8,25 @@ Peers: `react`, `react-dom`, `@tanstack/react-router` (optional for the rest of 
 
 CSS: nothing extra. `@import "@teb-ooo/ui/theme.css";` already scans the palette classes and defines the `--cmdk-loaded` sentinel.
 
-Mount the provider once, inside the router, and put the trigger in the header (`web/src/routes/__root.tsx`):
+Mount the provider once, inside the router, with the `Shell` inside it (`web/src/routes/__root.tsx`). The trigger is the search icon in the shell's platform bar; an app draws no trigger of its own:
 
 ```tsx
-import { CommandProvider, CommandTrigger } from "@teb-ooo/ui/cmdk";
+import { CommandProvider } from "@teb-ooo/ui/cmdk";
+import { Shell } from "@teb-ooo/ui";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
   component: () => (
     <CommandProvider>
-      <header><CommandTrigger /></header>
-      <Outlet />
+      <Shell sidebar={<AppSidebar />}>
+        <Outlet />
+      </Shell>
     </CommandProvider>
   ),
 });
 ```
+
+**Platform commands (0.23.0).** The `Shell` registers them under the group "Platform", so an app neither registers nor can remove them: Sign out (a GET to `/auth/logout`, only while signed in), My profile (id app), Go to dashboard (ah), Go to work tracker (bd), Go to design system (ui) and Send feedback (the owner only). The list of links lives in `@teb-ooo/web` (`platformLinks()`), so it can grow without app changes. "Open in Claude app" stays a built-in under General.
 
 Register commands where the action lives. They exist while the component is mounted:
 
@@ -43,6 +47,8 @@ function ItemsPage() {
 ```
 
 `run` may return a promise (spinner, inline error on failure) or a `Command[]` (opens a nested view). `deps` (second argument) says when the list itself changed; `run` and `when` always see the latest render. `shortcut` is a chord (`mod+shift+n`) or a sequence (`g i`). `useCommandPalette()` returns `{ open, close, isOpen }`.
+
+`CommandProvider`'s `signOutPath` is deprecated and ignored: Sign out is a platform command now. The built-in Profile and Sign out commands are gone for the same reason. `useFeedbackCommand` is deprecated too: the `Shell` registers Send feedback and owns the feedback panel, so an app calls neither it nor `useFeedback`. `CommandTrigger` is for the gallery only: the bar has the trigger.
 
 Give every route a title so it reads well under "Go to": `createFileRoute("/items")({ staticData: { title: "Items" }, component: ItemsPage })`. The `title?: string` field is added to TanStack's `StaticDataRouteOption` by this package.
 

@@ -10,6 +10,7 @@ export default {
   group: "Molecules",
   description:
     "The palette surface rendered statically: grouped results with matched characters highlighted, shortcut hints, nested views with a breadcrumb, an inline error row and the empty state. Live behaviour needs the provider; see the Command trigger entry.",
+  aliases: ["command menu", "cmd k", "cmdk", "spotlight", "quick actions", "omnibar", "command bar"],
 } satisfies StoryDefault;
 
 const noop = () => undefined;

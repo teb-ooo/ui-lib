@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import type { HTMLAttributes } from "react";
+import { Lock, LockOpen, X } from "lucide-react";
 import { cn } from "../lib/cn";
 
 export type ChipTone = "default" | "ok" | "warn" | "muted" | "danger" | "link" | "agent";
@@ -10,6 +11,17 @@ export interface ChipProps extends Omit<HTMLAttributes<HTMLSpanElement>, "classN
    * @default "default"
    */
   tone?: ChipTone;
+  /** Adds a remove control (an X) after the label. */
+  onRemove?: () => void;
+  /** Accessible name of the remove control. @default "Remove" */
+  removeLabel?: string;
+  /** Adds a lock toggle after the label: locked (closed padlock) or unlocked. Set together with `onLockedChange`. */
+  locked?: boolean;
+  onLockedChange?: (locked: boolean) => void;
+  /** Accessible name of the toggle while it is unlocked (the action it performs). @default "Lock" */
+  lockLabel?: string;
+  /** Accessible name of the toggle while it is locked. @default "Unlock" */
+  unlockLabel?: string;
   className?: string;
 }
 
@@ -23,7 +35,28 @@ const tones: Record<ChipTone, string | false> = {
   agent: "chip-agent",
 };
 
-/** A static token: a status, a count, a reference. */
-export const Chip = forwardRef<HTMLSpanElement, ChipProps>(function Chip({ tone = "default", className, ...rest }, ref) {
-  return <span ref={ref} data-tone={tone} className={cn("chip", tones[tone], className)} {...rest} />;
+const action =
+  "-me-1 flex size-4 cursor-pointer items-center justify-center rounded bg-transparent p-0 text-current opacity-70 outline-none hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-current";
+
+/** A token: a status, a count, a reference. It can carry a remove control or a lock toggle. */
+export const Chip = forwardRef<HTMLSpanElement, ChipProps>(function Chip(
+  { tone = "default", onRemove, removeLabel = "Remove", locked, onLockedChange, lockLabel = "Lock", unlockLabel = "Unlock", className, children, ...rest },
+  ref,
+) {
+  const toggle = locked !== undefined && onLockedChange !== undefined;
+  return (
+    <span ref={ref} data-tone={tone} className={cn("chip", tones[tone], className)} {...rest}>
+      {children}
+      {toggle ? (
+        <button type="button" aria-label={locked ? unlockLabel : lockLabel} onClick={() => onLockedChange(!locked)} className={action}>
+          {locked ? <Lock aria-hidden="true" className="size-3" /> : <LockOpen aria-hidden="true" className="size-3" />}
+        </button>
+      ) : null}
+      {onRemove ? (
+        <button type="button" aria-label={removeLabel} onClick={onRemove} className={action}>
+          <X aria-hidden="true" className="size-3" />
+        </button>
+      ) : null}
+    </span>
+  );
 });

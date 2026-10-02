@@ -4,6 +4,7 @@ export default {
   title: "Radius",
   group: "Foundations",
   description: "One radius, 0.25rem (--radius), used by every control, panel and avatar. Use the plain rounded utility.",
+  aliases: ["border radius", "rounded", "corners", "rounding"],
 } satisfies StoryDefault;
 
 export const Radius = () => (

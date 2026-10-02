@@ -1,6 +1,6 @@
-import { Compass, ExternalLink, Keyboard, LogOut, Sparkles, User } from "lucide-react";
+import { Compass, ExternalLink, Keyboard, Sparkles } from "lucide-react";
 import type { AnyRouter } from "@tanstack/react-router";
-import { assignLocation, openInNewTab, profileUrl } from "./external";
+import { openInNewTab } from "./external";
 import { readPlayground } from "./playground-global";
 import type { Command } from "./types";
 
@@ -55,26 +55,6 @@ export function builtinCommands({ router, listShortcuts }: BuiltinDeps): Command
       icon: ExternalLink,
       when: () => playground().claudeSessionUrl !== "",
       run: () => openInNewTab(playground().claudeSessionUrl),
-    },
-    {
-      id: "builtin:profile",
-      title: "Profile",
-      group: "Account",
-      keywords: ["account", "passkey", "settings"],
-      icon: User,
-      when: () => profileUrl() !== null,
-      run: () => {
-        const url = profileUrl();
-        if (url) assignLocation(url);
-      },
-    },
-    {
-      id: "builtin:sign-out",
-      title: "Sign out",
-      group: "Account",
-      keywords: ["logout", "log out"],
-      icon: LogOut,
-      run: () => assignLocation("/auth/logout"),
     },
     {
       id: SHORTCUTS_ID,
