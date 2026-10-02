@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Menu } from "@base-ui/react/menu";
-import { FlaskConical, LogIn, LogOut, Menu as MenuIcon, MessageSquarePlus, Search, User } from "lucide-react";
+import { LogIn, LogOut, Menu as MenuIcon, MessageSquarePlus, Search, User } from "lucide-react";
 import { cn } from "../lib/cn";
 import { LiveIndicator } from "./live-indicator";
 import type { LiveStatus } from "./live-indicator";
@@ -9,7 +9,7 @@ import { Tooltip } from "./tooltip";
 export interface PlatformBarProps {
   /** The app's name (`playground.appName`): the only text in the bar. */
   appName: string;
-  /** `staging` (or another non-production environment) shows a flask mark; production shows nothing. */
+  /** `staging` (or another non-production environment) shows an orange 72 by 12 px bar after the name; production shows nothing. */
   env?: string;
   /** What `useLiveStatus()` from `@teb-ooo/web` reports. */
   live: LiveStatus;
@@ -46,7 +46,7 @@ const menuItem =
 
 /**
  * The platform's top bar, exactly 1.5rem tall, one line, on every screen size. The only text is the app's name; everything
- * else is an icon with an accessible name and a tooltip: the live dot, the environment mark, the palette trigger, Send
+ * else is an icon with an accessible name and a tooltip (the environment mark is an orange bar after the name): the live dot, the palette trigger, Send
  * feedback (owner only) and the person menu.
  *
  * `Shell` draws it from the platform's own data and takes nothing from the app. It is exported for the design gallery
@@ -76,15 +76,13 @@ export function PlatformBar({
         </Icon>
       ) : null}
       <span className="truncate px-1 leading-6 text-ink">{appName}</span>
-      <div className="flex-1" />
-      <LiveIndicator status={live} tip className="size-6 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
       {marked ? (
         <Tooltip tip={envName} side="bottom">
-          <span role="img" aria-label={envName} tabIndex={0} className="inline-flex size-6 items-center justify-center rounded text-warning outline-none focus-visible:ring-1 focus-visible:ring-ink-muted">
-            <FlaskConical aria-hidden="true" className="size-4" />
-          </span>
+          <span role="img" aria-label={envName} tabIndex={0} className="h-3 w-[4.5rem] shrink-0 rounded bg-warning outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
         </Tooltip>
       ) : null}
+      <div className="flex-1" />
+      <LiveIndicator status={live} tip className="size-6 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
       <Icon tip="Open command palette" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
         <Search aria-hidden="true" className="size-4" />
       </Icon>
