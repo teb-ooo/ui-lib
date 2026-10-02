@@ -65,7 +65,7 @@ useCommandSource({
 }, []);
 ```
 
-`search(query, signal)` returns commands in the server's order (they are not filtered again); `signal` aborts when the query changes or the palette closes. A command's `hint` (0.28.0) is quiet text after its title, such as an entry's type ("City"). Options: `minChars` (2), `debounceMs` (150), `limit` (8). Results appear under `group` after the matching commands, only at the root of the palette, with a quiet "Searching..." line while the request runs (earlier results stay) and "Could not search ..." when it fails. Use the generated hooks' query options (WEB rules: no raw `fetch`). Several sources can be registered; they are asked in parallel.
+The source's `group` is the section heading the palette draws; the `group` on each returned command is required by the `Command` type but is not used for these results, so use the same string in both. `search(query, signal)` returns commands in the server's order (they are not filtered again); `signal` aborts when the query changes or the palette closes. A command's `hint` (0.28.0) is quiet text after its title, such as an entry's type ("City"). Options: `minChars` (2), `debounceMs` (150), `limit` (8). Results appear under `group` after the matching commands, only at the root of the palette, with a quiet "Searching..." line while the request runs (earlier results stay) and "Could not search ..." when it fails. Use the generated hooks' query options (WEB rules: no raw `fetch`). Several sources can be registered; they are asked in parallel.
 
 Give every route a title so it reads well under "Go to": `createFileRoute("/items")({ staticData: { title: "Items" }, component: ItemsPage })`. The `title?: string` field is added to TanStack's `StaticDataRouteOption` by this package.
 
