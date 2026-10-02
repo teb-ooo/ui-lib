@@ -108,3 +108,19 @@ describe("command sources", () => {
     expect(within(screen.getByRole("group", { name: "Entries" })).getAllByRole("option")).toHaveLength(3);
   });
 });
+
+describe("command hint", () => {
+  it("shows the hint after the title of a result", async () => {
+    const user = userEvent.setup();
+    const source: CommandSource = {
+      id: "h",
+      group: "Entries",
+      debounceMs: 0,
+      search: async () => [{ id: "e:1", title: "Harbour of Reeds", hint: "City", group: "Entries", run: vi.fn() }],
+    };
+    await renderApp({ extra: <Source source={source} /> });
+    await user.type(await open(user), "har");
+    const row = await screen.findByRole("option", { name: /Harbour of Reeds/ });
+    expect(within(row).getByText("City")).toBeTruthy();
+  });
+});

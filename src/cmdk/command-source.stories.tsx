@@ -9,7 +9,7 @@ export default {
   aliases: ["search provider", "async commands", "dynamic commands", "api search", "jump to", "quick open", "omnibox", "global search"],
 } satisfies StoryDefault;
 
-const ENTRIES = ["Mother Meridian", "The Saltmere Coast", "Captain Ilsa Marr", "Harbour of Reeds", "The Drowned Bell"];
+const ENTRIES: Array<[string, string]> = [["Mother Meridian", "Character"], ["The Saltmere Coast", "Place"], ["Captain Ilsa Marr", "Character"], ["Harbour of Reeds", "City"], ["The Drowned Bell", "Event"]];
 
 function EntrySource() {
   useCommandSource({
@@ -19,9 +19,10 @@ function EntrySource() {
     search: async (query, signal) => {
       await new Promise((resolve) => setTimeout(resolve, 250));
       if (signal.aborted) return [];
-      return ENTRIES.filter((e) => e.toLowerCase().includes(query.toLowerCase())).map((e) => ({
+      return ENTRIES.filter(([e]) => e.toLowerCase().includes(query.toLowerCase())).map(([e, type]) => ({
         id: `story-entry:${e}`,
         title: e,
+        hint: type,
         group: "Entries",
         run: () => undefined,
       }));

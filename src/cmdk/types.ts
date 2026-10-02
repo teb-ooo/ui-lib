@@ -40,6 +40,8 @@ export interface Command {
   /** `g i` (sequence), `mod+shift+n` (chord). `mod` is Cmd on macOS, Ctrl elsewhere. */
   shortcut?: string;
   icon?: CommandIcon;
+  /** Quiet text after the title: the kind of thing it opens, such as an entry's type ("City"). */
+  hint?: string;
   /** Hide the command while this is false. Evaluated each time the palette renders or a shortcut is pressed. */
   when?: boolean | (() => boolean);
   /** Executed on Enter, click or shortcut. Return a promise to show a spinner; a rejection shows an inline error row. */

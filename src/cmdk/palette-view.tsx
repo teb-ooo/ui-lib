@@ -85,6 +85,7 @@ function Row({ row, props }: { row: PaletteRow; props: PaletteViewProps }) {
       <span className="min-w-0 flex-1 truncate">
         <Highlighted label={row.label} indices={row.indices} />
       </span>
+      {command.hint ? <span className="max-w-[40%] shrink-0 truncate text-ink-faint">{command.hint}</span> : null}
       {pending ? (
         <Loader2 aria-label="Running" role="img" className="size-4 shrink-0 animate-spin text-ink-muted motion-reduce:animate-none" />
       ) : command.shortcut ? (
