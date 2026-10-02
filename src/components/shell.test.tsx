@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { useLive } from "@teb-ooo/web";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CommandProvider } from "../cmdk";
@@ -37,7 +39,7 @@ describe("Sidebar", () => {
 const owner = { subject: "1", email: "alex@example.test", username: "alex", groups: [], is_admin: false, is_owner: true };
 const member = { ...owner, email: "sam@example.test", username: "sam", is_owner: false };
 
-function mount(me: object | null, global: Record<string, unknown> = {}) {
+function mount(me: object | null, global: Record<string, unknown> = {}, extra: ReactNode = null) {
   window.__PLAYGROUND__ = { app_name: "tracker", env: "staging", platform_domain: "example.test", ...global } as never;
   vi.stubGlobal(
     "fetch",
@@ -53,6 +55,7 @@ function mount(me: object | null, global: Record<string, unknown> = {}) {
       <CommandProvider standalone>
         <Shell sidebar={<Sidebar items={items} />}>
           <p>Content</p>
+          {extra}
         </Shell>
       </CommandProvider>
     </QueryClientProvider>,
@@ -87,10 +90,10 @@ describe("Shell", () => {
     );
   });
 
-  it("the bar is one 1.5rem line whose only text is the app name", async () => {
+  it("the bar is one 36px line whose only text is the app name", async () => {
     mount(owner);
     const bar = screen.getByRole("banner");
-    expect(bar.className).toContain("h-6");
+    expect(bar.className).toContain("h-9");
     expect(bar.textContent).toBe("tracker");
     expect(bar.querySelectorAll("header")).toHaveLength(0);
     await waitFor(() => expect(within(bar).getByRole("button", { name: "Account" })).toBeTruthy());
@@ -100,9 +103,20 @@ describe("Shell", () => {
 
   it("shows the live dot and, on staging only, the environment mark", () => {
     const { unmount } = mount(null);
-    expect(screen.getByRole("status", { name: "Not live" })).toBeTruthy();
-    expect(screen.getByRole("img", { name: "Staging" })).toBeTruthy();
+    // No screen has a live stream, so there is no dot at all.
+    expect(screen.queryByRole("status")).toBeNull();
     unmount();
+    function Streaming() {
+      useLive({ enabled: false });
+      return null;
+    }
+    const second = mount(null, {}, <Streaming />);
+    expect(screen.getByRole("status", { name: "Not live" })).toBeTruthy();
+    const mark = screen.getByRole("img", { name: "Staging" });
+    expect(mark.className).toContain("h-2");
+    expect(mark.className).toContain("w-12");
+    expect(mark.textContent).toBe("");
+    second.unmount();
     mount(null, { env: "production" });
     expect(screen.queryByRole("img", { name: "Staging" })).toBeNull();
   });

@@ -5,7 +5,7 @@ export default {
   title: "PlatformBar",
   group: "Molecules",
   description:
-    "The platform's top bar, 1.5rem tall, one line, on every screen size. The only text is the app's name; the live dot, environment mark, Cmd+K trigger, Send feedback (owner only) and the person menu are icons with a tooltip. The Shell draws it from the platform's own data: an app never renders it and cannot add anything to it. It is exported for this gallery only.",
+    "The platform's top bar, 36px tall, one line, on every screen size. The only text is the app's name; the live dot, environment mark, Cmd+K trigger, Send feedback (owner only) and the person menu are icons with a tooltip. The Shell draws it from the platform's own data: an app never renders it and cannot add anything to it. It is exported for this gallery only.",
   aliases: ["top bar", "header", "app bar", "navbar", "platform header", "toolbar", "chrome"],
   component: "PlatformBar",
   source: "src/components/platform-bar.tsx",

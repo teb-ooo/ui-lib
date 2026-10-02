@@ -9,10 +9,10 @@ import { Tooltip } from "./tooltip";
 export interface PlatformBarProps {
   /** The app's name (`playground.appName`): the only text in the bar. */
   appName: string;
-  /** `staging` (or another non-production environment) shows an orange 72 by 12 px bar after the name; production shows nothing. */
+  /** `staging` (or another non-production environment) shows an orange 48 by 8 px bar after the name; production shows nothing. */
   env?: string;
-  /** What `useLiveStatus()` from `@teb-ooo/web` reports. */
-  live: LiveStatus;
+  /** What `useLiveStatus()` from `@teb-ooo/web` reports; `null` (an app with no live data) shows no dot. */
+  live: LiveStatus | null;
   /** The signed-in person; `null` when signed out; `undefined` while it is not known yet. */
   user?: { name: string; email?: string } | null;
   /** Where "My profile" goes, or null when it cannot be resolved (local development). */
@@ -29,7 +29,7 @@ export interface PlatformBarProps {
 }
 
 const iconButton =
-  "inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-ink-muted outline-none transition-colors hover:bg-surface-raised hover:text-ink focus-visible:bg-surface-raised focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink-muted";
+  "inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-ink-muted outline-none transition-colors hover:bg-surface-raised hover:text-ink focus-visible:bg-surface-raised focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink-muted";
 
 function Icon({ tip, children, ...rest }: { tip: string; children: ReactNode } & Record<string, unknown>) {
   return (
@@ -45,7 +45,7 @@ const menuItem =
   "flex min-h-[var(--control-h)] cursor-pointer items-center gap-2 rounded px-2 text-ink no-underline outline-none data-[highlighted]:bg-surface-raised";
 
 /**
- * The platform's top bar, exactly 1.5rem tall, one line, on every screen size. The only text is the app's name; everything
+ * The platform's top bar, 2.25rem (36px) tall, one line, on every screen size. The only text is the app's name; everything
  * else is an icon with an accessible name and a tooltip (the environment mark is an orange bar after the name): the live dot, the palette trigger, Send
  * feedback (owner only) and the person menu.
  *
@@ -69,20 +69,20 @@ export function PlatformBar({
   const marked = env !== undefined && env !== "" && env !== "production" && env !== "prod";
   const envName = marked ? env.charAt(0).toUpperCase() + env.slice(1) : "";
   return (
-    <header className="flex h-6 shrink-0 items-center gap-1 border-b border-line bg-ground px-1 text-ink">
+    <header className="flex h-9 shrink-0 items-center gap-1 border-b border-line bg-ground px-1 text-ink">
       {onOpenMenu ? (
         <Icon tip={menuLabel} onClick={onOpenMenu}>
           <MenuIcon aria-hidden="true" className="size-4" />
         </Icon>
       ) : null}
-      <span className="truncate px-1 leading-6 text-ink">{appName}</span>
+      <span className="truncate px-1 text-ink">{appName}</span>
       {marked ? (
         <Tooltip tip={envName} side="bottom">
-          <span role="img" aria-label={envName} tabIndex={0} className="h-3 w-[4.5rem] shrink-0 rounded bg-warning outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
+          <span role="img" aria-label={envName} tabIndex={0} className="h-2 w-12 shrink-0 rounded bg-warning outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
         </Tooltip>
       ) : null}
       <div className="flex-1" />
-      <LiveIndicator status={live} tip className="size-6 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
+      {live === null ? null : <LiveIndicator status={live} tip className="size-7 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />}
       <Icon tip="Open command palette" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
         <Search aria-hidden="true" className="size-4" />
       </Icon>
@@ -92,7 +92,7 @@ export function PlatformBar({
         </Icon>
       ) : null}
       {user === undefined ? (
-        <span aria-hidden="true" className="size-6" />
+        <span aria-hidden="true" className="size-7" />
       ) : user === null ? (
         <Tooltip tip="Sign in" side="bottom">
           <a href={signInHref} aria-label="Sign in" className={iconButton}>

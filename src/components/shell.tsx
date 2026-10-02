@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import { LOGOUT_PATH, platformLinks, playground, useFeedback, useLiveStatus, useUser } from "@teb-ooo/web";
+import { LOGOUT_PATH, platformLinks, playground, useFeedback, useHasLiveStream, useLiveStatus, useUser } from "@teb-ooo/web";
 import { useMinWidth } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
@@ -42,7 +42,8 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
   const hasSidebar = sidebar !== null && sidebar !== undefined && sidebar !== false;
   const [open, setOpen] = useState(false);
   const host = useCommandHost();
-  const live = useLiveStatus();
+  const liveStatus = useLiveStatus();
+  const hasLive = useHasLiveStream();
   const { user, isLoading } = useUser();
   const feedback = useFeedback();
   usePlatformCommands({ signedIn: user !== null && user !== undefined, feedback });
@@ -53,7 +54,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
       <PlatformBar
         appName={playground.appName || "app"}
         env={playground.env}
-        live={live}
+        live={hasLive ? liveStatus : null}
         user={isLoading ? undefined : user ? { name: user.username || user.email, email: user.email } : null}
         profileHref={profile?.href ?? null}
         signOutHref={LOGOUT_PATH}
