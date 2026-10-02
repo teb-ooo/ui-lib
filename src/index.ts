@@ -66,3 +66,5 @@ export { Graph, layoutGraph, layoutRings, hopsFrom } from "./components/graph";
 export type { GraphProps, GraphNode, GraphEdge, GraphKind, LaidOutNode, RingLayout } from "./components/graph";
 export { ToastProvider, useToast } from "./components/toast";
 export type { ToastApi, ToastOptions, ToastTone } from "./components/toast";
+export { Slider, RangeSlider } from "./components/slider";
+export type { SliderProps, RangeSliderProps } from "./components/slider";
