@@ -138,13 +138,17 @@ export function layoutRings(nodes: GraphNode[], edges: GraphEdge[], centerId: st
     previousRy = ry;
   }
   const cx = width / 2;
-  const top = 36;
-  const height = Math.round(Math.max(280, top + previousRy * 2 + 56));
-  const cy = height / 2 - 8;
 
   const angles = new Map<string, number>();
-  const placed = new Map<string, LaidOutNode>();
-  placed.set(centerId, { ...(nodes.find((n) => n.id === centerId) ?? { id: centerId, label: centerId, kind: "" }), x: cx, y: cy, depth: 0 });
+  interface Pending {
+    node: GraphNode;
+    k: number;
+    angle: number;
+    rx: number;
+    ry: number;
+    chars: number;
+  }
+  const pending: Pending[] = [];
   for (let k = 1; k <= maxRing; k++) {
     const ring = [...(rings.get(k) ?? [])];
     const n = ring.length;
@@ -159,7 +163,7 @@ export function layoutRings(nodes: GraphNode[], edges: GraphEdge[], centerId: st
       const y = parents.reduce((sum, a) => sum + Math.sin(a), 0);
       wanted.set(node.id, Math.atan2(y, x));
     });
-    if (k > 1) ring.sort((a, b) => ((wanted.get(a.id) ?? 0) + TAU) % TAU - ((wanted.get(b.id) ?? 0) + TAU) % TAU);
+    if (k > 1) ring.sort((a, b) => (((wanted.get(a.id) ?? 0) + TAU) % TAU) - (((wanted.get(b.id) ?? 0) + TAU) % TAU));
     // Evenly spaced, rotated to where the nodes want to be: the rotation with the least total distance.
     let best = -Math.PI / 2;
     if (k > 1) {
@@ -179,12 +183,56 @@ export function layoutRings(nodes: GraphNode[], edges: GraphEdge[], centerId: st
     ring.forEach((node, i) => {
       const angle = best + (TAU * i) / n;
       angles.set(node.id, angle);
-      const margin = Math.min(chars, node.label.length, MAX_CHARS) * (CHAR / 2) + 4;
-      const x = Math.min(width - margin, Math.max(margin, cx + rx * Math.cos(angle)));
-      placed.set(node.id, { ...node, x, y: cy + ry * Math.sin(angle), depth: k, labelChars: chars });
+      pending.push({ node, k, angle, rx, ry, chars });
     });
   }
-  return { nodes: nodes.map((n) => placed.get(n.id) ?? { ...n, x: cx, y: cy, depth: 1 }), height };
+
+  // Place ring by ring against what is already down. A node whose name would land on another node or name steps outward
+  // along its ray; if that does not clear it, its name is cut shorter. Positions are relative to the centre until the end.
+  type Box = { x: number; y: number; w: number; h: number };
+  const hit = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  const boxesOf = (x: number, y: number, r: number, label: string, chars: number): Box[] => {
+    const w = Math.min(label.length, chars) * CHAR;
+    return [
+      { x: x - r, y: y - r, w: 2 * r, h: 2 * r },
+      { x: x - w / 2 - 2, y: y + r + 1, w: w + 4, h: 19 },
+    ];
+  };
+  const centreNode = nodes.find((n) => n.id === centerId) ?? { id: centerId, label: centerId, kind: "" };
+  const taken: Box[] = boxesOf(cx, 0, 16, centreNode.label, MAX_CHARS);
+  const finals = new Map<string, { x: number; y: number; chars: number; k: number }>();
+  const at = (p: Pending, scale: number, chars: number) => {
+    const margin = Math.min(chars, p.node.label.length) * (CHAR / 2) + 4;
+    return { x: Math.min(width - margin, Math.max(margin, cx + p.rx * scale * Math.cos(p.angle))), y: p.ry * scale * Math.sin(p.angle), margin };
+  };
+  for (const p of pending) {
+    let chosen: { x: number; y: number; chars: number } | null = null;
+    for (let chars = p.chars; chars >= 6 && !chosen; chars -= chars > 12 ? 3 : 2) {
+      for (let scale = 1; scale <= 1.7 && !chosen; scale += 0.1) {
+        const pos = at(p, scale, chars);
+        if (!boxesOf(pos.x, pos.y, 12, p.node.label, chars).some((b) => taken.some((o) => hit(b, o)))) chosen = { x: pos.x, y: pos.y, chars };
+      }
+    }
+    const pos = chosen ?? { ...at(p, 1, 6), chars: 6 };
+    finals.set(p.node.id, { x: pos.x, y: pos.y, chars: pos.chars, k: p.k });
+    taken.push(...boxesOf(pos.x, pos.y, 12, p.node.label, pos.chars));
+  }
+  // The picture is as tall as what was placed needs: shift everything so the top has a margin.
+  let minY = -34;
+  let maxY = 34;
+  for (const f of finals.values()) {
+    minY = Math.min(minY, f.y - 16);
+    maxY = Math.max(maxY, f.y + 36);
+  }
+  const height = Math.round(Math.max(280, maxY - minY + 24));
+  const shift = 12 - minY + Math.max(0, (280 - (maxY - minY + 24)) / 2);
+  const placed = new Map<string, LaidOutNode>();
+  placed.set(centerId, { ...centreNode, x: cx, y: shift, depth: 0 });
+  for (const n of nodes) {
+    const f = finals.get(n.id);
+    if (f) placed.set(n.id, { ...n, x: f.x, y: f.y + shift, depth: f.k, labelChars: f.chars });
+  }
+  return { nodes: nodes.map((n) => placed.get(n.id) ?? { ...n, x: cx, y: shift, depth: 1 }), height };
 }
 
 /** The positions of `layoutRings` for a box `width` wide; `height` is ignored (the rings decide it). Kept for callers of the earlier layout. */

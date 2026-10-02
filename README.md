@@ -1,6 +1,6 @@
 # @teb-ooo/ui
 
-The playground design system: a Tailwind 4 theme (`theme.css`: semantic tokens that follow the OS light or dark scheme, Geist Mono self-hosted as the only typeface, two type sizes), a small set of atomic React components built on Base UI, and the base layout for every email the playground sends (`email/`). It is purely atomic: no shell, navigation, layouts or auth state. Run the tests with `npm test`, type-check with `npm run typecheck`, and browse everything in the design gallery (`docs/`; `npm run docs:build` writes the static site to `docs/dist`, which is git-ignored build output; `npm run release` builds the package and the gallery).
+The playground design system: a Tailwind 4 theme (`theme.css`: semantic tokens that follow the OS light or dark scheme, Geist Mono self-hosted as the only typeface, two type sizes), a small set of atomic React components built on Base UI, and the base layout for every email the playground sends (`email/`). It is purely atomic: no shell, navigation, layouts or auth state. Run the tests with `npm test`, type-check with `npm run typecheck`, and browse everything in the design gallery, which is the `ui` app (https://ui.teb.ooo; it renders the package's stories live). There is no static gallery in this repository any more.
 
 Stories: every component has a co-located `*.stories.tsx` (format in [docs/stories.md](docs/stories.md)); the package ships them (`stories/`) so the gallery app renders them live.
 
