@@ -253,3 +253,17 @@ describe("Graph labels", () => {
     }
   });
 });
+
+describe("Graph rings, a busy network", () => {
+  it("busy at several widths has no overlapping name boxes", () => {
+    const nodes = [{ id: "coast", label: "The Saltmere Coast", kind: "p" }, ...["Harbour of Reeds", "Captain Ilsa Marr", "The Drowned Bell", "Saltmere Guild", "Gull Rock", "Tomas Reed", "Ferry of Ash", "Lighthouse Keepers", "Old Fish Market", "The Pale Tide", "Brine Smugglers", "Marr's Ledger", "Reed Family"].map((label, i) => ({ id: `n${i}`, label, kind: "p" }))];
+    const edges = [...nodes.slice(1, 8).map((n) => ({ source: "coast", target: n.id })), { source: "n1", target: "n7" }, { source: "n0", target: "n8" }, { source: "n2", target: "n9" }, { source: "n3", target: "n10" }, { source: "n1", target: "n11" }, { source: "n5", target: "n12" }, { source: "n4", target: "n7" }];
+    for (const w of [320, 358, 390, 480, 640, 974]) {
+      const { nodes: l } = layoutRings(nodes, edges, "coast", w);
+      const boxes = l.flatMap((n) => { const c = n.labelChars ?? 18; const lw = Math.min(n.label.length, c) * 8.6; const r = n.depth === 0 ? 16 : 12; return [{ id: n.id + "s", x: n.x - r, y: n.y - r, w: 2 * r, h: 2 * r }, { id: n.id + "l", x: n.x - lw / 2, y: n.y + r + 2, w: lw, h: 17 }]; });
+      const bad: string[] = [];
+      for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) { const a = boxes[i]!, b = boxes[j]!; if (a.id.slice(0, -1) === b.id.slice(0, -1)) continue; if (a.x < b.x + b.w - 1 && b.x < a.x + a.w - 1 && a.y < b.y + b.h - 1 && b.y < a.y + a.h - 1) bad.push(a.id + "/" + b.id); }
+      expect(bad, `width ${w}`).toEqual([]);
+    }
+  });
+});

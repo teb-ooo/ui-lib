@@ -201,16 +201,21 @@ export function layoutRings(nodes: GraphNode[], edges: GraphEdge[], centerId: st
   const centreNode = nodes.find((n) => n.id === centerId) ?? { id: centerId, label: centerId, kind: "" };
   const taken: Box[] = boxesOf(cx, 0, 16, centreNode.label, MAX_CHARS);
   const finals = new Map<string, { x: number; y: number; chars: number; k: number }>();
-  const at = (p: Pending, scale: number, chars: number) => {
+  const at = (p: Pending, scale: number, chars: number, turn = 0) => {
     const margin = Math.min(chars, p.node.label.length) * (CHAR / 2) + 4;
-    return { x: Math.min(width - margin, Math.max(margin, cx + p.rx * scale * Math.cos(p.angle))), y: p.ry * scale * Math.sin(p.angle), margin };
+    const angle = p.angle + turn;
+    return { x: Math.min(width - margin, Math.max(margin, cx + p.rx * scale * Math.cos(angle))), y: p.ry * scale * Math.sin(angle), margin };
   };
   for (const p of pending) {
     let chosen: { x: number; y: number; chars: number } | null = null;
+    // Prefer the full name where it belongs, then outward, then a little along the ring, then a shorter name.
     for (let chars = p.chars; chars >= 6 && !chosen; chars -= chars > 12 ? 3 : 2) {
-      for (let scale = 1; scale <= 1.7 && !chosen; scale += 0.1) {
-        const pos = at(p, scale, chars);
-        if (!boxesOf(pos.x, pos.y, 12, p.node.label, chars).some((b) => taken.some((o) => hit(b, o)))) chosen = { x: pos.x, y: pos.y, chars };
+      for (const turn of [0, 0.1, -0.1, 0.2, -0.2, 0.32, -0.32]) {
+        for (let scale = 1; scale <= 1.8 && !chosen; scale += 0.1) {
+          const pos = at(p, scale, chars, turn);
+          if (!boxesOf(pos.x, pos.y, 12, p.node.label, chars).some((b) => taken.some((o) => hit(b, o)))) chosen = { x: pos.x, y: pos.y, chars };
+        }
+        if (chosen) break;
       }
     }
     const pos = chosen ?? { ...at(p, 1, 6), chars: 6 };
