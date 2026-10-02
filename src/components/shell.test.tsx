@@ -101,7 +101,7 @@ describe("Shell", () => {
     for (const el of bar.querySelectorAll("button, a")) expect(el.getAttribute("aria-label")).toBeTruthy();
   });
 
-  it("shows the live dot and, on staging only, the environment mark", () => {
+  it("shows the live dot only when live updates are not connected, and the environment mark on staging only", () => {
     const { unmount } = mount(null);
     // No screen has a live stream, so there is no dot at all.
     expect(screen.queryByRole("status")).toBeNull();
@@ -110,8 +110,9 @@ describe("Shell", () => {
       useLive({ enabled: false });
       return null;
     }
+    // `off` is not a fault either: still no dot.
     const second = mount(null, {}, <Streaming />);
-    expect(screen.getByRole("status", { name: "Not live" })).toBeTruthy();
+    expect(screen.queryByRole("status")).toBeNull();
     const mark = screen.getByRole("img", { name: "Staging" });
     expect(mark.className).toContain("h-2");
     expect(mark.className).toContain("w-12");
@@ -209,6 +210,25 @@ describe("Shell", () => {
 });
 
 describe("PlatformBar", () => {
+  const base = { appName: "a", user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
+  it.each([
+    ["live", false],
+    ["off", false],
+    [null, false],
+    ["reconnecting", true],
+    ["degraded", true],
+  ] as const)("live=%s shows the dot: %s, and it sits before the Cmd+K icon (left side)", (live, shown) => {
+    render(<PlatformBar {...base} live={live} />);
+    const dot = screen.queryByRole("status");
+    expect(dot !== null).toBe(shown);
+    if (dot) {
+      const bar = screen.getByRole("banner");
+      const items = [...bar.children];
+      expect(items.indexOf(dot)).toBeLessThan(items.indexOf(screen.getByRole("button", { name: "Open command palette" })));
+      expect(items.indexOf(dot)).toBe(1); // right after the app name
+    }
+  });
+
   it("shows the menu icon only when asked and the feedback icon only when given a handler", () => {
     const props = { appName: "a", live: "live" as const, user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
     const { rerender } = render(<PlatformBar {...props} />);

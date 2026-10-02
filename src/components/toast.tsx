@@ -74,7 +74,7 @@ function List() {
           key={toast.id}
           toast={toast}
           className={cn(
-            "anim-fade panel panel-float pointer-events-auto flex items-start gap-3 p-3 text-ink",
+            "anim-fade panel panel-float pointer-events-auto flex w-full items-start gap-3 p-3 text-ink",
             tones[(toast.type as ToastTone | undefined) ?? "default"] ?? tones.default,
           )}
         >

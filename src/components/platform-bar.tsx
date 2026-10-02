@@ -11,7 +11,7 @@ export interface PlatformBarProps {
   appName: string;
   /** `staging` (or another non-production environment) shows an orange 48 by 8 px bar after the name; production shows nothing. */
   env?: string;
-  /** What `useLiveStatus()` from `@teb-ooo/web` reports; `null` (an app with no live data) shows no dot. */
+  /** What `useLiveStatus()` from `@teb-ooo/web` reports. The dot shows only for `reconnecting` and `degraded`: connected, off and `null` (an app with no live data) show nothing. */
   live: LiveStatus | null;
   /** The signed-in person; `null` when signed out; `undefined` while it is not known yet. */
   user?: { name: string; email?: string } | null;
@@ -66,6 +66,9 @@ export function PlatformBar({
   onOpenMenu,
   menuLabel = "Open menu",
 }: PlatformBarProps) {
+  // Connected is the expected state and shows nothing; the dot appears only when live updates are reconnecting or degraded.
+  // `off` (a hidden tab, a test browser, a stream that is switched off) is not a fault either.
+  const dot = live === "reconnecting" || live === "degraded" ? live : null;
   const marked = env !== undefined && env !== "" && env !== "production" && env !== "prod";
   const envName = marked ? env.charAt(0).toUpperCase() + env.slice(1) : "";
   return (
@@ -76,13 +79,15 @@ export function PlatformBar({
         </Icon>
       ) : null}
       <span className="truncate px-1 text-ink">{appName}</span>
+      {dot ? (
+        <LiveIndicator status={dot} tip className="size-7 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
+      ) : null}
       {marked ? (
         <Tooltip tip={envName} side="bottom">
           <span role="img" aria-label={envName} tabIndex={0} className="h-2 w-12 shrink-0 rounded bg-warning outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
         </Tooltip>
       ) : null}
       <div className="flex-1" />
-      {live === null ? null : <LiveIndicator status={live} tip className="size-7 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />}
       <Icon tip="Open command palette" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
         <Search aria-hidden="true" className="size-4" />
       </Icon>
