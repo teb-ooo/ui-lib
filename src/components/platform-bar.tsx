@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Menu } from "@base-ui/react/menu";
-import { LogIn, LogOut, Menu as MenuIcon, MessageSquarePlus, Search, User } from "lucide-react";
+import { Bot, LogIn, LogOut, Menu as MenuIcon, MessageSquarePlus, Search, User } from "lucide-react";
 import { cn } from "../lib/cn";
 import { LiveIndicator } from "./live-indicator";
 import type { LiveStatus } from "./live-indicator";
@@ -21,6 +21,8 @@ export interface PlatformBarProps {
   signInHref: string;
   onOpenPalette: () => void;
   paletteOpen?: boolean;
+  /** The app's agent session (`playground.claudeSessionUrl`): an icon that opens it in a new tab. Absent when the app has none. */
+  agentHref?: string;
   /** Present only for the owner: the Send feedback icon. */
   onFeedback?: () => void;
   /** Present on a phone: the menu icon that opens the sidebar drawer. */
@@ -62,6 +64,7 @@ export function PlatformBar({
   signInHref,
   onOpenPalette,
   paletteOpen = false,
+  agentHref,
   onFeedback,
   onOpenMenu,
   menuLabel = "Open menu",
@@ -91,6 +94,13 @@ export function PlatformBar({
       <Icon tip="Open command palette" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
         <Search aria-hidden="true" className="size-4" />
       </Icon>
+      {agentHref ? (
+        <Tooltip tip="Open the agent" side="bottom">
+          <a href={agentHref} target="_blank" rel="noopener noreferrer" aria-label="Open the agent" className={iconButton}>
+            <Bot aria-hidden="true" className="size-4" />
+          </a>
+        </Tooltip>
+      ) : null}
       {onFeedback ? (
         <Icon tip="Send feedback" onClick={onFeedback}>
           <MessageSquarePlus aria-hidden="true" className="size-4" />

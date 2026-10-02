@@ -79,6 +79,17 @@ describe("Shell", () => {
     expect(screen.queryByRole("button", { name: "Open menu" })).toBeNull();
   });
 
+  it("has an agent icon that opens the app's session, only when the app has one", () => {
+    const { unmount } = mount(null, { claude_session_url: "https://claude.ai/code/session_x" });
+    const link = screen.getByRole("link", { name: "Open the agent" });
+    expect(link.getAttribute("href")).toBe("https://claude.ai/code/session_x");
+    expect(link.getAttribute("target")).toBe("_blank");
+    expect(link.getAttribute("rel")).toContain("noopener");
+    unmount();
+    mount(null, { claude_session_url: "" });
+    expect(screen.queryByRole("link", { name: "Open the agent" })).toBeNull();
+  });
+
   it("takes no header prop and no slot", () => {
     render(
       <QueryClientProvider client={new QueryClient()}>

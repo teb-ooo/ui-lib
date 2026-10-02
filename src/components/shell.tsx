@@ -63,6 +63,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
         signInHref={`/auth/login?next=${next}`}
         onOpenPalette={() => host?.open()}
         paletteOpen={host?.isOpen ?? false}
+        {...(playground.claudeSessionUrl ? { agentHref: playground.claudeSessionUrl } : {})}
         {...(feedback.available ? { onFeedback: feedback.open } : {})}
         {...(wide || !hasSidebar ? {} : { onOpenMenu: () => setOpen(true), menuLabel })}
       />

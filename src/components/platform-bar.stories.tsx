@@ -14,8 +14,8 @@ export default {
 const noop = () => undefined;
 const base = { appName: "tracker", live: "live" as const, signOutHref: "#sign-out", signInHref: "#sign-in", onOpenPalette: noop, profileHref: "#profile" };
 
-export const Owner = () => <PlatformBar {...base} env="staging" user={{ name: "alex", email: "alex@example.test" }} onFeedback={noop} />;
-Owner.storyMeta = { description: "Staging, signed in as the owner: the orange staging bar after the name and the feedback icon show." } satisfies StoryMeta;
+export const Owner = () => <PlatformBar {...base} env="staging" agentHref="#agent" user={{ name: "alex", email: "alex@example.test" }} onFeedback={noop} />;
+Owner.storyMeta = { description: "Staging, signed in as the owner: the orange staging bar after the name, the agent icon and the feedback icon show." } satisfies StoryMeta;
 
 export const Production = () => <PlatformBar {...base} user={{ name: "sam", email: "sam@example.test" }} />;
 Production.storyMeta = { description: "Production, someone who is not the owner, live updates connected: no environment mark, no feedback icon, no live dot." } satisfies StoryMeta;

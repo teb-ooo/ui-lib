@@ -62,7 +62,7 @@ export { SuggestionList, handleSuggestionKey } from "./components/suggestion-lis
 export type { SuggestionListProps, SuggestionItem, SuggestionKeyOptions } from "./components/suggestion-list";
 export { Diff, diffWords } from "./components/diff";
 export type { DiffProps, DiffToken, DiffTokenKind } from "./components/diff";
-export { Graph, layoutGraph, hopsFrom } from "./components/graph";
-export type { GraphProps, GraphNode, GraphEdge, GraphKind, LaidOutNode } from "./components/graph";
+export { Graph, layoutGraph, layoutRings, hopsFrom } from "./components/graph";
+export type { GraphProps, GraphNode, GraphEdge, GraphKind, LaidOutNode, RingLayout } from "./components/graph";
 export { ToastProvider, useToast } from "./components/toast";
 export type { ToastApi, ToastOptions, ToastTone } from "./components/toast";

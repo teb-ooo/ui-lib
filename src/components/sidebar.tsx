@@ -88,9 +88,11 @@ export function Sidebar({
           {items.map((item, i) => {
             const content = (
               <>
-                <span className="flex size-4 shrink-0 items-center justify-center">
-                  {item.icon}
-                </span>
+                {item.icon !== undefined || iconsOnly ? (
+                  <span className="flex size-4 shrink-0 items-center justify-center">
+                    {item.icon}
+                  </span>
+                ) : null}
                 {iconsOnly ? (
                   <span className="sr-only">{item.label}</span>
                 ) : (
@@ -106,6 +108,8 @@ export function Sidebar({
                 link,
                 item.active && "bg-surface-raised text-ink",
                 iconsOnly && "justify-center px-0",
+                // An item under a group heading with no icon is indented by half of what an empty icon slot used to take.
+                !iconsOnly && item.group !== undefined && item.icon === undefined && "pl-5",
               ),
               ...(item.active ? { "aria-current": "page" as const } : {}),
               onClick: closeDrawer,

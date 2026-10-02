@@ -60,6 +60,8 @@ export interface LaidOutNode extends GraphNode {
   x: number;
   y: number;
   depth: number;
+  /** Most characters of the name drawn, from the room on its ring. */
+  labelChars?: number;
 }
 
 /** Hops from `centerId` to every reachable node (edges are followed both ways). */
@@ -83,98 +85,111 @@ export function hopsFrom(centerId: string, edges: Pick<GraphEdge, "source" | "ta
   return depth;
 }
 
+const CHAR = 8.6;
+const MAX_CHARS = 18;
+const TAU = Math.PI * 2;
+
+/** Circular distance between two angles. */
+function angleGap(a: number, b: number): number {
+  const d = Math.abs(a - b) % TAU;
+  return d > Math.PI ? TAU - d : d;
+}
+
+/** Ramanujan's approximation of an ellipse's perimeter. */
+function perimeter(rx: number, ry: number): number {
+  const h = ((rx - ry) * (rx - ry)) / ((rx + ry) * (rx + ry));
+  return Math.PI * (rx + ry) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
+}
+
+export interface RingLayout {
+  nodes: LaidOutNode[];
+  /** The height the picture needs: it grows with the number of nodes on the busiest ring. */
+  height: number;
+}
+
 /**
- * A deterministic force layout: nodes repel, edges pull, the centre node stays put. The same input always gives the
- * same picture, so a graph does not jump when it re-renders.
+ * Concentric rings, the same picture for the same input: the centre in the middle, hop 1 evenly spaced on the first
+ * ring, hop 2 on the next ring ordered by the angle of its hop-1 neighbours (so lines rarely cross), and so on. The rings
+ * are ellipses that use the width, grow in height with the node count, and keep every label inside the box.
  */
-export function layoutGraph(nodes: GraphNode[], edges: GraphEdge[], centerId: string, width: number, height: number): LaidOutNode[] {
+export function layoutRings(nodes: GraphNode[], edges: GraphEdge[], centerId: string, width: number): RingLayout {
   const hops = hopsFrom(centerId, edges);
-  const cx = width / 2;
-  const cy = height / 2;
-  const radius = Math.min(width, height) / 2 - 36;
-  const byDepth = new Map<number, GraphNode[]>();
-  for (const n of nodes) {
-    const d = hops.get(n.id) ?? 1;
-    (byDepth.get(d) ?? byDepth.set(d, []).get(d))?.push(n);
+  const depthOf = (id: string) => (id === centerId ? 0 : (hops.get(id) ?? 1));
+  const rings = new Map<number, GraphNode[]>();
+  for (const n of nodes) if (n.id !== centerId) (rings.get(depthOf(n.id)) ?? rings.set(depthOf(n.id), []).get(depthOf(n.id)))?.push(n);
+  const maxRing = Math.max(0, ...rings.keys());
+  const neighbours = new Map<string, string[]>();
+  for (const e of edges) {
+    (neighbours.get(e.source) ?? neighbours.set(e.source, []).get(e.source))?.push(e.target);
+    (neighbours.get(e.target) ?? neighbours.set(e.target, []).get(e.target))?.push(e.source);
   }
-  const maxHop = Math.max(1, ...byDepth.keys());
-  const pos = new Map<string, { x: number; y: number; depth: number }>();
-  for (const [d, group] of byDepth) {
-    group.forEach((n, i) => {
-      if (n.id === centerId) {
-        pos.set(n.id, { x: cx, y: cy, depth: 0 });
-        return;
+
+  const half18 = MAX_CHARS * (CHAR / 2) + 4;
+  const rxMax = Math.max(60, width / 2 - half18);
+  const spacing = 64; // the least room one node and its name need along a ring
+  const radii = new Map<number, { rx: number; ry: number }>();
+  let previousRy = 0;
+  for (let k = 1; k <= maxRing; k++) {
+    const count = rings.get(k)?.length ?? 0;
+    const rx = Math.min(rxMax, 90 * k + 20);
+    let ry = Math.max(previousRy + 64, 64 * k + 16);
+    while (perimeter(rx, ry) < count * spacing) ry += 8;
+    radii.set(k, { rx, ry });
+    previousRy = ry;
+  }
+  const cx = width / 2;
+  const top = 36;
+  const height = Math.round(Math.max(280, top + previousRy * 2 + 56));
+  const cy = height / 2 - 8;
+
+  const angles = new Map<string, number>();
+  const placed = new Map<string, LaidOutNode>();
+  placed.set(centerId, { ...(nodes.find((n) => n.id === centerId) ?? { id: centerId, label: centerId, kind: "" }), x: cx, y: cy, depth: 0 });
+  for (let k = 1; k <= maxRing; k++) {
+    const ring = [...(rings.get(k) ?? [])];
+    const n = ring.length;
+    if (n === 0) continue;
+    // Each node wants the mean angle of the nodes it touches on the inner ring; with none it keeps its input order.
+    const wanted = new Map<string, number>();
+    ring.forEach((node, i) => {
+      const parents = (neighbours.get(node.id) ?? []).map((id) => angles.get(id)).filter((a): a is number => a !== undefined && k > 1);
+      const fallback = -Math.PI / 2 + (TAU * i) / n;
+      if (parents.length === 0) return void wanted.set(node.id, fallback);
+      const x = parents.reduce((sum, a) => sum + Math.cos(a), 0);
+      const y = parents.reduce((sum, a) => sum + Math.sin(a), 0);
+      wanted.set(node.id, Math.atan2(y, x));
+    });
+    if (k > 1) ring.sort((a, b) => ((wanted.get(a.id) ?? 0) + TAU) % TAU - ((wanted.get(b.id) ?? 0) + TAU) % TAU);
+    // Evenly spaced, rotated to where the nodes want to be: the rotation with the least total distance.
+    let best = -Math.PI / 2;
+    if (k > 1) {
+      let bestCost = Infinity;
+      for (let j = 0; j < n; j++) {
+        const phi = (wanted.get(ring[j]?.id ?? "") ?? 0) - (TAU * j) / n;
+        const cost = ring.reduce((sum, node, i) => sum + angleGap(wanted.get(node.id) ?? 0, phi + (TAU * i) / n), 0);
+        if (cost < bestCost) {
+          bestCost = cost;
+          best = phi;
+        }
       }
-      const angle = (2 * Math.PI * i) / group.length + d * 0.6;
-      const r = (radius * d) / maxHop;
-      pos.set(n.id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle), depth: d });
+    }
+    const { rx, ry } = radii.get(k) ?? { rx: rxMax, ry: 64 };
+    const arc = perimeter(rx, ry) / n;
+    const chars = Math.min(MAX_CHARS, Math.max(8, Math.floor((arc - 10) / CHAR)));
+    ring.forEach((node, i) => {
+      const angle = best + (TAU * i) / n;
+      angles.set(node.id, angle);
+      const margin = Math.min(chars, node.label.length, MAX_CHARS) * (CHAR / 2) + 4;
+      const x = Math.min(width - margin, Math.max(margin, cx + rx * Math.cos(angle)));
+      placed.set(node.id, { ...node, x, y: cy + ry * Math.sin(angle), depth: k, labelChars: chars });
     });
   }
-  const live = edges.filter((e) => pos.has(e.source) && pos.has(e.target));
-  const ids = nodes.map((n) => n.id);
-  const labelOf = new Map(nodes.map((n) => [n.id, n.label]));
-  const ideal = Math.max(60, Math.min(110, radius / maxHop));
-  for (let step = 0; step < 200; step++) {
-    const cool = 1 - step / 200;
-    const force = new Map(ids.map((id) => [id, { x: 0, y: 0 }]));
-    for (let i = 0; i < ids.length; i++) {
-      for (let j = i + 1; j < ids.length; j++) {
-        const a = pos.get(ids[i] ?? "");
-        const b = pos.get(ids[j] ?? "");
-        if (!a || !b) continue;
-        let dx = a.x - b.x;
-        let dy = a.y - b.y;
-        let d2 = dx * dx + dy * dy;
-        if (d2 < 0.01) {
-          dx = (i - j) * 0.1;
-          dy = 0.1;
-          d2 = dx * dx + dy * dy;
-        }
-        const d = Math.sqrt(d2);
-        const f = (ideal * ideal) / d2;
-        const fa = force.get(ids[i] ?? "");
-        const fb = force.get(ids[j] ?? "");
-        if (fa && fb) {
-          fa.x += (dx / d) * f * d;
-          fa.y += (dy / d) * f * d;
-          fb.x -= (dx / d) * f * d;
-          fb.y -= (dy / d) * f * d;
-        }
-      }
-    }
-    for (const e of live) {
-      const a = pos.get(e.source);
-      const b = pos.get(e.target);
-      const fa = force.get(e.source);
-      const fb = force.get(e.target);
-      if (!a || !b || !fa || !fb) continue;
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const d = Math.sqrt(dx * dx + dy * dy) || 1;
-      const f = ((d - ideal) / ideal) * 0.5 * d * 0.2;
-      fa.x += (dx / d) * f;
-      fa.y += (dy / d) * f;
-      fb.x -= (dx / d) * f;
-      fb.y -= (dy / d) * f;
-    }
-    for (const id of ids) {
-      const p = pos.get(id);
-      const f = force.get(id);
-      if (!p || !f || id === centerId) continue;
-      f.x += (cx - p.x) * 0.05;
-      f.y += (cy - p.y) * 0.05;
-      const len = Math.sqrt(f.x * f.x + f.y * f.y) || 1;
-      const move = Math.min(len, 12 * cool + 0.5);
-      // The label hangs below the node and is centred on it: keep the whole label inside.
-      const half = Math.max(24, Math.min(clip(labelOf.get(id) ?? "").length, 18) * 4.5 + 4);
-      p.x = Math.min(width - half, Math.max(half, p.x + (f.x / len) * move));
-      p.y = Math.min(height - 36, Math.max(24, p.y + (f.y / len) * move));
-    }
-  }
-  return nodes.map((n) => {
-    const p = pos.get(n.id) ?? { x: cx, y: cy, depth: 1 };
-    return { ...n, x: p.x, y: p.y, depth: p.depth };
-  });
+  return { nodes: nodes.map((n) => placed.get(n.id) ?? { ...n, x: cx, y: cy, depth: 1 }), height };
+}
+
+/** The positions of `layoutRings` for a box `width` wide; `height` is ignored (the rings decide it). Kept for callers of the earlier layout. */
+export function layoutGraph(nodes: GraphNode[], edges: GraphEdge[], centerId: string, width: number, _height?: number): LaidOutNode[] {
+  return layoutRings(nodes, edges, centerId, width).nodes;
 }
 
 const SHAPES = ["circle", "square", "diamond", "triangle", "hexagon", "pentagon"] as const;
@@ -236,17 +251,18 @@ export function Graph({
     ro.observe(el);
     return () => ro.disconnect();
   }, [view]);
-  const height = Math.round(Math.min(560, Math.max(320, width * 0.7)));
 
   const hops = useMemo(() => hopsFrom(centerId, edges), [centerId, edges]);
   const shown = useMemo(() => nodes.filter((n) => (hops.get(n.id) ?? Infinity) <= depth), [nodes, hops, depth]);
   const shownIds = useMemo(() => new Set(shown.map((n) => n.id)), [shown]);
   const shownEdges = useMemo(() => edges.filter((e) => shownIds.has(e.source) && shownIds.has(e.target)), [edges, shownIds]);
-  const laid = useMemo(() => layoutGraph(shown, shownEdges, centerId, width, height), [shown, shownEdges, centerId, width, height]);
+  const ring = useMemo(() => layoutRings(shown, shownEdges, centerId, width), [shown, shownEdges, centerId, width]);
+  const laid = ring.nodes;
+  const height = ring.height;
   const at = useMemo(() => new Map(laid.map((n) => [n.id, n])), [laid]);
 
-  // Relation labels sit on their line but step along it, or are dropped clear, rather than land on a node, a node's name
-  // or another relation label.
+  // Relation labels sit on their line but step along it, or are dropped clear; one that cannot be placed without landing
+  // on a node, a node's name or another label is left out (the line still carries it as a tooltip, and the list view has it).
   const edgeLabelAt = useMemo(() => {
     const char = 8.6;
     type Box = { x: number; y: number; w: number; h: number };
@@ -254,7 +270,7 @@ export function Graph({
     const taken: Box[] = [];
     for (const n of laid) {
       const r = n.id === centerId ? 16 : 12;
-      const w = clip(n.label).length * char;
+      const w = clip(n.label, n.labelChars ?? 18).length * char;
       taken.push({ x: n.x - r, y: n.y - r, w: 2 * r, h: 2 * r }, { x: n.x - w / 2, y: n.y + r + 2, w, h: 17 });
     }
     const out = new Map<number, { x: number; y: number }>();
@@ -264,14 +280,15 @@ export function Graph({
       if (!a || !b || !e.label) return;
       const w = clip(e.label, 16).length * char;
       let chosen: { x: number; y: number; box: Box } | null = null;
-      for (const t of [0.5, 0.38, 0.62, 0.28, 0.72]) {
-        const x = Math.min(width - w / 2 - 2, Math.max(w / 2 + 2, a.x + (b.x - a.x) * t));
-        const y = a.y + (b.y - a.y) * t - 3;
-        const box = { x: x - w / 2, y: y - 13, w, h: 17 };
-        chosen ??= { x, y, box };
-        if (!taken.some((o) => hit(box, o))) {
-          chosen = { x, y, box };
-          break;
+      search: for (const dy of [0, -15, 15, -30, 30]) {
+        for (const t of [0.5, 0.4, 0.6, 0.32, 0.68, 0.25, 0.75, 0.2, 0.8]) {
+          const x = Math.min(width - w / 2 - 2, Math.max(w / 2 + 2, a.x + (b.x - a.x) * t));
+          const y = a.y + (b.y - a.y) * t - 3 + dy;
+          const box = { x: x - w / 2, y: y - 13, w, h: 17 };
+          if (!taken.some((o) => hit(box, o))) {
+            chosen = { x, y, box };
+            break search;
+          }
         }
       }
       if (chosen) {
@@ -361,7 +378,7 @@ export function Graph({
                       </g>
                     ) : null}
                     <text y={r + 14} textAnchor="middle" className={halo(n.draft ? "fill-ink-muted" : "fill-ink")} aria-hidden="true">
-                      {clip(n.label)}
+                      {clip(n.label, n.labelChars ?? 18)}
                     </text>
                   </>
                 );

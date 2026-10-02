@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Chip, Dialog, Diff, diffWords, FieldGrid, FieldRow, Graph, handleSuggestionKey, hopsFrom, layoutGraph, SuggestionList } from "../index";
+import { Chip, Dialog, Diff, diffWords, FieldGrid, FieldRow, Graph, handleSuggestionKey, hopsFrom, layoutRings, SuggestionList } from "../index";
 
 describe("Dialog placement right", () => {
   it("opens as a drawer docked to the right", async () => {
@@ -145,20 +145,40 @@ describe("graph layout", () => {
     expect(hopsFrom("d", edges).get("c")).toBe(2);
   });
   it("is deterministic, keeps the centre in the middle and stays in bounds", () => {
-    const one = layoutGraph(nodes, edges, "c", 600, 400);
-    expect(layoutGraph(nodes, edges, "c", 600, 400)).toEqual(one);
-    expect(one.find((n) => n.id === "c")).toMatchObject({ x: 300, y: 200, depth: 0 });
-    for (const n of one) {
+    const one = layoutRings(nodes, edges, "c", 600);
+    expect(layoutRings(nodes, edges, "c", 600)).toEqual(one);
+    expect(one.nodes.find((n) => n.id === "c")).toMatchObject({ x: 300, depth: 0 });
+    for (const n of one.nodes) {
       expect(n.x).toBeGreaterThanOrEqual(0);
       expect(n.x).toBeLessThanOrEqual(600);
       expect(n.y).toBeGreaterThanOrEqual(0);
-      expect(n.y).toBeLessThanOrEqual(400);
+      expect(n.y).toBeLessThanOrEqual(one.height);
       expect(Number.isFinite(n.x + n.y)).toBe(true);
     }
   });
-  it("keeps nodes apart", () => {
-    const l = layoutGraph(nodes, edges, "c", 600, 400);
+  it("puts hop 1 on a ring and hop 2 outside it, near its parent", () => {
+    const { nodes: laid } = layoutRings(nodes, edges, "c", 600);
+    const at = (id: string) => laid.find((n) => n.id === id)!;
+    const c = at("c");
+    const r = (id: string) => Math.hypot((at(id).x - c.x) / 1, (at(id).y - c.y) / 1);
+    expect(at("d").depth).toBe(2);
+    expect(r("d")).toBeGreaterThan(r("b"));
+    // d hangs off b, so it is nearer b than a.
+    const dist = (p: string, q: string) => Math.hypot(at(p).x - at(q).x, at(p).y - at(q).y);
+    expect(dist("d", "b")).toBeLessThan(dist("d", "a"));
+  });
+  it("keeps nodes apart and grows the height with the node count", () => {
+    const l = layoutRings(nodes, edges, "c", 600).nodes;
     for (let i = 0; i < l.length; i++) for (let j = i + 1; j < l.length; j++) expect(Math.hypot(l[i]!.x - l[j]!.x, l[i]!.y - l[j]!.y)).toBeGreaterThan(30);
+    const many = Array.from({ length: 15 }, (_, i) => ({ id: `m${i}`, label: `Node number ${i}`, kind: "k" }));
+    const all = [{ id: "c", label: "Centre", kind: "k" }, ...many];
+    const spokes = many.map((m) => ({ source: "c", target: m.id }));
+    const big = layoutRings(all, spokes, "c", 390);
+    expect(big.height).toBeGreaterThan(layoutRings(nodes, edges, "c", 390).height);
+    for (const n of big.nodes) {
+      expect(n.x).toBeGreaterThanOrEqual(0);
+      expect(n.x).toBeLessThanOrEqual(390);
+    }
   });
 });
 
@@ -221,7 +241,8 @@ describe("Graph labels", () => {
       const oy = Number(m?.[2] ?? 0);
       return { text: t.textContent ?? "", x: ox + Number(t.getAttribute("x") ?? 0) - w / 2, y: oy + Number(t.getAttribute("y") ?? 0) - 13, w, h: 17 };
     });
-    expect(boxes.length).toBeGreaterThanOrEqual(10);
+    // Six names; a relation label that cannot be placed clear is left out, so only some of the five show.
+    expect(boxes.length).toBeGreaterThanOrEqual(8);
     for (let i = 0; i < boxes.length; i++) {
       for (let j = i + 1; j < boxes.length; j++) {
         const a = boxes[i]!;
