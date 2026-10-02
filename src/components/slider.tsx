@@ -44,7 +44,7 @@ const indicator = "absolute h-full rounded bg-ink-muted data-[disabled]:bg-ink-f
 // The visible thumb is 16px; its ::before makes the touch target 28px (the control height).
 const thumb = cn(
   "relative block size-4 rounded border border-ink-muted bg-surface-raised outline-none",
-  "before:absolute before:-inset-1.5 before:content-['']",
+  "before:absolute before:-inset-2 before:content-['']",
   "hover:border-ink data-[dragging]:border-ink data-[dragging]:bg-surface",
   "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2 focus-within:outline-solid focus-within:outline-ink-muted",
   "data-[disabled]:cursor-not-allowed data-[disabled]:border-line-strong data-[disabled]:opacity-50",
