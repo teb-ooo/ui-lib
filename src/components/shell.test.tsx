@@ -220,6 +220,30 @@ describe("Shell", () => {
   });
 });
 
+describe("agent status dot", () => {
+  const base = { appName: "a", live: null, user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
+  it.each([
+    ["working", "is working"],
+    ["idle", "is idle"],
+    ["offline", "is offline"],
+    ["logged_out", "is signed out"],
+  ] as const)("%s: a dot on the agent link that is named by the status", (status, text) => {
+    render(<PlatformBar {...base} agentHref="https://claude.ai/code/s" agentStatus={status} />);
+    const link = screen.getByRole("link", { name: `Open the agent, ${text}` });
+    expect(link.getAttribute("data-agent-status")).toBe(status);
+    expect(link.querySelector(`[data-dot="${status}"]`)).not.toBeNull();
+  });
+  it("draws no dot without a status, and shows a status-only icon without a session link", () => {
+    const { rerender } = render(<PlatformBar {...base} agentHref="https://claude.ai/code/s" agentStatus={null} />);
+    expect(screen.getByRole("link", { name: "Open the agent" }).querySelector("[data-dot]")).toBeNull();
+    rerender(<PlatformBar {...base} agentStatus="working" />);
+    expect(screen.queryByRole("link", { name: /Open the agent/ })).toBeNull();
+    expect(screen.getByRole("img", { name: "Agent is working" })).toBeTruthy();
+    rerender(<PlatformBar {...base} />);
+    expect(screen.queryByRole("img", { name: /Agent/ })).toBeNull();
+  });
+});
+
 describe("PlatformBar", () => {
   const base = { appName: "a", user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
   it.each([

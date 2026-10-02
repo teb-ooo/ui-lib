@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import { LOGOUT_PATH, platformLinks, playground, useFeedback, useHasLiveStream, useLiveStatus, useUser } from "@teb-ooo/web";
+import { LOGOUT_PATH, platformLinks, playground, useAgentStatus, useFeedback, useHasLiveStream, useLiveStatus, useUser } from "@teb-ooo/web";
 import { useMinWidth } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
@@ -47,6 +47,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
   const hasLive = useHasLiveStream();
   const { user, isLoading } = useUser();
   const feedback = useFeedback();
+  const agent = useAgentStatus();
   usePlatformCommands({ signedIn: user !== null && user !== undefined, feedback });
   const next = encodeURIComponent(typeof window === "undefined" ? "/" : window.location.pathname + window.location.search);
   const profile = platformLinks().find((l) => l.id === "platform:profile");
@@ -64,6 +65,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
         onOpenPalette={() => host?.open()}
         paletteOpen={host?.isOpen ?? false}
         {...(playground.claudeSessionUrl ? { agentHref: playground.claudeSessionUrl } : {})}
+        agentStatus={agent?.status ?? null}
         {...(feedback.available ? { onFeedback: feedback.open } : {})}
         {...(wide || !hasSidebar ? {} : { onOpenMenu: () => setOpen(true), menuLabel })}
       />

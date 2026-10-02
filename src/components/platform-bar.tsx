@@ -4,6 +4,8 @@ import { Bot, LogIn, LogOut, Menu as MenuIcon, MessageSquarePlus, Search, User }
 import { cn } from "../lib/cn";
 import { LiveIndicator } from "./live-indicator";
 import type { LiveStatus } from "./live-indicator";
+
+export type AgentBarStatus = "working" | "idle" | "offline" | "logged_out";
 import { Tooltip } from "./tooltip";
 
 export interface PlatformBarProps {
@@ -23,6 +25,11 @@ export interface PlatformBarProps {
   paletteOpen?: boolean;
   /** The app's agent session (`playground.claudeSessionUrl`): an icon that opens it in a new tab. Absent when the app has none. */
   agentHref?: string;
+  /**
+   * The agent's status (`useAgentStatus()` from `@teb-ooo/web`): a dot on the agent icon. `null` or absent (not the owner,
+   * a test browser, no route) draws no dot. Without `agentHref` the icon is shown anyway when there is a status.
+   */
+  agentStatus?: AgentBarStatus | null;
   /** Present only for the owner: the Send feedback icon. */
   onFeedback?: () => void;
   /** Present on a phone: the menu icon that opens the sidebar drawer. */
@@ -41,6 +48,26 @@ function Icon({ tip, children, ...rest }: { tip: string; children: ReactNode } &
       </button>
     </Tooltip>
   );
+}
+
+const agentTexts: Record<AgentBarStatus, string> = {
+  working: "is working",
+  idle: "is idle",
+  offline: "is offline",
+  logged_out: "is signed out",
+};
+
+// Colour is state: the agent colour while it works (pulsing), quiet when idle, warning when it cannot be reached,
+// danger when it is signed out. Idle and offline differ by fill versus ring as well, not by colour alone.
+const agentDots: Record<AgentBarStatus, string> = {
+  working: "bg-agent motion-safe:animate-pulse",
+  idle: "bg-ink-faint",
+  offline: "border border-warning bg-transparent",
+  logged_out: "bg-danger",
+};
+
+function AgentDot({ status }: { status: AgentBarStatus }) {
+  return <span aria-hidden="true" data-dot={status} className={cn("absolute right-0.5 top-0.5 size-2 rounded", agentDots[status])} />;
 }
 
 const menuItem =
@@ -65,6 +92,7 @@ export function PlatformBar({
   onOpenPalette,
   paletteOpen = false,
   agentHref,
+  agentStatus,
   onFeedback,
   onOpenMenu,
   menuLabel = "Open menu",
@@ -94,11 +122,19 @@ export function PlatformBar({
       <Icon tip="Open command palette" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
         <Search aria-hidden="true" className="size-4" />
       </Icon>
-      {agentHref ? (
-        <Tooltip tip="Open the agent" side="bottom">
-          <a href={agentHref} target="_blank" rel="noopener noreferrer" aria-label="Open the agent" className={iconButton}>
-            <Bot aria-hidden="true" className="size-4" />
-          </a>
+      {agentHref || agentStatus ? (
+        <Tooltip tip={agentStatus ? `Agent ${agentTexts[agentStatus]}` : "Open the agent"} side="bottom">
+          {agentHref ? (
+            <a href={agentHref} target="_blank" rel="noopener noreferrer" aria-label={agentStatus ? `Open the agent, ${agentTexts[agentStatus]}` : "Open the agent"} data-agent-status={agentStatus ?? undefined} className={cn(iconButton, "relative")}>
+              <Bot aria-hidden="true" className="size-4" />
+              {agentStatus ? <AgentDot status={agentStatus} /> : null}
+            </a>
+          ) : (
+            <span role="img" tabIndex={0} aria-label={`Agent ${agentTexts[agentStatus as AgentBarStatus]}`} data-agent-status={agentStatus ?? undefined} className={cn(iconButton, "relative cursor-default")}>
+              <Bot aria-hidden="true" className="size-4" />
+              {agentStatus ? <AgentDot status={agentStatus} /> : null}
+            </span>
+          )}
         </Tooltip>
       ) : null}
       {onFeedback ? (

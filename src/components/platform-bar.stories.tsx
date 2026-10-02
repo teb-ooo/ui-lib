@@ -35,3 +35,12 @@ export const Phone = () => (
   </div>
 );
 Phone.storyMeta = { description: "At 390px the menu icon that opens the sidebar drawer joins the bar; the bar stays one line." } satisfies StoryMeta;
+
+export const AgentWorking = () => <PlatformBar {...base} env="staging" agentHref="#agent" agentStatus="working" user={{ name: "alex", email: "alex@example.test" }} onFeedback={noop} />;
+AgentWorking.storyMeta = { description: "The dot on the agent icon follows the agent's status: working (pulsing, agent colour)." } satisfies StoryMeta;
+
+export const AgentIdle = () => <PlatformBar {...base} env="staging" agentHref="#agent" agentStatus="idle" user={{ name: "alex" }} />;
+AgentIdle.storyMeta = { description: "Idle: a quiet dot." } satisfies StoryMeta;
+
+export const AgentOffline = () => <PlatformBar {...base} env="staging" agentHref="#agent" agentStatus="offline" user={{ name: "alex" }} />;
+AgentOffline.storyMeta = { description: "Offline: a ring in the warning colour. Signed out of Claude is a red dot." } satisfies StoryMeta;
