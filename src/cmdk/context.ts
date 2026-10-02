@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { CommandRegistry } from "./registry";
+import type { SourceRegistry } from "./sources";
 import type { Command } from "./types";
 import type { Outcome } from "./execute";
 
@@ -19,6 +20,8 @@ export interface PaletteInitial {
 /** Internal: stable across open and close, so registering components never re-render on them. */
 export interface CommandInternals {
   registry: CommandRegistry;
+  /** Searchable APIs the palette asks while someone types. */
+  sources: SourceRegistry;
   /** Every command available right now (registered plus built-in) whose `when` allows it. */
   getCommands: () => Command[];
   recents: string[];

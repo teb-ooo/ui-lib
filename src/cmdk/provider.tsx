@@ -11,6 +11,7 @@ import { errorMessage, execute } from "./execute";
 import type { Outcome } from "./execute";
 import { Palette } from "./palette";
 import { CommandRegistry, isVisible } from "./registry";
+import { SourceRegistry } from "./sources";
 import { ShortcutMatcher, isApplePlatform, isTypingTarget, parseShortcut } from "./shortcuts";
 import type { BoundShortcut } from "./shortcuts";
 import { loadRecents, pushRecent, recentsKey } from "./storage";
@@ -36,6 +37,7 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
   // Outside a RouterProvider (tests, gallery) there is no router: navigation commands are simply absent.
   const router = useRouter({ warn: false }) as ReturnType<typeof useRouter> | undefined;
   const registry = useMemo(() => new CommandRegistry(), []);
+  const sources = useMemo(() => new SourceRegistry(), []);
   const [isOpen, setIsOpen] = useState(false);
   const [openCount, setOpenCount] = useState(0);
   const [initial, setInitial] = useState<PaletteInitial>({});
@@ -133,8 +135,8 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
   );
 
   const internals = useMemo<CommandInternals>(
-    () => ({ registry, getCommands, recents, run, close: closePalette, initial }),
-    [registry, getCommands, recents, run, closePalette, initial],
+    () => ({ registry, sources, getCommands, recents, run, close: closePalette, initial }),
+    [registry, sources, getCommands, recents, run, closePalette, initial],
   );
 
   // Global keys: the palette shortcut, `/`, and the shortcuts of registered commands.

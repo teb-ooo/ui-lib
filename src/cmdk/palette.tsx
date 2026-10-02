@@ -4,6 +4,7 @@ import { Dialog } from "@teb-ooo/ui";
 import { useInternals } from "./context";
 import { errorMessage } from "./execute";
 import { SHEET_QUERY, useMediaQuery, useVisualViewportVars } from "./hooks";
+import { useSourceResults } from "./use-source-results";
 import { buildPaletteModel } from "./palette-model";
 import type { PaletteRow } from "./palette-model";
 import { optionId, PaletteView } from "./palette-view";
@@ -23,9 +24,10 @@ const SHEET =
 
 /** The modal palette. Mounted by the provider only while open, so all its state resets on every open. */
 export function Palette() {
-  const { registry, getCommands, recents, run, close, initial } = useInternals("Palette");
+  const { registry, sources, getCommands, recents, run, close, initial } = useInternals("Palette");
   // Re-render when a route registers or removes commands while the palette is open.
   useSyncExternalStore(registry.subscribe, registry.getVersion);
+  const sourcesVersion = useSyncExternalStore(sources.subscribe, sources.getVersion);
 
   const [query, setQuery] = useState("");
   const [stack, setStack] = useState<View[]>(initial.stack ?? []);
@@ -47,11 +49,13 @@ export function Palette() {
 
   const root = stack.length === 0;
   const top = stack[stack.length - 1];
+  const external = useSourceResults(sources, query, root, sourcesVersion);
   const model = buildPaletteModel({
     query,
     commands: top ? top.commands : getCommands(),
     recents,
     root,
+    external,
   });
   const activeIndex = model.rows.length === 0 ? -1 : Math.min(active, model.rows.length - 1);
 

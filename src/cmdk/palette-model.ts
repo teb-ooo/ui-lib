@@ -1,5 +1,6 @@
 import { ASK_ASSISTANT_ID } from "./builtins";
 import { groupRanked, rankCommands } from "./search";
+import type { SourceSection } from "./sources";
 import type { Command } from "./types";
 
 export interface PaletteRow {
@@ -17,6 +18,8 @@ export interface PaletteRow {
 export interface PaletteSection {
   group: string;
   rows: PaletteRow[];
+  /** A source section still asking (`loading`) or that failed (`error`); drawn as a quiet line under its rows. */
+  status?: "loading" | "error";
 }
 
 export interface PaletteModel {
@@ -32,10 +35,12 @@ export interface ModelInput {
   recents: readonly string[];
   /** Root view (not nested)? Recents and the assistant fallback only apply there. */
   root: boolean;
+  /** Results of the registered sources for this query (root only), shown after the matching commands. */
+  external?: readonly SourceSection[];
 }
 
 /** Turns the current view, query and recents into the sections and flat row list the palette renders. */
-export function buildPaletteModel({ query, commands, recents, root }: ModelInput): PaletteModel {
+export function buildPaletteModel({ query, commands, recents, root, external = [] }: ModelInput): PaletteModel {
   const q = query.trim();
   const sections: PaletteSection[] = [];
   let index = 0;
@@ -62,7 +67,13 @@ export function buildPaletteModel({ query, commands, recents, root }: ModelInput
     );
   }
 
-  if (ranked.length === 0 && q !== "" && root) {
+  for (const ext of external) {
+    const rows = ext.commands.map((command): PaletteRow => ({ index: index++, command, label: command.title, indices: [], fallback: false }));
+    if (rows.length === 0 && ext.status === "done") continue;
+    sections.push({ group: ext.group, rows, ...(ext.status === "done" ? {} : { status: ext.status }) });
+  }
+
+  if (ranked.length === 0 && q !== "" && root && !sections.some((s) => s.rows.length > 0 || s.status === "loading")) {
     const ask = commands.find((c) => c.id === ASK_ASSISTANT_ID);
     if (ask) push(ask.group, [{ command: ask, label: `Ask assistant: ${q}`, indices: [], fallback: true }]);
   }

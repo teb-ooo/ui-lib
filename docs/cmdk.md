@@ -50,6 +50,23 @@ function ItemsPage() {
 
 `CommandProvider`'s `signOutPath` is deprecated and ignored: Sign out is a platform command now. The built-in Profile and Sign out commands are gone for the same reason. `useFeedbackCommand` is deprecated too: the `Shell` registers Send feedback and owns the feedback panel, so an app calls neither it nor `useFeedback`. `CommandTrigger` is for the gallery only: the bar has the trigger.
 
+**Search sources (0.27.0).** Registered commands are a fixed list, filtered in the browser. To make the palette search an app's own listing or search API (jump to an entry, an issue, a note), register a source where the data's screen lives:
+
+```tsx
+import { useCommandSource } from "@teb-ooo/ui/cmdk";
+
+useCommandSource({
+  id: "entries",
+  group: "Entries",
+  search: async (query, signal) => {
+    const page = await queryClient.fetchQuery($api.queryOptions("get", "/api/search", { params: { query: { q: query, limit: 8 } }, signal }));
+    return page.items.map((e) => ({ id: `entry:${e.id}`, title: e.title, group: "Entries", run: () => navigate({ to: "/entries/$id", params: { id: e.id } }) }));
+  },
+}, []);
+```
+
+`search(query, signal)` returns commands in the server's order (they are not filtered again); `signal` aborts when the query changes or the palette closes. Options: `minChars` (2), `debounceMs` (150), `limit` (8). Results appear under `group` after the matching commands, only at the root of the palette, with a quiet "Searching..." line while the request runs (earlier results stay) and "Could not search ..." when it fails. Use the generated hooks' query options (WEB rules: no raw `fetch`). Several sources can be registered; they are asked in parallel.
+
 Give every route a title so it reads well under "Go to": `createFileRoute("/items")({ staticData: { title: "Items" }, component: ItemsPage })`. The `title?: string` field is added to TanStack's `StaticDataRouteOption` by this package.
 
 The palette has no theme handling: it uses the ui tokens, so it follows the system colour scheme like the rest of the app. Built-ins read `window.__PLAYGROUND__` (`env`, `assistant`, `claude_session_url`, `app_name`; camelCase keys are accepted too) and are safe when it is absent.

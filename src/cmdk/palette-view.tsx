@@ -166,17 +166,22 @@ export function PaletteView(props: PaletteViewProps) {
         onMouseDown={(e) => e.preventDefault()}
       >
         {model.sections.map((section, s) => (
-          <div key={section.group} role="group" aria-labelledby={`${id}-group-${s}`}>
+          <div key={`${section.group}:${s}`} role="group" aria-labelledby={`${id}-group-${s}`}>
             <div id={`${id}-group-${s}`} role="presentation" className="px-3 pb-1 pt-2 text-ink-faint">
               {section.group}
             </div>
             {section.rows.map((row) => (
               <Row key={row.command.id + (row.fallback ? ":fallback" : "")} row={row} props={props} />
             ))}
+            {section.status ? (
+              <div role="status" className="px-3 py-1 text-ink-faint">
+                {section.status === "loading" ? "Searching..." : `Could not search ${section.group.toLowerCase()}`}
+              </div>
+            ) : null}
           </div>
         ))}
       </div>
-      {model.rows.length === 0 ? (
+      {model.rows.length === 0 && !model.sections.some((s) => s.status === "loading") ? (
         <div role="status" className="px-3 py-6 text-center text-ink-muted">
           No results
         </div>

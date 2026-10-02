@@ -17,3 +17,5 @@ export type { PaletteModel, PaletteRow, PaletteSection, ModelInput } from "./pal
 export { PaletteView } from "./palette-view";
 export type { PaletteViewProps } from "./palette-view";
 export type { FuzzyMatch } from "./fuzzy";
+export { useCommandSource } from "./use-register-source";
+export type { CommandSource, SourceSection } from "./sources";
