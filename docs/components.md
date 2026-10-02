@@ -22,6 +22,9 @@ Text input on Base UI `Input`; ref to the `<input>`. Inside a `Field` it takes i
 Label, control, description and error, wired for assistive tech (label association, `aria-describedby`, `aria-invalid`, error in `role="alert"`).
 - `label: ReactNode` (required), `error?: ReactNode` (sets invalid), `description?: ReactNode`, `children`: the control.
 
+## className on components
+Every component takes `className` for layout utilities only (width, margin, flex). It is appended to the component's own classes, not merged: `cn` joins strings and the package has no class-merging library, so when your class sets the same property as the component's own (a width on `Select`, `Combobox` or `SearchInput`, whose default is `w-56`, `w-72` or `min-w-48`), both apply and the stylesheet order decides. Override with Tailwind's important suffix: `className="w-32!"`. A property the component does not set (margin, `flex-none`) needs no suffix.
+
 ## Dialog
 Modal on Base UI `Dialog`: focus moves in, Escape closes, focus returns to the trigger.
 - `title: ReactNode` (required; the accessible name), `description?`, `footer?`, `children?`
