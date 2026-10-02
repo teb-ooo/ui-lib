@@ -59,7 +59,8 @@ useCommandSource({
   id: "entries",
   group: "Entries",
   search: async (query, signal) => {
-    const page = await queryClient.fetchQuery($api.queryOptions("get", "/api/search", { params: { query: { q: query, limit: 8 } }, signal }));
+    // `api` is the app's client from web/src/api (createApi from @teb-ooo/web), as in every app.
+    const page = await queryClient.fetchQuery(api.queryOptions("get", "/api/search", { params: { query: { q: query, limit: 8 } }, signal }));
     return page.items.map((e) => ({ id: `entry:${e.id}`, title: e.title, group: "Entries", run: () => navigate({ to: "/entries/$id", params: { id: e.id } }) }));
   },
 }, []);
