@@ -89,6 +89,7 @@ Centres page content with the page gutter. `width?: "narrow" | "default" | "wide
 List and detail. Side by side from the `lg` breakpoint; below it the list fills the screen and an open detail is a full-screen sheet.
 - `list`, `detail`: ReactNodes; `detailOpen: boolean`, `onDetailClose()`; `detailLabel: string` (accessible name); `placeholder?` (wide, while nothing is open).
 - `resizable?` (drag the divider, or arrow keys/Home/End on it), `defaultSize?` (list width in rem, 28), `minSize?` (16), `maxSize?` (48), `onSizeChange?(rem)`, `persistKey?` (saves the list width in `localStorage`, restores it within min/max, a double-click on the divider resets it to `defaultSize`), `closeLabel?`.
+- The resizable divider looks like the fixed pane's 1px rule at rest. Its grab area is 12px wide, and on hover, focus and drag the rule grows to 3px over its neighbours without taking layout space (0.26.3).
 - Fill the height its parent gives it.
 
 ## DataTable

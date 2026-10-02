@@ -1,6 +1,6 @@
 {
   "name": "@teb-ooo/ui",
-  "version": "0.26.2",
+  "version": "0.26.3",
   "description": "The playground design system: theme, atomic components, email base layout.",
   "license": "UNLICENSED",
   "private": false,

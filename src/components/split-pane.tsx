@@ -166,7 +166,14 @@ export function SplitPane({
             dragging.current = null;
           }}
           onDoubleClick={reset}
-          className="w-1 shrink-0 cursor-col-resize touch-none border-x border-line outline-none hover:bg-surface-raised focus-visible:bg-surface-raised"
+          className={cn(
+            // At rest it is the 1px rule of the fixed pane. The grab area is 12px wide (the ::before) and the rule grows to
+            // 3px (the ::after) on hover, focus and drag, over its neighbours, so no layout space is taken.
+            "relative z-10 w-px shrink-0 cursor-col-resize touch-none bg-line outline-none",
+            "before:absolute before:inset-y-0 before:-left-1.5 before:w-3 before:content-['']",
+            "after:pointer-events-none after:absolute after:inset-y-0 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-ink-muted after:opacity-0 after:transition-[width,opacity]",
+            "hover:after:w-[3px] hover:after:opacity-100 focus-visible:after:w-[3px] focus-visible:after:opacity-100 active:after:w-[3px] active:after:opacity-100",
+          )}
         />
       ) : (
         <div className="w-px shrink-0 bg-line" />
