@@ -64,7 +64,7 @@ export function Sheet({ open, defaultOpen, onOpenChange, trigger, title, descrip
     <BaseDialog.Root open={shown} onOpenChange={(o) => setOpen(o)} modal={modal} disablePointerDismissal={!modal}>
       {trigger ? <BaseDialog.Trigger render={trigger} /> : null}
       <BaseDialog.Portal>
-        {modal ? <BaseDialog.Backdrop className="anim-backdrop fixed inset-0 z-50 bg-black/50" /> : null}
+        {modal ? <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" /> : null}
         <BaseDialog.Popup
           data-side={side}
           style={drag > 0 ? { transform: `translateY(${drag}px)`, transition: "none" } : undefined}

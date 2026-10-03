@@ -82,10 +82,10 @@ function Row({ row, props }: { row: PaletteRow; props: PaletteViewProps }) {
       ].join(" ")}
     >
       <span className="flex size-4 shrink-0 items-center justify-center">{renderIcon(command.icon)}</span>
-      <span className="min-w-0 flex-1 truncate">
+      <span className={command.hint ? "min-w-0 max-w-[60%] shrink-0 truncate" : "min-w-0 flex-1 truncate"}>
         <Highlighted label={row.label} indices={row.indices} />
       </span>
-      {command.hint ? <span className="max-w-[40%] shrink-0 truncate text-ink-faint">{command.hint}</span> : null}
+      {command.hint ? <span className="min-w-0 flex-1 truncate text-right text-ink-faint">{command.hint}</span> : null}
       {pending ? (
         <Loader2 aria-label="Running" role="img" className="size-4 shrink-0 animate-spin text-ink-muted motion-reduce:animate-none" />
       ) : command.shortcut ? (

@@ -92,7 +92,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
     {hint}
     <BaseDialog.Root open={f.isOpen && !f.picking} onOpenChange={(open) => (open ? undefined : f.close())}>
       <BaseDialog.Portal>
-        <BaseDialog.Backdrop {...IGNORE} className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
+        <BaseDialog.Backdrop forceRender {...IGNORE} className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
         <BaseDialog.Popup
           {...IGNORE}
           aria-label="Send feedback"

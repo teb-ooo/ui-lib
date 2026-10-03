@@ -2,6 +2,15 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.39.4 and web 0.8.2 (from 0.39.3 and 0.8.1)
+
+No change needed; visible differences:
+
+- **Dialog, Sheet, Shell, FeedbackPanel** dim the page when opened from inside another dialog (a phone's detail view is a dialog): the backdrop was skipped for nested dialogs.
+- **DataTable** `onRetry` / `retryLabel`: a Retry button under `error`. Pass the query's `refetch`.
+- **Palette** a command's `hint` takes the width the title leaves (it was cut at 40%).
+- **web** `ApiError.userMessage` is a sentence for a person ("The server could not do that. Try again in a moment."); show it instead of `message` ("Internal Server Error: internal error"). `createQueryClient` retries once after 500 ms (was twice with growing delays), so a failing list shows its error within about a second.
+
 ## To ui 0.39.3 (from 0.39.2)
 
 No change needed. **Chip** `tone="muted"` is quiet text as documented: it no longer draws the outline that made it look like a button (the box keeps its size, so rows stay aligned).

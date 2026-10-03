@@ -67,7 +67,7 @@ export function Dialog({
     <BaseDialog.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
       {trigger ? <BaseDialog.Trigger render={trigger} /> : null}
       <BaseDialog.Portal>
-        <BaseDialog.Backdrop className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
+        <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
         <BaseDialog.Popup
           data-placement={placement}
           {...(initialFocus !== undefined ? { initialFocus } : {})}

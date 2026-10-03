@@ -95,6 +95,10 @@ export interface DataTableProps<T> {
   empty?: ReactNode;
   /** Replaces the body. */
   error?: ReactNode;
+  /** With `error`: adds a Retry button under the message that calls this. */
+  onRetry?: () => void;
+  /** Label of the retry button. @default "Retry" */
+  retryLabel?: string;
   /** More rows exist; `onLoadMore` is called when the end scrolls into view. */
   hasMore?: boolean;
   onLoadMore?: () => void;
@@ -299,6 +303,8 @@ export function DataTable<T>({
   loading = false,
   empty,
   error,
+  onRetry,
+  retryLabel = "Retry",
   hasMore = false,
   onLoadMore,
   renderCard,
@@ -548,8 +554,11 @@ export function DataTable<T>({
   const body = (): ReactNode => {
     if (error)
       return (
-        <div role="alert" className="p-4 text-danger">
-          {error}
+        <div className="flex flex-col items-start gap-2 p-4">
+          <div role="alert" className="text-danger">
+            {error}
+          </div>
+          {onRetry ? <Button onClick={onRetry}>{retryLabel}</Button> : null}
         </div>
       );
     if (rows.length === 0 && loading) {

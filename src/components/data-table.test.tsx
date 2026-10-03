@@ -377,4 +377,11 @@ describe("DataTable", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: "Select all rows" }));
     expect(onSelectedKeysChange).toHaveBeenLastCalledWith(new Set(["a", "b", "c"]));
   });
+
+  it("offers a Retry button with an error when given onRetry", () => {
+    const onRetry = vi.fn();
+    render(<DataTable {...base} rows={[]} error="It broke" onRetry={onRetry} />);
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+  });
 });
