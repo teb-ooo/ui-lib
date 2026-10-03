@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.63.2 (from 0.63.0)
+
+No change needed. Fixes the toast stack: the newest toast is now in front (older ones were painted over it, so the front looked empty).
+
 ## To ui 0.63.1 (from 0.63.0)
 
 No change needed. The toast stack uses real 3D: the viewport has a perspective and older toasts are pushed back along z (`translateZ`) instead of scaled.

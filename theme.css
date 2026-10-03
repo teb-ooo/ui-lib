@@ -779,6 +779,8 @@ input.display-lg {
     --height: var(--toast-frontmost-height, var(--toast-height));
     --offset-y: calc(var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) + var(--toast-swipe-movement-y));
     position: absolute;
+    /* The newest (index 0) is on top; Base UI sets no stacking order itself. */
+    z-index: calc(100 - var(--toast-index));
     right: 0;
     bottom: 0;
     width: 100%;
