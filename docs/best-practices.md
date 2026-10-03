@@ -66,7 +66,7 @@ The rule that makes a page feel bounded: **lines are full width, content is inse
 - Text, controls and chips inside a band sit in the page gutter (`Container`: 16px on a phone, 24px from `md`). The rule and the content therefore have different left edges on purpose: the line meets the sidebar, the text does not.
 - A list or table is a band too: use `DataTable bleed` (rules edge to edge, text inset to the gutter), not a bordered box floating in the page. A box (`panel`) is for something that sits inside a band: a card, a dialog, a code block.
 - A split pane's divider is a full-height 1px rule; the filter row above it is a full-width band with its own bottom rule.
-- Build the page from bands: `PageHeader`, then `Section`s (or a `FilterBar` inside a `Section`), then the list or the `SplitPane`. Do not wrap them in your own `Page`, `Bar` or `Pane` components; the primitives are `Shell`, `Sidebar`, `PageHeader`, `Section`, `Container`, `SplitPane`, `DataTable`.
+- Build the page from bands inside `Page`: `PageHeader`, then `Section`s (or a `FilterBar` inside a `Section`), then the list or the `SplitPane`. Do not wrap them in your own `Page`, `Bar` or `Pane` components; the primitives are `Shell`, `Sidebar`, `Page`, `PageBody`, `PageHeader`, `Section`, `Container`, `SplitPane`, `DataTable` (`Page` and `PageBody` give the one scroll surface, section 12).
 - For tiles instead of rows use `CardGrid` and `Card`.
 
 ## 12. Scrolling: one scroll surface per screen
