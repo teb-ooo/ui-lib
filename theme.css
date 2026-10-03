@@ -678,6 +678,8 @@ input.display-lg {
   }
   .anim-backdrop {
     transition: opacity var(--motion-in) var(--ease-out);
+    /* A backdrop that mounts already open (the palette) has no transition to run: fade it in. */
+    animation: anim-fade-in var(--motion-in) var(--ease-out);
   }
   .anim-backdrop[data-ending-style] {
     transition-duration: var(--motion-out);
@@ -763,7 +765,8 @@ input.display-lg {
       transition: none;
     }
     .anim-pop,
-    .anim-enter {
+    .anim-enter,
+    .anim-backdrop {
       animation: none;
     }
     .btn:active:not(:disabled, [data-disabled]) {
@@ -940,4 +943,9 @@ input.display-lg {
 }
 .editor-surface .ProseMirror-selectednode[data-mention-id] {
   outline: 1px solid var(--color-ink-muted);
+}
+@keyframes anim-fade-in {
+  from {
+    opacity: 0;
+  }
 }

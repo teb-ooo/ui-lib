@@ -20,7 +20,9 @@ interface View {
 // on-screen keyboard does not cover the results (see `useVisualViewportVars`).
 const SHEET =
   "max-sm:top-(--command-vv-top,0px) max-sm:left-0 max-sm:h-(--command-vv-height,100dvh) max-sm:w-screen " +
-  "max-sm:max-w-none max-sm:translate-x-0 max-sm:rounded-none max-sm:border-0 motion-reduce:transition-none";
+  "max-sm:max-w-none max-sm:translate-x-0 max-sm:rounded-none max-sm:border-0 motion-reduce:transition-none " +
+  // The palette is mounted already open, so the popup's own open transition never runs: ease it in with a keyframe.
+  "anim-enter";
 
 /** The modal palette. Mounted by the provider only while open, so all its state resets on every open. */
 export function Palette() {

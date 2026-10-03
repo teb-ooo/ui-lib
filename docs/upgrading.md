@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.57.1 (from 0.57.0)
+
+The Cmd+K palette eases in (it was mounted already open, so it appeared at once): the panel fades and rises 6px over 160ms and the backdrop fades in; reduced motion shows it at once.
+
 ## To ui 0.57.0 (from 0.56.x)
 
 `Markdown` gains `onToggleTask`, `images` and wrapper props (requested by notes); no change needed.
