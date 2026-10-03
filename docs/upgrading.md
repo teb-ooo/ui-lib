@@ -2,9 +2,13 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.57.2 (from 0.57.1)
+
+The palette enters at scale 1.2 shrinking to 1 while fading in (see 0.57.1).
+
 ## To ui 0.57.1 (from 0.57.0)
 
-The Cmd+K palette eases in (it was mounted already open, so it appeared at once): the panel fades and rises 6px over 160ms and the backdrop fades in; reduced motion shows it at once.
+The Cmd+K palette eases in (it was mounted already open, so it appeared at once): the panel starts at scale 1.2 and shrinks to 1 over 140ms while it fades in (scale 1.04 on a phone, where it fills the screen), and the backdrop fades in; reduced motion shows it at once.
 
 ## To ui 0.57.0 (from 0.56.x)
 

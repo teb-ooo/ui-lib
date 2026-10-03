@@ -723,6 +723,10 @@ input.display-lg {
   .anim-enter {
     animation: anim-enter-in 160ms var(--ease-out);
   }
+  /* The Cmd+K palette: arrives large and settles, fading in at the same time. */
+  .anim-palette {
+    animation: anim-palette-in 140ms var(--ease-out);
+  }
   /* Controls change colour in 100ms, and a pressed button sits 1px lower. */
   .btn,
   .input,
@@ -766,6 +770,7 @@ input.display-lg {
     }
     .anim-pop,
     .anim-enter,
+    .anim-palette,
     .anim-backdrop {
       animation: none;
     }
@@ -947,5 +952,20 @@ input.display-lg {
 @keyframes anim-fade-in {
   from {
     opacity: 0;
+  }
+}
+@keyframes anim-palette-in {
+  from {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+/* On a phone the palette fills the screen: a smaller start keeps its edges on screen. */
+@media (max-width: 639px) {
+  @keyframes anim-palette-in {
+    from {
+      opacity: 0;
+      transform: scale(1.04);
+    }
   }
 }
