@@ -4,6 +4,7 @@ import { Crosshair, X } from "lucide-react";
 import { Button } from "./button";
 import { Chip } from "./chip";
 import { Field } from "./field";
+import { Kbd } from "./kbd";
 import { Switch } from "./switch";
 import { Textarea } from "./textarea";
 import { useOptionalToast } from "./toast";
@@ -76,8 +77,19 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
     f.close();
   }, [toast, sent, f]);
   if (!f.available) return null;
+  const hint = f.picking ? (
+    // While the dialog steps aside to let the page be clicked, say what to do: a keyboard shortcut gives no other sign.
+    <div role="status" {...IGNORE} className="panel panel-float fixed top-12 left-1/2 z-[60] flex -translate-x-1/2 items-center gap-3 px-3 py-2 text-ink">
+      Click the element this is about
+      <span className="flex items-center gap-1 text-ink-muted">
+        <Kbd shortcut="esc" /> to skip
+      </span>
+    </div>
+  ) : null;
   const confirm = Boolean(sent) && !toast;
   return (
+    <>
+    {hint}
     <BaseDialog.Root open={f.isOpen && !f.picking} onOpenChange={(open) => (open ? undefined : f.close())}>
       <BaseDialog.Portal>
         <BaseDialog.Backdrop {...IGNORE} className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
@@ -167,5 +179,6 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
         </BaseDialog.Popup>
       </BaseDialog.Portal>
     </BaseDialog.Root>
+    </>
   );
 }

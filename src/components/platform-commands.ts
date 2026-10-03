@@ -6,8 +6,8 @@ import { useCommandHost } from "./command-host";
 
 const group = "Platform";
 
-/** The hotkey of Send feedback (owner only): Cmd or Ctrl and I. No Shift, like Cmd+K. */
-export const FEEDBACK_SHORTCUT = "mod+i";
+/** The hotkey of Send feedback (owner only): Cmd or Ctrl and the semicolon. No Shift, like Cmd+K, and no browser binds it. */
+export const FEEDBACK_SHORTCUT = "mod+;";
 /** The palette's own hotkey, shown on its icon. */
 export const PALETTE_SHORTCUT = "mod+k";
 
@@ -60,7 +60,7 @@ export function platformCommands({ signedIn, feedback }: PlatformCommandsInput):
       id: "send-feedback",
       title: "Send feedback",
       group,
-      // I, beside K for the palette: no Shift, and not one of the keys the browsers keep for themselves.
+      // Semicolon, two keys right of K: no Shift, and none of Chrome, Firefox, Safari or Edge uses Cmd or Ctrl with it.
       shortcut: FEEDBACK_SHORTCUT,
       keywords: ["report", "bug", "problem", "idea", "suggestion", "screenshot", "tell the agent"],
       icon: MessageSquarePlus,

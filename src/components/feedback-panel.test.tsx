@@ -74,6 +74,16 @@ describe("FeedbackPanel", () => {
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "What should change?" })));
   });
 
+  it("while an element is being picked it says what to do and how to skip, since a hotkey gives no other sign", () => {
+    const { rerender } = render(<FeedbackPanel feedback={controller({ picking: true })} />);
+    const hint = screen.getByRole("status");
+    expect(hint.textContent).toContain("Click the element this is about");
+    expect(hint.hasAttribute("data-feedback-ignore")).toBe(true);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    rerender(<FeedbackPanel feedback={controller({ picking: false })} />);
+    expect(screen.queryByText(/Click the element this is about/)).toBeNull();
+  });
+
   it("marks its own nodes so the screenshot and the picker leave them out", () => {
     render(<FeedbackPanel feedback={controller()} />);
     expect(screen.getByRole("dialog").hasAttribute("data-feedback-ignore")).toBe(true);
