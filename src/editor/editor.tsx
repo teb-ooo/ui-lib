@@ -3,8 +3,8 @@ import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import type { Editor, JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Bold, Code, Heading2, Italic, List, ListOrdered, Quote, Stamp } from "lucide-react";
-import { Button, SuggestionList, handleSuggestionKey } from "@teb-ooo/ui";
+import { Bold, Check, Code, Heading2, Italic, Link2, List, ListOrdered, Quote, Stamp, Unlink, X } from "lucide-react";
+import { Button, Input, SuggestionList, handleSuggestionKey } from "@teb-ooo/ui";
 import type { SuggestionItem } from "@teb-ooo/ui";
 import { cn } from "../lib/cn";
 import { Draft, Mention, suggestExtension } from "./extensions";
@@ -85,6 +85,8 @@ const closedList = <T,>(): ListState<T> => ({ open: false, items: [], index: 0, 
 export function RichTextEditor({ label, value, onChange, placeholder, readOnly = false, mentions, draft, validateHref = defaultValidate, variant = "page", onFocusEnd, toolbar = "reserved", className }: RichTextEditorProps) {
   const [slash, setSlash] = useState<ListState<SuggestionItem>>(closedList());
   const [ment, setMent] = useState<ListState<SuggestionItem>>(closedList());
+  const [link, setLink] = useState<{ href: string; error: boolean } | null>(null);
+  const linkField = useRef<HTMLInputElement>(null);
   const slashRef = useRef(slash);
   const mentRef = useRef(ment);
   slashRef.current = slash;
@@ -191,11 +193,32 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
     editor,
     selector: ({ editor: e }) =>
       e
-        ? { focused: e.isFocused, bold: e.isActive("bold"), italic: e.isActive("italic"), code: e.isActive("code"), h2: e.isActive("heading", { level: 2 }), bullet: e.isActive("bulletList"), numbered: e.isActive("orderedList"), quote: e.isActive("blockquote"), draft: e.isActive("draft") }
+        ? { focused: e.isFocused, bold: e.isActive("bold"), italic: e.isActive("italic"), code: e.isActive("code"), h2: e.isActive("heading", { level: 2 }), bullet: e.isActive("bulletList"), numbered: e.isActive("orderedList"), quote: e.isActive("blockquote"), draft: e.isActive("draft"), link: e.isActive("link"), canLink: !e.state.selection.empty || e.isActive("link") }
         : null,
   });
 
+  useEffect(() => {
+    if (link) linkField.current?.focus();
+  }, [link === null]);
+
   if (!editor) return null;
+  const openLink = () => setLink({ href: (editor.getAttributes("link").href as string | undefined) ?? "", error: false });
+  const closeLink = () => {
+    setLink(null);
+    editor.chain().focus().run();
+  };
+  const applyLink = () => {
+    if (!link) return;
+    const href = link.href.trim();
+    if (href === "") return removeLink();
+    if (!validateHref(href)) return setLink({ ...link, error: true });
+    editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
+    setLink(null);
+  };
+  const removeLink = () => {
+    editor.chain().focus().extendMarkRange("link").unsetLink().run();
+    setLink(null);
+  };
   const tb = (name: string, icon: React.ReactNode, on: boolean | undefined, run: () => void) => (
     <Button key={name} icon={icon} aria-label={name} tip={name} active={on} onMouseDown={(e) => e.preventDefault()} onClick={run} className="border-transparent" />
   );
@@ -205,7 +228,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
         <div
           role="toolbar"
           aria-label="Formatting"
-          className={cn("absolute left-0 z-10 flex flex-wrap items-center gap-1 transition-opacity duration-100", toolbar === "reserved" ? "top-0" : "-top-9", active?.focused ? "opacity-100" : "pointer-events-none opacity-0")}
+          className={cn("absolute left-0 z-10 flex flex-wrap items-center gap-1 transition-opacity duration-100", toolbar === "reserved" ? "top-0" : "-top-9", active?.focused || link ? "opacity-100" : "pointer-events-none opacity-0 focus-within:pointer-events-auto focus-within:opacity-100")}
         >
           {tb("Bold", <Bold className="size-4" aria-hidden="true" />, active?.bold, () => editor.chain().focus().toggleBold().run())}
           {tb("Italic", <Italic className="size-4" aria-hidden="true" />, active?.italic, () => editor.chain().focus().toggleItalic().run())}
@@ -214,7 +237,39 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
           {tb("Bullet list", <List className="size-4" aria-hidden="true" />, active?.bullet, () => editor.chain().focus().toggleBulletList().run())}
           {tb("Numbered list", <ListOrdered className="size-4" aria-hidden="true" />, active?.numbered, () => editor.chain().focus().toggleOrderedList().run())}
           {tb("Quote", <Quote className="size-4" aria-hidden="true" />, active?.quote, () => editor.chain().focus().toggleBlockquote().run())}
+          {tb("Link", <Link2 className="size-4" aria-hidden="true" />, active?.link, () => (active?.canLink ? openLink() : undefined))}
           {draft ? tb(draft.label, <Stamp className="size-4" aria-hidden="true" />, active?.draft, () => editor.chain().focus().toggleMark("draft").run()) : null}
+          {link ? (
+            <div role="group" aria-label="Link" className="flex items-center gap-1">
+              <Input
+                ref={linkField}
+                aria-label="Link address"
+                aria-invalid={link.error || undefined}
+                placeholder="https://"
+                value={link.href}
+                onChange={(e) => setLink({ href: e.target.value, error: false })}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    applyLink();
+                  } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeLink();
+                  }
+                }}
+                className="w-56"
+              />
+              <Button icon={<Check className="size-4" aria-hidden="true" />} aria-label="Apply link" tip="Apply link" onClick={applyLink} className="border-transparent" />
+              {active?.link ? <Button icon={<Unlink className="size-4" aria-hidden="true" />} aria-label="Remove link" tip="Remove link" onClick={removeLink} className="border-transparent" /> : null}
+              <Button icon={<X className="size-4" aria-hidden="true" />} aria-label="Cancel" tip="Cancel" onClick={closeLink} className="border-transparent" />
+              {link.error ? (
+                <span role="alert" className="text-danger">
+                  Use an http, https or mailto address.
+                </span>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       )}
       <EditorContent

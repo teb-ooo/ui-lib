@@ -39,7 +39,8 @@ describe("RichTextEditor", () => {
   it("has a Formatting toolbar with the draft toggle when asked, and none when read-only", async () => {
     const { rerender } = render(<RichTextEditor label="Body" value={doc} onChange={() => undefined} draft={{ label: "Draft" }} />);
     const tb = await screen.findByRole("toolbar", { name: "Formatting" });
-    expect(tb.querySelectorAll("button").length).toBe(8);
+    expect(tb.querySelectorAll("button").length).toBe(9);
+    expect(screen.getByRole("button", { name: "Link" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Draft" })).toBeTruthy();
     rerender(<RichTextEditor label="Body" value={doc} onChange={() => undefined} readOnly />);
     await waitFor(() => expect(screen.queryByRole("toolbar")).toBeNull());

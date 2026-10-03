@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.51.0 (from 0.50.x)
+
+`RichTextEditor` gains a Link button and an inline address field (set, change and remove a link on the selected text, validated by `validateHref`). Visible: the toolbar has one more button.
+
 ## To ui 0.50.3 (from 0.50.2)
 
 Visible: `RichTextEditor` reserves a strip (2rem) above the text for its toolbar by default so it no longer covers the row above; pass `toolbar="overlay"` for the old floating toolbar. Cmd or Ctrl+I in the editor is italic and no longer opens Send feedback.
