@@ -34,7 +34,7 @@ TableScreen.storyMeta = { description: "A table screen: the compact header and t
 export const DocumentScreen = () => (
   <div className="h-96 border border-line">
     <Page>
-      <PageHeader title="Profile" description="Your account." />
+      <PageHeader title="Profile" description="Your account." sticky />
       <Section title="Details" rule="none">
         <p className="text-ink-muted">The bands above stay put.</p>
       </Section>

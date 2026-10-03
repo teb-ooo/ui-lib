@@ -68,6 +68,7 @@ export const OneRowOnAPhone = () => {
     <FilterBar
       aria-label="Filter issues"
       primary={<SearchInput value={q} onValueChange={setQ} placeholder="Search issues" />}
+      end={<Chip tone="muted">12 issues</Chip>}
       activeCount={type === null ? 0 : 1}
     >
       <ToggleGroup

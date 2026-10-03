@@ -266,3 +266,26 @@ export const ErrorState = () => (
   </div>
 );
 ErrorState.storyMeta = { state: "error" } satisfies StoryMeta;
+
+export const FitToRows = () => (
+  <div className="flex h-72 flex-col gap-2 border border-line p-2">
+    <p className="text-ink-muted">A short list: the table is only as tall as its rows.</p>
+    <DataTable label="Short list" fit rows={makeItems(3)} rowKey={(r) => r.id} columns={columns} />
+    <p className="text-ink-muted">Below it, more content.</p>
+  </div>
+);
+FitToRows.storyMeta = { description: "`fit`: only as tall as its header and rows; with many rows it shrinks to the space left and scrolls inside itself." } satisfies StoryMeta;
+
+export const WrappedLines = () => {
+  const rows = makeItems(6).map((r) => ({ ...r, title: `${r.title}. ${"A sentence that goes on to explain what this task is about and why it matters, ".repeat(2)}` }));
+  const wrapped: Column<Item>[] = [
+    { id: "id", header: "Id", cell: (r) => r.id, width: "7rem" },
+    { id: "title", header: "Title", cell: (r) => r.title, width: "1fr", lines: 2 },
+  ];
+  return (
+    <div className="h-80">
+      <DataTable label="Sentences" rows={rows} rowKey={(r) => r.id} columns={wrapped} />
+    </div>
+  );
+};
+WrappedLines.storyMeta = { description: "`lines: 2` on a column lets a long sentence take two lines (then an ellipsis) and the row grows to fit." } satisfies StoryMeta;

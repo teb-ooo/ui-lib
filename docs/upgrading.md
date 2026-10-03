@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.52.2 (from 0.52.1)
+
+Stories only: DataTable FitToRows and WrappedLines, a count in the FilterBar phone story, a sticky header in the Page document story.
+
 ## To ui 0.52.1 (from 0.52.0)
 
 While text is selected the strip above the editor hides (the selection toolbar takes over), so the two never overlap on the first line.
