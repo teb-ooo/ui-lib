@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Popover as BasePopover } from "@base-ui/react/popover";
-import { Camera, SquareDashed } from "lucide-react";
+import { Camera, Loader2, SquareDashed } from "lucide-react";
 import { Kbd } from "./kbd";
 import { Button } from "./button";
 import { Textarea } from "./textarea";
@@ -169,10 +169,10 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
                   <div className="flex items-center gap-1 border-t border-line px-2 py-1">
                     {/* While the picture is taken the icon becomes the spinner in place: nothing moves. */}
                     <Button
-                      icon={<Camera aria-hidden="true" className="size-4" />}
+                      icon={f.capturing ? <Loader2 aria-hidden="true" className="size-4 animate-spin" /> : <Camera aria-hidden="true" className="size-4" />}
                       tip="Include screenshot"
                       active={f.includeScreenshot}
-                      loading={f.capturing}
+                      aria-busy={f.capturing || undefined}
                       className="border-transparent"
                       onClick={() => f.setIncludeScreenshot(!f.includeScreenshot)}
                     />
