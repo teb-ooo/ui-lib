@@ -79,6 +79,8 @@ describe("FeedbackPanel", () => {
     const hint = screen.getByRole("status");
     expect(hint.textContent).toContain("Click the element this is about");
     expect(hint.hasAttribute("data-feedback-ignore")).toBe(true);
+    // it never gets in the way of clicking the page
+    expect(hint.className).toContain("pointer-events-none");
     expect(screen.queryByRole("dialog")).toBeNull();
     rerender(<FeedbackPanel feedback={controller({ picking: false })} />);
     expect(screen.queryByText(/Click the element this is about/)).toBeNull();
