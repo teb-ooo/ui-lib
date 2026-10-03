@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.44.0 (from 0.43.x): BREAKING for Chip priority
+
+`Chip priority={0..4}` and the `--color-p0..p4` tokens from 0.42.0 are removed: priority is one app's idea and does not belong in the design system. Use `Chip color="red"` (any of the 17 palette hues, `CHIP_COLORS`) and map your own levels to hues in your code, for example `const hue = ["red", "orange", "yellow", "sky", "teal"][priority]`. `color` is for categories an app names; `tone` still carries state.
+
 ## To ui 0.43.0 (from 0.42.x)
 
 Visible change, no code needed: loading skeletons, the "Loading" line, a loading Button's spinner and the palette's "Searching..." line now stay invisible for 100ms and then fade in, so a fast response no longer flashes them. New `Delayed` wrapper for your own loading UI (see components.md). The delay is `--loading-delay`; set it in your CSS to change it. A test that looks for a skeleton immediately must wait 100ms or check the element's presence, which is unchanged.

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Chip } from "./chip";
+import { CHIP_COLORS, Chip } from "./chip";
 import type { StoryDefault, StoryMeta } from "../stories";
 
 export default {
@@ -25,16 +25,16 @@ export const Link = () => <Chip tone="link">reference</Chip>;
 
 export const Agent = () => <Chip tone="agent">agent working</Chip>;
 
-export const Priorities = () => (
+export const Swatches = () => (
   <div className="flex flex-wrap gap-2">
-    {([0, 1, 2, 3, 4] as const).map((p) => (
-      <Chip key={p} priority={p}>
-        P{p}
+    {CHIP_COLORS.map((c) => (
+      <Chip key={c} color={c}>
+        {c}
       </Chip>
     ))}
   </div>
 );
-Priorities.storyMeta = { description: "The priority scale: P0 red, P1 orange, P2 yellow, P3 sky, P4 neutral. A state colour like the tones." } satisfies StoryMeta;
+Swatches.storyMeta = { description: "color takes a palette hue; the soft background, line and ink are chosen for light and dark. For categories the app names (labels, projects), not for state: state uses tone." } satisfies StoryMeta;
 
 export const Muted = () => <Chip tone="muted">inactive</Chip>;
 

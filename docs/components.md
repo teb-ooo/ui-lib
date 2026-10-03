@@ -87,7 +87,7 @@ An ego network (`nodes`, `edges`, `centerId`). Colour is state only, so a node's
 The tip mode of `Popover`: the one tooltip mechanism (never a `title` attribute). `<Tooltip tip="Save"><Button>...</Button></Tooltip>`; `side?: "top" | "bottom" | "left" | "right"`, `delay?: number` (ms, default 400). `Button` and `LinkButton` take a `tip` prop that uses it.
 
 ## Chip
-A static token: status, count or reference. `tone?: "default" | "ok" | "warn" | "muted" | "danger" | "link" | "agent"`. `priority?: 0 | 1 | 2 | 3 | 4` (0.42.0) draws a priority level from the priority scale (P0 red, P1 orange, P2 yellow, P3 sky, P4 neutral; use it instead of `tone`). Priority is a state; a label or category is not, so labels stay plain chips.
+A static token: status, count or reference. `tone?: "default" | "ok" | "warn" | "muted" | "danger" | "link" | "agent"`. `color?: ChipColor` (0.44.0) draws an app-chosen swatch: one of the 17 palette hues (`CHIP_COLORS`: red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose) with a soft background, line and ink that read well in light and dark. Use it for categories the app names (labels, projects, a priority level the app maps to hues); `tone` is for state. The app decides what a colour means.
 
 Actions (0.22.0): `onRemove` (+ `removeLabel`) adds an X; `locked` with `onLockedChange` (+ `lockLabel`, `unlockLabel`) adds a padlock toggle whose accessible name is the action it performs (a draft to canon promotion, for example). Both are real buttons inside the chip.
 
