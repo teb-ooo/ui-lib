@@ -123,7 +123,7 @@ Centres page content with the page gutter. `width?: "narrow" | "default" | "wide
 ## SplitPane
 List and detail. Side by side from the `lg` breakpoint; below it the list fills the screen and an open detail is a full-screen sheet.
 - `list`, `detail`: ReactNodes; `detailOpen: boolean`, `onDetailClose()`; `detailLabel: string` (accessible name); `placeholder?` (wide, while nothing is open).
-- `resizable?` (drag the divider, or arrow keys/Home/End on it), `defaultSize?` (list width in rem, 28), `minSize?` (16), `maxSize?` (48), `onSizeChange?(rem)`, `persistKey?` (saves the list width in `localStorage`, restores it within min/max, a double-click on the divider resets it to `defaultSize`), `closeLabel?`.
+- `resizable?` (drag the divider, or arrow keys/Home/End on it), `defaultSize?` (the list width in rem at narrow desktop widths, 28; until the divider is moved the list grows with the screen to 38% of the pane, never beyond `maxSize`, so a wide screen is not mostly an empty detail area), `minSize?` (16), `maxSize?` (48), `onSizeChange?(rem)`, `persistKey?` (saves the list width in `localStorage`, restores it within min/max, a double-click on the divider resets it to `defaultSize`), `closeLabel?`.
 - The resizable divider looks like the fixed pane's 1px rule at rest. Its grab area is 12px wide, and on hover, focus and drag the rule grows to 3px over its neighbours without taking layout space (0.26.3).
 - Fill the height its parent gives it.
 
@@ -175,3 +175,6 @@ Import once: `@import "@teb-ooo/ui/theme.css";`.
 
 ## Prose
 Wrap rendered rich text (a markdown render, an editor's content) in `<Prose>` and its elements are styled: `p`, `h1`-`h6`, `ul`/`ol`, `blockquote`, `pre`/`code`, `hr`, `a`, `table`, `img`, task-list checkboxes. One type size and no heavier weight: h1 is uppercase with a rule under it, h2 has a dotted rule, h3 is a muted uppercase label, h4 is italic, h5/h6 are muted; `strong` and `em` are the browser's bold and italic. The Prose story is the type scale demo; the styles live under `.prose` in theme.css, so iterate there. It does not parse markdown: pass it HTML elements.
+
+## NotFound
+The page or pane for something that is not there: `title` ("Nothing here"), `description`, `action` (a `LinkButton` back), `variant` "page" (display-size heading in a narrow column) or "pane" (an unknown item in a detail area). Give it to the router: `createRouter({ defaultNotFoundComponent: () => <NotFound action={<LinkButton href="/">Back to the start</LinkButton>} /> })`.

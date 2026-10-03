@@ -23,7 +23,8 @@ describe("SplitPane persistKey", () => {
     expect(listWidth()).toBe("13rem");
     expect(window.localStorage.getItem(KEY)).toBe("13");
     fireEvent.doubleClick(divider);
-    expect(listWidth()).toBe("20rem");
+    // back to the responsive width: the default (20rem) up to 38% of the pane, no more than maxSize
+    expect(listWidth()).toBe("clamp(20rem, 38%, 30rem)");
     expect(window.localStorage.getItem(KEY)).toBeNull();
   });
 
@@ -34,5 +35,14 @@ describe("SplitPane persistKey", () => {
     fireEvent.keyDown(screen.getByRole("separator", { name: "Resize list" }), { key: "ArrowLeft" });
     expect(onSizeChange).toHaveBeenCalledWith(19);
     expect(window.localStorage.length).toBe(0);
+  });
+});
+
+describe("SplitPane responsive width", () => {
+  it("grows with the screen until the divider is moved", () => {
+    render(pane({ resizable: true }));
+    expect(listWidth()).toBe("clamp(20rem, 38%, 30rem)");
+    fireEvent.keyDown(screen.getByRole("separator"), { key: "ArrowRight" });
+    expect(listWidth()).toBe("21rem");
   });
 });

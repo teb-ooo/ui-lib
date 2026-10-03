@@ -2,6 +2,12 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.41.0 (from 0.40.x)
+
+- **SplitPane (visible change):** until the person moves the divider the list now grows with the screen, from `defaultSize` up to 38% of the pane and never beyond `maxSize` (it was a fixed `defaultSize`). At 1280 nothing changes; at 1920 the list is wider and the detail area less empty. A `persistKey` width, once saved, stays fixed as before; a double-click on the divider returns to the responsive width. To keep the old fixed width set `maxSize` equal to `defaultSize`.
+- New **NotFound** component (page and pane variants) for the router's not-found page and for an unknown item in a detail area.
+- New guide: `docs/best-practices.md`.
+
 ## To ui 0.40.0 (from 0.39.4)
 
 No change needed. New `Prose` component for rich text (headings, lists, quotes, code, tables): wrap your rendered markdown or editor content in it instead of styling elements locally. See the Prose story (the type scale demo).

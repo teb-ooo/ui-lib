@@ -25,7 +25,8 @@ export interface SplitPaneProps {
    */
   resizable?: boolean;
   /**
-   * Initial list width in rem.
+   * The list's width in rem at narrow desktop widths. Until the person moves the divider the list grows with the screen,
+   * to 38% of the pane and no further than `maxSize`, so a wide screen is not mostly an empty detail area.
    * @default 28
    */
   defaultSize?: number;
@@ -77,12 +78,22 @@ export function SplitPane({
     }
     return defaultSize;
   });
+  // False until a saved width is restored, the divider moves or a key changes it: then the width follows the screen.
+  const [sized, setSized] = useState(() => {
+    if (!storageKey) return false;
+    try {
+      return window.localStorage.getItem(storageKey) !== null;
+    } catch {
+      return false;
+    }
+  });
   const sizeRef = useRef(size);
   const dragging = useRef<{ startX: number; startSize: number } | null>(null);
 
   const change = (rem: number) => {
     const next = Math.min(maxSize, Math.max(minSize, rem));
     sizeRef.current = next;
+    setSized(true);
     setSize(next);
     onSizeChange?.(next);
   };
@@ -96,6 +107,7 @@ export function SplitPane({
   };
   const reset = () => {
     change(defaultSize);
+    setSized(false);
     if (!storageKey) return;
     try {
       window.localStorage.removeItem(storageKey);
@@ -146,7 +158,7 @@ export function SplitPane({
 
   return (
     <div className={cn("flex h-full min-h-0", className)}>
-      <div className="min-h-0 shrink-0" style={{ width: `${size}rem` }}>
+      <div className="min-h-0 shrink-0" style={{ width: sized ? `${size}rem` : `clamp(${defaultSize}rem, 38%, ${maxSize}rem)` }}>
         {list}
       </div>
       {resizable ? (

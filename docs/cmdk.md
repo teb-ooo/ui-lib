@@ -84,3 +84,11 @@ The palette has no theme handling: it uses the ui tokens, so it follows the syst
 - **`theme.css`.** It also defines `--cmdk-loaded`; if the app forgot `@import "@teb-ooo/ui/theme.css"`, development builds warn once instead of rendering an unstyled palette silently.
 
 The warnings never run in production builds or under jsdom.
+
+## Writing commands people can use (from the first review round)
+
+- **One command per kind of thing, not one per value.** "Show billing rules, Show search rules, ..." for every domain floods the first screen of the palette on a phone. Make one command, "Filter by domain", and put the values in its `children`.
+- **Name groups so they cannot collide.** Two groups called "Issues" (commands and a source) read as a bug. Name command groups by what they do ("Issue actions", "Filters") and a source's group by what it finds ("Issues").
+- **Use a source for entries, a command for actions.** Entries (rules, issues, people) come from `useCommandSource`; the palette highlights the matched text in them from ui 0.38.5, so upgrade old apps.
+- **Give the palette what the screen can do before what it can find**: commands for the open item first, then the platform commands, then entries.
+- A command's `hint` takes the width its title leaves (0.39.4): use it for a type or a code, not a sentence.

@@ -20,6 +20,8 @@ export { Textarea } from "./components/textarea";
 export type { TextareaProps } from "./components/textarea";
 export { Checkbox } from "./components/checkbox";
 export type { CheckboxProps } from "./components/checkbox";
+export { NotFound } from "./components/not-found";
+export type { NotFoundProps } from "./components/not-found";
 export { Prose } from "./components/prose";
 export type { ProseProps } from "./components/prose";
 export { Container } from "./components/container";

@@ -12,7 +12,7 @@ export default {
   title: "FilterBar",
   group: "Molecules",
   description:
-    "A row of filter controls that wraps on a phone, with an end slot for a count or a view menu. Compose it from SearchInput, ToggleGroup, Select, Combobox and ViewMenu.",
+    "A row of filter controls. Put the search and the main action in `primary` and the filters in the children: on a phone it is one row and the filters open in a sheet behind a Filters button. Without `primary` the row just wraps.",
   aliases: ["filters", "toolbar", "facets", "search bar", "query builder", "faceted search"],
   component: "FilterBar",
   source: "src/components/filter-bar.tsx",
