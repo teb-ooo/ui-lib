@@ -59,7 +59,9 @@ export function Accordion({ items, value, defaultValue, onValueChange, multiple 
             </BaseAccordion.Trigger>
             {item.trailing ? <div className="flex shrink-0 items-center">{item.trailing}</div> : null}
           </BaseAccordion.Header>
-          <BaseAccordion.Panel className="anim-collapse px-1 pt-1 pb-3 text-ink">{item.content}</BaseAccordion.Panel>
+          <BaseAccordion.Panel className="anim-collapse text-ink">
+            <div className="px-1 pt-1 pb-3">{item.content}</div>
+          </BaseAccordion.Panel>
         </BaseAccordion.Item>
       ))}
     </BaseAccordion.Root>
