@@ -40,4 +40,4 @@ Disabled.storyMeta = {
 
 ## Aliases
 
-`aliases` lists the other names people use for the entry, so the gallery's search (also the MCP tool `search-entries`) finds it: Tooltip lists `popover`, `popper`, `hint`. Two or more, lower case, words or short phrases; keep them current when the entry changes. A test fails when an entry has none.
+`aliases` lists the other names people use for the entry, so the gallery's search (also the MCP tool `search-entries`) finds it: Tooltip lists `popper`, `hint`, `hovercard`. Two or more, lower case, words or short phrases; keep them current when the entry changes. A test fails when an entry has none.

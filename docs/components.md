@@ -2,6 +2,8 @@
 
 All components are named exports of `@teb-ooo/ui`, each with an exported `*Props` interface. Every component accepts `className` (layout utilities only) and the attributes of the element it renders. Components consume the shared classes in `theme.css` (`.btn`, `.chip`, `.input`, `.panel`, ...) and the semantic tokens; none sets a font size or names a palette value.
 
+
+**Finding a component without a browser.** The gallery's public MCP server (`https://ui.teb.ooo/mcp`, tools `mcp__design-system__search-entries`, `get-entry`, `list-entries`, `list-tokens`, `get-color-ramp`) answers by name, by other names (aliases) and with typos; use it before you ask the `ui` agent for a component or pick a colour. Loading the tools and the typical calls are in the shared brain's `docs/design-system.md`, section "Where to look".
 ## Button
 The only button. Extends Base UI `Button` props.
 - `intent?: "default" | "solid" | "danger" | "warning"` (default `"default"`): outlined, primary, and two tinted intents.

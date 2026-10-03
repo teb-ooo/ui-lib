@@ -9,3 +9,5 @@ Usage: `@import "@teb-ooo/ui/theme.css";` in the app's CSS, then `import { Butto
 Releasing (bump, test, tag, push, publish with `scripts/publish.sh`): [docs/release.md](docs/release.md).
 
 The Cmd+K command palette is the subpath `@teb-ooo/ui/cmdk` ([docs/cmdk.md](docs/cmdk.md)).
+
+Agents: the design gallery also serves a public, read-only MCP server at `https://ui.teb.ooo/mcp` (no token), shown in a session as `mcp__design-system__*` (load the deferred tools with ToolSearch, then call `search-entries` with the word you have and `get-entry` for props, an example and the import). Use it before asking for a component or choosing a colour. How and when: the shared brain's `docs/design-system.md`, section "Where to look".
