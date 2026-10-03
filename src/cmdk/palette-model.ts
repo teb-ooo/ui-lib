@@ -1,4 +1,5 @@
 import { ASK_ASSISTANT_ID } from "./builtins";
+import { fuzzyMatch } from "./fuzzy";
 import { groupRanked, rankCommands } from "./search";
 import type { SourceSection } from "./sources";
 import type { Command } from "./types";
@@ -68,7 +69,8 @@ export function buildPaletteModel({ query, commands, recents, root, external = [
   }
 
   for (const ext of external) {
-    const rows = ext.commands.map((command): PaletteRow => ({ index: index++, command, label: command.title, indices: [], fallback: false }));
+    // The server ranked and filtered them; the typed letters are still marked in each title.
+    const rows = ext.commands.map((command): PaletteRow => ({ index: index++, command, label: command.title, indices: q === "" ? [] : (fuzzyMatch(q, command.title)?.indices ?? []), fallback: false }));
     if (rows.length === 0 && ext.status === "done") continue;
     sections.push({ group: ext.group, rows, ...(ext.status === "done" ? {} : { status: ext.status }) });
   }

@@ -37,8 +37,8 @@ describe("command sources", () => {
     await renderApp({ extra: <Source source={source} /> });
     const input = await open(user);
     await user.type(input, "mer");
-    const row = await screen.findByRole("option", { name: /Mother mer/ });
-    expect(within(screen.getByRole("group", { name: "Entries" })).getByRole("option", { name: /Mother mer/ })).toBe(row);
+    const row = await screen.findByRole("option", { name: /Mother\s*mer/ });
+    expect(within(screen.getByRole("group", { name: "Entries" })).getByRole("option", { name: /Mother\s*mer/ })).toBe(row);
     await user.keyboard("{Enter}");
     // Enter runs the first row, which is the source's result when nothing else matches "mer".
     await waitFor(() => expect(run).toHaveBeenCalled());
@@ -104,7 +104,7 @@ describe("command sources", () => {
     const user = userEvent.setup();
     await renderApp({ extra: <Source source={{ ...entries(many), limit: 3 }} /> });
     await user.type(await open(user), "entry");
-    await screen.findByRole("option", { name: /Entry 0/ });
+    await screen.findByRole("option", { name: /Entry\s*0/ });
     expect(within(screen.getByRole("group", { name: "Entries" })).getAllByRole("option")).toHaveLength(3);
   });
 });
@@ -122,5 +122,16 @@ describe("command hint", () => {
     await user.type(await open(user), "har");
     const row = await screen.findByRole("option", { name: /Harbour of Reeds/ });
     expect(within(row).getByText("City")).toBeTruthy();
+  });
+});
+
+describe("command source highlighting", () => {
+  it("marks the typed letters in a source result's title", async () => {
+    const user = userEvent.setup();
+    const source: CommandSource = { id: "h", group: "Entries", debounceMs: 0, search: async () => [{ id: "e:1", title: "Ember Gate", group: "Entries", run: vi.fn() }] };
+    await renderApp({ extra: <Source source={source} /> });
+    await user.type(await open(user), "emb");
+    const row = await screen.findByRole("option", { name: /Ember Gate/ });
+    expect(row.querySelectorAll("mark, [data-match], b, strong").length).toBeGreaterThan(0);
   });
 });

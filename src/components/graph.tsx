@@ -52,9 +52,9 @@ export interface GraphProps {
 }
 
 /** A halo in the panel colour behind text, so a line or another label under it does not cut the letters. */
-const halo = (fill: string) => cn(fill, "stroke-surface [paint-order:stroke] [stroke-linejoin:round] [stroke-width:3px]");
+const halo = (fill: string) => cn(fill, "stroke-surface [paint-order:stroke] [stroke-linejoin:round] [stroke-width:5px]");
 
-const clip = (s: string, n = 18) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+const clip = (s: string, n = MAX_CHARS) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 export interface LaidOutNode extends GraphNode {
   x: number;
@@ -62,6 +62,8 @@ export interface LaidOutNode extends GraphNode {
   depth: number;
   /** Most characters of the name drawn, from the room on its ring. */
   labelChars?: number;
+  /** The name is drawn above the node (nodes in the upper half), on the side away from the centre, so edges do not cross it. */
+  labelAbove?: boolean;
 }
 
 /** Hops from `centerId` to every reachable node (edges are followed both ways). */
@@ -87,6 +89,7 @@ export function hopsFrom(centerId: string, edges: Pick<GraphEdge, "source" | "ta
 
 const CHAR = 8.6;
 const MAX_CHARS = 18;
+const CENTRE_CHARS = 28;
 const TAU = Math.PI * 2;
 
 /** Circular distance between two angles. */
@@ -191,15 +194,17 @@ export function layoutRings(nodes: GraphNode[], edges: GraphEdge[], centerId: st
   // along its ray; if that does not clear it, its name is cut shorter. Positions are relative to the centre until the end.
   type Box = { x: number; y: number; w: number; h: number };
   const hit = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
-  const boxesOf = (x: number, y: number, r: number, label: string, chars: number): Box[] => {
+  // A name goes on the side of its node that faces away from the centre (above in the upper half), where no edge runs.
+  const aboveAt = (y: number) => y < -6;
+  const boxesOf = (x: number, y: number, r: number, label: string, chars: number, above = false): Box[] => {
     const w = Math.min(label.length, chars) * CHAR;
     return [
       { x: x - r, y: y - r, w: 2 * r, h: 2 * r },
-      { x: x - w / 2 - 2, y: y + r + 1, w: w + 4, h: 19 },
+      { x: x - w / 2 - 2, y: above ? y - r - 20 : y + r + 1, w: w + 4, h: 19 },
     ];
   };
   const centreNode = nodes.find((n) => n.id === centerId) ?? { id: centerId, label: centerId, kind: "" };
-  const taken: Box[] = boxesOf(cx, 0, 16, centreNode.label, MAX_CHARS);
+  const taken: Box[] = boxesOf(cx, 0, 16, centreNode.label, CENTRE_CHARS);
   const finals = new Map<string, { x: number; y: number; chars: number; k: number }>();
   const at = (p: Pending, scale: number, chars: number, turn = 0) => {
     const margin = Math.min(chars, p.node.label.length) * (CHAR / 2) + 4;
@@ -213,29 +218,31 @@ export function layoutRings(nodes: GraphNode[], edges: GraphEdge[], centerId: st
       for (const turn of [0, 0.1, -0.1, 0.2, -0.2, 0.32, -0.32]) {
         for (let scale = 1; scale <= 1.8 && !chosen; scale += 0.1) {
           const pos = at(p, scale, chars, turn);
-          if (!boxesOf(pos.x, pos.y, 12, p.node.label, chars).some((b) => taken.some((o) => hit(b, o)))) chosen = { x: pos.x, y: pos.y, chars };
+          if (!boxesOf(pos.x, pos.y, 12, p.node.label, chars, aboveAt(pos.y)).some((b) => taken.some((o) => hit(b, o)))) chosen = { x: pos.x, y: pos.y, chars };
         }
         if (chosen) break;
       }
     }
     const pos = chosen ?? { ...at(p, 1, 6), chars: 6 };
     finals.set(p.node.id, { x: pos.x, y: pos.y, chars: pos.chars, k: p.k });
-    taken.push(...boxesOf(pos.x, pos.y, 12, p.node.label, pos.chars));
+    taken.push(...boxesOf(pos.x, pos.y, 12, p.node.label, pos.chars, aboveAt(pos.y)));
   }
-  // The picture is as tall as what was placed needs: shift everything so the top has a margin.
-  let minY = -34;
-  let maxY = 34;
+  // The picture is as tall as what was placed needs, and what was placed sits in the middle of it.
+  let minY = -16;
+  let maxY = 36; // the centre and its name
   for (const f of finals.values()) {
-    minY = Math.min(minY, f.y - 16);
-    maxY = Math.max(maxY, f.y + 36);
+    const above = aboveAt(f.y);
+    minY = Math.min(minY, above ? f.y - 12 - 20 : f.y - 12);
+    maxY = Math.max(maxY, above ? f.y + 12 : f.y + 12 + 20);
   }
-  const height = Math.round(Math.max(280, maxY - minY + 24));
-  const shift = 12 - minY + Math.max(0, (280 - (maxY - minY + 24)) / 2);
+  const content = maxY - minY;
+  const height = Math.round(Math.max(280, content + 32));
+  const shift = (height - content) / 2 - minY;
   const placed = new Map<string, LaidOutNode>();
-  placed.set(centerId, { ...centreNode, x: cx, y: shift, depth: 0 });
+  placed.set(centerId, { ...centreNode, x: cx, y: shift, depth: 0, labelChars: CENTRE_CHARS });
   for (const n of nodes) {
     const f = finals.get(n.id);
-    if (f) placed.set(n.id, { ...n, x: f.x, y: f.y + shift, depth: f.k, labelChars: f.chars });
+    if (f) placed.set(n.id, { ...n, x: f.x, y: f.y + shift, depth: f.k, labelChars: f.chars, labelAbove: aboveAt(f.y) });
   }
   return { nodes: nodes.map((n) => placed.get(n.id) ?? { ...n, x: cx, y: shift, depth: 1 }), height };
 }
@@ -323,8 +330,8 @@ export function Graph({
     const taken: Box[] = [];
     for (const n of laid) {
       const r = n.id === centerId ? 16 : 12;
-      const w = clip(n.label, n.labelChars ?? 18).length * char;
-      taken.push({ x: n.x - r, y: n.y - r, w: 2 * r, h: 2 * r }, { x: n.x - w / 2, y: n.y + r + 2, w, h: 17 });
+      const w = clip(n.label, n.labelChars ?? MAX_CHARS).length * char;
+      taken.push({ x: n.x - r, y: n.y - r, w: 2 * r, h: 2 * r }, { x: n.x - w / 2, y: n.labelAbove ? n.y - r - 20 : n.y + r + 2, w, h: 17 });
     }
     const out = new Map<number, { x: number; y: number }>();
     shownEdges.forEach((e, i) => {
@@ -430,8 +437,8 @@ export function Graph({
                         <Icon aria-hidden="true" size={center ? 18 : 14} x={center ? -9 : -7} y={center ? -9 : -7} />
                       </g>
                     ) : null}
-                    <text y={r + 14} textAnchor="middle" className={halo(n.draft ? "fill-ink-muted" : "fill-ink")} aria-hidden="true">
-                      {clip(n.label, n.labelChars ?? 18)}
+                    <text y={n.labelAbove ? -(r + 6) : r + 14} textAnchor="middle" className={halo(n.draft ? "fill-ink-muted" : "fill-ink")} aria-hidden="true">
+                      {clip(n.label, n.labelChars ?? MAX_CHARS)}
                     </text>
                   </>
                 );
