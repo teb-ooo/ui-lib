@@ -4,6 +4,8 @@ import { Button as BaseButton } from "@base-ui/react/button";
 import { Loader2 } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Tooltip } from "./tooltip";
+import { renderIconProp } from "../lib/render-icon";
+import type { IconProp } from "../lib/render-icon";
 
 export type ButtonIntent = "default" | "solid" | "danger" | "warning";
 
@@ -26,7 +28,7 @@ export interface ButtonProps extends Omit<BaseButton.Props, "className"> {
    */
   intent?: ButtonIntent;
   /** Icon shown before the children. With no children the button is a square icon button. */
-  icon?: ReactNode;
+  icon?: IconProp;
   /** Marks a toggled-on button (sets `aria-pressed`). Leave undefined for a plain action. */
   active?: boolean;
   /** Tooltip text. For an icon-only button it is also the accessible name. */
@@ -70,7 +72,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
           <Loader2 className="size-4 animate-spin" />
         </span>
       ) : (
-        icon
+        renderIconProp(icon)
       )}
       {children}
     </BaseButton>

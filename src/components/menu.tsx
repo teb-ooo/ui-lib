@@ -3,12 +3,15 @@ import { Menu as BaseMenu } from "@base-ui/react/menu";
 import { Check } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Kbd } from "./kbd";
+import { renderIconProp } from "../lib/render-icon";
+import type { IconProp } from "../lib/render-icon";
 
 interface ItemBase {
   /** Stable key. */
   id: string;
   label: ReactNode;
-  icon?: ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
+  /** An element (`<Check />`) or a component (`Check`): both work, like `Button`'s `icon`. */
+  icon?: IconProp;
   disabled?: boolean;
 }
 
@@ -77,7 +80,6 @@ export function Menu({ trigger, items, side = "bottom", align = "start", classNa
                     {entry.label}
                   </div>
                 );
-              const Icon = entry.icon;
               if (entry.type === "checkbox")
                 return (
                   <BaseMenu.CheckboxItem key={entry.id} checked={entry.checked} onCheckedChange={entry.onCheckedChange} disabled={entry.disabled} className={row}>
@@ -91,7 +93,7 @@ export function Menu({ trigger, items, side = "bottom", align = "start", classNa
                 );
               return (
                 <BaseMenu.Item key={entry.id} onClick={entry.onSelect} disabled={entry.disabled} className={cn(row, entry.danger && "text-danger")}>
-                  <span className="flex size-4 shrink-0 items-center justify-center">{Icon ? <Icon aria-hidden="true" className="size-4" /> : null}</span>
+                  <span className="flex size-4 shrink-0 items-center justify-center">{renderIconProp(entry.icon)}</span>
                   <span className="min-w-0 flex-1 truncate">{entry.label}</span>
                   {entry.shortcut ? <Kbd shortcut={entry.shortcut} className="shrink-0" /> : null}
                 </BaseMenu.Item>

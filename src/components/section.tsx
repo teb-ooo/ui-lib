@@ -49,12 +49,31 @@ export const Section = forwardRef<HTMLElement, SectionProps>(function Section(
 });
 
 export interface PageHeaderProps extends Omit<SectionProps, "title" | "rule"> {
-  /** The page title, at the display size. */
+  /** The page title: at the display size, or at the body size with `size="compact"`. */
   title: ReactNode;
+  /**
+   * `default`: display-size title, a sentence under it, a rule under the band. `compact`: one row about 45px high with the
+   * title at the body size, the sentence muted beside it, the children (filters) in the middle and the actions at the right;
+   * use it for a table screen, or for the title of a record shown in a split pane.
+   * @default "default"
+   */
+  size?: "default" | "compact";
 }
 
 /** The top band of a page: the title at the display size, a sentence, the page's main actions, and a full-width rule under it. */
-export const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(function PageHeader({ title, description, actions, width = "full", className, children, ...rest }, ref) {
+export const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(function PageHeader({ title, description, actions, size = "default", width = "full", className, children, ...rest }, ref) {
+  if (size === "compact") {
+    return (
+      <section ref={ref} className={cn("w-full border-b border-line", className)} {...rest}>
+        <Container width={width} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2">
+          <h1 className="min-w-0 break-words text-ink">{title}</h1>
+          {description ? <p className="min-w-0 truncate text-ink-muted">{description}</p> : null}
+          {children ? <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{children}</div> : <div className="flex-1" />}
+          {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+        </Container>
+      </section>
+    );
+  }
   return (
     <section ref={ref} className={cn("w-full border-b border-line", className)} {...rest}>
       <Container width={width} className="flex flex-col gap-3 py-4">

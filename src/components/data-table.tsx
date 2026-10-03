@@ -19,6 +19,12 @@ export interface Column<T> {
   width?: string;
   align?: "start" | "end";
   /**
+   * How many lines the cell may take before it is cut with an ellipsis. With 2 or 3 the rows of a table of up to 100 rows
+   * grow to fit (a list of sentences); above 100 rows the table is windowed on a fixed row height and every cell is one line.
+   * @default 1
+   */
+  lines?: 1 | 2 | 3;
+  /**
    * The column is hidden while the table itself is narrower than this: sm 24rem, md 36rem, lg 48rem (the table's
    * width, not the screen's, so a narrow list pane drops columns by itself).
    */
@@ -372,6 +378,7 @@ export function DataTable<T>({
   const hiddenByWidth = wanted.length - shown.length;
 
   const virtual = !cards && rows.length > VIRTUALIZE_ABOVE;
+  const wraps = !virtual && shown.some((c) => (c.lines ?? 1) > 1);
   const first = virtual ? Math.max(0, Math.floor(scrollTop / rowH) - OVERSCAN) : 0;
   const last = virtual ? Math.min(rows.length, Math.ceil((scrollTop + viewport) / rowH) + OVERSCAN) : rows.length;
   const visibleRows = rows.slice(first, last);
@@ -731,7 +738,7 @@ export function DataTable<T>({
                             onActiveKeyChange?.(key);
                             onRowClick?.(row);
                           }}
-                          className={cn("grid h-[var(--control-h)] items-center", bleed && "px-2", rowClasses(key))}
+                          className={cn("grid items-center", wraps ? "min-h-[var(--control-h)] py-1" : "h-[var(--control-h)]", bleed && "px-2", rowClasses(key))}
                         >
                           {selectable ? (
                             <div
@@ -752,7 +759,7 @@ export function DataTable<T>({
                             </div>
                           ) : null}
                           {shown.map((c) => (
-                            <div key={c.id} role="gridcell" className={cn("min-w-0 truncate px-2", c.align === "end" && "text-right")}>
+                            <div key={c.id} role="gridcell" className={cn("min-w-0 px-2", !virtual && c.lines === 2 ? "line-clamp-2 break-words" : !virtual && c.lines === 3 ? "line-clamp-3 break-words" : "truncate", c.align === "end" && "text-right")}>
                               {c.cell(row)}
                             </div>
                           ))}

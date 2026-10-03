@@ -6,7 +6,7 @@ What five apps got wrong most often and how to build it right the first time. Ea
 Loading, error, empty and loaded are designed, not left to chance.
 - **Loading:** `DataTable loading` (its skeleton waits 100ms before it appears; wrap your own loading line or spinner in `Delayed`); hide counts ("0 rules") until the data is there. With `createQueryClient` an error shows within about a second.
 - **Error:** `DataTable error={error.userMessage} onRetry={refetch}`. Never print `error.message` ("Internal Server Error: internal error"); `ApiError.userMessage` is a sentence for a person.
-- **Empty:** say why it is empty. With a filter on, name the filter and offer "Clear filters" ("No retired rules. Show all rules"); with none, say how to add the first one.
+- **Empty:** say why it is empty. `EmptyState` is the component: with a filter on, name the filter and offer "Clear filters" (`<EmptyState title="No retired rules" description="The Retired filter is on." action={<Button>Clear filters</Button>} />`); with none, say how to add the first one. Pass it as `DataTable`'s `empty`.
 - **Loaded:** the normal screen.
 
 ## 2. Unavailable, empty and forbidden are three different states
@@ -15,7 +15,7 @@ Loading, error, empty and loaded are designed, not left to chance.
 - Not allowed: say so ("You may not see this app") on a screen with a title; do not redirect silently, and if you must redirect, show a toast saying why.
 
 ## 3. A not-found page and a not-found pane
-Give the router `NotFound` (page variant) as its not-found component, with a `LinkButton` back to the start. In a split pane, an unknown item shows `NotFound variant="pane"`. Never a bare line of text.
+Give the router `NotFound` (page variant) as its not-found component, with a `LinkButton` back to the start: in TanStack Router either `createRouter({ defaultNotFoundComponent })` or a `notFoundComponent` on the root route works. A plain `LinkButton` is an anchor and reloads the whole app; give it the router's link with `render`: `<LinkButton render={(props) => <Link to="/rules" {...props} />}>Back to the rules</LinkButton>`. In a split pane, an unknown item shows `NotFound variant="pane"`. Never a bare line of text.
 
 ## 4. One gutter
 The page title, the filter row and the table start at the same left edge. Put them in one `Container` (16px on a phone, 24px from `md`). A `bleed` table (edge to edge, for use inside a `SplitPane`) inset its text to the same gutter; do not mix a bleed table with a differently padded title.
@@ -24,7 +24,8 @@ The page title, the filter row and the table start at the same left edge. Put th
 Decide for every piece of text what happens when it is too long, and test it with a 120-character value at 390 and 1280.
 - **Table cell:** `DataTable` truncates with an ellipsis. A cell that holds an icon and text must keep the text in a `min-w-0 truncate` span, or the ellipsis is lost.
 - **Columns:** give the one long column \`width: "1fr"\` and the others a fixed width; use \`hideBelow\` for columns that can wait. A table must never be wider than its area at 1280.
-- **Titles in a pane:** body size, wrapping, not the display size (the display size is for page titles).
+- **Titles in a pane:** body size, wrapping, not the display size (the display size is for page titles). For the title of a record shown in a split pane use `PageHeader size="compact"` (body-size title, actions at the right); the default `PageHeader` is for a page.
+- **A list of sentences** (rules, notes with long titles): give the long column `lines: 2` (or 3) and the rows grow to fit instead of cutting at one line; it works up to 100 rows (above that the table is windowed on a fixed row height and every cell is one line).
 - **Unbroken strings** (names, hashes, URLs): \`break-words\`.
 - **Meta lines** ("Updated 3 minutes ago · 31 words"): let each item wrap whole; do not start a line with the separator.
 - **Logs and code:** \`whitespace-pre-wrap break-words\`, or scroll per line; never break in the middle of words.
@@ -36,7 +37,7 @@ A list and detail layout uses `SplitPane`; the list grows with the screen (ui 0.
 Put the `FilterBar` once above the `SplitPane`, full width, so it never depends on the list's width; the split pane starts below it. Do not put the filters inside the list column and then hide them behind a button because the column is narrow. On a phone the same bar uses `primary` and the filters open in a sheet. Count, view menu and the main action go in the bar's `end` slot.
 
 ## 7. Phones
-- Filters: `FilterBar primary={<SearchInput .../>}` so the bar is one row and the filters open behind a Filters button.
+- Filters: `FilterBar primary={<SearchInput .../>}` so the bar is one row and the filters open behind a Filters button. On a desktop the children follow the primary controls in the same row; on a phone `end` (a count, a view menu) moves into the Filters sheet (`collapsedEnd="row"` keeps it in the bar), and there is no Filters button when there are no filters. Controls in a filter bar say what they are by their own label: `Field hideLabel` keeps the label for screen readers without drawing it.
 - Bulk actions: `DataTable` cards get checkboxes when `selectedKeys` is set. Keep the bulk bar to one row: icon buttons plus a "More actions" `Menu`.
 - Action rows: the two or three main actions inline, the rest in a `Menu`.
 - Test at 390 px: nothing scrolls sideways, every action is reachable.
@@ -67,3 +68,13 @@ The rule that makes a page feel bounded: **lines are full width, content is inse
 - A split pane's divider is a full-height 1px rule; the filter row above it is a full-width band with its own bottom rule.
 - Build the page from bands: `PageHeader`, then `Section`s (or a `FilterBar` inside a `Section`), then the list or the `SplitPane`. Do not wrap them in your own `Page`, `Bar` or `Pane` components; the primitives are `Shell`, `Sidebar`, `PageHeader`, `Section`, `Container`, `SplitPane`, `DataTable`.
 - For tiles instead of rows use `CardGrid` and `Card`.
+
+## 12. Scrolling: one scroll surface per screen
+The model (from ah's layout-and-scrolling notes):
+- The `Shell` fixes the frame: the window never scrolls and the content area is the viewport height under the bar.
+- From `lg` a screen is fixed chrome (the `PageHeader`, a `Section` with the filters) plus exactly **one** scroll surface. Below `lg` nothing is fixed and the content area scrolls the whole page as one. `Page` and `PageBody` are that frame (see the Page story).
+- A scroll area never sits inside another one.
+- A screen is a **table screen** (`<PageBody fill>` holding one `DataTable` or `SplitPane`, which scrolls itself with a sticky header) or a **document screen** (`<PageBody>` is the scroll surface: a form, a note, sections). Never both on one screen. Row detail opens in a `Dialog` or a `SplitPane`.
+- Tabs as the body of a screen: `Tabs fill` makes each panel the scroll surface (a flex column under the tab row).
+- Every clipped edge is visible: a scrolling region ends at a rule or a divider, never at a hard cut in the middle of content.
+- Do not fake a scroll with `max-h` plus `overflow`; give the region a real parent height (the `Page` does) or let the page scroll.

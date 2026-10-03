@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.47.0 and web 0.8.3 (from 0.46.x and 0.8.2)
+
+No change needed; additions from the second review round: `LinkButton render`, `PageHeader size="compact"`, `FilterBar collapsedEnd` (visible change: on a phone `end` now sits in the Filters sheet by default, and a bar with no filters shows no Filters button), `Field hideLabel`, `Column lines`, `EmptyState`, `Page`/`PageBody`, `Tabs fill`; `icon` accepts an element or a component on Button, LinkButton and Menu items. web: `ApiError.userMessage` now returns a 4xx `detail` when the server sent one (it used to replace every 403/404 with a stock sentence). See best-practices.md sections 3, 5, 7, 12.
+
 ## To ui 0.46.1 (from 0.46.0)
 
 Accordion panels animate from and to zero height (the padding moved inside the panel, so it no longer leaves a 16px sliver at the end of the close).

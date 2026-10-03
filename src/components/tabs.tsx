@@ -27,6 +27,12 @@ export interface TabsProps {
   activation?: "automatic" | "manual";
   /** Keep every panel mounted (hidden) so their state survives switching. @default false */
   keepMounted?: boolean;
+  /**
+   * The panels fill the height under the tab row and scroll inside it (a `flex` column), so a table or a form can fill the
+   * tabs' screen. Use it only when the tabs are the body of a `Page`: there must not be another scroller around them.
+   * @default false
+   */
+  fill?: boolean;
   /** Layout classes for the whole component. */
   className?: string;
 }
@@ -36,7 +42,7 @@ export interface TabsProps {
  * underlined, and on a narrow screen the row scrolls sideways instead of wrapping. Use `ToggleGroup` to filter, not to
  * switch panels.
  */
-export function Tabs({ tabs, value, onValueChange, label, activation = "automatic", keepMounted = false, className }: TabsProps) {
+export function Tabs({ tabs, value, onValueChange, label, activation = "automatic", keepMounted = false, fill = false, className }: TabsProps) {
   return (
     <BaseTabs.Root value={value} onValueChange={(v) => onValueChange(String(v))} className={cn("flex min-h-0 flex-col", className)}>
       <BaseTabs.List
@@ -62,7 +68,7 @@ export function Tabs({ tabs, value, onValueChange, label, activation = "automati
         <BaseTabs.Indicator className="absolute bottom-0 left-(--active-tab-left) h-0.5 w-(--active-tab-width) bg-ink transition-[left,width] duration-150 ease-out motion-reduce:transition-none" />
       </BaseTabs.List>
       {tabs.map((t) => (
-        <BaseTabs.Panel key={t.value} value={t.value} keepMounted={keepMounted} className="min-h-0 flex-1 pt-3 outline-none">
+        <BaseTabs.Panel key={t.value} value={t.value} keepMounted={keepMounted} className={cn("min-h-0 flex-1 pt-3 outline-none", fill && "flex flex-col overflow-auto")}>
           {t.panel}
         </BaseTabs.Panel>
       ))}

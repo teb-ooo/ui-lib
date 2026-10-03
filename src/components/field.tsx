@@ -4,8 +4,10 @@ import { Field as BaseField } from "@base-ui/react/field";
 import { cn } from "../lib/cn";
 
 export interface FieldProps extends Omit<BaseField.Root.Props, "className" | "invalid" | "children"> {
-  /** Visible label, associated with the control. */
+  /** Label associated with the control. */
   label: ReactNode;
+  /** Keep the label for screen readers but do not draw it (a field in a filter bar, where the control says what it is). */
+  hideLabel?: boolean;
   /** Error message. When set the field is invalid and the control is described by it. */
   error?: ReactNode;
   /** Helper text, also announced with the control. */
@@ -16,13 +18,13 @@ export interface FieldProps extends Omit<BaseField.Root.Props, "className" | "in
 }
 
 export const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
-  { label, error, description, children, className, ...rest },
+  { label, hideLabel = false, error, description, children, className, ...rest },
   ref,
 ) {
   const hasError = error !== undefined && error !== null && error !== false && error !== "";
   return (
     <BaseField.Root ref={ref} invalid={hasError} className={cn("flex flex-col gap-1", className)} {...rest}>
-      <BaseField.Label className="text-ink-muted uppercase">{label}</BaseField.Label>
+      <BaseField.Label className={hideLabel ? "sr-only" : "text-ink-muted uppercase"}>{label}</BaseField.Label>
       {children}
       {description ? (
         <BaseField.Description className="text-ink-faint">{description}</BaseField.Description>

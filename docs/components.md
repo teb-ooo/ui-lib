@@ -194,3 +194,13 @@ Loading UI waits 100ms before it appears and then fades in over 150ms (`.anim-de
 
 ## Motion
 (0.46.0) Quick and subtle: things arrive in `--motion-in` (140ms) and leave in `--motion-out` (100ms) with `--ease-out`/`--ease-in`; only transform and opacity move. Popups and menus grow a little from their anchor (`--transform-origin`) and drift 4px from the side they open on; dialogs settle in from 6px below; toasts rise 12px; drawers and sheets slide; accordion and collapsible panels open by height; the tabs underline slides to the active tab; a checkmark pops; controls change colour in 100ms and a pressed button sits 1px lower. `prefers-reduced-motion` keeps the fades and removes the movement. Classes for your own Base UI popups: `anim-fade` (popup), `anim-toast`, `anim-slide-left`/`anim-slide-right`, `anim-collapse` (height), `anim-backdrop`; `anim-pop` and `anim-enter` for things that appear without Base UI.
+
+## Review round 2 additions (0.47.0)
+- `LinkButton render`: draw the link with your router (`render={(props) => <Link to="/x" {...props} />}`); without it the link is a plain anchor. `icon` on `Button`, `LinkButton` and `Menu` items takes an element or a component.
+- `PageHeader size="compact"`: one row about 45px high, body-size title, the sentence muted beside it, the children (filters) in the middle and `actions` at the right; for a table screen or for a record's title in a split pane.
+- `FilterBar`: no Filters button when there are no filters; `collapsedEnd` ("sheet" default, "row"): where `end` goes on a phone when `primary` collapses the filters.
+- `Field hideLabel`: the label for screen readers only.
+- `Column lines: 2 | 3`: the cell wraps to that many lines and the row grows (up to 100 rows).
+- `EmptyState` (`title`, `description?`, `action?`): the state of a list with nothing to show.
+- `Page` and `PageBody` (`fill`): the frame of a screen with one scroll surface; `Tabs fill`. See best-practices.md section 12.
+- web 0.8.3: `ApiError.userMessage` keeps a 4xx detail when there is one.
