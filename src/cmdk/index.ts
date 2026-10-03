@@ -19,3 +19,4 @@ export type { PaletteViewProps } from "./palette-view";
 export type { FuzzyMatch } from "./fuzzy";
 export { useCommandSource } from "./use-register-source";
 export type { CommandSource, SourceSection } from "./sources";
+export { runCommandSource } from "./sources";

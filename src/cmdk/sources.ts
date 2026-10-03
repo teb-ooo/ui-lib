@@ -78,3 +78,14 @@ export class SourceRegistry {
     for (const l of [...this.listeners]) l();
   }
 }
+
+/**
+ * Runs a source the way the palette would, for tests: returns nothing while the query is shorter than `minChars`,
+ * otherwise awaits `search` (with a live `AbortSignal`) and returns at most `limit` commands in the server's order.
+ * No palette, provider or timers: test what your source returns, then test the command's `run` yourself.
+ */
+export async function runCommandSource(source: CommandSource, query: string, signal: AbortSignal = new AbortController().signal): Promise<Command[]> {
+  if (query.trim().length < (source.minChars ?? 2)) return [];
+  const found = await source.search(query, signal);
+  return found.slice(0, source.limit ?? 8);
+}

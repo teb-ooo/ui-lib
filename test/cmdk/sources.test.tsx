@@ -135,3 +135,18 @@ describe("command source highlighting", () => {
     expect(row.querySelectorAll("mark, [data-match], b, strong").length).toBeGreaterThan(0);
   });
 });
+
+describe("runCommandSource", () => {
+  it("is empty below minChars, passes a live signal and applies the limit", async () => {
+    const { runCommandSource } = await import("../../src/cmdk");
+    const make = (n: number) => Array.from({ length: n }, (_, i) => ({ id: "r" + i, title: "R" + i, group: "G", run: () => undefined }));
+    const search = vi.fn(async (_q: string, signal: AbortSignal) => {
+      expect(signal.aborted).toBe(false);
+      return make(12);
+    });
+    const source = { id: "s", group: "G", search, limit: 5 };
+    expect(await runCommandSource(source, "a")).toEqual([]);
+    expect(search).not.toHaveBeenCalled();
+    expect((await runCommandSource(source, "ab")).map((c) => c.id)).toEqual(["r0", "r1", "r2", "r3", "r4"]);
+  });
+});

@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.44.4 (from 0.44.3)
+
+No change needed. A palette result's accessible name is now "title, hint" (it was the title and hint spans run together). New `runCommandSource(source, query)` for testing a command source. `cmdk.md` has a new section on testing the palette.
+
 ## To ui 0.44.3 (from 0.44.2)
 
 Docs only: `best-practices.md` gains a section on a filter row above a split pane and one on colour in a list view.

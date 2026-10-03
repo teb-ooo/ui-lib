@@ -524,3 +524,14 @@ describe("mobile sheet", () => {
     expect(within(t).getByText("Search").className).toContain("max-sm:hidden");
   });
 });
+
+describe("testing the palette under jsdom", () => {
+  it("opens on Ctrl+K dispatched at the document or an element, but not at window", async () => {
+    const { fireEvent } = await import("@testing-library/react");
+    await renderApp();
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.keyDown(document, { key: "k", ctrlKey: true });
+    expect(await screen.findByRole("dialog")).toBeTruthy();
+  });
+});

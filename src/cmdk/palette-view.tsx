@@ -69,6 +69,7 @@ function Row({ row, props }: { row: PaletteRow; props: PaletteViewProps }) {
     <div
       id={optionId(props.id, row.index)}
       role="option"
+      aria-label={command.hint ? `${row.label}, ${command.hint}` : row.label}
       aria-selected={active}
       aria-busy={pending || undefined}
       data-active={active || undefined}
