@@ -2,7 +2,9 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
-## To ui 0.39.0 and web 0.8.0 (from 0.38.x and 0.7.x)
+## To ui 0.39.1 and web 0.8.0 (from 0.38.x and 0.7.x)
+
+0.39.0 was published with a peer range that excluded web 0.8.0; use 0.39.1.
 
 No change is required; these are additions and one wording change.
 
