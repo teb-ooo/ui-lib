@@ -58,3 +58,12 @@ At 390 and 1280: no horizontal scroll, no clipped text without an ellipsis, left
 - Red is for failure, danger and destructive actions. A primary action that is not destructive (Close a bead) is a normal button, not a red outline.
 - Colour per label or category (`Chip color`) is the app's choice: give a family of labels one hue by prefix, not one hue per string, or the list turns into noise.
 - Show a fact once: a state that is a chip in the header is not also a label chip.
+
+## 11. Page layout: rules run to the edges
+The rule that makes a page feel bounded: **lines are full width, content is inset.**
+- A divider between two parts of a page (header, toolbar, list, footer) runs from edge to edge of the content area, to the sidebar on the left and the window on the right. It is never inset to the gutter and never stops short.
+- Text, controls and chips inside a band sit in the page gutter (`Container`: 16px on a phone, 24px from `md`). The rule and the content therefore have different left edges on purpose: the line meets the sidebar, the text does not.
+- A list or table is a band too: use `DataTable bleed` (rules edge to edge, text inset to the gutter), not a bordered box floating in the page. A box (`panel`) is for something that sits inside a band: a card, a dialog, a code block.
+- A split pane's divider is a full-height 1px rule; the filter row above it is a full-width band with its own bottom rule.
+- Build the page from bands: `PageHeader`, then `Section`s (or a `FilterBar` inside a `Section`), then the list or the `SplitPane`. Do not wrap them in your own `Page`, `Bar` or `Pane` components; the primitives are `Shell`, `Sidebar`, `PageHeader`, `Section`, `Container`, `SplitPane`, `DataTable`.
+- For tiles instead of rows use `CardGrid` and `Card`.

@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.45.0 (from 0.44.x)
+
+No change needed. New: `Card` and `CardGrid` (tiles in a responsive grid, arrow-key navigation), `PageHeader` and `Section` (page bands with full-width rules), `ToggleGroup required` (a view switch that cannot be cleared). `best-practices.md` section 11 states the page layout rule: lines are full width, content is inset by the gutter.
+
 ## To ui 0.44.4 (from 0.44.3)
 
 No change needed. A palette result's accessible name is now "title, hint" (it was the title and hint spans run together). New `runCommandSource(source, query)` for testing a command source. `cmdk.md` has a new section on testing the palette.

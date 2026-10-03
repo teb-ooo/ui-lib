@@ -185,3 +185,9 @@ Loading UI waits 100ms before it appears and then fades in over 150ms (`.anim-de
 ## Parity options (0.44.2)
 - `FrequencyInput knobSide="start"` puts the tuning knob before the number (default `"end"`, after the unit). A knob drag snaps the change, not the absolute value (from 9905.27 one pixel is +0.50, two are +1.00), and the page cursor stays `ew-resize` for the whole drag.
 - `Button` and `LinkButton` take `tipSide` (`top` default, `bottom`, `left`, `right`) for where the tip opens.
+
+## Card, CardGrid
+(0.45.0) A tile for one thing. `Card`: `title`, `description?` (two lines), `meta?` (chips and status in a wrapping row), `footer?` (a quiet line under a rule), `marker?` (top right, for a "Needs you" chip), `href?` (the whole card is a link) or `onClick?` (the whole card is a button), `active?`, `aria-label?`. The card is the one interactive element, so it holds text, chips and status only, never another control. `CardGrid`: `label` (names the list), `minCardWidth?` (rem, 18); as many columns as fit, one on a phone; Tab reaches every card and the arrow keys move between them (Home/End jump). A table/cards switch is a `ToggleGroup` with `required` and the same rows rendered two ways (see the Card story). On a phone `DataTable`'s own `renderCard` is still the way to show a table's rows as cards inside the table.
+
+## Section, PageHeader
+(0.45.0) Page bands. `PageHeader`: `title` (display size), `description?`, `actions?`, `width?`, children; a full-width rule under it. `Section`: `title?`, `description?`, `actions?`, `rule?` ("bottom" default, "top", "both", "none"), `width?`, children. The rule is edge to edge; the content is inset by the page gutter (`Container`, 16px, 24px from md). See best-practices.md, "Page layout: rules run to the edges".

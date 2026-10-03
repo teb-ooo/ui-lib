@@ -9,9 +9,11 @@ interface Common {
 }
 export interface SingleToggleGroupProps extends Common {
   multiple?: false;
-  /** The chosen value, or null for none. Choosing it again clears it. */
+  /** The chosen value, or null for none. Choosing it again clears it, unless `required` is set. */
   value: string | null;
   onValueChange: (value: string | null) => void;
+  /** Choosing the chosen value again does nothing, so one is always on (a view switch: Table or Cards). */
+  required?: boolean;
 }
 export interface MultiToggleGroupProps extends Common {
   multiple: true;
@@ -26,7 +28,9 @@ export function ToggleGroup(props: ToggleGroupProps) {
   const isOn = (v: string) => (props.multiple ? props.value.includes(v) : props.value === v);
   const toggle = (v: string) => {
     if (props.multiple) props.onValueChange(props.value.includes(v) ? props.value.filter((x) => x !== v) : [...props.value, v]);
-    else props.onValueChange(props.value === v ? null : v);
+    else if (props.value === v) {
+      if (!props.required) props.onValueChange(null);
+    } else props.onValueChange(v);
   };
   return (
     <div role="group" aria-label={label} className={className ? `flex flex-wrap gap-1 ${className}` : "flex flex-wrap gap-1"}>
