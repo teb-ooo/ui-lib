@@ -63,7 +63,7 @@ function agentLine(agent: string, status: string): string {
 
 /**
  * The feedback panel: a popover next to the click that picked an element (or near the top of the page when nothing was
- * picked), holding a full-bleed text box (Enter sends, Shift+Enter adds a line) above a footer, divided by a full-width line, with
+ * picked), with an arrow to the element (none when it sits inside a screen-filling element), holding a full-bleed text box (Enter sends, Shift+Enter adds a line) above a footer, divided by a full-width line, with
  * the icon toggles for the screenshot and the DOM node inline and the Send button. Neither is previewed. There is no title, Cancel or close button: Escape or a press outside closes it.
  * A sent message is confirmed with a toast. Opened from Cmd+K ("Send feedback", `useFeedbackCommand` in
  * `@teb-ooo/ui/cmdk`), never from a header button. While an element is being picked the panel steps aside so the page
@@ -84,7 +84,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
   const place = useMemo(() => {
     if (ax === undefined || ay === undefined) {
       const x = window.innerWidth / 2;
-      return { rect: { x, y: Math.round(window.innerHeight * 0.15), width: 0, height: 0 }, side: "bottom" as const };
+      return { rect: { x, y: Math.round(window.innerHeight * 0.15), width: 0, height: 0 }, side: "bottom" as const, inside: true };
     }
     const left = Math.max(ax, 0);
     const top = Math.max(ay, 0);
@@ -92,9 +92,9 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
     const bottom = Math.min(ay + ah, window.innerHeight);
     const room = { below: window.innerHeight - bottom, above: top, left, right: window.innerWidth - right };
     if (Math.max(room.below, room.above, room.left, room.right) < 160) {
-      return { rect: { x: (left + right) / 2, y: bottom - 8, width: 0, height: 0 }, side: "top" as const };
+      return { rect: { x: (left + right) / 2, y: bottom - 8, width: 0, height: 0 }, side: "top" as const, inside: true };
     }
-    return { rect: { x: left, y: top, width: Math.max(right - left, 0), height: Math.max(bottom - top, 0) }, side: "bottom" as const };
+    return { rect: { x: left, y: top, width: Math.max(right - left, 0), height: Math.max(bottom - top, 0) }, side: "bottom" as const, inside: false };
   }, [ax, ay, aw, ah]);
   const anchor = useMemo(() => ({ getBoundingClientRect: () => DOMRect.fromRect(place.rect) }), [place]);
   // A sent message is confirmed with a toast and the panel closes; without a toast host the panel says it itself.
@@ -121,12 +121,12 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
       {hint}
       <BasePopover.Root open={f.isOpen && !f.picking} onOpenChange={(open) => (open ? undefined : f.close())} modal={false}>
         <BasePopover.Portal>
-          <BasePopover.Positioner {...IGNORE} anchor={anchor} side={place.side} align="center" sideOffset={8} collisionPadding={8} collisionAvoidance={{ side: "flip", align: "shift", fallbackAxisSide: "end" }} className="z-50 outline-none">
+          <BasePopover.Positioner {...IGNORE} anchor={anchor} side={place.side} align="center" sideOffset={9} arrowPadding={8} collisionPadding={8} collisionAvoidance={{ side: "flip", align: "shift", fallbackAxisSide: "end" }} className="z-50 outline-none">
             <BasePopover.Popup
               {...IGNORE}
               aria-label="Send feedback"
               initialFocus={textRef}
-              className="anim-fade panel-inverse panel-float flex w-96 max-w-[calc(100vw-1rem)] flex-col overflow-hidden text-ink outline-none"
+              className="anim-fade panel-inverse panel-float flex w-96 max-w-[calc(100vw-1rem)] flex-col text-ink outline-none"
             >
               {confirm ? (
                 <div role="status" className="flex flex-col gap-1 p-3">
@@ -191,6 +191,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
                   </div>
                 </>
               )}
+            {place.inside ? null : <BasePopover.Arrow className="popover-arrow" />}
             </BasePopover.Popup>
           </BasePopover.Positioner>
         </BasePopover.Portal>

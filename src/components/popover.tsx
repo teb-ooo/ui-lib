@@ -75,6 +75,9 @@ export interface TipProps extends Shared {
 export type PopoverProps = ClickPopoverProps | HoverCardProps | TipProps;
 
 const panel = "anim-fade panel-inverse panel-float text-ink outline-none";
+// Room for the 5px arrow plus a little air; the arrow keeps 8px from the popup's corners.
+const OFFSET = 9;
+const ARROW_PADDING = 8;
 
 function Tip({ tip, trigger, side = "top", align = "center", delay = 400 }: TipProps) {
   const id = useId();
@@ -88,9 +91,10 @@ function Tip({ tip, trigger, side = "top", align = "center", delay = 400 }: TipP
       <BaseTooltip.Root onOpenChange={setOpen}>
         <BaseTooltip.Trigger delay={delay} render={described} />
         <BaseTooltip.Portal>
-          <BaseTooltip.Positioner side={side} align={align} sideOffset={6} className="z-50">
+          <BaseTooltip.Positioner side={side} align={align} sideOffset={OFFSET} arrowPadding={ARROW_PADDING} className="z-50">
             <BaseTooltip.Popup id={id} role="tooltip" className={cn(panel, "px-2")}>
               {tip}
+              <BaseTooltip.Arrow className="popover-arrow" />
             </BaseTooltip.Popup>
           </BaseTooltip.Positioner>
         </BaseTooltip.Portal>
@@ -128,7 +132,7 @@ export function Popover(props: PopoverProps) {
         {...(hover ? { openOnHover: true, delay: card.delay ?? 300, closeDelay: card.closeDelay ?? 150 } : {})}
       />
       <BasePopover.Portal>
-        <BasePopover.Positioner side={side} align={align} sideOffset={6} collisionPadding={8} className="z-50 outline-none">
+        <BasePopover.Positioner side={side} align={align} sideOffset={OFFSET} arrowPadding={ARROW_PADDING} collisionPadding={8} className="z-50 outline-none">
           <BasePopover.Popup aria-label={title} className={cn(panel, "flex w-72 max-w-[calc(100vw-1rem)] flex-col gap-2 p-3", className)}>
             {showTitle || showClose ? (
               <div className="flex items-start justify-between gap-3">
@@ -137,6 +141,7 @@ export function Popover(props: PopoverProps) {
               </div>
             ) : null}
             {children}
+            <BasePopover.Arrow className="popover-arrow" />
           </BasePopover.Popup>
         </BasePopover.Positioner>
       </BasePopover.Portal>
