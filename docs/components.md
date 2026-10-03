@@ -39,6 +39,18 @@ A number typed or stepped (0.31.0): `label`, `value: number | null`, `onValueCha
 
 `Tooltip` is the tip mode under its own name (`tip`, `children`, `side?`, `delay?`) and is what `tip` on `Button` and `LinkButton` uses. Use a menu for a list of actions and `Dialog` for something that needs an answer.
 
+## Menu
+A list of actions anchored to a trigger (0.34.0): `trigger` (a `Button` or any element; its name is the menu's name), `items`, `side?` (bottom), `align?` (start), `className?`. Items: an action `{id, label, onSelect, icon?, danger?, shortcut?, disabled?}`, an on/off row `{type: "checkbox", id, label, checked, onCheckedChange}` (stays open when flipped), `{type: "separator", id}` and `{type: "heading", id, label}`. Arrow keys move, Enter or Space chooses, a letter jumps to a row, Escape closes and focus returns to the trigger; rows are 44px tall on a phone. Use `Popover` for details and `Select` to choose a value.
+
+## Tabs
+A row of tabs and one panel at a time (0.34.0): `tabs: {value, label, panel, badge?, disabled?}[]`, `value`, `onValueChange`, `label` (the list's accessible name), `activation?` (`automatic`: arrows show the panel at once; `manual`: Enter or Space), `keepMounted?` (keep hidden panels' state), `className?`. Left/Right/Home/End move; a disabled tab can be reached but not chosen; the row scrolls sideways on a narrow screen. Use `ToggleGroup` to filter, not to switch panels.
+
+## Accordion, Collapsible
+Sections you open and close (0.34.0): `Accordion` takes `items: {value, title, content, trailing?, disabled?}[]`, `multiple?` (true), `value?`/`defaultValue?`/`onValueChange?` (arrays of open `value`s). `trailing` is a control at the end of the header, beside the toggle button and not inside it (a `Switch` that enables the section, a count): it works while the section is closed. Enter or Space toggles, Up and Down move between headers. `Collapsible` is one section: `title`, `children`, `open?`/`defaultOpen?`/`onOpenChange?`, `trailing?`.
+
+## Meter
+A read-only measurement against a scale (0.34.0): `label`, `value`, `min?` (0), `max?` (100), `zones?: {from, tone: "ok" | "warning" | "danger"}[]` (the bar takes the tone of the last zone at or below the value: colour is state; none means neutral), `format?`, `showValue?` (true), `orientation?` (`vertical` fills from the bottom: give it a height), `className?`. `role="meter"` with value, minimum, maximum and spoken text. Not a progress bar and not an input (use `Slider`).
+
 ## Dialog
 Modal on Base UI `Dialog`: focus moves in, Escape closes, focus returns to the trigger.
 - `title: ReactNode` (required; the accessible name), `description?`, `footer?`, `children?`
