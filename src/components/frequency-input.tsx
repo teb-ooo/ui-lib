@@ -21,6 +21,8 @@ export interface FrequencyInputProps {
   optimistic?: boolean;
   /** Locked: drawn at 35% and not interactive. @default false */
   dimmed?: boolean;
+  /** Not available: not interactive and drawn at half opacity like any disabled control. @default false */
+  disabled?: boolean;
   /** Playing back a recording (rewinding): the readout takes the warning colour. @default false */
   playbackMode?: boolean;
   /** What an arrow key steps by, in kHz (Shift: `fineStep`, PageUp and PageDown: ten steps). @default 1 */
@@ -40,6 +42,7 @@ const COARSE_SNAP = 0.05;
 const FINE_PER_PX = 0.003;
 const FINE_SNAP = 0.01;
 const DEG_PER_PX = 2;
+const BLANK = " ";
 
 /** `740` becomes `00740.00`: kHz with two decimals, zero-padded to eight characters. */
 export function formatKhz(value: number): string {
@@ -48,38 +51,54 @@ export function formatKhz(value: number): string {
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
-/** The seven digits of a frequency, as a string: 740 -> "0074000". */
+/** The seven digit slots of a frequency, as a string: 740 -> "0074000". A blank slot is a space. */
 const toDigits = (value: number) => Math.round(clamp(value, 0, 99999.99) * 100).toString().padStart(DIGITS, "0");
-const fromDigits = (digits: string) => Number(digits) / 100;
-/** The mask text for seven digits: "0074000" -> "00740.00". */
+/**
+ * The value of seven slots: the digits typed before the point are the whole number (blanks are not zeros), the two after are
+ * the decimals (a blank is 0). "7074   " is 7074.00, "7074 05" is 7074.05, nothing typed is 0.
+ */
+const fromDigits = (digits: string) => {
+  const whole = digits.slice(0, 5).replaceAll(BLANK, "");
+  const decimals = digits.slice(5).replaceAll(BLANK, "0");
+  return Number(`${whole || "0"}.${decimals}`);
+};
+/** The mask text for seven slots: "7074   " -> "7074 .  ". */
 const mask = (digits: string) => `${digits.slice(0, 5)}.${digits.slice(5)}`;
-/** Caret index in the mask text for digit position `pos` (the point sits after the fifth digit). */
+/** Caret index in the mask text for slot `pos` (the point sits after the fifth slot). */
 const caretOf = (pos: number) => (pos >= 5 ? pos + 1 : pos);
 
+export interface MaskState {
+  digits: string;
+  pos: number;
+  fresh: boolean;
+}
+
 /**
- * Typing into the mask: the caret sits on one of the seven digits; a digit overwrites the one at the caret and the caret
- * moves on (past the point); Backspace steps back and zeros; Delete zeros in place; the arrows move the caret. The first
- * keystroke after the field opens, with everything selected, starts from zeros at the first digit.
+ * Typing into the mask, as the original tuner does: with everything selected the first digit clears the field to blanks;
+ * digits then fill from the first slot to the right, skipping the point (five before it, then the decimals), overwriting
+ * what is there. Backspace blanks the slot before the caret, Delete blanks the slot at it, the arrows move the caret, and
+ * anything that is not a digit is ignored (the point is fixed).
  */
-export function typeInto(state: { digits: string; pos: number; fresh: boolean }, key: string): { digits: string; pos: number; fresh: boolean } {
+export function typeInto(state: MaskState, key: string): MaskState {
   let { digits, pos } = state;
+  const blank = BLANK.repeat(DIGITS);
   if (/^\d$/.test(key)) {
     if (state.fresh) {
-      digits = "0".repeat(DIGITS);
+      digits = blank;
       pos = 0;
     }
-    if (pos >= DIGITS) pos = DIGITS - 1;
+    if (pos >= DIGITS) return { digits, pos: DIGITS, fresh: false };
     digits = digits.slice(0, pos) + key + digits.slice(pos + 1);
-    return { digits, pos: Math.min(DIGITS, pos + 1), fresh: false };
+    return { digits, pos: pos + 1, fresh: false };
   }
   if (key === "Backspace") {
-    if (state.fresh) return { digits: "0".repeat(DIGITS), pos: 0, fresh: false };
+    if (state.fresh) return { digits: blank, pos: 0, fresh: false };
     pos = Math.max(0, pos - 1);
-    return { digits: digits.slice(0, pos) + "0" + digits.slice(pos + 1), pos, fresh: false };
+    return { digits: digits.slice(0, pos) + BLANK + digits.slice(pos + 1), pos, fresh: false };
   }
   if (key === "Delete") {
-    if (state.fresh) return { digits: "0".repeat(DIGITS), pos: 0, fresh: false };
-    return { digits: digits.slice(0, pos) + "0" + digits.slice(pos + 1), pos, fresh: false };
+    if (state.fresh) return { digits: blank, pos: 0, fresh: false };
+    return { digits: digits.slice(0, pos) + BLANK + digits.slice(pos + 1), pos, fresh: false };
   }
   if (key === "ArrowLeft") return { digits, pos: Math.max(0, pos - 1), fresh: false };
   if (key === "ArrowRight") return { digits, pos: Math.min(DIGITS, pos + 1), fresh: false };
@@ -102,6 +121,7 @@ export function FrequencyInput({
   label = "Frequency",
   optimistic = false,
   dimmed = false,
+  disabled = false,
   playbackMode = false,
   step = 1,
   fineStep = 0.01,
@@ -121,8 +141,9 @@ export function FrequencyInput({
   const typed = fromDigits(edit.digits);
   const valid = typed >= min && typed <= max;
 
+  const inert = dimmed || disabled;
   const open = () => {
-    if (dimmed) return;
+    if (inert) return;
     setEdit({ digits: toDigits(value), pos: 0, fresh: true });
     setEditing(true);
   };
@@ -161,7 +182,9 @@ export function FrequencyInput({
     if (e.nativeEvent.isComposing) return;
     if (e.key === "Enter") {
       e.preventDefault();
-      submit();
+      // A valid value is set; an invalid one just closes the editor.
+      if (valid) submit();
+      else cancel();
       return;
     }
     if (e.key === "Escape") {
@@ -182,7 +205,7 @@ export function FrequencyInput({
     onValueCommit?.(next);
   };
   const onNumberKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (dimmed) return;
+    if (inert) return;
     const s = e.shiftKey ? fineStep : step;
     if (e.key === "ArrowUp" || e.key === "ArrowRight") stepBy(s);
     else if (e.key === "ArrowDown" || e.key === "ArrowLeft") stepBy(-s);
@@ -196,7 +219,7 @@ export function FrequencyInput({
   };
 
   const onKnobDown = (e: PointerEvent<HTMLDivElement>) => {
-    if (dimmed) return;
+    if (inert) return;
     e.currentTarget.setPointerCapture?.(e.pointerId);
     drag.current = { x: e.clientX, value: latest.current, fine: e.shiftKey, angle };
   };
@@ -223,7 +246,7 @@ export function FrequencyInput({
 
   const tone = playbackMode ? "text-warning" : "text-ink";
   return (
-    <div ref={root} aria-disabled={dimmed || undefined} className={cn("inline-flex flex-col gap-2", dimmed && "pointer-events-none opacity-35", className)}>
+    <div ref={root} aria-disabled={inert || undefined} className={cn("inline-flex flex-col gap-2", dimmed && "pointer-events-none opacity-35", disabled && !dimmed && "pointer-events-none opacity-50", className)}>
       <div className={cn("flex items-center gap-3", optimistic && "opacity-50")}>
         {editing ? (
           <input
@@ -243,7 +266,7 @@ export function FrequencyInput({
         ) : (
           <div
             role="spinbutton"
-            tabIndex={dimmed ? -1 : 0}
+            tabIndex={inert ? -1 : 0}
             aria-label={label}
             aria-valuenow={value}
             aria-valuemin={min}
@@ -265,7 +288,7 @@ export function FrequencyInput({
         <Tooltip tip={knobTip} side="bottom">
           <div
             role="slider"
-            tabIndex={dimmed ? -1 : 0}
+            tabIndex={inert ? -1 : 0}
             aria-label={`Tune ${label.toLowerCase()}`}
             aria-valuenow={value}
             aria-valuemin={min}

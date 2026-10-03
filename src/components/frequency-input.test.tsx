@@ -23,23 +23,31 @@ describe("formatKhz", () => {
 });
 
 describe("typeInto", () => {
-  it("the first digit after opening starts from zeros at the first position, then overwrites onward past the point", () => {
+  const blank = "       ";
+  it("the first digit clears to blanks and digits fill from the left, skipping the point: 7 0 7 4 is 7074.00", () => {
     let s = { digits: "0074000", pos: 0, fresh: true };
-    for (const k of ["0", "7", "0", "7", "4"]) s = typeInto(s, k);
-    expect(s.digits).toBe("0707400");
-    expect(s.pos).toBe(5);
-    s = typeInto(s, "5");
-    expect(s.digits).toBe("0707450");
-    expect(s.pos).toBe(6);
+    for (const k of ["7", "0", "7", "4"]) s = typeInto(s, k);
+    expect(s.digits).toBe("7074   ");
+    expect(s.pos).toBe(4);
   });
-  it("Backspace steps back and zeros, Delete zeros in place, the arrows move the caret", () => {
-    let s = { digits: "1234567", pos: 3, fresh: false };
-    s = typeInto(s, "Backspace");
-    expect(s).toMatchObject({ digits: "1204567", pos: 2 });
-    s = typeInto({ digits: "1234567", pos: 3, fresh: false }, "Delete");
-    expect(s).toMatchObject({ digits: "1230567", pos: 3 });
-    expect(typeInto(s, "ArrowLeft").pos).toBe(2);
-    expect(typeInto(s, "End").pos).toBe(7);
+  it("a fifth digit goes before the point and further digits fill the decimals", () => {
+    let s = { digits: blank, pos: 0, fresh: false };
+    for (const k of ["1", "2", "3", "4", "5", "6", "7"]) s = typeInto(s, k);
+    expect(s.digits).toBe("1234567");
+    expect(s.pos).toBe(7);
+    // nothing after the seventh slot
+    expect(typeInto(s, "9").digits).toBe("1234567");
+  });
+  it("ignores the point and other keys", () => {
+    const s = { digits: "7074   ", pos: 4, fresh: false };
+    expect(typeInto(s, ".")).toBe(s);
+    expect(typeInto(s, "a")).toBe(s);
+  });
+  it("Backspace blanks the slot before the caret, Delete the slot at it, the arrows move the caret", () => {
+    expect(typeInto({ digits: "7074   ", pos: 4, fresh: false }, "Backspace")).toMatchObject({ digits: "707    ", pos: 3 });
+    expect(typeInto({ digits: "1234567", pos: 3, fresh: false }, "Delete")).toMatchObject({ digits: "123 567", pos: 3 });
+    expect(typeInto({ digits: "1234567", pos: 3, fresh: false }, "ArrowLeft").pos).toBe(2);
+    expect(typeInto({ digits: "1234567", pos: 3, fresh: false }, "End").pos).toBe(7);
   });
 });
 
@@ -83,8 +91,8 @@ describe("FrequencyInput", () => {
     expect(field.value).toBe("00740.00");
     expect(field.selectionStart).toBe(0);
     expect(field.selectionEnd).toBe(field.value.length);
-    await userEvent.keyboard("0707400");
-    expect(field.value).toBe("07074.00");
+    await userEvent.keyboard("7074");
+    expect(field.value).toBe("7074 .  ");
     await userEvent.keyboard("{Enter}");
     expect(onCommit).toHaveBeenCalledWith(7074);
     expect(screen.getByRole("spinbutton").textContent).toBe("07074.00");
@@ -94,16 +102,18 @@ describe("FrequencyInput", () => {
     const onCommit = vi.fn();
     render(<Tuner onCommit={onCommit} max={10000} />);
     await userEvent.click(screen.getByRole("spinbutton"));
-    await userEvent.keyboard("0000000");
+    await userEvent.keyboard("0");
+    // 0 kHz is not valid
+    expect((screen.getByRole("button", { name: "Set frequency" }) as HTMLButtonElement).disabled).toBe(true);
+    await userEvent.keyboard("{Home}99999");
+    // 99999 kHz is above the maximum too
     expect((screen.getByRole("button", { name: "Set frequency" }) as HTMLButtonElement).disabled).toBe(true);
     await userEvent.keyboard("{Enter}");
+    // an invalid value: Enter only closes the editor
     expect(onCommit).not.toHaveBeenCalled();
-    expect(screen.getByRole("textbox")).toBeTruthy();
-    await userEvent.keyboard("{Home}");
-    // 99999.xx is above the maximum too
-    await userEvent.keyboard("9999999");
-    expect((screen.getByRole("button", { name: "Set frequency" }) as HTMLButtonElement).disabled).toBe(true);
-    await userEvent.keyboard("{Home}0100000");
+    expect(screen.queryByRole("textbox")).toBeNull();
+    await userEvent.click(screen.getByRole("spinbutton"));
+    await userEvent.keyboard("1000");
     expect((screen.getByRole("button", { name: "Set frequency" }) as HTMLButtonElement).disabled).toBe(false);
     await userEvent.click(screen.getByRole("button", { name: "Set frequency" }));
     expect(onCommit).toHaveBeenCalledWith(1000);
@@ -118,10 +128,10 @@ describe("FrequencyInput", () => {
       </div>,
     );
     await userEvent.click(screen.getByRole("spinbutton"));
-    await userEvent.keyboard("0001000{Escape}");
+    await userEvent.keyboard("1000{Escape}");
     expect(screen.getByRole("spinbutton").textContent).toBe("00740.00");
     await userEvent.click(screen.getByRole("spinbutton"));
-    await userEvent.keyboard("0001000");
+    await userEvent.keyboard("1000");
     await userEvent.click(screen.getByRole("button", { name: "Elsewhere" }));
     expect(screen.queryByRole("textbox")).toBeNull();
     expect(screen.getByRole("spinbutton").textContent).toBe("00740.00");
@@ -170,6 +180,14 @@ describe("FrequencyInput", () => {
     expect(screen.queryByRole("textbox")).toBeNull();
     rerender(<FrequencyInput value={740} onValueChange={() => undefined} optimistic />);
     expect(container.querySelector(".opacity-50")).not.toBeNull();
+  });
+
+  it("disabled is inert like dimmed but at half opacity", () => {
+    const { container } = render(<FrequencyInput value={740} onValueChange={() => undefined} disabled />);
+    expect(container.firstElementChild?.getAttribute("aria-disabled")).toBe("true");
+    fireEvent.click(screen.getByRole("spinbutton"));
+    expect(screen.queryByRole("textbox")).toBeNull();
+    expect(container.firstElementChild?.className).toContain("opacity-50");
   });
 
   it("playbackMode recolours the readout", () => {
