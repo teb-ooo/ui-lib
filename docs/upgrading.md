@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.62.1 (from 0.62.0)
+
+No change needed. The Send feedback icon in the platform bar and in Cmd+K is Lucide's message circle.
+
 ## To ui 0.62.0 (from 0.61.x)
 
 No change needed. Popovers, hover cards, tooltips and the feedback panel draw an arrow (class `popover-arrow`, 10 by 5px, the popup's own fill) toward the middle of their trigger. It follows the popup when it is flipped to another side or shifted to stay on screen, stays 8px from the popup's corners, and is left out where there is nothing to point at (the feedback panel with no picked element, or placed inside a screen-filling one). The side offset grew from 6 to 9px to make room for it.

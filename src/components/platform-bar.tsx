@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Menu } from "@base-ui/react/menu";
-import { Bot, LogIn, LogOut, Menu as MenuIcon, MessageSquarePlus, Search, User } from "lucide-react";
+import { Bot, LogIn, LogOut, Menu as MenuIcon, MessageCircle, Search, User } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useEffect, useState } from "react";
 import { formatElapsed, turnElapsedMs } from "@teb-ooo/web";
@@ -219,7 +219,7 @@ export function PlatformBar({
       </Icon>
       {onFeedback ? (
         <Icon tip="Send feedback" shortcut={FEEDBACK_SHORTCUT} onClick={onFeedback}>
-          <MessageSquarePlus aria-hidden="true" className="size-4" />
+          <MessageCircle aria-hidden="true" className="size-4" />
         </Icon>
       ) : null}
       {user === undefined ? (

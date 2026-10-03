@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { ArrowLeftRight, ExternalLink, LayoutDashboard, ListTodo, LogOut, MessageSquarePlus, Palette, User } from "lucide-react";
+import { ArrowLeftRight, ExternalLink, LayoutDashboard, ListTodo, LogOut, MessageCircle, Palette, User } from "lucide-react";
 import { LOGOUT_PATH, getPlayground, platformLinks } from "@teb-ooo/web";
 import type { Command, CommandIcon } from "../cmdk/types";
 import { useCommandHost } from "./command-host";
@@ -101,7 +101,7 @@ export function platformCommands({ signedIn, feedback }: PlatformCommandsInput):
       // Semicolon, two keys right of K: no Shift, and none of Chrome, Firefox, Safari or Edge uses Cmd or Ctrl with it.
       shortcut: FEEDBACK_SHORTCUT,
       keywords: ["report", "bug", "problem", "idea", "suggestion", "screenshot", "tell the agent"],
-      icon: MessageSquarePlus,
+      icon: MessageCircle,
       when: () => feedback.available,
       run: () => feedback.open(),
     },
