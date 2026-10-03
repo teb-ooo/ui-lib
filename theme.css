@@ -411,6 +411,7 @@ input.display-lg {
     white-space: nowrap;
   }
   .chip-muted {
+    border-color: transparent;
     color: var(--color-ink-faint);
   }
   .chip-ok {
