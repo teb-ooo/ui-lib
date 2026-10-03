@@ -153,6 +153,7 @@ export function Palette() {
       title="Command palette"
       placement="top"
       bare
+      inverted
       initialFocus={inputRef}
       className={SHEET}
     >

@@ -31,6 +31,8 @@ export interface DialogProps {
    * @default false
    */
   bare?: boolean;
+  /** Inverted surface (white on a dark page, black on a light one, no border), as `Popover` is. @default false */
+  inverted?: boolean;
   /** Element to focus on open (a ref), or `false` to leave focus alone. Default: the first focusable element. */
   initialFocus?: boolean | RefObject<HTMLElement | null>;
   /**
@@ -59,6 +61,7 @@ export function Dialog({
   children,
   placement = "center",
   bare = false,
+  inverted = false,
   initialFocus,
   closeLabel = "Close",
   className,
@@ -73,7 +76,7 @@ export function Dialog({
           {...(initialFocus !== undefined ? { initialFocus } : {})}
           className={cn(
             "fixed z-50 text-ink outline-none",
-            placements[placement],
+            inverted ? placements[placement].replace("panel ", "panel-inverse ") : placements[placement],
             bare ? "overflow-hidden" : "flex flex-col gap-4 p-4",
             className,
           )}

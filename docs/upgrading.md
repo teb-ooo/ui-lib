@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.61.0 (from 0.60.x)
+
+No change needed. The Cmd+K palette is inverted like the popovers (white on a dark page, black on a light one, no border). `Dialog` gains `inverted`.
+
 ## To ui 0.60.1 (from 0.59.x)
 
 No code change needed. Popovers, hover cards, tooltips and the feedback panel are inverted: white on a dark page, black on a light one, with no border (they lift off the page by their fill and shadow alone). New class `panel-inverse` (theme.css) redefines the colour tokens as the opposite scheme for everything inside, through `light-dark()`, so it follows the OS scheme or a forced `data-theme`. Menus, selects, comboboxes and dialogs keep the bordered `panel`.
