@@ -49,6 +49,12 @@ A row of tabs and one panel at a time (0.34.0): `tabs: {value, label, panel, bad
 ## Accordion, Collapsible
 Sections you open and close (0.34.0): `Accordion` takes `items: {value, title, content, trailing?, disabled?}[]`, `multiple?` (true), `value?`/`defaultValue?`/`onValueChange?` (arrays of open `value`s). `trailing` is a control at the end of the header, beside the toggle button and not inside it (a `Switch` that enables the section, a count): it works while the section is closed. Enter or Space toggles, Up and Down move between headers. `Collapsible` is one section: `title`, `children`, `open?`/`defaultOpen?`/`onOpenChange?`, `trailing?`.
 
+## Alert
+(0.66.0) A message that stays on the page: `tone` ("info" default, "ok", "warn", "danger"; colour is state), `title?`, children (what happened and what to do), `action?` (a `Button` or two, at the end), `onDismiss?` (adds a dismiss button). `danger` is `role="alert"`, the others `role="status"`. Use it for a failing source, data that is not backed up, a failed save, or an in-flow confirmation ("Kill this stream?" with Cancel and Kill) instead of coloured plain text or an overlay band. `Toast` is for what goes away by itself, `Field`'s error is for one input, `Dialog` blocks the page.
+
+## AudioPlayer
+(0.66.0) `src`, `label` (accessible name, "Recording: 7.2 MHz AM"), `onEnded?`. Play or pause, a seek `Slider`, the time as `0:12 / 0:45` and a mute toggle, in the design system's controls, instead of the browser's native `<audio controls>` (which looks different in every browser and ignores the theme). For a recording or clip, not a live stream.
+
 ## Meter
 A read-only measurement against a scale (0.34.0): `label`, `value`, `min?` (0), `max?` (100), `zones?: {from, tone: "ok" | "warning" | "danger"}[]` (the bar takes the tone of the last zone at or below the value: colour is state; none means neutral), `format?`, `showValue?` (true), `orientation?` (`vertical` fills from the bottom: give it a height), `className?`. `role="meter"` with value, minimum, maximum and spoken text. Not a progress bar and not an input (use `Slider`).
 

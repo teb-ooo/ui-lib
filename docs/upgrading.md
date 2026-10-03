@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.66.1 (from 0.65.x)
+
+No change needed. New `Alert` and `AudioPlayer` (0.66.0; see components.md), requested by the waves UI review. 0.66.1 only adds their documentation.
+
 ## To ui 0.65.0 (from 0.64.x)
 
 No change needed. `RichTextEditor` shows a (+) Insert block button at the end of an empty line (it types `/` to open the block menu).
