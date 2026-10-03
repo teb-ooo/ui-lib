@@ -23,7 +23,7 @@ export const TypeScale = () => (
     <h3>Heading 3: a label</h3>
     <p>Level 3 is a quiet uppercase label, the same voice as a field label.</p>
     <h4>Heading 4: a run-in note</h4>
-    <p>Level 4 is italic. Levels 5 and 6 are muted bold.</p>
+    <p>Level 4 is italic. Levels 5 and 6 are muted.</p>
     <h5>Heading 5</h5>
     <h6>Heading 6</h6>
     <ul>
