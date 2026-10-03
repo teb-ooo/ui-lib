@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { Markdown } from "./index";
 
 const source = `# Title
@@ -60,5 +60,36 @@ describe("Markdown", () => {
     const { container } = render(<Markdown wikiLink={() => "/x"}>{"`[[Title]]`"}</Markdown>);
     expect(container.querySelector("code")?.textContent).toBe("[[Title]]");
     expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("onToggleTask makes the tasks tickable and reports the index in render order, not counting code", () => {
+    const onToggle = vi.fn();
+    render(<Markdown onToggleTask={onToggle}>{"- [x] one\n- [ ] two\n\n```\n- [ ] not a task\n```\n\n- [ ] three"}</Markdown>);
+    const boxes = screen.getAllByRole("checkbox", { name: "Task done" });
+    expect(boxes.length).toBe(3);
+    fireEvent.click(boxes[1]!);
+    expect(onToggle).toHaveBeenLastCalledWith(1, true);
+    fireEvent.click(boxes[2]!);
+    expect(onToggle).toHaveBeenLastCalledWith(2, true);
+    fireEvent.click(boxes[0]!);
+    expect(onToggle).toHaveBeenLastCalledWith(0, false);
+  });
+
+  it("without onToggleTask the checkboxes are read-only", () => {
+    const { container } = render(<Markdown>{"- [ ] one"}</Markdown>);
+    expect((container.querySelector('input[type="checkbox"]') as HTMLInputElement).disabled).toBe(true);
+  });
+
+  it("images={false} leaves images out and shows the alt text", () => {
+    const { container, rerender } = render(<Markdown>{"![a pic](https://example.com/a.png)"}</Markdown>);
+    expect(container.querySelector("img")?.getAttribute("src")).toBe("https://example.com/a.png");
+    rerender(<Markdown images={false}>{"![a pic](https://example.com/a.png) and ![](https://example.com/b.png)"}</Markdown>);
+    expect(container.querySelector("img")).toBeNull();
+    expect(screen.getByText("a pic")).toBeTruthy();
+  });
+
+  it("passes other props (a test id) to the wrapper", () => {
+    render(<Markdown data-testid="note">{"hi"}</Markdown>);
+    expect(screen.getByTestId("note").className).toContain("prose");
   });
 });

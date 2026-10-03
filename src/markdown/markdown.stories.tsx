@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Markdown } from "./index";
 import type { StoryDefault, StoryMeta } from "../stories";
 
@@ -35,3 +36,13 @@ const tram = 28;
 
 export const Notes = () => <Markdown wikiLink={(t) => `#${encodeURIComponent(t)}`}>{source}</Markdown>;
 Notes.storyMeta = { description: "A note with a wiki link, a task list, a table, a quote and code; the raw HTML line stays text." } satisfies StoryMeta;
+
+export const TickableTasks = () => {
+  const [source, setSource] = useState("- [x] Book flights\n- [ ] Pack\n- [ ] Call the hotel\n");
+  const toggle = (index: number, checked: boolean) => {
+    let n = -1;
+    setSource((s) => s.replace(/^(\s*[-*+] )\[( |x)\]/gm, (m, lead: string) => (++n === index ? `${lead}[${checked ? "x" : " "}]` : m)));
+  };
+  return <Markdown onToggleTask={toggle} images={false} data-testid="tasks">{source}</Markdown>;
+};
+TickableTasks.storyMeta = { description: "onToggleTask makes task items tickable (the app saves the changed source); images={false} leaves images out." } satisfies StoryMeta;

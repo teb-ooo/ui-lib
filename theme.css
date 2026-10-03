@@ -894,9 +894,14 @@ input.display-lg {
   .prose input[type="checkbox"] {
     margin-right: 0.5rem;
   }
-  .prose li:has(> input[type="checkbox"]) {
+  .prose li:has(> input[type="checkbox"]),
+  .prose li.task-list-item {
     list-style: none;
     margin-left: -1.5rem;
+  }
+  .prose li.task-list-item > [role="checkbox"] {
+    margin-right: 0.5rem;
+    vertical-align: middle;
   }
 }
 

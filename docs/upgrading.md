@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.57.0 (from 0.56.x)
+
+`Markdown` gains `onToggleTask`, `images` and wrapper props (requested by notes); no change needed.
+
 ## To ui 0.56.0 (from 0.55.x)
 
 No change needed. New entry `@teb-ooo/ui/markdown` with `Markdown`; it needs the optional peers `react-markdown` and `remark-gfm`, which only an app using it installs.
