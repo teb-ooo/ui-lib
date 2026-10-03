@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.42.0 (from 0.41.x)
+
+No change needed. New `Chip priority={0..4}` and a priority colour scale (`--color-p0` to `--color-p4` with `-soft` and `-line`, ramps `--color-p0-50` to `-950`, repointable like any state ramp). Use it for a five-level priority; colour for labels and categories is still not offered.
+
 ## To ui 0.41.0 (from 0.40.x)
 
 - **SplitPane (visible change):** until the person moves the divider the list now grows with the screen, from `defaultSize` up to 38% of the pane and never beyond `maxSize` (it was a fixed `defaultSize`). At 1280 nothing changes; at 1920 the list is wider and the detail area less empty. A `persistKey` width, once saved, stays fixed as before; a double-click on the divider returns to the responsive width. To keep the old fixed width set `maxSize` equal to `defaultSize`.

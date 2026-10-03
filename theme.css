@@ -115,6 +115,63 @@
   --color-agent-800: var(--color-violet-800);
   --color-agent-900: var(--color-violet-900);
   --color-agent-950: var(--color-violet-950);
+
+  /* Priority scale, P0 (most urgent) to P4: a state like the others, one ramp per level, repointable per app. */
+  --color-p0-50: var(--color-red-50);
+  --color-p0-100: var(--color-red-100);
+  --color-p0-200: var(--color-red-200);
+  --color-p0-300: var(--color-red-300);
+  --color-p0-400: var(--color-red-400);
+  --color-p0-500: var(--color-red-500);
+  --color-p0-600: var(--color-red-600);
+  --color-p0-700: var(--color-red-700);
+  --color-p0-800: var(--color-red-800);
+  --color-p0-900: var(--color-red-900);
+  --color-p0-950: var(--color-red-950);
+  --color-p1-50: var(--color-orange-50);
+  --color-p1-100: var(--color-orange-100);
+  --color-p1-200: var(--color-orange-200);
+  --color-p1-300: var(--color-orange-300);
+  --color-p1-400: var(--color-orange-400);
+  --color-p1-500: var(--color-orange-500);
+  --color-p1-600: var(--color-orange-600);
+  --color-p1-700: var(--color-orange-700);
+  --color-p1-800: var(--color-orange-800);
+  --color-p1-900: var(--color-orange-900);
+  --color-p1-950: var(--color-orange-950);
+  --color-p2-50: var(--color-yellow-50);
+  --color-p2-100: var(--color-yellow-100);
+  --color-p2-200: var(--color-yellow-200);
+  --color-p2-300: var(--color-yellow-300);
+  --color-p2-400: var(--color-yellow-400);
+  --color-p2-500: var(--color-yellow-500);
+  --color-p2-600: var(--color-yellow-600);
+  --color-p2-700: var(--color-yellow-700);
+  --color-p2-800: var(--color-yellow-800);
+  --color-p2-900: var(--color-yellow-900);
+  --color-p2-950: var(--color-yellow-950);
+  --color-p3-50: var(--color-sky-50);
+  --color-p3-100: var(--color-sky-100);
+  --color-p3-200: var(--color-sky-200);
+  --color-p3-300: var(--color-sky-300);
+  --color-p3-400: var(--color-sky-400);
+  --color-p3-500: var(--color-sky-500);
+  --color-p3-600: var(--color-sky-600);
+  --color-p3-700: var(--color-sky-700);
+  --color-p3-800: var(--color-sky-800);
+  --color-p3-900: var(--color-sky-900);
+  --color-p3-950: var(--color-sky-950);
+  --color-p4-50: var(--color-neutral-50);
+  --color-p4-100: var(--color-neutral-100);
+  --color-p4-200: var(--color-neutral-200);
+  --color-p4-300: var(--color-neutral-300);
+  --color-p4-400: var(--color-neutral-400);
+  --color-p4-500: var(--color-neutral-500);
+  --color-p4-600: var(--color-neutral-600);
+  --color-p4-700: var(--color-neutral-700);
+  --color-p4-800: var(--color-neutral-800);
+  --color-p4-900: var(--color-neutral-900);
+  --color-p4-950: var(--color-neutral-950);
 }
 
 /* Role tokens for the dark scheme, the default. */
@@ -147,6 +204,21 @@
   --color-agent-hover: var(--color-agent-300);
   --color-agent-soft: var(--color-agent-950);
   --color-agent-line: var(--color-agent-900);
+  --color-p0: var(--color-p0-400);
+  --color-p0-soft: var(--color-p0-950);
+  --color-p0-line: var(--color-p0-900);
+  --color-p1: var(--color-p1-400);
+  --color-p1-soft: var(--color-p1-950);
+  --color-p1-line: var(--color-p1-900);
+  --color-p2: var(--color-p2-400);
+  --color-p2-soft: var(--color-p2-950);
+  --color-p2-line: var(--color-p2-900);
+  --color-p3: var(--color-p3-400);
+  --color-p3-soft: var(--color-p3-950);
+  --color-p3-line: var(--color-p3-900);
+  --color-p4: var(--color-p4-400);
+  --color-p4-soft: var(--color-p4-950);
+  --color-p4-line: var(--color-p4-900);
 }
 
 /* The dark set again, reachable by attribute so a gallery can force it, even inside a light page. */
@@ -180,6 +252,21 @@
   --color-agent-hover: var(--color-agent-300);
   --color-agent-soft: var(--color-agent-950);
   --color-agent-line: var(--color-agent-900);
+  --color-p0: var(--color-p0-400);
+  --color-p0-soft: var(--color-p0-950);
+  --color-p0-line: var(--color-p0-900);
+  --color-p1: var(--color-p1-400);
+  --color-p1-soft: var(--color-p1-950);
+  --color-p1-line: var(--color-p1-900);
+  --color-p2: var(--color-p2-400);
+  --color-p2-soft: var(--color-p2-950);
+  --color-p2-line: var(--color-p2-900);
+  --color-p3: var(--color-p3-400);
+  --color-p3-soft: var(--color-p3-950);
+  --color-p3-line: var(--color-p3-900);
+  --color-p4: var(--color-p4-400);
+  --color-p4-soft: var(--color-p4-950);
+  --color-p4-line: var(--color-p4-900);
 }
 
 @media (prefers-color-scheme: light) {
@@ -213,6 +300,21 @@
     --color-agent-hover: var(--color-agent-800);
     --color-agent-soft: var(--color-agent-50);
     --color-agent-line: var(--color-agent-200);
+    --color-p0: var(--color-p0-700);
+    --color-p0-soft: var(--color-p0-50);
+    --color-p0-line: var(--color-p0-200);
+    --color-p1: var(--color-p1-700);
+    --color-p1-soft: var(--color-p1-50);
+    --color-p1-line: var(--color-p1-200);
+    --color-p2: var(--color-p2-700);
+    --color-p2-soft: var(--color-p2-50);
+    --color-p2-line: var(--color-p2-200);
+    --color-p3: var(--color-p3-700);
+    --color-p3-soft: var(--color-p3-50);
+    --color-p3-line: var(--color-p3-200);
+    --color-p4: var(--color-p4-700);
+    --color-p4-soft: var(--color-p4-50);
+    --color-p4-line: var(--color-p4-200);
   }
 }
 
@@ -246,6 +348,21 @@
   --color-agent-hover: var(--color-agent-800);
   --color-agent-soft: var(--color-agent-50);
   --color-agent-line: var(--color-agent-200);
+  --color-p0: var(--color-p0-700);
+  --color-p0-soft: var(--color-p0-50);
+  --color-p0-line: var(--color-p0-200);
+  --color-p1: var(--color-p1-700);
+  --color-p1-soft: var(--color-p1-50);
+  --color-p1-line: var(--color-p1-200);
+  --color-p2: var(--color-p2-700);
+  --color-p2-soft: var(--color-p2-50);
+  --color-p2-line: var(--color-p2-200);
+  --color-p3: var(--color-p3-700);
+  --color-p3-soft: var(--color-p3-50);
+  --color-p3-line: var(--color-p3-200);
+  --color-p4: var(--color-p4-700);
+  --color-p4-soft: var(--color-p4-50);
+  --color-p4-line: var(--color-p4-200);
 }
 
 
@@ -433,6 +550,31 @@ input.display-lg {
     border-color: var(--color-link-line);
     background: color-mix(in oklab, var(--color-link-soft) 40%, transparent);
     color: var(--color-link);
+  }
+  .chip-p0 {
+    border-color: var(--color-p0-line);
+    background: color-mix(in oklab, var(--color-p0-soft) 40%, transparent);
+    color: var(--color-p0);
+  }
+  .chip-p1 {
+    border-color: var(--color-p1-line);
+    background: color-mix(in oklab, var(--color-p1-soft) 40%, transparent);
+    color: var(--color-p1);
+  }
+  .chip-p2 {
+    border-color: var(--color-p2-line);
+    background: color-mix(in oklab, var(--color-p2-soft) 40%, transparent);
+    color: var(--color-p2);
+  }
+  .chip-p3 {
+    border-color: var(--color-p3-line);
+    background: color-mix(in oklab, var(--color-p3-soft) 40%, transparent);
+    color: var(--color-p3);
+  }
+  .chip-p4 {
+    border-color: var(--color-p4-line);
+    background: color-mix(in oklab, var(--color-p4-soft) 40%, transparent);
+    color: var(--color-p4);
   }
   .chip-agent {
     border-color: var(--color-agent-line);

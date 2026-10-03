@@ -25,6 +25,17 @@ export const Link = () => <Chip tone="link">reference</Chip>;
 
 export const Agent = () => <Chip tone="agent">agent working</Chip>;
 
+export const Priorities = () => (
+  <div className="flex flex-wrap gap-2">
+    {([0, 1, 2, 3, 4] as const).map((p) => (
+      <Chip key={p} priority={p}>
+        P{p}
+      </Chip>
+    ))}
+  </div>
+);
+Priorities.storyMeta = { description: "The priority scale: P0 red, P1 orange, P2 yellow, P3 sky, P4 neutral. A state colour like the tones." } satisfies StoryMeta;
+
 export const Muted = () => <Chip tone="muted">inactive</Chip>;
 
 export const Removable = () => {
