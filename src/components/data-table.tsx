@@ -123,6 +123,13 @@ export interface DataTableProps<T> {
    * @default false
    */
   bleed?: boolean;
+  /**
+   * The table is only as tall as its header and rows (at least the header and two rows), shrinks to the space its parent
+   * leaves and then scrolls inside itself. Without it the table fills the height of its parent. In a parent that scrolls it is
+   * simply as tall as its rows.
+   * @default false
+   */
+  fit?: boolean;
   className?: string;
 }
 
@@ -316,6 +323,7 @@ export function DataTable<T>({
   renderCard,
   cardsBelow = "md",
   bleed = false,
+  fit = false,
   pagination,
   className,
 }: DataTableProps<T>) {
@@ -593,8 +601,12 @@ export function DataTable<T>({
     );
 
   return (
-    <div className={cn("flex h-full min-h-0 flex-col", className)}>
-      <div className={cn("flex min-h-0 flex-1 flex-col", pagination && !bleed && "panel overflow-hidden")}>
+    <div
+      {...(bleed ? { "data-bleed": "" } : {})}
+      style={fit ? { minHeight: "calc(var(--control-h) * 3)" } : undefined}
+      className={cn("flex min-h-0 flex-col", fit ? "max-h-full flex-initial" : "h-full", className)}
+    >
+      <div className={cn("flex min-h-0 flex-col", fit ? "flex-initial" : "flex-1", pagination && !bleed && "panel overflow-hidden")}>
         <div
           ref={scroller}
           tabIndex={0}
@@ -609,7 +621,8 @@ export function DataTable<T>({
           }}
           onKeyDown={onKeyDown}
           className={cn(
-            "min-h-0 flex-1 overflow-auto outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ink-muted",
+            "min-h-0 overflow-auto outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ink-muted",
+            fit ? "flex-initial" : "flex-1",
             !bleed && !pagination && "panel",
           )}
         >

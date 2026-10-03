@@ -204,3 +204,6 @@ Loading UI waits 100ms before it appears and then fades in over 150ms (`.anim-de
 - `EmptyState` (`title`, `description?`, `action?`): the state of a list with nothing to show.
 - `Page` and `PageBody` (`fill`): the frame of a screen with one scroll surface; `Tabs fill`. See best-practices.md section 12.
 - web 0.8.3: `ApiError.userMessage` keeps a 4xx detail when there is one.
+
+## Layout recipes (0.48.0)
+`DataTable fit`; `PageBody gutter`; `PageHeader`/`Section` `sticky`; `PageColumns` (`firstWidth`, rem). See best-practices.md, "Screen recipes that need more than one surface".

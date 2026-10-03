@@ -1,6 +1,6 @@
 import { Button } from "./button";
 import { DataTable } from "./data-table";
-import { Page, PageBody } from "./page";
+import { Page, PageBody, PageColumns } from "./page";
 import { PageHeader, Section } from "./section";
 import { SearchInput } from "./search-input";
 import type { StoryDefault, StoryMeta } from "../stories";
@@ -49,3 +49,26 @@ export const DocumentScreen = () => (
   </div>
 );
 DocumentScreen.storyMeta = { description: "A document screen: the body is the one scroll surface from lg; below lg the whole page scrolls." } satisfies StoryMeta;
+
+export const TwoColumns = () => (
+  <div className="h-96 border border-line">
+    <Page>
+      <PageHeader size="compact" title="ah" description="The dashboard" />
+      <PageColumns firstWidth={16}>
+        <PageBody gutter className="py-3">
+          <p className="text-ink-muted">Details: its own scroll surface from lg.</p>
+          {rows.slice(0, 20).map((r) => (
+            <p key={r.id}>{r.name}</p>
+          ))}
+        </PageBody>
+        <PageBody gutter className="py-3 max-lg:order-first">
+          <p className="text-ink-muted">Tabs: the second surface; first on a phone.</p>
+          {rows.map((r) => (
+            <p key={r.id}>{r.name}</p>
+          ))}
+        </PageBody>
+      </PageColumns>
+    </Page>
+  </div>
+);
+TwoColumns.storyMeta = { description: "Two scroll surfaces side by side from lg (details and tabs), one column of the page on a phone with the tabs first." } satisfies StoryMeta;

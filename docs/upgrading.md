@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.48.0 (from 0.47.x)
+
+No change needed. New: `DataTable fit` (as tall as its rows, shrinks to the space left, then scrolls), `PageBody gutter`, `sticky` on `PageHeader` and `Section`, `PageColumns` (two scroll surfaces side by side from lg). A bleed `DataTable`, `Section` and `PageHeader` carry `data-bleed`.
+
 ## To ui 0.47.1 (from 0.47.0)
 
 Docs only: section 11 names `Page` and `PageBody` among the layout primitives.

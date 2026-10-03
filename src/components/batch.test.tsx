@@ -109,3 +109,31 @@ describe("EmptyState, Page and Tabs fill", () => {
     expect(screen.getByRole("tabpanel").className).toContain("overflow-auto");
   });
 });
+
+describe("ah's wrapper needs", () => {
+  it("DataTable fit is only as tall as its rows and marks a bleed table", () => {
+    const { container } = render(<DataTable label="T" bleed fit rowKey={(r: { id: string }) => r.id} rows={[{ id: "a" }]} columns={[{ id: "a", header: "A", cell: () => "x" }]} />);
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.className).toContain("flex-initial");
+    expect(root.className.split(" ")).not.toContain("h-full");
+    expect(root.getAttribute("data-bleed")).toBe("");
+  });
+  it("PageBody gutter spares bleed bands; sticky pins a header", () => {
+    const { container } = render(
+      <Page>
+        <PageHeader title="T" sticky />
+        <PageBody gutter>
+          <p>text</p>
+        </PageBody>
+      </Page>,
+    );
+    expect(container.querySelector("section")!.className).toContain("sticky");
+    expect(container.querySelector("section")!.hasAttribute("data-bleed")).toBe(true);
+    expect([...container.querySelectorAll("div")].some((d) => d.className.includes("[&>:not([data-bleed])]:px-4"))).toBe(true);
+  });
+  it("PageColumns sets the first column width", async () => {
+    const { PageColumns } = await import("./page");
+    const { container } = render(<PageColumns firstWidth={20}><PageBody>a</PageBody><PageBody>b</PageBody></PageColumns>);
+    expect((container.firstElementChild as HTMLElement).style.getPropertyValue("--first-column")).toBe("20rem");
+  });
+});

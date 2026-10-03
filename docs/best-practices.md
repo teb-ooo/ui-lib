@@ -78,3 +78,9 @@ The model (from ah's layout-and-scrolling notes):
 - Tabs as the body of a screen: `Tabs fill` makes each panel the scroll surface (a flex column under the tab row).
 - Every clipped edge is visible: a scrolling region ends at a rule or a divider, never at a hard cut in the middle of content.
 - Do not fake a scroll with `max-h` plus `overflow`; give the region a real parent height (the `Page` does) or let the page scroll.
+
+### Screen recipes that need more than one surface
+- **A table that is only as tall as its rows** (a short list in a scrolling pane, or a table above other content): `DataTable fit`. It is as tall as its header and rows (at least the header and two rows), shrinks to the space its parent leaves and then scrolls inside itself; in a parent that scrolls it is just as tall as its rows. Without `fit` the table fills its parent.
+- **Page gutter for everything but bleed bands:** `PageBody gutter` gives every direct child 16px (24px from md) except bleed tables, `Section` and `PageHeader` (they touch both edges and inset their own content).
+- **A header that stays on a phone:** `PageHeader sticky` / `Section sticky` pin the band to the top while the whole page scrolls.
+- **Details beside tabs:** `PageColumns` puts two `PageBody`s side by side from lg, each its own scroll surface (the rule is one surface per column); below lg they stack in source order and the page scrolls as one; give the second `max-lg:order-first` to show it first on a phone.
