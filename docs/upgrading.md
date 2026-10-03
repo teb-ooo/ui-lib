@@ -2,9 +2,13 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.53.1 (from 0.53.0)
+
+Tests and docs only (0.53.0 was published with two tests still to update).
+
 ## To ui 0.53.0 and web 0.9.0 (from 0.52.x and 0.8.x): BREAKING, the assistant is removed
 
-The platform's end-user assistant is gone (owner decision 2026-10-03), so its hooks are removed from the shared packages. **ui:** the built-in "Ask assistant..." command and its no-results fallback row, `ASK_ASSISTANT_ID`, and the `assistant` field of `readPlayground()` are removed; `window.__PLAYGROUND__.assistant` is ignored. An app that has its own assistant (lore) registers its own palette command with `useRegisterCommands` like any other. The no-results state is just "No results". **web:** the `AssistantEvents` type is removed and `setPlayground()` in `@teb-ooo/web/testing` no longer defaults `assistant: false`; `useEventStream` is unchanged and still supports POST streaming for any endpoint. ui 0.53.0 accepts web 0.7.5, 0.8.x and 0.9.x.
+The platform's end-user assistant is gone (owner decision 2026-10-03), so its hooks are removed from the shared packages. **ui:** the built-in "Ask assistant..." command and its no-results fallback row, `ASK_ASSISTANT_ID`, and the `assistant` field of `readPlayground()` are removed; `window.__PLAYGROUND__.assistant` is ignored. An app that has its own assistant (an app with its own assistant) registers its own palette command with `useRegisterCommands` like any other. The no-results state is just "No results". **web:** the `AssistantEvents` type is removed and `setPlayground()` in `@teb-ooo/web/testing` no longer defaults `assistant: false`; `useEventStream` is unchanged and still supports POST streaming for any endpoint. ui 0.53.0 accepts web 0.7.5, 0.8.x and 0.9.x.
 
 ## To ui 0.52.2 (from 0.52.1)
 

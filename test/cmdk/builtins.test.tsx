@@ -25,8 +25,8 @@ describe("navigation", () => {
     const user = userEvent.setup();
     await renderApp();
     await openPalette(user);
-    const rows = screen.getAllByRole("option").filter((o) => o.textContent && ["Home", "Items", "/settings", "Assistant"].some((t) => o.textContent?.includes(t)));
-    expect(rows.length).toBeGreaterThanOrEqual(4);
+    const rows = screen.getAllByRole("option").filter((o) => o.textContent && ["Home", "Items", "/settings", "Agent"].some((t) => o.textContent?.includes(t)));
+    expect(rows.length).toBeGreaterThanOrEqual(3);
     expect(has("Home")).toBe(true);
     expect(has("Items")).toBe(true);
     expect(has("/settings")).toBe(true); // no staticData.title: falls back to the path
