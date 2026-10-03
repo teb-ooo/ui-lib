@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
-import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
+import { Popover } from "./popover";
 
 export interface TooltipProps {
   /** Text shown on hover and keyboard focus. The one tooltip mechanism: never a `title` attribute. */
@@ -18,17 +18,10 @@ export interface TooltipProps {
   delay?: number;
 }
 
+/**
+ * One line of text on hover and keyboard focus. This is `Popover openOn="hover"` with a `tip`: the hover mode of the one
+ * anchored-panel component, kept as its own name because `tip` on `Button` and `LinkButton` is used everywhere.
+ */
 export function Tooltip({ tip, children, side = "top", delay = 400 }: TooltipProps) {
-  return (
-    <BaseTooltip.Provider>
-      <BaseTooltip.Root>
-        <BaseTooltip.Trigger delay={delay} render={children} />
-        <BaseTooltip.Portal>
-          <BaseTooltip.Positioner side={side} sideOffset={6} className="z-50">
-            <BaseTooltip.Popup className="anim-fade panel panel-float px-2 text-ink">{tip}</BaseTooltip.Popup>
-          </BaseTooltip.Positioner>
-        </BaseTooltip.Portal>
-      </BaseTooltip.Root>
-    </BaseTooltip.Provider>
-  );
+  return <Popover openOn="hover" tip={tip} trigger={children} side={side} delay={delay} />;
 }

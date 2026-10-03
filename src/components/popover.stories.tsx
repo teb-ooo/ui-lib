@@ -6,8 +6,8 @@ export default {
   title: "Popover",
   group: "Atoms",
   description:
-    "A panel anchored to its trigger for details that do not fit a tooltip: a status, a few fields, a short list. Opens on click or Enter, closes on Escape or an outside press, returns focus to the trigger, and stays inside the viewport. Not modal by default, so the page stays usable. Use Menu for actions and Dialog for a decision.",
-  aliases: ["flyout", "dropdown panel", "details panel", "anchored panel", "overlay panel", "info panel"],
+    "One anchored panel in three modes. openOn=click (default) opens a popover for details that need interaction: a status, a few fields, a short list. openOn=hover with children is a hover card, opened by resting the pointer and also by click and Enter. openOn=hover with tip is a tooltip: one line of text, never interactive (this is what tip on Button uses). Closes on Escape, returns focus, stays inside the viewport, not modal by default. Use Menu for actions and Dialog for a decision.",
+  aliases: ["hover card", "hovercard", "flyout", "dropdown panel", "details panel", "anchored panel", "overlay panel", "info panel"],
   component: "Popover",
   source: "src/components/popover.tsx",
 } satisfies StoryDefault;
@@ -24,3 +24,16 @@ export const WithClose = () => (
   </Popover>
 );
 WithClose.storyMeta = { description: "showClose adds a close button; Escape and an outside press still close it." } satisfies StoryMeta;
+
+export const HoverCard = () => (
+  <Popover openOn="hover" trigger={<Button>Hover or press Enter</Button>} title="Mother Meridian">
+    <p className="text-ink-muted">Character. Last seen in the harbour of reeds.</p>
+    <a href="#entry" className="text-link underline">
+      Open the entry
+    </a>
+  </Popover>
+);
+HoverCard.storyMeta = { description: "openOn=hover with children: opens on hover, click and Enter; the pointer can move into it, so it may hold a link." } satisfies StoryMeta;
+
+export const Tip = () => <Popover openOn="hover" tip="Saves the draft" trigger={<Button>Save</Button>} />;
+Tip.storyMeta = { description: "openOn=hover with tip: one line, never interactive. Tooltip is this mode under its own name." } satisfies StoryMeta;

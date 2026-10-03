@@ -30,8 +30,14 @@ Every component takes `className` for layout utilities only (width, margin, flex
 ## NumberField
 A number typed or stepped (0.31.0): `label`, `value: number | null`, `onValueChange`, `onValueCommit?` (Enter, leaving the box, or letting go of a stepper), `min?`, `max?`, `step` (1), `largeStep` (Shift+arrow, default ten steps), `smallStep` (Alt+arrow, a tenth), `unit?` (text inside the box, such as `kHz`), `format?` (`Intl.NumberFormat` options), `steppers` (minus and plus buttons, default true: the way to step on a phone), `description?`, `error?`, `disabled?`, `readOnly?`. ArrowUp/ArrowDown step, Home/End jump to the limits, typing is parsed in the person's locale, digits are tabular.
 
-## Popover
-A panel anchored to its trigger (0.32.0): `trigger` (an element, typically a `Button`), `title` (the panel's accessible name), `showTitle?`, `children`, `open?`/`defaultOpen?`/`onOpenChange?`, `side?` (bottom), `align?` (center), `modal?` (false: the page stays usable; closes on Escape or an outside press), `showClose?`, `closeLabel?`, `className?` (the width, 18rem by default). Focus returns to the trigger on close. For details that do not fit a tooltip; use a menu for actions and `Dialog` for a decision.
+## Popover (one anchored panel, three modes)
+`Popover` (0.33.0) is the one anchored-panel component. `trigger` is the element that opens it (a `Button`, `LinkButton`, any focusable element); `side?`, `align?`, `className?` (the width, 18rem by default) apply to all modes. The mode is `openOn` plus what it holds, and the types stop combinations that cannot work:
+
+- `openOn="click"` (default): a popover for details that need interaction. `title` (the panel's accessible name), `showTitle?`, `children`, `open?`/`defaultOpen?`/`onOpenChange?`, `modal?` (false: the page stays usable; Escape or an outside press closes), `showClose?`, `closeLabel?`. Focus goes in and returns to the trigger.
+- `openOn="hover"` with `children` and `title`: a hover card. It opens when the pointer rests (`delay`, 300 ms), stays while the pointer is on it (`closeDelay`, 150 ms), and also opens on click or Enter so the keyboard and a touch screen reach it. No close button.
+- `openOn="hover"` with `tip`: a tooltip: one line, shown on hover and keyboard focus (`delay`, 400 ms), role `tooltip`, described to the trigger while open, never interactive, no children.
+
+`Tooltip` is the tip mode under its own name (`tip`, `children`, `side?`, `delay?`) and is what `tip` on `Button` and `LinkButton` uses. Use a menu for a list of actions and `Dialog` for something that needs an answer.
 
 ## Dialog
 Modal on Base UI `Dialog`: focus moves in, Escape closes, focus returns to the trigger.
@@ -60,7 +66,7 @@ An ego network (`nodes`, `edges`, `centerId`). Colour is state only, so a node's
 `useToast()` returns `{ show({ title, description?, tone?, timeout? }), dismiss(id?) }`; `tone` is `default`, `ok`, `warn` or `danger` (colour is state). Toasts stack at the bottom right (full width on a phone), above dialogs, announced politely (a `danger` one urgently), paused on hover or focus, dismissed by a button, five seconds by default (eight for `danger`, `timeout: 0` keeps it). Built on Base UI Toast, no extra dependency. The `Shell` mounts the `ToastProvider`, so an app only calls `useToast()`; it throws outside one. `ToastProvider` is exported for stories and tests.
 
 ## Tooltip
-The one tooltip mechanism (never a `title` attribute). `<Tooltip tip="Save"><Button>...</Button></Tooltip>`; `side?: "top" | "bottom" | "left" | "right"`, `delay?: number` (ms, default 400). `Button` and `LinkButton` take a `tip` prop that uses it.
+The tip mode of `Popover`: the one tooltip mechanism (never a `title` attribute). `<Tooltip tip="Save"><Button>...</Button></Tooltip>`; `side?: "top" | "bottom" | "left" | "right"`, `delay?: number` (ms, default 400). `Button` and `LinkButton` take a `tip` prop that uses it.
 
 ## Chip
 A static token: status, count or reference. `tone?: "default" | "ok" | "warn" | "muted" | "danger" | "link" | "agent"`.

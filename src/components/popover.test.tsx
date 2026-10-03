@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Button, Popover } from "../index";
+import { Button, Popover, Tooltip } from "../index";
 
 describe("Popover", () => {
   it("opens from its trigger as a named dialog, closes on Escape and returns focus to the trigger", async () => {
@@ -31,5 +31,57 @@ describe("Popover", () => {
     expect(await screen.findByText("Filters")).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "Close" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+});
+
+describe("Popover modes", () => {
+  it("hover card: opens when the pointer rests, can be entered, and closes on Escape", async () => {
+    render(
+      <Popover openOn="hover" trigger={<Button>Entry</Button>} title="Mother Meridian" delay={0}>
+        <a href="#entry">Open the entry</a>
+      </Popover>,
+    );
+    await userEvent.hover(screen.getByRole("button", { name: "Entry" }));
+    const card = await screen.findByRole("dialog", { name: "Mother Meridian" });
+    expect(card.querySelector("a")).not.toBeNull();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+
+  it("hover card: the keyboard reaches it too (Enter on the trigger)", async () => {
+    render(
+      <Popover openOn="hover" trigger={<Button>Entry</Button>} title="Mother Meridian">
+        <p>Details</p>
+      </Popover>,
+    );
+    screen.getByRole("button", { name: "Entry" }).focus();
+    await userEvent.keyboard("{Enter}");
+    expect(await screen.findByRole("dialog", { name: "Mother Meridian" })).toBeTruthy();
+  });
+
+  it("tip: a one-line tooltip on hover and focus, announced as a tooltip, not a dialog", async () => {
+    render(<Popover openOn="hover" tip="Saves the draft" delay={0} trigger={<Button>Save</Button>} />);
+    await userEvent.hover(screen.getByRole("button", { name: "Save" }));
+    expect(await screen.findByRole("tooltip")).toBeTruthy();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("Tooltip is the tip mode under its own name", async () => {
+    render(
+      <Tooltip tip="Open the menu" delay={0}>
+        <Button>Menu</Button>
+      </Tooltip>,
+    );
+    screen.getByRole("button", { name: "Menu" }).focus();
+    expect((await screen.findByRole("tooltip")).textContent).toBe("Open the menu");
+  });
+
+  it("the types keep impossible combinations out", () => {
+    // @ts-expect-error a tip is text only: it takes no children
+    const a = <Popover openOn="hover" tip="x" trigger={<Button>t</Button>}><p>no</p></Popover>;
+    // @ts-expect-error a hover card has no close button: the pointer leaving closes it
+    const b = <Popover openOn="hover" title="t" showClose trigger={<Button>t</Button>}><p>no</p></Popover>;
+    expect(a).toBeTruthy();
+    expect(b).toBeTruthy();
   });
 });

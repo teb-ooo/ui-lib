@@ -5,7 +5,7 @@ import type { StoryDefault } from "../stories";
 export default {
   title: "Tooltip",
   group: "Atoms",
-  description: "The one tooltip mechanism. Never use a title attribute on a control. Button and LinkButton take a tip prop that uses this.",
+  description: "The one tooltip mechanism (the tip mode of Popover: openOn=\"hover\" with a tip). Never use a title attribute on a control. Button and LinkButton take a tip prop that uses this.",
   aliases: ["popper", "hovercard", "hover card", "hint", "tip", "infotip", "balloon", "title attribute"],
   component: "Tooltip",
   source: "src/components/tooltip.tsx",
