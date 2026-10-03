@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { ExternalLink, LayoutDashboard, ListTodo, LogOut, MessageSquarePlus, Palette, User } from "lucide-react";
-import { LOGOUT_PATH, platformLinks } from "@teb-ooo/web";
+import { ArrowLeftRight, ExternalLink, LayoutDashboard, ListTodo, LogOut, MessageSquarePlus, Palette, User } from "lucide-react";
+import { LOGOUT_PATH, getPlayground, platformLinks } from "@teb-ooo/web";
 import type { Command, CommandIcon } from "../cmdk/types";
 import { useCommandHost } from "./command-host";
 
@@ -23,6 +23,30 @@ export interface PlatformCommandsInput {
   signedIn: boolean;
   /** `useFeedback()`'s `available` and `open`. */
   feedback: { available: boolean; open: () => void };
+}
+
+/**
+ * The same page in the other environment: `app-staging.teb.ooo/x?y#z` and `app.teb.ooo/x?y#z` swap. Null when the host is
+ * not one of those (local development, an address with no dot) or when `env` says neither staging nor production.
+ */
+export function otherEnvironment(href: string, env: string): { to: "staging" | "production"; url: string } | null {
+  let u: URL;
+  try {
+    u = new URL(href);
+  } catch {
+    return null;
+  }
+  const [label, ...rest] = u.hostname.split(".");
+  if (!label || rest.length === 0) return null;
+  if (env === "staging" && label.endsWith("-staging")) {
+    u.hostname = [label.slice(0, -"-staging".length), ...rest].join(".");
+    return { to: "production", url: u.toString() };
+  }
+  if (env === "production" && !label.endsWith("-staging")) {
+    u.hostname = [`${label}-staging`, ...rest].join(".");
+    return { to: "staging", url: u.toString() };
+  }
+  return null;
 }
 
 /** Full-page navigation, kept apart so tests can replace it. */
@@ -56,6 +80,20 @@ export function platformCommands({ signedIn, feedback }: PlatformCommandsInput):
         run: () => navigation.go(l.href),
       }),
     ),
+    {
+      id: "platform:switch-environment",
+      // Read when the list is built: the title names where it goes ("Switch to staging").
+      title: otherEnvironment(window.location.href, getPlayground().env)?.to === "staging" ? "Switch to staging" : "Switch to production",
+      group,
+      keywords: ["staging", "production", "prod", "environment", "swap", "other version", "live"],
+      icon: ArrowLeftRight,
+      // The owner only, like Send feedback, and only on a real staging or production address.
+      when: () => feedback.available && otherEnvironment(window.location.href, getPlayground().env) !== null,
+      run: () => {
+        const other = otherEnvironment(window.location.href, getPlayground().env);
+        if (other) navigation.go(other.url);
+      },
+    },
     {
       id: "send-feedback",
       title: "Send feedback",

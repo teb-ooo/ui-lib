@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.58.0 (from 0.57.x)
+
+New platform command in every app's Cmd+K (owner only): Switch to staging / Switch to production, which opens the same page in the other environment. The palette entrance is 50% faster (93ms instead of 140ms).
+
 ## To ui 0.57.2 (from 0.57.1)
 
 The palette enters at scale 1.2 shrinking to 1 while fading in (see 0.57.1).

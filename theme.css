@@ -725,7 +725,7 @@ input.display-lg {
   }
   /* The Cmd+K palette: arrives large and settles, fading in at the same time. */
   .anim-palette {
-    animation: anim-palette-in 140ms var(--ease-out);
+    animation: anim-palette-in 93ms var(--ease-out);
   }
   /* Controls change colour in 100ms, and a pressed button sits 1px lower. */
   .btn,

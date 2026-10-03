@@ -344,3 +344,21 @@ describe("Send feedback hotkey", () => {
     expect(await screen.findByRole("group", { name: /^(Control|Command) I$/ })).toBeTruthy();
   });
 });
+
+describe("Switch to staging / production", () => {
+  it("swaps the environment in the address and keeps the path, query and hash", async () => {
+    const { otherEnvironment } = await import("./platform-commands");
+    expect(otherEnvironment("https://notes.teb.ooo/notes/3?tab=a#x", "production")).toEqual({ to: "staging", url: "https://notes-staging.teb.ooo/notes/3?tab=a#x" });
+    expect(otherEnvironment("https://notes-staging.teb.ooo/notes/3", "staging")).toEqual({ to: "production", url: "https://notes.teb.ooo/notes/3" });
+    expect(otherEnvironment("http://localhost:8080/x", "dev")).toBeNull();
+    expect(otherEnvironment("https://notes.teb.ooo/", "staging")).toBeNull();
+  });
+  it("is a platform command for the owner only, and only on a staging or production address", async () => {
+    const { platformCommands } = await import("./platform-commands");
+    const find = (available: boolean) => platformCommands({ signedIn: true, feedback: { available, open: () => undefined } }).find((c) => c.id === "platform:switch-environment");
+    expect(find(true)?.keywords).toContain("prod");
+    const when = (c: ReturnType<typeof find>) => (typeof c?.when === "function" ? c.when() : c?.when);
+    expect(when(find(false))).toBe(false); // not the owner
+    expect(when(find(true))).toBe(false); // the test page is neither staging nor production
+  });
+});
