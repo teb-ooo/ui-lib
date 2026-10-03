@@ -762,16 +762,20 @@ input.display-lg {
     opacity: 0;
   }
   /*
-   * Toasts are a stack: the newest in front, the older ones peeking out behind it, smaller and fading. Hovering or
+   * Toasts are a real 3D stack: the viewport has a perspective, and each older toast is pushed back along the z axis
+   * (`translateZ`) and lifted a little, so it peeks out above the one in front, smaller by perspective alone. Hovering or
    * focusing the stack (Base UI marks it `data-expanded`) fans it out to full size and pauses every timer. A toast
    * leaves by sliding off to the right, whether it timed out, was dismissed or was swiped; `translate` does that
    * apart from `transform`, which keeps its place in the stack. Only transform, translate and opacity move.
    */
+  .toast-viewport {
+    perspective: 700px;
+    perspective-origin: 50% 100%;
+  }
   .toast {
     --gap: 0.5rem;
-    --peek: 0.5rem;
-    --scale: calc(max(0, 1 - (var(--toast-index) * 0.06)));
-    --shrink: calc(1 - var(--scale));
+    --peek: 14px;
+    --depth: 56px;
     --height: var(--toast-frontmost-height, var(--toast-height));
     --offset-y: calc(var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) + var(--toast-swipe-movement-y));
     position: absolute;
@@ -780,7 +784,7 @@ input.display-lg {
     width: 100%;
     height: var(--height);
     transform-origin: bottom center;
-    transform: translateX(var(--toast-swipe-movement-x)) translateY(calc(var(--toast-swipe-movement-y) - (var(--toast-index) * var(--peek)) - (var(--shrink) * var(--height)))) scale(var(--scale));
+    transform: translateX(var(--toast-swipe-movement-x)) translateY(calc(var(--toast-swipe-movement-y) - (var(--toast-index) * var(--peek)))) translateZ(calc(var(--toast-index) * var(--depth) * -1));
     transition:
       transform 300ms var(--ease-out),
       translate var(--motion-out) var(--ease-in),
