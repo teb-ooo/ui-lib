@@ -4,6 +4,7 @@ import { Bot, LogIn, LogOut, Menu as MenuIcon, MessageSquarePlus, Search, User }
 import { cn } from "../lib/cn";
 import { useEffect, useState } from "react";
 import { formatElapsed, turnElapsedMs } from "@teb-ooo/web";
+import { Kbd } from "./kbd";
 import { LinkButton } from "./link-button";
 import { LiveIndicator } from "./live-indicator";
 import { Popover } from "./popover";
@@ -57,9 +58,21 @@ export interface PlatformBarProps {
 const iconButton =
   "inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-ink-muted outline-none transition-colors hover:bg-surface-raised hover:text-ink focus-visible:bg-surface-raised focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink-muted";
 
-function Icon({ tip, children, ...rest }: { tip: string; children: ReactNode } & Record<string, unknown>) {
+function Icon({ tip, shortcut, children, ...rest }: { tip: string; shortcut?: string; children: ReactNode } & Record<string, unknown>) {
   return (
-    <Tooltip tip={tip} side="bottom">
+    <Tooltip
+      tip={
+        shortcut ? (
+          <span className="inline-flex items-center gap-2">
+            {tip}
+            <Kbd shortcut={shortcut} />
+          </span>
+        ) : (
+          tip
+        )
+      }
+      side="bottom"
+    >
       <button type="button" aria-label={tip} className={iconButton} {...rest}>
         {children}
       </button>
@@ -200,11 +213,11 @@ export function PlatformBar({
           </a>
         </Tooltip>
       ) : null}
-      <Icon tip="Open command palette" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
+      <Icon tip="Open command palette" shortcut="mod+k" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
         <Search aria-hidden="true" className="size-4" />
       </Icon>
       {onFeedback ? (
-        <Icon tip="Send feedback" onClick={onFeedback}>
+        <Icon tip="Send feedback" shortcut="mod+shift+l" onClick={onFeedback}>
           <MessageSquarePlus aria-hidden="true" className="size-4" />
         </Icon>
       ) : null}
