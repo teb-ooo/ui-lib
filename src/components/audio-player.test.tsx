@@ -46,4 +46,11 @@ describe("AudioPlayer", () => {
     fireEvent.ended(container.querySelector("audio") as HTMLAudioElement);
     expect(ended).toHaveBeenCalledTimes(1);
   });
+
+  it("passes autoPlay to the audio element so the next part can start by itself", () => {
+    const { container, rerender } = render(<AudioPlayer src="a.wav" label="x" />);
+    expect((container.querySelector("audio") as HTMLAudioElement).autoplay).toBe(false);
+    rerender(<AudioPlayer src="b.wav" label="x" autoPlay />);
+    expect((container.querySelector("audio") as HTMLAudioElement).autoplay).toBe(true);
+  });
 });

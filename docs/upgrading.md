@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.68.0 (from 0.67.x)
+
+No change needed. `AudioPlayer` takes `autoPlay` (requested by waves for continuing into the next recorded minute).
+
 ## To ui 0.67.0 (from 0.66.x)
 
 No code change needed. Signed out, the platform bar draws neither the agent link nor the search icon (Cmd+K still opens the palette). `PlatformBar` gallery stories and tests that relied on them without a `user` must pass one.

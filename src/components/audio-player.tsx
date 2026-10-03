@@ -11,6 +11,8 @@ export interface AudioPlayerProps {
   label: string;
   /** Called when the audio reaches its end (play the next part, for example). */
   onEnded?: () => void;
+  /** Start playing as soon as the audio loads, including each time `src` changes (continue into the next part). Browsers refuse it before the person has interacted with the page. @default false */
+  autoPlay?: boolean;
   className?: string;
 }
 
@@ -24,7 +26,7 @@ function clock(seconds: number): string {
  * the time as `0:12 / 0:45` and a mute toggle. It keeps the same keyboard reach as its parts (Space on the button,
  * arrows on the slider). Use it for a recording or a clip; a live stream is not a file.
  */
-export function AudioPlayer({ src, label, onEnded, className }: AudioPlayerProps) {
+export function AudioPlayer({ src, label, onEnded, autoPlay = false, className }: AudioPlayerProps) {
   const audio = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -50,6 +52,7 @@ export function AudioPlayer({ src, label, onEnded, className }: AudioPlayerProps
         ref={audio}
         src={src}
         preload="metadata"
+        autoPlay={autoPlay}
         muted={muted}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
