@@ -47,7 +47,8 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
   const hasLive = useHasLiveStream();
   const { user, isLoading } = useUser();
   const feedback = useFeedback();
-  const agent = useAgentStatus();
+  const [agentOpen, setAgentOpen] = useState(false);
+  const agent = useAgentStatus({ fast: agentOpen });
   usePlatformCommands({ signedIn: user !== null && user !== undefined, feedback });
   const next = encodeURIComponent(typeof window === "undefined" ? "/" : window.location.pathname + window.location.search);
   const profile = platformLinks().find((l) => l.id === "platform:profile");
@@ -66,6 +67,8 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
         paletteOpen={host?.isOpen ?? false}
         {...(playground.claudeSessionUrl ? { agentHref: playground.claudeSessionUrl } : {})}
         agentStatus={agent?.status ?? null}
+        {...(agent ? { agentDetails: { action: agent.action, turnStartedAt: agent.turnStartedAt, serverTime: agent.serverTime, receivedAt: agent.receivedAt } } : {})}
+        onAgentOpenChange={setAgentOpen}
         {...(feedback.available ? { onFeedback: feedback.open } : {})}
         {...(wide || !hasSidebar ? {} : { onOpenMenu: () => setOpen(true), menuLabel })}
       />

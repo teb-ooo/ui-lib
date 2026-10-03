@@ -220,27 +220,60 @@ describe("Shell", () => {
   });
 });
 
-describe("agent status dot", () => {
+describe("agent status dot and popover", () => {
   const base = { appName: "a", live: null, user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
   it.each([
     ["working", "is working"],
     ["idle", "is idle"],
     ["offline", "is offline"],
     ["logged_out", "is signed out"],
-  ] as const)("%s: a dot on the agent link that is named by the status", (status, text) => {
+  ] as const)("%s: a dot on the agent button named by the status", (status, text) => {
     render(<PlatformBar {...base} agentHref="https://claude.ai/code/s" agentStatus={status} />);
-    const link = screen.getByRole("link", { name: `Open the agent, ${text}` });
-    expect(link.getAttribute("data-agent-status")).toBe(status);
-    expect(link.querySelector(`[data-dot="${status}"]`)).not.toBeNull();
+    const button = screen.getByRole("button", { name: `Agent ${text}` });
+    expect(button.getAttribute("data-agent-status")).toBe(status);
+    expect(button.querySelector(`[data-dot="${status}"]`)).not.toBeNull();
   });
-  it("draws no dot without a status, and shows a status-only icon without a session link", () => {
+
+  it("without a status it is a plain link to the session with no dot, and nothing without either", () => {
     const { rerender } = render(<PlatformBar {...base} agentHref="https://claude.ai/code/s" agentStatus={null} />);
-    expect(screen.getByRole("link", { name: "Open the agent" }).querySelector("[data-dot]")).toBeNull();
-    rerender(<PlatformBar {...base} agentStatus="working" />);
-    expect(screen.queryByRole("link", { name: /Open the agent/ })).toBeNull();
-    expect(screen.getByRole("img", { name: "Agent is working" })).toBeTruthy();
+    const link = screen.getByRole("link", { name: "Open the agent" });
+    expect(link.querySelector("[data-dot]")).toBeNull();
     rerender(<PlatformBar {...base} />);
-    expect(screen.queryByRole("img", { name: /Agent/ })).toBeNull();
+    expect(screen.queryByRole("link", { name: /agent/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Agent/ })).toBeNull();
+  });
+
+  it("opens a popover with the current action, a ticking turn timer and the link to the session", async () => {
+    const open = vi.fn();
+    render(
+      <PlatformBar
+        {...base}
+        agentHref="https://claude.ai/code/s"
+        agentStatus="working"
+        onAgentOpenChange={open}
+        agentDetails={{ action: { label: "Editing", target: "ui-lib/src/platform-bar.tsx" }, turnStartedAt: "2026-10-03T01:00:00Z", serverTime: Date.parse("2026-10-03T01:01:05Z"), receivedAt: Date.now() }}
+      />,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Agent is working" }));
+    const panel = await screen.findByRole("dialog", { name: "Agent is working" });
+    expect(open.mock.calls[0]?.[0]).toBe(true);
+    expect(within(panel).getByText("Editing ui-lib/src/platform-bar.tsx")).toBeTruthy();
+    expect(within(panel).getByText(/^1m 0[5-9]s$/)).toBeTruthy();
+    expect(within(panel).getByRole("link", { name: "Open the agent session" }).getAttribute("href")).toBe("https://claude.ai/code/s");
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Agent is working" })).toBeNull());
+  });
+
+  it("says Thinking when working with no action, and Nothing running when idle; an older platform has no timer", async () => {
+    const { rerender } = render(<PlatformBar {...base} agentStatus="working" agentDetails={{ action: null }} />);
+    await userEvent.click(screen.getByRole("button", { name: "Agent is working" }));
+    const panel = await screen.findByRole("dialog");
+    expect(within(panel).getByText("Thinking")).toBeTruthy();
+    expect(within(panel).queryByText(/Working for/)).toBeNull();
+    await userEvent.keyboard("{Escape}");
+    rerender(<PlatformBar {...base} agentStatus="idle" agentDetails={{ action: null }} />);
+    await userEvent.click(screen.getByRole("button", { name: "Agent is idle" }));
+    expect(await screen.findByText("Nothing running")).toBeTruthy();
   });
 });
 

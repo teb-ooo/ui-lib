@@ -70,3 +70,5 @@ export { Slider, RangeSlider } from "./components/slider";
 export type { SliderProps, RangeSliderProps } from "./components/slider";
 export { NumberField } from "./components/number-field";
 export type { NumberFieldProps } from "./components/number-field";
+export { Popover } from "./components/popover";
+export type { PopoverProps } from "./components/popover";

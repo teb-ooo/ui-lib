@@ -2,10 +2,23 @@ import type { ReactNode } from "react";
 import { Menu } from "@base-ui/react/menu";
 import { Bot, LogIn, LogOut, Menu as MenuIcon, MessageSquarePlus, Search, User } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useEffect, useState } from "react";
+import { formatElapsed, turnElapsedMs } from "@teb-ooo/web";
+import { LinkButton } from "./link-button";
 import { LiveIndicator } from "./live-indicator";
+import { Popover } from "./popover";
 import type { LiveStatus } from "./live-indicator";
 
 export type AgentBarStatus = "working" | "idle" | "offline" | "logged_out";
+
+export interface AgentBarDetails {
+  /** The current action: a label such as "Editing" and a safe target such as a repo-relative path. */
+  action?: { label: string; target: string } | null;
+  /** RFC 3339 start of the current turn, or "". */
+  turnStartedAt?: string;
+  serverTime?: number;
+  receivedAt?: number;
+}
 import { Tooltip } from "./tooltip";
 
 export interface PlatformBarProps {
@@ -30,6 +43,10 @@ export interface PlatformBarProps {
    * a test browser, no route) draws no dot. Without `agentHref` the icon is shown anyway when there is a status.
    */
   agentStatus?: AgentBarStatus | null;
+  /** What the agent is doing, for the popover that opens from the agent icon (from `useAgentStatus()`); needs `agentStatus`. */
+  agentDetails?: AgentBarDetails;
+  /** The agent popover opened or closed: the app polls faster while it is open. */
+  onAgentOpenChange?: (open: boolean) => void;
   /** Present only for the owner: the Send feedback icon. */
   onFeedback?: () => void;
   /** Present on a phone: the menu icon that opens the sidebar drawer. */
@@ -70,6 +87,46 @@ function AgentDot({ status }: { status: AgentBarStatus }) {
   return <span aria-hidden="true" data-dot={status} className={cn("absolute right-0.5 top-0.5 size-2 rounded", agentDots[status])} />;
 }
 
+function TurnTimer({ details }: { details: AgentBarDetails }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const ms = turnElapsedMs(
+    { turnStartedAt: details.turnStartedAt ?? "", serverTime: details.serverTime ?? 0, receivedAt: details.receivedAt ?? now },
+    now,
+  );
+  if (ms === null) return null;
+  return (
+    <p className="m-0 text-ink-muted">
+      Working for <span className="tabular-nums text-ink">{formatElapsed(ms)}</span>
+    </p>
+  );
+}
+
+function AgentPanel({ status, details, href }: { status: AgentBarStatus; details: AgentBarDetails | undefined; href: string | undefined }) {
+  const action = details?.action;
+  const actionText = action ? `${action.label}${action.target ? ` ${action.target}` : ""}` : status === "working" ? "Thinking" : null;
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="m-0 flex items-center gap-2 text-ink">
+        <span aria-hidden="true" className={cn("inline-block size-2 shrink-0 rounded", agentDots[status])} />
+        Agent {agentTexts[status]}
+      </p>
+      {actionText ? <p className="m-0 break-words text-ink-muted">{actionText}</p> : status === "idle" ? <p className="m-0 text-ink-faint">Nothing running</p> : null}
+      {details && status === "working" ? <TurnTimer details={details} /> : null}
+      {href ? (
+        <div>
+          <LinkButton href={href} target="_blank" rel="noopener noreferrer">
+            Open the agent session
+          </LinkButton>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 const menuItem =
   "flex min-h-[var(--control-h)] cursor-pointer items-center gap-2 rounded px-2 text-ink no-underline outline-none data-[highlighted]:bg-surface-raised";
 
@@ -93,6 +150,8 @@ export function PlatformBar({
   paletteOpen = false,
   agentHref,
   agentStatus,
+  agentDetails,
+  onAgentOpenChange,
   onFeedback,
   onOpenMenu,
   menuLabel = "Open menu",
@@ -122,19 +181,26 @@ export function PlatformBar({
       <Icon tip="Open command palette" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
         <Search aria-hidden="true" className="size-4" />
       </Icon>
-      {agentHref || agentStatus ? (
-        <Tooltip tip={agentStatus ? `Agent ${agentTexts[agentStatus]}` : "Open the agent"} side="bottom">
-          {agentHref ? (
-            <a href={agentHref} target="_blank" rel="noopener noreferrer" aria-label={agentStatus ? `Open the agent, ${agentTexts[agentStatus]}` : "Open the agent"} data-agent-status={agentStatus ?? undefined} className={cn(iconButton, "relative")}>
+      {agentStatus ? (
+        <Popover
+          title={`Agent ${agentTexts[agentStatus]}`}
+          side="bottom"
+          align="end"
+          {...(onAgentOpenChange ? { onOpenChange: onAgentOpenChange } : {})}
+          trigger={
+            <button type="button" aria-label={`Agent ${agentTexts[agentStatus]}`} data-agent-status={agentStatus} className={cn(iconButton, "relative")}>
               <Bot aria-hidden="true" className="size-4" />
-              {agentStatus ? <AgentDot status={agentStatus} /> : null}
-            </a>
-          ) : (
-            <span role="img" tabIndex={0} aria-label={`Agent ${agentTexts[agentStatus as AgentBarStatus]}`} data-agent-status={agentStatus ?? undefined} className={cn(iconButton, "relative cursor-default")}>
-              <Bot aria-hidden="true" className="size-4" />
-              {agentStatus ? <AgentDot status={agentStatus} /> : null}
-            </span>
-          )}
+              <AgentDot status={agentStatus} />
+            </button>
+          }
+        >
+          <AgentPanel status={agentStatus} details={agentDetails} href={agentHref} />
+        </Popover>
+      ) : agentHref ? (
+        <Tooltip tip="Open the agent" side="bottom">
+          <a href={agentHref} target="_blank" rel="noopener noreferrer" aria-label="Open the agent" className={cn(iconButton, "relative")}>
+            <Bot aria-hidden="true" className="size-4" />
+          </a>
         </Tooltip>
       ) : null}
       {onFeedback ? (
