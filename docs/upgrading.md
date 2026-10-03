@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.62.2 (from 0.62.0)
+
+No change needed. The popover arrow tucks 1px under the popup edge (no seam), the left and right arrows sat 2.5px off the popup, and the feedback text box really has no resize grip.
+
 ## To ui 0.62.1 (from 0.62.0)
 
 No change needed. The Send feedback icon in the platform bar and in Cmd+K is Lucide's message circle.

@@ -149,7 +149,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
                       if (canSend) void f.submit();
                     }}
                     rows={3}
-                    className="[resize:none] rounded-none border-0 bg-transparent px-3 py-2 outline-none focus:bg-transparent focus-visible:outline-none"
+                    className="resize-none! rounded-none border-0 bg-transparent px-3 py-2 outline-none focus:bg-transparent focus-visible:outline-none"
                   />
                   {f.screenshotError || f.status === "failed" ? (
                     <div className="flex flex-col gap-1 px-3 pb-2">

@@ -624,15 +624,16 @@ input.display-lg {
    * The arrow of a popover or tooltip (Base UI's Arrow part inside a `panel-inverse` popup). The positioner sets its
    * position along the edge, so it points at the middle of the trigger and stays inside the popup when the popup is
    * shifted or flipped to fit the screen; `data-side` picks the edge and the direction. Its fill is the popup's own
-   * `--color-ground`, so it always matches. It is 10 by 5px; the popup's side offset leaves room for it.
+   * `--color-ground`, so it always matches. It is 10 by 5px, plus 1px tucked under the popup; the side offset leaves room for it.
    */
   .popover-arrow {
     position: absolute;
     width: 10px;
-    height: 5px;
+    height: 6px;
     background: var(--color-ground);
     pointer-events: none;
   }
+  /* 6px tall, 5 outside the popup and 1 tucked under its edge, so no seam shows between them at any pixel ratio. */
   .popover-arrow[data-side="bottom"] {
     top: -5px;
     clip-path: polygon(50% 0, 0 100%, 100% 100%);
@@ -642,14 +643,14 @@ input.display-lg {
     clip-path: polygon(0 0, 100% 0, 50% 100%);
   }
   .popover-arrow[data-side="left"] {
-    right: -7.5px;
-    width: 5px;
+    right: -5px;
+    width: 6px;
     height: 10px;
     clip-path: polygon(0 0, 100% 50%, 0 100%);
   }
   .popover-arrow[data-side="right"] {
-    left: -7.5px;
-    width: 5px;
+    left: -5px;
+    width: 6px;
     height: 10px;
     clip-path: polygon(100% 0, 0 50%, 100% 100%);
   }
