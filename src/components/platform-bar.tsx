@@ -188,7 +188,7 @@ export function PlatformBar({
       ) : null}
       {marked ? (
         <Tooltip tip={envName} side="bottom">
-          <span role="img" aria-label={envName} tabIndex={0} className="h-2 w-12 shrink-0 rounded bg-warning outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
+          <span role="img" aria-label={envName} tabIndex={0} className="h-2 w-12 shrink-0 rounded bg-agent outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
         </Tooltip>
       ) : null}
       <div className="flex-1" />
