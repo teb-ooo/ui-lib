@@ -18,7 +18,7 @@ export const Mention = Node.create({
   inline: true,
   atom: true,
   selectable: true,
-  addAttributes: () => ({ id: { default: "" }, label: { default: "" } }),
+  addAttributes: () => ({ id: { default: "", rendered: false }, label: { default: "", rendered: false } }),
   parseHTML: () => [
     {
       tag: "span[data-mention-id]",

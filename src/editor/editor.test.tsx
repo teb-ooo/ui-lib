@@ -55,3 +55,13 @@ describe("RichTextEditor", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 });
+
+describe("mention markup", () => {
+  it("renders only the data attribute, the chip class and the label (no raw attrs)", async () => {
+    render(<RichTextEditor label="Body" value={{ type: "doc", content: [{ type: "paragraph", content: [{ type: "mention", attrs: { id: "e1", label: "Meridian" } }] }] }} onChange={() => undefined} />);
+    const chip = (await screen.findByRole("textbox", { name: "Body" })).querySelector("[data-mention-id]") as HTMLElement;
+    expect(chip.hasAttribute("id")).toBe(false);
+    expect(chip.hasAttribute("label")).toBe(false);
+    expect(chip.getAttribute("data-mention-id")).toBe("e1");
+  });
+});
