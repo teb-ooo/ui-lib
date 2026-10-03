@@ -30,8 +30,8 @@ export interface FeedbackController {
   /** Whether the picked element goes with the report; with `setIncludeElement` it shows a switch. */
   includeElement?: boolean;
   setIncludeElement?: (on: boolean) => void;
-  /** Viewport point of the click that picked the element; the panel opens next to it. */
-  anchor?: { x: number; y: number } | null;
+  /** Viewport box of the picked element; the panel opens below it, centred, and moves aside when it would not fit. */
+  anchor?: { x: number; y: number; width?: number; height?: number } | null;
   includeScreenshot: boolean;
   setIncludeScreenshot: (on: boolean) => void;
   screenshot: { url: string; type: string; size: number } | null;
@@ -75,12 +75,27 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
   const sent = f.status === "sent" && f.result;
   const ax = f.anchor?.x;
   const ay = f.anchor?.y;
-  // A point with no size, so the panel sits just below the click; with no pick it hangs from the top centre of the page.
-  const anchor = useMemo(() => {
-    const x = ax ?? window.innerWidth / 2;
-    const y = ay ?? Math.round(window.innerHeight * 0.15);
-    return { getBoundingClientRect: () => DOMRect.fromRect({ x, y, width: 0, height: 0 }) };
-  }, [ax, ay]);
+  const aw = f.anchor?.width ?? 0;
+  const ah = f.anchor?.height ?? 0;
+  // The picked element's box, clipped to the viewport. Below it, centred, is where the panel goes; it flips above, then
+  // beside, when there is no room. When the element fills the screen there is nowhere outside it, so the panel sits
+  // inside, at its bottom centre. With no pick it hangs from the top centre of the page.
+  const place = useMemo(() => {
+    if (ax === undefined || ay === undefined) {
+      const x = window.innerWidth / 2;
+      return { rect: { x, y: Math.round(window.innerHeight * 0.15), width: 0, height: 0 }, side: "bottom" as const };
+    }
+    const left = Math.max(ax, 0);
+    const top = Math.max(ay, 0);
+    const right = Math.min(ax + aw, window.innerWidth);
+    const bottom = Math.min(ay + ah, window.innerHeight);
+    const room = { below: window.innerHeight - bottom, above: top, left, right: window.innerWidth - right };
+    if (Math.max(room.below, room.above, room.left, room.right) < 160) {
+      return { rect: { x: (left + right) / 2, y: bottom - 8, width: 0, height: 0 }, side: "top" as const };
+    }
+    return { rect: { x: left, y: top, width: Math.max(right - left, 0), height: Math.max(bottom - top, 0) }, side: "bottom" as const };
+  }, [ax, ay, aw, ah]);
+  const anchor = useMemo(() => ({ getBoundingClientRect: () => DOMRect.fromRect(place.rect) }), [place]);
   // A sent message is confirmed with a toast and the panel closes; without a toast host the panel says it itself.
   useEffect(() => {
     if (!toast || !sent || announced.current === sent) return;
@@ -104,7 +119,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
       {hint}
       <BasePopover.Root open={f.isOpen && !f.picking} onOpenChange={(open) => (open ? undefined : f.close())} modal={false}>
         <BasePopover.Portal>
-          <BasePopover.Positioner {...IGNORE} anchor={anchor} side="bottom" align="start" sideOffset={8} collisionPadding={8} className="z-50 outline-none">
+          <BasePopover.Positioner {...IGNORE} anchor={anchor} side={place.side} align="center" sideOffset={8} collisionPadding={8} collisionAvoidance={{ side: "flip", align: "shift", fallbackAxisSide: "end" }} className="z-50 outline-none">
             <BasePopover.Popup
               {...IGNORE}
               aria-label="Send feedback"

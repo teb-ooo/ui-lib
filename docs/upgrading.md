@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.59.1 and web 0.9.4 (from 0.59.0 and 0.9.3)
+
+No change needed. The feedback panel opens centred below the picked element's box (not at the click point) and flips above, beside or inside it when it would not fit; the element stays outlined while the panel is open. `useFeedback().anchor` is now the element's box `{x, y, width, height}`.
+
 ## To ui 0.59.0 and web 0.9.3 (from 0.58.x and 0.9.2)
 
 No change needed. The feedback panel is now a popover next to the click that picked the element instead of a centred dialog, trimmed to a text box (placeholder "Send feedback") and the switches Include screenshot and Include DOM node; there is no title, Cancel or close button and no screenshot preview. `useFeedback` gains `anchor`, `includeElement` and `setIncludeElement`; with an older web the panel still works and opens near the top centre.
