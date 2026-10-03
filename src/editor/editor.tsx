@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Popover } from "@base-ui/react/popover";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import type { Editor, JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -48,6 +49,12 @@ export interface RichTextEditorProps {
    * @default "reserved"
    */
   toolbar?: "reserved" | "overlay";
+  /**
+   * A small toolbar (Bold, Italic, Code, Link, and the draft toggle) that floats above selected text, so formatting is
+   * where the eye is. On a phone it is a single row that scrolls sideways. The strip above the text stays as well.
+   * @default true
+   */
+  selectionToolbar?: boolean;
   className?: string;
 }
 
@@ -82,7 +89,7 @@ const closedList = <T,>(): ListState<T> => ({ open: false, items: [], index: 0, 
  * \`@tiptap/suggestion\`) are optional peer dependencies the app installs. External changes to \`value\` replace the content
  * only while the editor is not focused.
  */
-export function RichTextEditor({ label, value, onChange, placeholder, readOnly = false, mentions, draft, validateHref = defaultValidate, variant = "page", onFocusEnd, toolbar = "reserved", className }: RichTextEditorProps) {
+export function RichTextEditor({ label, value, onChange, placeholder, readOnly = false, mentions, draft, validateHref = defaultValidate, variant = "page", onFocusEnd, toolbar = "reserved", selectionToolbar = true, className }: RichTextEditorProps) {
   const [slash, setSlash] = useState<ListState<SuggestionItem>>(closedList());
   const [ment, setMent] = useState<ListState<SuggestionItem>>(closedList());
   const [link, setLink] = useState<{ href: string; error: boolean } | null>(null);
@@ -193,7 +200,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
     editor,
     selector: ({ editor: e }) =>
       e
-        ? { focused: e.isFocused, bold: e.isActive("bold"), italic: e.isActive("italic"), code: e.isActive("code"), h2: e.isActive("heading", { level: 2 }), bullet: e.isActive("bulletList"), numbered: e.isActive("orderedList"), quote: e.isActive("blockquote"), draft: e.isActive("draft"), link: e.isActive("link"), canLink: !e.state.selection.empty || e.isActive("link") }
+        ? { focused: e.isFocused, bold: e.isActive("bold"), italic: e.isActive("italic"), code: e.isActive("code"), h2: e.isActive("heading", { level: 2 }), bullet: e.isActive("bulletList"), numbered: e.isActive("orderedList"), quote: e.isActive("blockquote"), draft: e.isActive("draft"), link: e.isActive("link"), canLink: !e.state.selection.empty || e.isActive("link"), selecting: !e.state.selection.empty }
         : null,
   });
 
@@ -202,6 +209,50 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
   }, [link === null]);
 
   if (!editor) return null;
+  const selectionRect = (): DOMRect | null => {
+    try {
+      const { from, to } = editor.state.selection;
+      const a = editor.view.coordsAtPos(from);
+      const b = editor.view.coordsAtPos(to);
+      const left = Math.min(a.left, b.left);
+      const top = Math.min(a.top, b.top);
+      return new DOMRect(left, top, Math.max(1, Math.abs(b.right - a.left)), Math.max(1, Math.max(a.bottom, b.bottom) - top));
+    } catch {
+      return null;
+    }
+  };
+  const linkField_ = () => (link ? (
+      <div role="group" aria-label="Link" className="flex items-center gap-1">
+        <Input
+          ref={linkField}
+          aria-label="Link address"
+          aria-invalid={link.error || undefined}
+          placeholder="https://"
+          value={link.href}
+          onChange={(e) => setLink({ href: e.target.value, error: false })}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              applyLink();
+            } else if (e.key === "Escape") {
+              e.preventDefault();
+              e.stopPropagation();
+              closeLink();
+            }
+          }}
+          className="w-56"
+        />
+        <Button icon={<Check className="size-4" aria-hidden="true" />} aria-label="Apply link" tip="Apply link" onClick={applyLink} className="border-transparent" />
+        {active?.link ? <Button icon={<Unlink className="size-4" aria-hidden="true" />} aria-label="Remove link" tip="Remove link" onClick={removeLink} className="border-transparent" /> : null}
+        <Button icon={<X className="size-4" aria-hidden="true" />} aria-label="Cancel" tip="Cancel" onClick={closeLink} className="border-transparent" />
+        {link.error ? (
+          <span role="alert" className="text-danger">
+            Use an http, https or mailto address.
+          </span>
+        ) : null}
+      </div>
+  ) : null);
+  const showSelection = selectionToolbar && !readOnly && Boolean(active?.selecting) && (Boolean(active?.focused) || link !== null);
   const openLink = () => setLink({ href: (editor.getAttributes("link").href as string | undefined) ?? "", error: false });
   const closeLink = () => {
     setLink(null);
@@ -239,37 +290,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
           {tb("Quote", <Quote className="size-4" aria-hidden="true" />, active?.quote, () => editor.chain().focus().toggleBlockquote().run())}
           {tb("Link", <Link2 className="size-4" aria-hidden="true" />, active?.link, () => (active?.canLink ? openLink() : undefined))}
           {draft ? tb(draft.label, <Stamp className="size-4" aria-hidden="true" />, active?.draft, () => editor.chain().focus().toggleMark("draft").run()) : null}
-          {link ? (
-            <div role="group" aria-label="Link" className="flex items-center gap-1">
-              <Input
-                ref={linkField}
-                aria-label="Link address"
-                aria-invalid={link.error || undefined}
-                placeholder="https://"
-                value={link.href}
-                onChange={(e) => setLink({ href: e.target.value, error: false })}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    applyLink();
-                  } else if (e.key === "Escape") {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    closeLink();
-                  }
-                }}
-                className="w-56"
-              />
-              <Button icon={<Check className="size-4" aria-hidden="true" />} aria-label="Apply link" tip="Apply link" onClick={applyLink} className="border-transparent" />
-              {active?.link ? <Button icon={<Unlink className="size-4" aria-hidden="true" />} aria-label="Remove link" tip="Remove link" onClick={removeLink} className="border-transparent" /> : null}
-              <Button icon={<X className="size-4" aria-hidden="true" />} aria-label="Cancel" tip="Cancel" onClick={closeLink} className="border-transparent" />
-              {link.error ? (
-                <span role="alert" className="text-danger">
-                  Use an http, https or mailto address.
-                </span>
-              ) : null}
-            </div>
-          ) : null}
+          {link && !showSelection ? linkField_() : null}
         </div>
       )}
       <EditorContent
@@ -282,6 +303,43 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
           }
         }}
       />
+      {selectionToolbar && !readOnly ? (
+        <Popover.Root open={showSelection} modal={false}>
+          <Popover.Portal>
+            <Popover.Positioner
+              anchor={{ getBoundingClientRect: () => selectionRect() ?? new DOMRect() }}
+              side="top"
+              align="center"
+              sideOffset={6}
+              collisionPadding={8}
+              className="z-50 outline-none"
+            >
+              <Popover.Popup
+                initialFocus={false}
+                finalFocus={false}
+                className="anim-fade panel panel-float max-w-[calc(100vw-1rem)] overflow-x-auto p-1 text-ink outline-none"
+                onMouseDown={(e) => {
+                  if (!(e.target as HTMLElement).closest("input")) e.preventDefault();
+                }}
+              >
+                <div role="toolbar" aria-label="Selection" className="flex items-center gap-1">
+                  {link ? (
+                    linkField_()
+                  ) : (
+                    <>
+                      {tb("Bold", <Bold className="size-4" aria-hidden="true" />, active?.bold, () => editor.chain().focus().toggleBold().run())}
+                      {tb("Italic", <Italic className="size-4" aria-hidden="true" />, active?.italic, () => editor.chain().focus().toggleItalic().run())}
+                      {tb("Code", <Code className="size-4" aria-hidden="true" />, active?.code, () => editor.chain().focus().toggleCode().run())}
+                      {tb("Link", <Link2 className="size-4" aria-hidden="true" />, active?.link, openLink)}
+                      {draft ? tb(draft.label, <Stamp className="size-4" aria-hidden="true" />, active?.draft, () => editor.chain().focus().toggleMark("draft").run()) : null}
+                    </>
+                  )}
+                </div>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ) : null}
       <SuggestionList
         open={slash.open}
         items={slash.items}

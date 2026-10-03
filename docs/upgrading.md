@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.52.0 (from 0.51.x)
+
+`RichTextEditor` shows a selection toolbar above selected text (Bold, Italic, Code, Link, draft). Visible; turn it off with `selectionToolbar={false}`. With text selected there are now two Link buttons (the strip and the selection toolbar).
+
 ## To ui 0.51.0 (from 0.50.x)
 
 `RichTextEditor` gains a Link button and an inline address field (set, change and remove a link on the selected text, validated by `validateHref`). Visible: the toolbar has one more button.
