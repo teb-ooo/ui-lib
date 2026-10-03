@@ -83,3 +83,42 @@ describe("Kbd reacts to the real keys", () => {
     expect(pressed()).toEqual([]);
   });
 });
+
+describe("Kbd chord box", () => {
+  it("a chord is one box holding its keys, a single key is its own keycap", () => {
+    const { container } = render(
+      <>
+        <Kbd shortcut="mod+shift+enter" />
+        <Kbd shortcut="g" />
+      </>,
+    );
+    const boxes = container.querySelectorAll("[data-complete], span.inline-flex.h-6");
+    expect(container.querySelectorAll("kbd")).toHaveLength(4);
+    const first = container.querySelector("[role=group] span span") as HTMLElement;
+    expect(first.querySelectorAll("kbd")).toHaveLength(3);
+    expect(boxes.length).toBeGreaterThan(0);
+  });
+
+  it("each key lights as it goes down and the box lights only when all are down", () => {
+    const { container } = render(<Kbd shortcut="ctrl+shift+n" />);
+    const box = container.querySelector("span.inline-flex.h-6") as HTMLElement;
+    expect(box.hasAttribute("data-complete")).toBe(false);
+    down("Control");
+    down("Shift");
+    expect(pressed()).toEqual(["Ctrl", "⇧"]);
+    expect(box.hasAttribute("data-complete")).toBe(false);
+    down("n");
+    expect(box.hasAttribute("data-complete")).toBe(true);
+    up("n");
+    expect(box.hasAttribute("data-complete")).toBe(false);
+    up("Control");
+    up("Shift");
+    expect(pressed()).toEqual([]);
+  });
+
+  it("a sequence has a box per chord step", () => {
+    const { container } = render(<Kbd shortcut="g i" />);
+    expect(container.querySelectorAll("span.inline-flex.h-6")).toHaveLength(0);
+    expect(container.querySelectorAll("kbd")).toHaveLength(2);
+  });
+});

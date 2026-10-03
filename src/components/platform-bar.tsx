@@ -178,9 +178,6 @@ export function PlatformBar({
         </Tooltip>
       ) : null}
       <div className="flex-1" />
-      <Icon tip="Open command palette" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
-        <Search aria-hidden="true" className="size-4" />
-      </Icon>
       {agentStatus ? (
         <Popover
           title={`Agent ${agentTexts[agentStatus]}`}
@@ -203,6 +200,9 @@ export function PlatformBar({
           </a>
         </Tooltip>
       ) : null}
+      <Icon tip="Open command palette" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
+        <Search aria-hidden="true" className="size-4" />
+      </Icon>
       {onFeedback ? (
         <Icon tip="Send feedback" onClick={onFeedback}>
           <MessageSquarePlus aria-hidden="true" className="size-4" />

@@ -277,6 +277,26 @@ describe("agent status dot and popover", () => {
   });
 });
 
+describe("platform bar icon order", () => {
+  it("the agent icon is the leftmost of the icons, before search, feedback and the person menu", () => {
+    render(
+      <PlatformBar
+        appName="a"
+        live={null}
+        user={{ name: "alex", email: "a@b.c" }}
+        signOutHref="/o"
+        signInHref="/i"
+        onOpenPalette={() => undefined}
+        onFeedback={() => undefined}
+        agentHref="https://claude.ai/code/s"
+        agentStatus="working"
+      />,
+    );
+    const names = [...screen.getByRole("banner").querySelectorAll("button, a")].map((e) => e.getAttribute("aria-label"));
+    expect(names).toEqual(["Agent is working", "Open command palette", "Send feedback", "Account"]);
+  });
+});
+
 describe("PlatformBar", () => {
   const base = { appName: "a", user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
   it.each([

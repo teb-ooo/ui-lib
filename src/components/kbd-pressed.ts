@@ -123,3 +123,13 @@ export function useKeysPressed(keys: readonly string[]): boolean {
   void version;
   return useSyncExternalStore(subscribe, snapshot, () => false);
 }
+
+/**
+ * For each key (given as the `KeyboardEvent.key` values that count as it), whether it is down right now: one subscription for
+ * a whole chord, so the chord can tell when every key is down at once.
+ */
+export function useKeysDown(groups: ReadonlyArray<readonly string[]>): boolean[] {
+  const snapshot = () => groups.map((g) => (g.some((k) => down.has(k)) ? "1" : "0")).join("");
+  const state = useSyncExternalStore(subscribe, snapshot, () => groups.map(() => "0").join(""));
+  return state.split("").map((c) => c === "1");
+}

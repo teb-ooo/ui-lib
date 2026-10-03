@@ -4,7 +4,7 @@ import type { StoryDefault, StoryMeta } from "../stories";
 export default {
   title: "Kbd",
   group: "Atoms",
-  description: "Keyboard shortcut hint. `mod` shows the Command key on Apple platforms and Ctrl elsewhere.",
+  description: "Keyboard shortcut hint. A single key is a square keycap; a chord (keys pressed together) is one box holding its keys, each lighting as its real key goes down and the whole box lighting when all are down. `mod` shows the Command key on Apple platforms and Ctrl elsewhere.",
   aliases: ["keyboard shortcut", "hotkey", "key", "keycap", "shortcut hint", "keybinding"],
   component: "Kbd",
   source: "src/components/kbd.tsx",
@@ -14,6 +14,7 @@ export const Modifier = () => <Kbd shortcut="mod+k" />;
 Modifier.storyMeta = { state: "default" } satisfies StoryMeta;
 
 export const Chord = () => <Kbd shortcut="mod+shift+enter" />;
+Chord.storyMeta = { description: "A chord is one box. Hold the keys: each lights as it goes down, and the box lights when all are down." } satisfies StoryMeta;
 
 export const Sequence = () => <Kbd shortcut="g i" />;
 Sequence.storyMeta = { description: "Space-separated steps read as a sequence." } satisfies StoryMeta;

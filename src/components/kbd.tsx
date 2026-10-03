@@ -1,7 +1,7 @@
 import { forwardRef, useSyncExternalStore } from "react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../lib/cn";
-import { keysFor, useKeysPressed } from "./kbd-pressed";
+import { keysFor, useKeysDown, useKeysPressed } from "./kbd-pressed";
 
 export interface KbdProps extends Omit<HTMLAttributes<HTMLSpanElement>, "className" | "children"> {
   /**
@@ -115,6 +115,35 @@ const kbdClass =
 // at 8x on a 24px keycap.
 const glyphNudge: Record<string, number> = { "⌃": 3.9, "↵": 0.75, "⌥": -0.6, "⌘": -0.4 };
 
+// A chord (two or more keys pressed together) is one box: the keys sit inside it, each lights as its real key goes down, and
+// when all are down the box itself lights.
+const chordClass =
+  "inline-flex h-6 items-stretch gap-0.5 rounded border border-line bg-surface p-0.5 text-ink-muted " +
+  "transition-colors data-[complete]:border-ink data-[complete]:bg-surface-raised data-[complete]:text-ink";
+const chordKeyClass =
+  "inline-flex min-w-5 items-center justify-center rounded px-1 leading-none transition-colors " +
+  "data-[pressed]:bg-surface-raised data-[pressed]:text-ink data-[complete-key]:bg-transparent";
+
+function Glyph({ children }: { children: ReactNode }) {
+  const nudge = typeof children === "string" ? glyphNudge[children] : undefined;
+  return nudge === undefined ? <>{children}</> : <span style={{ transform: `translateY(${nudge}px)` }}>{children}</span>;
+}
+
+/** A chord in one box. */
+function Chord({ keys, apple }: { keys: KeyLabel[]; apple: boolean }) {
+  const flags = useKeysDown(keys.map((k) => keysFor(k.token, apple)));
+  const all = flags.length > 0 && flags.every(Boolean);
+  return (
+    <span data-complete={all ? "" : undefined} className={chordClass}>
+      {keys.map((k, j) => (
+        <kbd key={j} className={chordKeyClass} data-pressed={flags[j] ? "" : undefined}>
+          <Glyph>{k.glyph}</Glyph>
+        </kbd>
+      ))}
+    </span>
+  );
+}
+
 /** One keycap that notices its own key being pressed. */
 function KeyCap({ token, apple, children }: { token: string; apple: boolean; children: ReactNode }) {
   const pressed = useKeysPressed(keysFor(token, apple));
@@ -126,7 +155,7 @@ function KeyCap({ token, apple, children }: { token: string; apple: boolean; chi
   );
 }
 
-/** A keyboard-shortcut hint. Each key is its own `<kbd>`; the group carries a spoken label. */
+/** A keyboard-shortcut hint. A single key is a keycap; a chord is one box holding its keys; the group carries a spoken label. */
 export const Kbd = forwardRef<HTMLSpanElement, KbdProps>(function Kbd(
   { shortcut, children, className, ...rest },
   ref,
@@ -151,11 +180,15 @@ export const Kbd = forwardRef<HTMLSpanElement, KbdProps>(function Kbd(
       {steps.map((step, i) => (
         <span key={i} aria-hidden="true" className="inline-flex items-center gap-1">
           {i > 0 ? <span className="text-ink-faint">then</span> : null}
-          {step.map((k, j) => (
-            <KeyCap key={j} token={k.token} apple={apple}>
-              {k.glyph}
-            </KeyCap>
-          ))}
+          {step.length > 1 ? (
+            <Chord keys={step} apple={apple} />
+          ) : (
+            step.map((k, j) => (
+              <KeyCap key={j} token={k.token} apple={apple}>
+                {k.glyph}
+              </KeyCap>
+            ))
+          )}
         </span>
       ))}
     </span>
