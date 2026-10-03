@@ -218,7 +218,7 @@ describe("search and view", () => {
     expect(optionTitles()[0]).toContain("Secret");
   });
 
-  it("shows No results and nothing else without the assistant", async () => {
+  it("shows No results and nothing else for a miss", async () => {
     const user = userEvent.setup();
     await renderApp();
     await openPalette(user);

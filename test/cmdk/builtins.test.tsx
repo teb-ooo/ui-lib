@@ -98,50 +98,15 @@ describe("environment-dependent entries", () => {
   });
 });
 
-describe("assistant", () => {
-  it("without the assistant: no Ask entry, and No results is the only thing for a miss", async () => {
-    const user = userEvent.setup();
-    await renderApp();
-    await openPalette(user);
-    expect(has("Ask assistant")).toBe(false);
-    await user.keyboard("qqzzxx");
-    expect(screen.getByText("No results")).toBeInTheDocument();
-    expect(has("Ask assistant")).toBe(false);
-  });
-
-  it("with the assistant: Ask assistant... is listed and is the fallback row for a miss, opening /assistant?q=", async () => {
-    const user = userEvent.setup();
-    const { router } = await renderApp({ playground: { assistant: true } });
-    await openPalette(user);
-    expect(has("Ask assistant...")).toBe(true);
-    await user.keyboard("how many items are there");
-    expect(screen.queryByText("No results")).toBeNull();
-    const rows = screen.getAllByRole("option");
-    expect(rows).toHaveLength(1);
-    expect(rows[0]).toHaveTextContent("Ask assistant: how many items are there");
-    await user.keyboard("{Enter}");
-    await waitFor(() => expect(router.state.location.pathname).toBe("/assistant"));
-    expect(router.state.location.search).toEqual({ q: "how many items are there" });
-  });
-
-  it("selecting Ask assistant... from the plain list opens /assistant without a query", async () => {
-    const user = userEvent.setup();
-    const { router } = await renderApp({ playground: { assistant: true } });
-    await openPalette(user);
-    await user.keyboard("ask assist{Enter}");
-    await waitFor(() => expect(router.state.location.pathname).toBe("/assistant"));
-    expect(router.state.location.search).toEqual({});
-  });
-});
 
 describe("readPlayground", () => {
   it("is safe when absent or malformed and accepts both key styles", () => {
-    expect(readPlayground()).toEqual({ appName: "", env: "", claudeSessionUrl: "", assistant: false });
+    expect(readPlayground()).toEqual({ appName: "", env: "", claudeSessionUrl: "" });
     (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = null;
     expect(readPlayground().appName).toBe("");
-    (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = { app_name: "a", env: 3, assistant: "yes" };
-    expect(readPlayground()).toMatchObject({ appName: "a", env: "", assistant: false });
-    (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = { appName: "b", assistant: true };
-    expect(readPlayground()).toMatchObject({ appName: "b", assistant: true });
+    (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = { app_name: "a", env: 3 };
+    expect(readPlayground()).toMatchObject({ appName: "a", env: "" });
+    (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = { appName: "b" };
+    expect(readPlayground()).toMatchObject({ appName: "b" });
   });
 });

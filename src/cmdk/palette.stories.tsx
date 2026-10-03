@@ -80,7 +80,7 @@ export const ErrorRow = () => <Static error={{ title: "Delete item", message: "T
 ErrorRow.storyMeta = { description: "A failed command reports inline, without a toast.", state: "error" } satisfies StoryMeta;
 
 export const NoResults = () => <Static initialQuery="qqzzxx" />;
-NoResults.storyMeta = { description: "Apps without the assistant show only this." } satisfies StoryMeta;
+NoResults.storyMeta = { description: "No match: the palette says so and shows nothing else." } satisfies StoryMeta;
 
 export const Narrow = () => (
   <div className="w-[22rem] max-w-full">

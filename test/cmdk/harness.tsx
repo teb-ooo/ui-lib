@@ -25,7 +25,6 @@ export const DEFAULT_ROUTES: TestRoute[] = [
   { path: "/items/$id", title: "Item detail" },
   { path: "/settings" },
   { path: "/_agent", title: "Agent" },
-  { path: "/assistant", title: "Assistant" },
 ];
 
 /** Renders an app: memory router, `CommandProvider` at the root, a trigger and an input for focus tests. */

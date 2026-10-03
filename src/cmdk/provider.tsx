@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { CommandHostContext } from "@teb-ooo/ui";
 import type { CommandHost } from "@teb-ooo/ui";
-import { ASK_ASSISTANT_ID, builtinCommands } from "./builtins";
+import { builtinCommands } from "./builtins";
 import { InternalsContext, PaletteApiContext } from "./context";
 import type { CommandInternals, CommandPaletteApi, PaletteInitial } from "./context";
 import { warnOnce } from "./dev";
@@ -111,7 +111,7 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
   const run = useCallback<CommandInternals["run"]>(
     (command, query, fallback) => {
       const record = (o: Outcome): Outcome => {
-        if (o.kind === "done" && command.id !== ASK_ASSISTANT_ID) setRecents(pushRecent(command.id, recentsKey()));
+        if (o.kind === "done") setRecents(pushRecent(command.id, recentsKey()));
         return o;
       };
       const afterClose = (fn: () => void): void => {

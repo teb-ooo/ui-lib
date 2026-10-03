@@ -3,7 +3,6 @@ export interface PlaygroundInfo {
   appName: string;
   env: string;
   claudeSessionUrl: string;
-  assistant: boolean;
 }
 
 function pick(raw: Record<string, unknown>, snake: string, camel: string): unknown {
@@ -18,11 +17,9 @@ function str(v: unknown): string {
 export function readPlayground(): PlaygroundInfo {
   const g: unknown = typeof window === "undefined" ? undefined : (window as unknown as { __PLAYGROUND__?: unknown }).__PLAYGROUND__;
   const raw: Record<string, unknown> = g !== null && typeof g === "object" ? (g as Record<string, unknown>) : {};
-  const assistant = pick(raw, "assistant", "assistant");
   return {
     appName: str(pick(raw, "app_name", "appName")),
     env: str(pick(raw, "env", "env")),
     claudeSessionUrl: str(pick(raw, "claude_session_url", "claudeSessionUrl")),
-    assistant: assistant === true || assistant === "true",
   };
 }

@@ -1,4 +1,3 @@
-import { ASK_ASSISTANT_ID } from "./builtins";
 import { fuzzyMatch } from "./fuzzy";
 import { groupRanked, rankCommands } from "./search";
 import type { SourceSection } from "./sources";
@@ -12,7 +11,7 @@ export interface PaletteRow {
   label: string;
   /** Matched character positions in `label` to highlight. */
   indices: number[];
-  /** The "no results" assistant row. */
+  /** Always false: kept so existing code that reads it still compiles (the assistant fallback row was removed in 0.53.0). */
   fallback: boolean;
 }
 
@@ -34,7 +33,7 @@ export interface ModelInput {
   commands: readonly Command[];
   /** Ids of recently run commands, most recent first; used on an empty query at the root only. */
   recents: readonly string[];
-  /** Root view (not nested)? Recents and the assistant fallback only apply there. */
+  /** Root view (not nested)? Recents only apply there. */
   root: boolean;
   /** Results of the registered sources for this query (root only), shown after the matching commands. */
   external?: readonly SourceSection[];
@@ -73,11 +72,6 @@ export function buildPaletteModel({ query, commands, recents, root, external = [
     const rows = ext.commands.map((command): PaletteRow => ({ index: index++, command, label: command.title, indices: q === "" ? [] : (fuzzyMatch(q, command.title)?.indices ?? []), fallback: false }));
     if (rows.length === 0 && ext.status === "done") continue;
     sections.push({ group: ext.group, rows, ...(ext.status === "done" ? {} : { status: ext.status }) });
-  }
-
-  if (ranked.length === 0 && q !== "" && root && !sections.some((s) => s.rows.length > 0 || s.status === "loading")) {
-    const ask = commands.find((c) => c.id === ASK_ASSISTANT_ID);
-    if (ask) push(ask.group, [{ command: ask, label: `Ask assistant: ${q}`, indices: [], fallback: true }]);
   }
 
   return { sections, rows: sections.flatMap((s) => s.rows) };

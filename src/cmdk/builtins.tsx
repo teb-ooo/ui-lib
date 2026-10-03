@@ -1,11 +1,9 @@
-import { Compass, ExternalLink, Keyboard, Sparkles } from "lucide-react";
+import { Compass, ExternalLink, Keyboard } from "lucide-react";
 import type { AnyRouter } from "@tanstack/react-router";
 import { openInNewTab } from "./external";
 import { readPlayground } from "./playground-global";
 import type { Command } from "./types";
 
-/** Id of the "Ask assistant..." command, which doubles as the no-results fallback row. */
-export const ASK_ASSISTANT_ID = "builtin:ask-assistant";
 export const SHORTCUTS_ID = "builtin:keyboard-shortcuts";
 
 /** Routes that never appear under "Go to": private (a first segment starting with `_`), or needing params (`$id`, splats). */
@@ -63,18 +61,6 @@ export function builtinCommands({ router, listShortcuts }: BuiltinDeps): Command
       keywords: ["keys", "hotkeys", "help"],
       icon: Keyboard,
       children: listShortcuts,
-    },
-    {
-      id: ASK_ASSISTANT_ID,
-      title: "Ask assistant...",
-      group: "Assistant",
-      keywords: ["ai", "chat", "help", "claude"],
-      icon: Sparkles,
-      when: () => playground().assistant,
-      run: (ctx) => {
-        const q = ctx.fallback ? ctx.query.trim() : "";
-        return router?.navigate({ to: "/assistant", search: q ? { q } : {} });
-      },
     },
   ];
 }

@@ -1,6 +1,6 @@
 # Command palette (`@teb-ooo/ui/cmdk`)
 
-The Cmd+K command palette for every playground app: a provider that owns the registry, recents and global shortcuts, a hook to register contextual commands, and a keyboard-first, phone-friendly palette built on `@teb-ooo/ui`. It has built-ins in every app (navigation to each route, Claude app, profile, sign out, keyboard shortcuts, assistant) and its own fuzzy scorer, with no runtime dependencies. Run the tests with `npm test`, type-check with `npm run typecheck`, and build with `npm run build`.
+The Cmd+K command palette for every playground app: a provider that owns the registry, recents and global shortcuts, a hook to register contextual commands, and a keyboard-first, phone-friendly palette built on `@teb-ooo/ui`. It has built-ins in every app (navigation to each route, Claude app, profile, sign out, keyboard shortcuts) and its own fuzzy scorer, with no runtime dependencies. Run the tests with `npm test`, type-check with `npm run typecheck`, and build with `npm run build`.
 
 ## Usage
 
@@ -70,7 +70,7 @@ The source's `group` is the section heading the palette draws; the `group` on ea
 
 Give every route a title so it reads well under "Go to": `createFileRoute("/items")({ staticData: { title: "Items" }, component: ItemsPage })`. The `title?: string` field is added to TanStack's `StaticDataRouteOption` by this package.
 
-The palette has no theme handling: it uses the ui tokens, so it follows the system colour scheme like the rest of the app. Built-ins read `window.__PLAYGROUND__` (`env`, `assistant`, `claude_session_url`, `app_name`; camelCase keys are accepted too) and are safe when it is absent.
+The palette has no theme handling: it uses the ui tokens, so it follows the system colour scheme like the rest of the app. Built-ins read `window.__PLAYGROUND__` (`env`, `claude_session_url`, `app_name`; camelCase keys are accepted too) and are safe when it is absent.
 
 ## Focus, and development warnings
 
