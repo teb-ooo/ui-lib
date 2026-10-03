@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.44.3 (from 0.44.2)
+
+Docs only: `best-practices.md` gains a section on a filter row above a split pane and one on colour in a list view.
+
 ## To ui 0.44.2 (from 0.44.1)
 
 New `FrequencyInput knobSide`, `Button`/`LinkButton` `tipSide`. Visible change: a FrequencyInput knob drag now snaps the change relative to the start value (it snapped the absolute value to 0.05), so a value such as 9905.27 moves in clean steps and keeps its offset. The page cursor is `ew-resize` during the drag.

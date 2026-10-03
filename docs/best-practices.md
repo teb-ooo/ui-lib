@@ -32,6 +32,9 @@ Decide for every piece of text what happens when it is too long, and test it wit
 ## 6. Wide screens
 A list and detail layout uses `SplitPane`; the list grows with the screen (ui 0.41). Keep reading text in a `Container width="narrow"`. A table that is the whole page uses `width="wide"` or `full`.
 
+## 6b. A filter row for a list with a detail pane
+Put the `FilterBar` once above the `SplitPane`, full width, so it never depends on the list's width; the split pane starts below it. Do not put the filters inside the list column and then hide them behind a button because the column is narrow. On a phone the same bar uses `primary` and the filters open in a sheet. Count, view menu and the main action go in the bar's `end` slot.
+
 ## 7. Phones
 - Filters: `FilterBar primary={<SearchInput .../>}` so the bar is one row and the filters open behind a Filters button.
 - Bulk actions: `DataTable` cards get checkboxes when `selectedKeys` is set. Keep the bulk bar to one row: icon buttons plus a "More actions" `Menu`.
@@ -47,3 +50,11 @@ A list and detail layout uses `SplitPane`; the list grows with the screen (ui 0.
 
 ## 9. Check before you ask for a review
 At 390 and 1280: no horizontal scroll, no clipped text without an ellipsis, left edges aligned, the four states of each data screen, a not-found page, the palette reaches every feature, zero console errors.
+
+## 10. Colour in a list view
+- Colour is for the unusual. The most common value (closed, open, active) should be quiet or neutral so the exceptions stand out; a column of one green chip says nothing.
+- One meaning per colour in a screen. Purple means agent activity only; do not also use it for labels or pinned states.
+- Two chips side by side must not look alike (an amber status next to a yellow priority).
+- Red is for failure, danger and destructive actions. A primary action that is not destructive (Close a bead) is a normal button, not a red outline.
+- Colour per label or category (`Chip color`) is the app's choice: give a family of labels one hue by prefix, not one hue per string, or the list turns into noise.
+- Show a fact once: a state that is a chip in the header is not also a label chip.
