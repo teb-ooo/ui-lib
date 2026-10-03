@@ -7,7 +7,7 @@ export default {
   group: "Atoms",
   description:
     "A panel anchored to its trigger for details that do not fit a tooltip: a status, a few fields, a short list. Opens on click or Enter, closes on Escape or an outside press, returns focus to the trigger, and stays inside the viewport. Not modal by default, so the page stays usable. Use Menu for actions and Dialog for a decision.",
-  aliases: ["popup", "flyout", "dropdown panel", "hovercard", "details panel", "overlay", "anchored panel"],
+  aliases: ["flyout", "dropdown panel", "details panel", "anchored panel", "overlay panel", "info panel"],
   component: "Popover",
   source: "src/components/popover.tsx",
 } satisfies StoryDefault;
