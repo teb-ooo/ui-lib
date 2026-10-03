@@ -166,7 +166,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
                       ) : null}
                     </div>
                   ) : null}
-                  <div className="flex items-center gap-1 border-t border-line px-2 py-1">
+                  <div className="flex items-center gap-1 border-t border-line-strong px-2 py-1">
                     {/* While the picture is taken the icon becomes the spinner in place: nothing moves. */}
                     <Button
                       icon={f.capturing ? <Loader2 aria-hidden="true" className="size-4 animate-spin" /> : <Camera aria-hidden="true" className="size-4" />}
