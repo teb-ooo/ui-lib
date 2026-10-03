@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.59.3 (from 0.59.1)
+
+No change needed. The feedback panel is laid out as a full-bleed text box over a footer (divider line, icon toggles for the screenshot and the DOM node inline, Send button on the right; no "Taking the screenshot" line, the camera shows a spinner instead).
+
 ## To ui 0.59.1 and web 0.9.4 (from 0.59.0 and 0.9.3)
 
 No change needed. The feedback panel opens centred below the picked element's box (not at the click point) and flips above, beside or inside it when it would not fit; the element stays outlined while the panel is open. `useFeedback().anchor` is now the element's box `{x, y, width, height}`.

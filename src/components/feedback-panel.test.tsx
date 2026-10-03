@@ -28,8 +28,9 @@ describe("FeedbackPanel", () => {
     const { rerender } = render(<FeedbackPanel feedback={f} />);
     expect(screen.getByRole("dialog", { name: "Send feedback" })).toBeTruthy();
     expect(screen.getByPlaceholderText("Send feedback")).toBeTruthy();
-    // no title, Cancel, close or Send button: Enter sends
-    expect(screen.queryByRole("button")).toBeNull();
+    // no title, Cancel or close button: only Send, in the footer
+    expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual(["", "Send"]);
+    expect(screen.getByRole("button", { name: "Send" }).hasAttribute("disabled")).toBe(true);
     // What is sent is no longer listed in the panel.
     expect(screen.queryByText("The page: /x")).toBeNull();
     expect(screen.queryByText(/It goes to the agent/)).toBeNull();
@@ -37,8 +38,10 @@ describe("FeedbackPanel", () => {
     expect(f.setText).toHaveBeenCalledWith("hello");
     const g = controller({ text: "hello" });
     rerender(<FeedbackPanel feedback={g} />);
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    expect(g.submit).toHaveBeenCalledTimes(1);
     fireEvent.keyDown(screen.getByRole("textbox", { name: "Send feedback" }), { key: "Enter" });
-    expect(g.submit).toHaveBeenCalled();
+    expect(g.submit).toHaveBeenCalledTimes(2);
   });
 
   it("Enter sends, Shift+Enter does not, and an empty text never sends", () => {
@@ -93,7 +96,7 @@ describe("FeedbackPanel", () => {
     expect(screen.getByRole("dialog").hasAttribute("data-feedback-ignore")).toBe(true);
   });
 
-  it("has two switches, for the screenshot and the picked element, and previews neither", () => {
+  it("has two icon toggles, for the screenshot and the picked element, and previews neither", () => {
     const f = controller({
       includeScreenshot: true,
       screenshot: { url: "blob:x", type: "image/png", size: 2048 },
@@ -104,15 +107,15 @@ describe("FeedbackPanel", () => {
     render(<FeedbackPanel feedback={f} />);
     expect(screen.queryByRole("img")).toBeNull();
     expect(screen.queryByText("main > button")).toBeNull();
-    fireEvent.click(screen.getByRole("switch", { name: "Include screenshot" }));
+    fireEvent.click(screen.getByRole("button", { name: "Include screenshot" }));
     expect(f.setIncludeScreenshot).toHaveBeenCalledWith(false);
-    fireEvent.click(screen.getByRole("switch", { name: "Include DOM node" }));
+    fireEvent.click(screen.getByRole("button", { name: "Include DOM node" }));
     expect(f.setIncludeElement).toHaveBeenCalledWith(false);
   });
 
   it("shows the DOM node switch only when an element was picked", () => {
     render(<FeedbackPanel feedback={controller({ setIncludeElement: vi.fn() })} />);
-    expect(screen.queryByRole("switch", { name: "Include DOM node" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Include DOM node" })).toBeNull();
   });
 
   it("without a toast host the dialog says Sent with the bead and whether the agent was reached", () => {

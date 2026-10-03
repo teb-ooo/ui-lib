@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Popover as BasePopover } from "@base-ui/react/popover";
+import { Camera, SquareDashed } from "lucide-react";
 import { Kbd } from "./kbd";
-import { Switch } from "./switch";
+import { Button } from "./button";
 import { Textarea } from "./textarea";
 import { useOptionalToast } from "./toast";
 
@@ -62,8 +63,8 @@ function agentLine(agent: string, status: string): string {
 
 /**
  * The feedback panel: a popover next to the click that picked an element (or near the top of the page when nothing was
- * picked), holding one text box (Enter sends, Shift+Enter adds a line) and two switches, for the screenshot and for the
- * picked element. Neither is previewed. There is no title, Cancel or close button: Escape or a press outside closes it.
+ * picked), holding a full-bleed text box (Enter sends, Shift+Enter adds a line) above a footer, divided by a full-width line, with
+ * the icon toggles for the screenshot and the DOM node inline and the Send button. Neither is previewed. There is no title, Cancel or close button: Escape or a press outside closes it.
  * A sent message is confirmed with a toast. Opened from Cmd+K ("Send feedback", `useFeedbackCommand` in
  * `@teb-ooo/ui/cmdk`), never from a header button. While an element is being picked the panel steps aside so the page
  * can be clicked.
@@ -114,6 +115,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
     </div>
   ) : null;
   const confirm = Boolean(sent) && !toast;
+  const canSend = f.text.trim() !== "" && !f.capturing && f.status !== "sending";
   return (
     <>
       {hint}
@@ -124,16 +126,16 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
               {...IGNORE}
               aria-label="Send feedback"
               initialFocus={textRef}
-              className="anim-fade panel panel-float flex w-80 max-w-[calc(100vw-1rem)] flex-col gap-2 p-3 text-ink outline-none"
+              className="anim-fade panel panel-float flex w-96 max-w-[calc(100vw-1rem)] flex-col overflow-hidden text-ink outline-none"
             >
               {confirm ? (
-                <div role="status" className="flex flex-col gap-1">
+                <div role="status" className="flex flex-col gap-1 p-3">
                   <p className="text-ink">Sent, tracked as {f.result?.bead}.</p>
                   <p className="text-ink-muted">{agentLine(f.result?.agent ?? "", f.result?.status ?? "")}</p>
                 </div>
               ) : (
                 <>
-                  {f.restoredDraft ? <p className="text-ink-faint">Your unsent text from last time is back.</p> : null}
+                  {f.restoredDraft ? <p className="px-3 pt-2 text-ink-faint">Your unsent text from last time is back.</p> : null}
                   <Textarea
                     ref={textRef}
                     aria-label="Send feedback"
@@ -144,27 +146,49 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
                       // Enter sends; Shift+Enter adds a line. Not while an input method is composing a character.
                       if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
                       e.preventDefault();
-                      if (f.text.trim() !== "" && !f.capturing && f.status !== "sending") void f.submit();
+                      if (canSend) void f.submit();
                     }}
                     rows={3}
+                    className="resize-none rounded-none border-0 bg-transparent px-3 py-2 focus:bg-transparent"
                   />
-                  <Switch label="Include screenshot" checked={f.includeScreenshot} onCheckedChange={(on) => f.setIncludeScreenshot(on)} />
-                  {f.element && f.setIncludeElement ? (
-                    <Switch label="Include DOM node" checked={f.includeElement ?? true} onCheckedChange={(on) => f.setIncludeElement?.(on)} />
-                  ) : null}
-                  {f.capturing ? <p className="text-ink-muted">Taking the screenshot.</p> : null}
-                  {f.status === "sending" ? <p className="text-ink-muted">Sending.</p> : null}
-                  {f.screenshotError ? (
-                    <p role="alert" className="text-danger">
-                      {f.screenshotError}
-                    </p>
-                  ) : null}
-                  {f.status === "failed" ? (
-                    <div role="alert" className="flex flex-col gap-1">
-                      <p className="text-danger">{f.error ?? "The feedback could not be sent."}</p>
-                      <p className="text-ink-muted">Your text is kept as a draft on this device.</p>
+                  {f.screenshotError || f.status === "failed" ? (
+                    <div className="flex flex-col gap-1 px-3 pb-2">
+                      {f.screenshotError ? (
+                        <p role="alert" className="text-danger">
+                          {f.screenshotError}
+                        </p>
+                      ) : null}
+                      {f.status === "failed" ? (
+                        <div role="alert" className="flex flex-col gap-1">
+                          <p className="text-danger">{f.error ?? "The feedback could not be sent."}</p>
+                          <p className="text-ink-muted">Your text is kept as a draft on this device.</p>
+                        </div>
+                      ) : null}
                     </div>
                   ) : null}
+                  <div className="flex items-center gap-1 border-t border-line px-2 py-1">
+                    {/* While the picture is taken the icon becomes the spinner in place: nothing moves. */}
+                    <Button
+                      icon={<Camera aria-hidden="true" className="size-4" />}
+                      tip="Include screenshot"
+                      active={f.includeScreenshot}
+                      loading={f.capturing}
+                      className="border-transparent"
+                      onClick={() => f.setIncludeScreenshot(!f.includeScreenshot)}
+                    />
+                    {f.element && f.setIncludeElement ? (
+                      <Button
+                        icon={<SquareDashed aria-hidden="true" className="size-4" />}
+                        tip="Include DOM node"
+                        active={f.includeElement ?? true}
+                        className="border-transparent"
+                        onClick={() => f.setIncludeElement?.(!(f.includeElement ?? true))}
+                      />
+                    ) : null}
+                    <Button intent="solid" className="ml-auto" loading={f.status === "sending"} disabled={!canSend} onClick={() => void f.submit()}>
+                      Send
+                    </Button>
+                  </div>
                 </>
               )}
             </BasePopover.Popup>
