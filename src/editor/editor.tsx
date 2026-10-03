@@ -4,7 +4,7 @@ import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import type { Editor, JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Bold, Check, Code, Heading2, Italic, Link2, List, ListOrdered, Quote, Stamp, Unlink, X } from "lucide-react";
+import { Bold, Check, Code, Heading2, Italic, Link2, List, ListOrdered, Plus, Quote, Stamp, Unlink, X } from "lucide-react";
 import { Button, Input, SuggestionList, handleSuggestionKey } from "@teb-ooo/ui";
 import type { SuggestionItem } from "@teb-ooo/ui";
 import { cn } from "../lib/cn";
@@ -94,6 +94,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
   const [ment, setMent] = useState<ListState<SuggestionItem>>(closedList());
   const [link, setLink] = useState<{ href: string; error: boolean } | null>(null);
   const linkField = useRef<HTMLInputElement>(null);
+  const wrap = useRef<HTMLDivElement>(null);
   const slashRef = useRef(slash);
   const mentRef = useRef(ment);
   slashRef.current = slash;
@@ -200,7 +201,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
     editor,
     selector: ({ editor: e }) =>
       e
-        ? { focused: e.isFocused, bold: e.isActive("bold"), italic: e.isActive("italic"), code: e.isActive("code"), h2: e.isActive("heading", { level: 2 }), bullet: e.isActive("bulletList"), numbered: e.isActive("orderedList"), quote: e.isActive("blockquote"), draft: e.isActive("draft"), link: e.isActive("link"), canLink: !e.state.selection.empty || e.isActive("link"), selecting: !e.state.selection.empty }
+        ? { focused: e.isFocused, bold: e.isActive("bold"), italic: e.isActive("italic"), code: e.isActive("code"), h2: e.isActive("heading", { level: 2 }), bullet: e.isActive("bulletList"), numbered: e.isActive("orderedList"), quote: e.isActive("blockquote"), draft: e.isActive("draft"), link: e.isActive("link"), canLink: !e.state.selection.empty || e.isActive("link"), selecting: !e.state.selection.empty, emptyLine: e.state.selection.empty && e.state.selection.$from.depth === 1 && e.state.selection.$from.parent.type.name === "paragraph" && e.state.selection.$from.parent.content.size === 0 }
         : null,
   });
 
@@ -274,7 +275,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
     <Button key={name} icon={icon} aria-label={name} tip={name} active={on} onMouseDown={(e) => e.preventDefault()} onClick={run} className="border-transparent" />
   );
   return (
-    <div className={cn("relative", !readOnly && toolbar === "reserved" && "pt-8", className)}>
+    <div ref={wrap} className={cn("relative", !readOnly && toolbar === "reserved" && "pt-8", className)}>
       {readOnly ? null : (
         <div
           role="toolbar"
@@ -339,6 +340,18 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
             </Popover.Positioner>
           </Popover.Portal>
         </Popover.Root>
+      ) : null}
+      {!readOnly && active?.focused && active.emptyLine && !slash.open && wrap.current ? (
+        // The (+) at the end of an empty line: it types the \`/\` that opens the block menu, so the menu and its keys are the same.
+        <Button
+          icon={<Plus className="size-4" aria-hidden="true" />}
+          aria-label="Insert block"
+          tip="Insert block"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => editor.chain().focus().insertContent("/").run()}
+          className="absolute right-0 border-transparent"
+          style={{ top: Math.round(((): number => { try { const c = editor.view.coordsAtPos(editor.state.selection.from); return (c.top + c.bottom) / 2 - wrap.current.getBoundingClientRect().top - 14; } catch { return 0; } })()) }}
+        />
       ) : null}
       <SuggestionList
         open={slash.open}

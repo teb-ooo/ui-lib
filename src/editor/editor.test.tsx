@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { RichTextEditor } from "./index";
 
 beforeAll(() => {
@@ -84,5 +85,17 @@ describe("toolbar placement and Cmd+I", () => {
     box.dispatchEvent(new KeyboardEvent("keydown", { key: "i", ctrlKey: true, bubbles: true, cancelable: true }));
     document.removeEventListener("keydown", seen);
     expect(seen).not.toHaveBeenCalled();
+  });
+
+  it("shows a (+) Insert block button on an empty line that types the slash for the block menu", async () => {
+    const onChange = vi.fn();
+    render(<RichTextEditor label="Body" value={{ type: "doc" }} onChange={onChange} />);
+    const box = await screen.findByRole("textbox", { name: "Body" });
+    expect(screen.queryByRole("button", { name: "Insert block" })).toBeNull();
+    box.focus();
+    const plus = await screen.findByRole("button", { name: "Insert block" });
+    await userEvent.click(plus);
+    await waitFor(() => expect(JSON.stringify(onChange.mock.calls.at(-1)?.[0])).toContain('"/"'));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Insert block" })).toBeNull());
   });
 });

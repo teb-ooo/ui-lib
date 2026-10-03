@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.65.0 (from 0.64.x)
+
+No change needed. `RichTextEditor` shows a (+) Insert block button at the end of an empty line (it types `/` to open the block menu).
+
 ## To ui 0.64.1 (from 0.64.0)
 
 No change needed. The agent bubble measured its text while still scaling in, so it could open too narrow; it now measures the layout width.
