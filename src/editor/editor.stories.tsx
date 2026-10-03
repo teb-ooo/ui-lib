@@ -7,8 +7,8 @@ export default {
   title: "RichTextEditor",
   group: "Molecules",
   description:
-    "The shared writing surface (import from @teb-ooo/ui/editor; needs the optional TipTap peers): page-like rich text with no box, a formatting toolbar that shows while you type, a / block menu, [[ entry mentions, a draft mark, ProseMirror JSON in and out.",
-  aliases: ["rich text", "wysiwyg", "editor", "tiptap", "writing", "medium", "note editor", "text editor", "mentions", "slash menu"],
+    "The shared writing surface (import from @teb-ooo/ui/editor; needs the optional engine peers): page-like rich text with no box, formatting buttons that show while you type, block and entry menus, a draft mark, ProseMirror JSON in and out.",
+  aliases: ["rich text", "wysiwyg", "writing", "note editor", "text editor", "mentions"],
   source: "src/editor/editor.tsx",
 } satisfies StoryDefault;
 
@@ -48,7 +48,7 @@ export const Page = () => {
     </div>
   );
 };
-Page.storyMeta = { description: "Click in the text: the toolbar appears above it. Type / for blocks, [[ to link an entry (Mother, Coast, Salt)." } satisfies StoryMeta;
+Page.storyMeta = { description: "Click in the text: the formatting buttons appear above it. Type / for blocks, [[ to link an entry (Mother, Coast, Salt)." } satisfies StoryMeta;
 
 export const Inline = () => {
   const [value, setValue] = useState<JSONContent>({ type: "doc" });
@@ -61,4 +61,4 @@ export const Inline = () => {
 Inline.storyMeta = { description: "The inline variant is as tall as its text, for a comment or a field." } satisfies StoryMeta;
 
 export const ReadOnly = () => <RichTextEditor label="Body" value={start} onChange={() => undefined} readOnly />;
-ReadOnly.storyMeta = { description: "Read-only: the same typography, no toolbar, mention chips still clickable." } satisfies StoryMeta;
+ReadOnly.storyMeta = { description: "Read-only: the same typography, no formatting buttons, mention chips still clickable." } satisfies StoryMeta;
