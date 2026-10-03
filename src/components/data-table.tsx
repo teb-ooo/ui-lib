@@ -119,7 +119,8 @@ export interface DataTableProps<T> {
   /** @default "md" */
   cardsBelow?: Breakpoint;
   /**
-   * Edge to edge: no outer border, radius or background, and the header rule and row dividers run the full width.
+   * Edge to edge: no outer border, radius or background, and the header rule and row dividers run the full width. The text is
+   * inset to the page gutter (16px, 24px from md) like the `Container` text above it.
    * @default false
    */
   bleed?: boolean;
@@ -629,7 +630,7 @@ export function DataTable<T>({
           {cards ? (
             <div>
               {selectable && !stateBody ? (
-                <div className="flex h-[var(--control-h)] items-center gap-3 border-b border-line px-3">
+                <div className={cn("flex h-[var(--control-h)] items-center gap-3 border-b border-line", bleed ? "px-4 md:px-6" : "px-3")}>
                   <Checkbox
                     aria-label="Select all rows"
                     checked={rows.length > 0 && selectedCount === rows.length}
@@ -652,7 +653,7 @@ export function DataTable<T>({
                         onActiveKeyChange?.(key);
                         onRowClick?.(row);
                       }}
-                      className={cn(bleed ? "px-4 py-3" : "p-3", rowClasses(key))}
+                      className={cn(bleed ? "px-4 py-3 md:px-6" : "p-3", rowClasses(key))}
                     >
                       {selectable ? (
                         <div className="flex gap-3">
@@ -673,7 +674,7 @@ export function DataTable<T>({
               <div
                 role="row"
                 style={rowStyle}
-                className={cn("sticky top-0 z-10 grid h-[var(--control-h)] items-center border-b border-line bg-ground", bleed && "px-2")}
+                className={cn("sticky top-0 z-10 grid h-[var(--control-h)] items-center border-b border-line bg-ground", bleed && "px-2 md:px-4")}
               >
                 {selectable ? (
                   <div role="columnheader" className="flex items-center justify-center">
@@ -751,7 +752,7 @@ export function DataTable<T>({
                             onActiveKeyChange?.(key);
                             onRowClick?.(row);
                           }}
-                          className={cn("grid items-center", wraps ? "min-h-[var(--control-h)] py-1" : "h-[var(--control-h)]", bleed && "px-2", rowClasses(key))}
+                          className={cn("grid items-center", wraps ? "min-h-[var(--control-h)] py-1" : "h-[var(--control-h)]", bleed && "px-2 md:px-4", rowClasses(key))}
                         >
                           {selectable ? (
                             <div
@@ -791,7 +792,7 @@ export function DataTable<T>({
           <div
             role="navigation"
             aria-label="Pagination"
-            className={cn("flex shrink-0 flex-wrap items-center gap-2 border-t border-line py-1", bleed ? "px-4" : "px-2")}
+            className={cn("flex shrink-0 flex-wrap items-center gap-2 border-t border-line py-1", bleed ? "px-4 md:px-6" : "px-2")}
           >
             <span aria-live="polite" className="text-ink-muted">
               {pagination.total === 0 ? "0 of 0" : `${rangeStart}-${rangeEnd} of ${pagination.total}${pagination.totalIsLowerBound ? "+" : ""}`}

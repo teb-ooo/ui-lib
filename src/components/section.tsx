@@ -37,11 +37,11 @@ export const Section = forwardRef<HTMLElement, SectionProps>(function Section(
       <Container width={width} className="flex flex-col gap-3 py-3">
         {heading ? (
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <div className="flex min-w-0 flex-col gap-1">
+            <div className="flex min-w-[min(100%,16rem)] flex-1 flex-col gap-1">
               {title !== undefined ? <h2 className="text-ink">{title}</h2> : null}
               {description ? <p className="text-ink-muted">{description}</p> : null}
             </div>
-            {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+            {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
           </div>
         ) : null}
         {children}
@@ -80,11 +80,11 @@ export const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(function Page
     <section ref={ref} data-bleed="" className={cn("w-full border-b border-line", sticky && "sticky top-0 z-10 bg-ground", className)} {...rest}>
       <Container width={width} className="flex flex-col gap-3 py-4">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="flex min-w-0 flex-col gap-2">
+          <div className="flex min-w-[min(100%,16rem)] flex-1 flex-col gap-2">
             <h1 className="display-lg break-words text-ink">{title}</h1>
             {description ? <p className="text-ink-muted">{description}</p> : null}
           </div>
-          {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+          {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
         </div>
         {children}
       </Container>

@@ -30,3 +30,24 @@ export function NotFound({ title = "Nothing here", description = "There is nothi
     </div>
   );
 }
+
+export interface NotAllowedProps {
+  /** @default "Not allowed" */
+  title?: ReactNode;
+  /** Who may see this, or what to ask for. @default "You may not see this page." */
+  description?: ReactNode;
+  /** The way back or the way to ask. */
+  action?: ReactNode;
+  /** `page` is a whole content column; `pane` is for a detail area. @default "page" */
+  variant?: "page" | "pane";
+  className?: string;
+}
+
+/**
+ * The page or pane for something the person may not see. Render it from the component after you know who they are
+ * (`useIsAdmin()`); do not throw from a route's `beforeLoad`, the router logs that as a console error. Say who may,
+ * not only that they may not.
+ */
+export function NotAllowed({ title = "Not allowed", description = "You may not see this page.", action, variant = "page", className }: NotAllowedProps) {
+  return <NotFound title={title} description={description} variant={variant} {...(action !== undefined ? { action } : {})} {...(className !== undefined ? { className } : {})} />;
+}

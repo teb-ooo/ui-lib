@@ -1,5 +1,5 @@
 import { LinkButton } from "./link-button";
-import { NotFound } from "./not-found";
+import { NotAllowed, NotFound } from "./not-found";
 import type { StoryDefault, StoryMeta } from "../stories";
 
 export default {
@@ -19,3 +19,6 @@ export const Pane = () => (
   <NotFound variant="pane" title="No such note" description="It may have been deleted." action={<LinkButton href="#top">Close</LinkButton>} />
 );
 Pane.storyMeta = { description: "An unknown item in a detail pane: body-size heading, same structure." } satisfies StoryMeta;
+
+export const Forbidden = () => <NotAllowed description="Only administrators may see the users." action={<LinkButton href="#top">Back to your profile</LinkButton>} />;
+Forbidden.storyMeta = { description: "NotAllowed: a titled page for a person who may not see something, saying who may. Render it from the component; do not throw from a route loader." } satisfies StoryMeta;

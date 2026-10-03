@@ -207,3 +207,6 @@ Loading UI waits 100ms before it appears and then fades in over 150ms (`.anim-de
 
 ## Layout recipes (0.48.0)
 `DataTable fit`; `PageBody gutter`; `PageHeader`/`Section` `sticky`; `PageColumns` (`firstWidth`, rem). See best-practices.md, "Screen recipes that need more than one surface".
+
+## NotAllowed, bleed gutter (0.49.0)
+`NotAllowed` (`title`, `description`, `action`, `variant`) next to `NotFound`: a titled page or pane for something the person may not see; render it from the component, do not throw from a route loader. A `bleed` `DataTable`'s text is inset to the page gutter, 16px and 24px from md (it was 16px), matching `PageHeader`, `Section` and `Container`. `PageHeader` and `Section` keep `actions` at the right and let a long description wrap beside them.

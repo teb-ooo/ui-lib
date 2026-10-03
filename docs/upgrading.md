@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.49.0 (from 0.48.x)
+
+Visible: a `bleed` `DataTable`'s text (header, rows, pagination, select-all row) is inset 24px from md instead of 16px, so it lines up with `PageHeader`/`Section`/`Container` text (the doc already said so; it was a bug). A long description in `PageHeader` or `Section` wraps beside the actions instead of pushing them under it. New `NotAllowed`. Docs: best-practices sections 2 and 13.
+
 ## To ui 0.48.0 (from 0.47.x)
 
 No change needed. New: `DataTable fit` (as tall as its rows, shrinks to the space left, then scrolls), `PageBody gutter`, `sticky` on `PageHeader` and `Section`, `PageColumns` (two scroll surfaces side by side from lg). A bleed `DataTable`, `Section` and `PageHeader` carry `data-bleed`.

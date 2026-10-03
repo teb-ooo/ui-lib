@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { NotFound } from "./not-found";
+import { NotAllowed, NotFound } from "./not-found";
 
 describe("NotFound", () => {
   it("shows a heading, a sentence and the way back", () => {
@@ -15,5 +15,11 @@ describe("NotFound", () => {
     expect(screen.getByRole("heading").className).toContain("display-lg");
     rerender(<NotFound variant="pane" title="No such note" />);
     expect(screen.getByRole("heading", { name: "No such note" }).className).not.toContain("display-lg");
+  });
+
+  it("NotAllowed is a titled page that says who may", () => {
+    render(<NotAllowed description="Only administrators may see the users." />);
+    expect(screen.getByRole("heading", { name: "Not allowed" })).toBeTruthy();
+    expect(screen.getByText("Only administrators may see the users.")).toBeTruthy();
   });
 });

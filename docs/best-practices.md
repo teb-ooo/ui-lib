@@ -12,13 +12,13 @@ Loading, error, empty and loaded are designed, not left to chance.
 ## 2. Unavailable, empty and forbidden are three different states
 - The service did not answer: say so ("The platform did not answer. Try again.") with a Retry; do not show an empty state.
 - Nothing there for this person: the empty state.
-- Not allowed: say so ("You may not see this app") on a screen with a title; do not redirect silently, and if you must redirect, show a toast saying why.
+- Not allowed: `NotAllowed` (a titled page or pane that says who may: "Only administrators may see the users."); do not redirect silently, and if you must redirect, show a toast saying why. Render it from the component once you know who the person is (`useIsAdmin()`); do not throw from a route's `beforeLoad` or `loader`, the router logs that as a console error.
 
 ## 3. A not-found page and a not-found pane
 Give the router `NotFound` (page variant) as its not-found component, with a `LinkButton` back to the start: in TanStack Router either `createRouter({ defaultNotFoundComponent })` or a `notFoundComponent` on the root route works. A plain `LinkButton` is an anchor and reloads the whole app; give it the router's link with `render`: `<LinkButton render={(props) => <Link to="/rules" {...props} />}>Back to the rules</LinkButton>`. In a split pane, an unknown item shows `NotFound variant="pane"`. Never a bare line of text.
 
 ## 4. One gutter
-The page title, the filter row and the table start at the same left edge. Put them in one `Container` (16px on a phone, 24px from `md`). A `bleed` table (edge to edge, for use inside a `SplitPane`) inset its text to the same gutter; do not mix a bleed table with a differently padded title.
+The page title, the filter row and the table start at the same left edge. Put them in one `Container` (16px on a phone, 24px from `md`). A `bleed` table (edge to edge, for use inside a `SplitPane`) insets its text to the same gutter (16px, 24px from md, ui 0.49); do not mix a bleed table with a differently padded title.
 
 ## 5. Wrapped and clipped text
 Decide for every piece of text what happens when it is too long, and test it with a 120-character value at 390 and 1280.
@@ -84,3 +84,7 @@ The model (from ah's layout-and-scrolling notes):
 - **Page gutter for everything but bleed bands:** `PageBody gutter` gives every direct child 16px (24px from md) except bleed tables, `Section` and `PageHeader` (they touch both edges and inset their own content).
 - **A header that stays on a phone:** `PageHeader sticky` / `Section sticky` pin the band to the top while the whole page scrolls.
 - **Details beside tabs:** `PageColumns` puts two `PageBody`s side by side from lg, each its own scroll surface (the rule is one surface per column); below lg they stack in source order and the page scrolls as one; give the second `max-lg:order-first` to show it first on a phone.
+
+## 13. Small things that trip people
+- A `LinkButton` or `Button` that is a direct child of a `Section` (a column) stretches to the full width: wrap it in a `div` (or put it in the section's `actions`).
+- A `Chip tone="muted"` keeps the chip's padding, so quiet status text in a table cell starts about 8px right of its column header. If that matters, show the common value as plain text (`text-ink-faint`) and use a chip only for the unusual one.
