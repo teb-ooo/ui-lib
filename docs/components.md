@@ -51,6 +51,9 @@ Sections you open and close (0.34.0): `Accordion` takes `items: {value, title, c
 ## Meter
 A read-only measurement against a scale (0.34.0): `label`, `value`, `min?` (0), `max?` (100), `zones?: {from, tone: "ok" | "warning" | "danger"}[]` (the bar takes the tone of the last zone at or below the value: colour is state; none means neutral), `format?`, `showValue?` (true), `orientation?` (`vertical` fills from the bottom: give it a height), `className?`. `role="meter"` with value, minimum, maximum and spoken text. Not a progress bar and not an input (use `Slider`).
 
+## Sheet
+A panel that holds controls without leaving the page (0.35.0): on a phone a bottom sheet (up to 85% of the height) with a drag handle (drag it down 96px to close), from the lg breakpoint a full-height side panel (`side?: "left" | "right"`, right by default; 24rem wide, `className` such as `lg:w-[28rem]` changes it). `title`, `description?`, `children`, `footer?`, `trigger?` or `open`/`defaultOpen`/`onOpenChange`, `closeLabel?`. `modal` (true) dims and blocks the page and traps focus; `modal={false}` has no backdrop and leaves the page usable beside it (a control panel next to a live view); a non-modal sheet closes on Escape or its close button, not on a click outside. Focus returns to the trigger. Use `Dialog` for a short question and `Popover` for details anchored to a control.
+
 ## Dialog
 Modal on Base UI `Dialog`: focus moves in, Escape closes, focus returns to the trigger.
 - `title: ReactNode` (required; the accessible name), `description?`, `footer?`, `children?`

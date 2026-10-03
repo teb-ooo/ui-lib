@@ -507,6 +507,24 @@ input.display-lg {
   .anim-slide-right[data-ending-style] {
     transform: translateX(100%);
   }
+  /* A sheet comes up from the bottom on a phone and in from its side from the lg breakpoint (64rem). */
+  .anim-sheet {
+    transition: transform 180ms ease;
+  }
+  .anim-sheet[data-starting-style],
+  .anim-sheet[data-ending-style] {
+    transform: translateY(100%);
+  }
+  @media (min-width: 64rem) {
+    .anim-sheet[data-starting-style],
+    .anim-sheet[data-ending-style] {
+      transform: translateX(100%);
+    }
+    .anim-sheet[data-side="left"][data-starting-style],
+    .anim-sheet[data-side="left"][data-ending-style] {
+      transform: translateX(-100%);
+    }
+  }
   .anim-backdrop {
     transition: opacity 150ms ease;
   }

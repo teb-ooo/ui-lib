@@ -80,3 +80,5 @@ export { Accordion, Collapsible } from "./components/accordion";
 export type { AccordionProps, AccordionItem, CollapsibleProps } from "./components/accordion";
 export { Meter } from "./components/meter";
 export type { MeterProps, MeterZone, MeterTone } from "./components/meter";
+export { Sheet } from "./components/sheet";
+export type { SheetProps } from "./components/sheet";
