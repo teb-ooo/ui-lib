@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.60.0 (from 0.59.x)
+
+No code change needed. Popovers, hover cards, tooltips and the feedback panel are inverted: white on a dark page, black on a light one, with no border (they lift off the page by their fill and shadow alone). New class `panel-inverse` (theme.css) redefines the colour tokens as the opposite scheme for everything inside, through `light-dark()`, so it follows the OS scheme or a forced `data-theme`. Menus, selects, comboboxes and dialogs keep the bordered `panel`.
+
 ## To ui 0.59.6 (from 0.59.1)
 
 No change needed. The feedback panel is laid out as a full-bleed text box over a footer (divider line, icon toggles for the screenshot and the DOM node inline, Send button on the right; no "Taking the screenshot" line, the camera shows a spinner instead).

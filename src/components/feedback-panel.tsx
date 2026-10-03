@@ -107,7 +107,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
   if (!f.available) return null;
   const hint = f.picking ? (
     // While the panel steps aside to let the page be clicked, say what to do: a keyboard shortcut gives no other sign.
-    <div role="status" {...IGNORE} className="anim-enter panel panel-float pointer-events-none fixed bottom-4 left-1/2 z-[60] flex -translate-x-1/2 items-center gap-3 px-3 py-2 text-ink">
+    <div role="status" {...IGNORE} className="anim-enter panel-inverse panel-float pointer-events-none fixed bottom-4 left-1/2 z-[60] flex -translate-x-1/2 items-center gap-3 px-3 py-2 text-ink">
       Click the element this is about
       <span className="flex items-center gap-1 text-ink-muted">
         <Kbd shortcut="esc" /> to skip
@@ -126,7 +126,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
               {...IGNORE}
               aria-label="Send feedback"
               initialFocus={textRef}
-              className="anim-fade panel panel-float flex w-96 max-w-[calc(100vw-1rem)] flex-col overflow-hidden text-ink outline-none"
+              className="anim-fade panel-inverse panel-float flex w-96 max-w-[calc(100vw-1rem)] flex-col overflow-hidden text-ink outline-none"
             >
               {confirm ? (
                 <div role="status" className="flex flex-col gap-1 p-3">
@@ -166,7 +166,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
                       ) : null}
                     </div>
                   ) : null}
-                  <div className="flex items-center gap-1 border-t border-line-strong px-2 py-1">
+                  <div className="flex items-center gap-1 border-t border-line px-2 py-1">
                     {/* While the picture is taken the icon becomes the spinner in place: nothing moves. */}
                     <Button
                       icon={f.capturing ? <Loader2 aria-hidden="true" className="size-4 animate-spin" /> : <Camera aria-hidden="true" className="size-4" />}

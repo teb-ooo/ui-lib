@@ -74,7 +74,7 @@ export interface TipProps extends Shared {
 
 export type PopoverProps = ClickPopoverProps | HoverCardProps | TipProps;
 
-const panel = "anim-fade panel panel-float text-ink outline-none";
+const panel = "anim-fade panel-inverse panel-float text-ink outline-none";
 
 function Tip({ tip, trigger, side = "top", align = "center", delay = 400 }: TipProps) {
   const id = useId();
