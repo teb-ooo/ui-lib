@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.50.3 (from 0.50.2)
+
+Visible: `RichTextEditor` reserves a strip (2rem) above the text for its toolbar by default so it no longer covers the row above; pass `toolbar="overlay"` for the old floating toolbar. Cmd or Ctrl+I in the editor is italic and no longer opens Send feedback.
+
 ## To ui 0.50.0 (from 0.49.x)
 
 No change needed. New entry `@teb-ooo/ui/editor` with `RichTextEditor` (see components.md). It needs the engine's packages, which are optional peers: install them only in an app that uses the editor. Nothing else in the package loads them.

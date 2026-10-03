@@ -41,6 +41,13 @@ export interface RichTextEditorProps {
   variant?: "page" | "inline";
   /** Called when the empty area below the text is clicked (the editor then focuses the end of the text). */
   onFocusEnd?: () => void;
+  /**
+   * Where the formatting toolbar sits. `reserved`: in a strip of its own above the text (one control tall), invisible until
+   * the editor has focus, so it never covers a neighbour and nothing moves when it appears. `overlay`: floats above the text
+   * without taking space, for a page with room above the editor.
+   * @default "reserved"
+   */
+  toolbar?: "reserved" | "overlay";
   className?: string;
 }
 
@@ -75,7 +82,7 @@ const closedList = <T,>(): ListState<T> => ({ open: false, items: [], index: 0, 
  * \`@tiptap/suggestion\`) are optional peer dependencies the app installs. External changes to \`value\` replace the content
  * only while the editor is not focused.
  */
-export function RichTextEditor({ label, value, onChange, placeholder, readOnly = false, mentions, draft, validateHref = defaultValidate, variant = "page", onFocusEnd, className }: RichTextEditorProps) {
+export function RichTextEditor({ label, value, onChange, placeholder, readOnly = false, mentions, draft, validateHref = defaultValidate, variant = "page", onFocusEnd, toolbar = "reserved", className }: RichTextEditorProps) {
   const [slash, setSlash] = useState<ListState<SuggestionItem>>(closedList());
   const [ment, setMent] = useState<ListState<SuggestionItem>>(closedList());
   const slashRef = useRef(slash);
@@ -157,6 +164,11 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
     editorProps: {
       attributes: { role: "textbox", "aria-multiline": "true", "aria-label": label, class: "prose outline-none" + (variant === "page" ? " min-h-24" : "") },
       handleDOMEvents: {
+        // Cmd or Ctrl+I is italic here: keep it from reaching the platform's Send feedback hotkey on the document.
+        keydown: (_view, event) => {
+          if ((event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === "i") event.stopPropagation();
+          return false;
+        },
         click: (_view, event) => {
           const el = (event.target as HTMLElement | null)?.closest?.("[data-mention-id]");
           if (el) latest.current.mentions?.onClick?.(el.getAttribute("data-mention-id") ?? "");
@@ -188,12 +200,12 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
     <Button key={name} icon={icon} aria-label={name} tip={name} active={on} onMouseDown={(e) => e.preventDefault()} onClick={run} className="border-transparent" />
   );
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative", !readOnly && toolbar === "reserved" && "pt-8", className)}>
       {readOnly ? null : (
         <div
           role="toolbar"
           aria-label="Formatting"
-          className={cn("absolute -top-9 left-0 z-10 flex flex-wrap items-center gap-1 transition-opacity duration-100", active?.focused ? "opacity-100" : "pointer-events-none opacity-0")}
+          className={cn("absolute left-0 z-10 flex flex-wrap items-center gap-1 transition-opacity duration-100", toolbar === "reserved" ? "top-0" : "-top-9", active?.focused ? "opacity-100" : "pointer-events-none opacity-0")}
         >
           {tb("Bold", <Bold className="size-4" aria-hidden="true" />, active?.bold, () => editor.chain().focus().toggleBold().run())}
           {tb("Italic", <Italic className="size-4" aria-hidden="true" />, active?.italic, () => editor.chain().focus().toggleItalic().run())}

@@ -65,3 +65,23 @@ describe("mention markup", () => {
     expect(chip.getAttribute("data-mention-id")).toBe("e1");
   });
 });
+
+describe("toolbar placement and Cmd+I", () => {
+  it("reserves a strip for the toolbar by default and floats it with overlay", async () => {
+    const { container, rerender } = render(<RichTextEditor label="Body" value={doc} onChange={() => undefined} />);
+    await screen.findByRole("toolbar", { name: "Formatting" });
+    expect((container.firstElementChild as HTMLElement).className).toContain("pt-8");
+    rerender(<RichTextEditor label="Body" value={doc} onChange={() => undefined} toolbar="overlay" />);
+    expect((container.firstElementChild as HTMLElement).className).not.toContain("pt-8");
+    expect(screen.getByRole("toolbar", { name: "Formatting" }).className).toContain("-top-9");
+  });
+  it("keeps Cmd+I from reaching the document (the feedback hotkey)", async () => {
+    const seen = vi.fn();
+    document.addEventListener("keydown", seen);
+    render(<RichTextEditor label="Body" value={doc} onChange={() => undefined} />);
+    const box = await screen.findByRole("textbox", { name: "Body" });
+    box.dispatchEvent(new KeyboardEvent("keydown", { key: "i", ctrlKey: true, bubbles: true, cancelable: true }));
+    document.removeEventListener("keydown", seen);
+    expect(seen).not.toHaveBeenCalled();
+  });
+});
