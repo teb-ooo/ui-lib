@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.44.1 (from 0.44.0)
+
+The Send feedback hotkey is Cmd or Ctrl+I again (it was Cmd or Ctrl+; from 0.38.2). Nothing to change in an app. Some browsers bind Cmd+I (Page Info in Firefox); the hotkey takes it over while the app has focus. In a rich-text editor Cmd+I is italic: an editor that wants it must stop the keydown before it reaches the document.
+
 ## To ui 0.44.0 (from 0.43.x): BREAKING for Chip priority
 
 `Chip priority={0..4}` and the `--color-p0..p4` tokens from 0.42.0 are removed: priority is one app's idea and does not belong in the design system. Use `Chip color="red"` (any of the 17 palette hues, `CHIP_COLORS`) and map your own levels to hues in your code, for example `const hue = ["red", "orange", "yellow", "sky", "teal"][priority]`. `color` is for categories an app names; `tone` still carries state.

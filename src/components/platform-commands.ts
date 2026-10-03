@@ -6,8 +6,8 @@ import { useCommandHost } from "./command-host";
 
 const group = "Platform";
 
-/** The hotkey of Send feedback (owner only): Cmd or Ctrl and the semicolon. No Shift, like Cmd+K, and no browser binds it. */
-export const FEEDBACK_SHORTCUT = "mod+;";
+/** The hotkey of Send feedback (owner only): Cmd or Ctrl and I. No Shift, like Cmd+K. Some browsers bind it (Page Info in Firefox, Email this page in Safari); the hotkey takes it over while the app has focus. */
+export const FEEDBACK_SHORTCUT = "mod+i";
 /** The palette's own hotkey, shown on its icon. */
 export const PALETTE_SHORTCUT = "mod+k";
 
