@@ -828,6 +828,26 @@ input.display-lg {
   .toast-content[data-expanded] {
     opacity: 1;
   }
+  /*
+   * The agent bubble beside the platform bar's agent icon: it grows out of the icon (scale and fade, from its right
+   * edge) when the agent starts working and shrinks back into it when it stops; its width glides when the text
+   * changes. The width is set inline from the measured text.
+   */
+  .agent-bubble {
+    transform-origin: right center;
+    transition:
+      opacity 180ms var(--ease-out),
+      transform 220ms var(--ease-out);
+  }
+  .agent-bubble[data-agent-bubble="closed"] {
+    opacity: 0;
+    transform: translateX(6px) scale(0.85);
+    transition-duration: var(--motion-out), 160ms;
+    transition-timing-function: var(--ease-in);
+  }
+  .agent-bubble-clip {
+    transition: width 220ms var(--ease-out);
+  }
   /* Accordion and collapsible panels open and close by height. */
   .anim-collapse {
     overflow: hidden;
@@ -867,8 +887,15 @@ input.display-lg {
     .anim-slide-right,
     .anim-slide-left,
     .anim-sheet,
-    .toast {
+    .toast,
+    .agent-bubble {
       transition-property: opacity;
+    }
+    .agent-bubble[data-agent-bubble="closed"] {
+      transform: none;
+    }
+    .agent-bubble-clip {
+      transition: none;
     }
     .anim-fade[data-starting-style],
     .anim-fade[data-ending-style],

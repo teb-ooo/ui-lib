@@ -220,18 +220,20 @@ describe("Shell", () => {
   });
 });
 
-describe("agent status dot and popover", () => {
+describe("agent status dot and bubble", () => {
   const base = { appName: "a", live: null, user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
   it.each([
     ["working", "is working"],
     ["idle", "is idle"],
     ["offline", "is offline"],
     ["logged_out", "is signed out"],
-  ] as const)("%s: a dot on the agent button named by the status", (status, text) => {
+  ] as const)("%s: a dot on the agent link named by the status, which opens the session", (status, text) => {
     render(<PlatformBar {...base} agentHref="https://claude.ai/code/s" agentStatus={status} />);
-    const button = screen.getByRole("button", { name: `Agent ${text}` });
-    expect(button.getAttribute("data-agent-status")).toBe(status);
-    expect(button.querySelector(`[data-dot="${status}"]`)).not.toBeNull();
+    const link = screen.getByRole("link", { name: `Agent ${text}` });
+    expect(link.getAttribute("data-agent-status")).toBe(status);
+    expect(link.getAttribute("href")).toBe("https://claude.ai/code/s");
+    expect(link.getAttribute("target")).toBe("_blank");
+    expect(link.querySelector(`[data-dot="${status}"]`)).not.toBeNull();
   });
 
   it("without a status it is a plain link to the session with no dot, and nothing without either", () => {
@@ -240,10 +242,10 @@ describe("agent status dot and popover", () => {
     expect(link.querySelector("[data-dot]")).toBeNull();
     rerender(<PlatformBar {...base} />);
     expect(screen.queryByRole("link", { name: /agent/i })).toBeNull();
-    expect(screen.queryByRole("button", { name: /Agent/ })).toBeNull();
+    expect(screen.queryByRole("img", { name: /Agent/ })).toBeNull();
   });
 
-  it("opens a popover with the current action, a ticking turn timer and the link to the session", async () => {
+  it("while it works a bubble beside the icon shows the action and the turn timer, with no click needed", async () => {
     const open = vi.fn();
     render(
       <PlatformBar
@@ -251,29 +253,30 @@ describe("agent status dot and popover", () => {
         agentHref="https://claude.ai/code/s"
         agentStatus="working"
         onAgentOpenChange={open}
-        agentDetails={{ action: { label: "Editing", target: "ui-lib/src/platform-bar.tsx" }, turnStartedAt: "2026-10-03T01:00:00Z", serverTime: Date.parse("2026-10-03T01:01:05Z"), receivedAt: Date.now() }}
+        agentDetails={{ action: { label: "Running a command", target: "" }, turnStartedAt: "2026-10-03T01:00:00Z", serverTime: Date.parse("2026-10-03T01:24:23Z"), receivedAt: Date.now() }}
       />,
     );
-    await userEvent.click(screen.getByRole("button", { name: "Agent is working" }));
-    const panel = await screen.findByRole("dialog", { name: "Agent is working" });
-    expect(open.mock.calls[0]?.[0]).toBe(true);
-    expect(within(panel).getByText("Editing ui-lib/src/platform-bar.tsx")).toBeTruthy();
-    expect(within(panel).getByText(/^1m 0[5-9]s$/)).toBeTruthy();
-    expect(within(panel).getByRole("link", { name: "Open the agent session" }).getAttribute("href")).toBe("https://claude.ai/code/s");
-    await userEvent.keyboard("{Escape}");
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Agent is working" })).toBeNull());
+    const bubble = screen.getByRole("status", { name: "Agent progress" });
+    expect(within(bubble).getByText("Running a command")).toBeTruthy();
+    expect(within(bubble).getByText(/^24m2[3-9]s$/)).toBeTruthy();
+    expect(open).toHaveBeenLastCalledWith(true);
   });
 
-  it("says Thinking when working with no action, and Nothing running when idle; an older platform has no timer", async () => {
-    const { rerender } = render(<PlatformBar {...base} agentStatus="working" agentDetails={{ action: null }} />);
-    await userEvent.click(screen.getByRole("button", { name: "Agent is working" }));
-    const panel = await screen.findByRole("dialog");
-    expect(within(panel).getByText("Thinking")).toBeTruthy();
-    expect(within(panel).queryByText(/Working for/)).toBeNull();
-    await userEvent.keyboard("{Escape}");
-    rerender(<PlatformBar {...base} agentStatus="idle" agentDetails={{ action: null }} />);
-    await userEvent.click(screen.getByRole("button", { name: "Agent is idle" }));
-    expect(await screen.findByText("Nothing running")).toBeTruthy();
+  it("says Thinking with no action, has no timer on an older platform, and goes away when the agent stops", async () => {
+    const open = vi.fn();
+    const { rerender } = render(<PlatformBar {...base} agentStatus="working" onAgentOpenChange={open} agentDetails={{ action: null }} />);
+    const bubble = screen.getByRole("status", { name: "Agent progress" });
+    expect(within(bubble).getByText("Thinking")).toBeTruthy();
+    expect(bubble.querySelector(".tabular-nums")).toBeNull();
+    rerender(<PlatformBar {...base} agentStatus="idle" onAgentOpenChange={open} agentDetails={{ action: null }} />);
+    await waitFor(() => expect(screen.queryByRole("status", { name: "Agent progress" })).toBeNull());
+    expect(open).toHaveBeenLastCalledWith(false);
+  });
+
+  it("with a status but no session the icon is not a link", () => {
+    render(<PlatformBar {...base} agentStatus="idle" />);
+    expect(screen.queryByRole("link", { name: /agent/i })).toBeNull();
+    expect(screen.getByRole("img", { name: "Agent is idle" })).toBeTruthy();
   });
 });
 
