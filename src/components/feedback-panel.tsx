@@ -1,9 +1,5 @@
-import { useEffect, useRef } from "react";
-import { Dialog as BaseDialog } from "@base-ui/react/dialog";
-import { Crosshair, X } from "lucide-react";
-import { Button } from "./button";
-import { Chip } from "./chip";
-import { Field } from "./field";
+import { useEffect, useMemo, useRef } from "react";
+import { Popover as BasePopover } from "@base-ui/react/popover";
 import { Kbd } from "./kbd";
 import { Switch } from "./switch";
 import { Textarea } from "./textarea";
@@ -31,6 +27,11 @@ export interface FeedbackController {
   startPicking: () => void;
   stopPicking: () => void;
   clearElement: () => void;
+  /** Whether the picked element goes with the report; with `setIncludeElement` it shows a switch. */
+  includeElement?: boolean;
+  setIncludeElement?: (on: boolean) => void;
+  /** Viewport point of the click that picked the element; the panel opens next to it. */
+  anchor?: { x: number; y: number } | null;
   includeScreenshot: boolean;
   setIncludeScreenshot: (on: boolean) => void;
   screenshot: { url: string; type: string; size: number } | null;
@@ -60,16 +61,27 @@ function agentLine(agent: string, status: string): string {
 }
 
 /**
- * The feedback dialog: free text (Enter sends, Shift+Enter adds a line), an optional picked element and an optional
- * screenshot with a preview. A sent message is confirmed with a toast, and the dialog closes. Opened from Cmd+K ("Send feedback", `useFeedbackCommand` in `@teb-ooo/ui/cmdk`), never from a header
- * button. While an element is being picked the dialog steps aside so the page can be clicked.
+ * The feedback panel: a popover next to the click that picked an element (or near the top of the page when nothing was
+ * picked), holding one text box (Enter sends, Shift+Enter adds a line) and two switches, for the screenshot and for the
+ * picked element. Neither is previewed. There is no title, Cancel or close button: Escape or a press outside closes it.
+ * A sent message is confirmed with a toast. Opened from Cmd+K ("Send feedback", `useFeedbackCommand` in
+ * `@teb-ooo/ui/cmdk`), never from a header button. While an element is being picked the panel steps aside so the page
+ * can be clicked.
  */
 export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
   const toast = useOptionalToast();
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   const announced = useRef<unknown>(null);
   const sent = f.status === "sent" && f.result;
-  // A sent message is confirmed with a toast and the dialog closes; without a toast host the dialog says it itself.
+  const ax = f.anchor?.x;
+  const ay = f.anchor?.y;
+  // A point with no size, so the panel sits just below the click; with no pick it hangs from the top centre of the page.
+  const anchor = useMemo(() => {
+    const x = ax ?? window.innerWidth / 2;
+    const y = ay ?? Math.round(window.innerHeight * 0.15);
+    return { getBoundingClientRect: () => DOMRect.fromRect({ x, y, width: 0, height: 0 }) };
+  }, [ax, ay]);
+  // A sent message is confirmed with a toast and the panel closes; without a toast host the panel says it itself.
   useEffect(() => {
     if (!toast || !sent || announced.current === sent) return;
     announced.current = sent;
@@ -78,7 +90,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
   }, [toast, sent, f]);
   if (!f.available) return null;
   const hint = f.picking ? (
-    // While the dialog steps aside to let the page be clicked, say what to do: a keyboard shortcut gives no other sign.
+    // While the panel steps aside to let the page be clicked, say what to do: a keyboard shortcut gives no other sign.
     <div role="status" {...IGNORE} className="anim-enter panel panel-float pointer-events-none fixed bottom-4 left-1/2 z-[60] flex -translate-x-1/2 items-center gap-3 px-3 py-2 text-ink">
       Click the element this is about
       <span className="flex items-center gap-1 text-ink-muted">
@@ -89,96 +101,61 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
   const confirm = Boolean(sent) && !toast;
   return (
     <>
-    {hint}
-    <BaseDialog.Root open={f.isOpen && !f.picking} onOpenChange={(open) => (open ? undefined : f.close())}>
-      <BaseDialog.Portal>
-        <BaseDialog.Backdrop forceRender {...IGNORE} className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
-        <BaseDialog.Popup
-          {...IGNORE}
-          aria-label="Send feedback"
-          initialFocus={textRef}
-          className="anim-fade panel panel-float fixed top-[10vh] left-1/2 z-50 flex max-h-[80vh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 flex-col gap-4 overflow-y-auto p-4 text-ink outline-none"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <BaseDialog.Title className="text-ink">Send feedback</BaseDialog.Title>
-            <BaseDialog.Close render={<Button icon={<X aria-hidden="true" className="size-4" />} aria-label="Close" className="border-transparent" />} />
-          </div>
-
-          {confirm ? (
-            <div role="status" className="flex flex-col gap-2">
-              <p className="text-ink">Sent, tracked as {f.result?.bead}.</p>
-              <p className="text-ink-muted">{agentLine(f.result?.agent ?? "", f.result?.status ?? "")}</p>
-            </div>
-          ) : (
-            <>
-              {f.restoredDraft ? <p className="text-ink-faint">Your unsent text from last time is back.</p> : null}
-              <Field label="What should change?">
-                <Textarea
-                  ref={textRef}
-                  value={f.text}
-                  onChange={(e) => f.setText(e.target.value)}
-                  onKeyDown={(e) => {
-                    // Enter sends; Shift+Enter adds a line. Not while an input method is composing a character.
-                    if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
-                    e.preventDefault();
-                    if (f.text.trim() !== "" && !f.capturing && f.status !== "sending") void f.submit();
-                  }}
-                  rows={4}
-                />
-              </Field>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <Button icon={<Crosshair aria-hidden="true" className="size-4" />} onClick={f.startPicking}>
-                  {f.element ? "Pick another element" : "Pick an element"}
-                </Button>
-                {f.element ? (
-                  <Chip tone="link">
-                    {f.element.selector}
-                  </Chip>
-                ) : null}
-                {f.element ? (
-                  <Button icon={<X aria-hidden="true" className="size-3" />} aria-label="Forget the picked element" className="border-transparent" onClick={f.clearElement} />
-                ) : null}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Switch label="Include a screenshot" checked={f.includeScreenshot} onCheckedChange={(on) => f.setIncludeScreenshot(on)} />
-                {f.capturing ? <p className="text-ink-muted">Taking the screenshot.</p> : null}
-                {f.screenshotError ? (
-                  <p role="alert" className="text-danger">
-                    {f.screenshotError}
-                  </p>
-                ) : null}
-                {f.screenshot ? (
-                  <div className="flex flex-col gap-2">
-                    <img src={f.screenshot.url} alt="Screenshot preview" className="max-h-48 w-full border border-line object-contain" />
-                    <div>
-                      <Button onClick={f.retakeScreenshot}>Take it again</Button>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-
-              {f.status === "failed" ? (
-                <div role="alert" className="flex flex-col gap-1">
-                  <p className="text-danger">{f.error ?? "The feedback could not be sent."}</p>
-                  <p className="text-ink-muted">Your text is kept as a draft on this device.</p>
+      {hint}
+      <BasePopover.Root open={f.isOpen && !f.picking} onOpenChange={(open) => (open ? undefined : f.close())} modal={false}>
+        <BasePopover.Portal>
+          <BasePopover.Positioner {...IGNORE} anchor={anchor} side="bottom" align="start" sideOffset={8} collisionPadding={8} className="z-50 outline-none">
+            <BasePopover.Popup
+              {...IGNORE}
+              aria-label="Send feedback"
+              initialFocus={textRef}
+              className="anim-fade panel panel-float flex w-80 max-w-[calc(100vw-1rem)] flex-col gap-2 p-3 text-ink outline-none"
+            >
+              {confirm ? (
+                <div role="status" className="flex flex-col gap-1">
+                  <p className="text-ink">Sent, tracked as {f.result?.bead}.</p>
+                  <p className="text-ink-muted">{agentLine(f.result?.agent ?? "", f.result?.status ?? "")}</p>
                 </div>
-              ) : null}
-            </>
-          )}
-
-          <div className="flex justify-end gap-2">
-            <Button onClick={f.close}>{confirm ? "Close" : "Cancel"}</Button>
-            {confirm ? null : (
-              <Button intent="solid" loading={f.status === "sending"} disabled={f.text.trim() === "" || f.capturing} onClick={() => void f.submit()}>
-                Send
-              </Button>
-            )}
-          </div>
-        </BaseDialog.Popup>
-      </BaseDialog.Portal>
-    </BaseDialog.Root>
+              ) : (
+                <>
+                  {f.restoredDraft ? <p className="text-ink-faint">Your unsent text from last time is back.</p> : null}
+                  <Textarea
+                    ref={textRef}
+                    aria-label="Send feedback"
+                    placeholder="Send feedback"
+                    value={f.text}
+                    onChange={(e) => f.setText(e.target.value)}
+                    onKeyDown={(e) => {
+                      // Enter sends; Shift+Enter adds a line. Not while an input method is composing a character.
+                      if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
+                      e.preventDefault();
+                      if (f.text.trim() !== "" && !f.capturing && f.status !== "sending") void f.submit();
+                    }}
+                    rows={3}
+                  />
+                  <Switch label="Include screenshot" checked={f.includeScreenshot} onCheckedChange={(on) => f.setIncludeScreenshot(on)} />
+                  {f.element && f.setIncludeElement ? (
+                    <Switch label="Include DOM node" checked={f.includeElement ?? true} onCheckedChange={(on) => f.setIncludeElement?.(on)} />
+                  ) : null}
+                  {f.capturing ? <p className="text-ink-muted">Taking the screenshot.</p> : null}
+                  {f.status === "sending" ? <p className="text-ink-muted">Sending.</p> : null}
+                  {f.screenshotError ? (
+                    <p role="alert" className="text-danger">
+                      {f.screenshotError}
+                    </p>
+                  ) : null}
+                  {f.status === "failed" ? (
+                    <div role="alert" className="flex flex-col gap-1">
+                      <p className="text-danger">{f.error ?? "The feedback could not be sent."}</p>
+                      <p className="text-ink-muted">Your text is kept as a draft on this device.</p>
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </BasePopover.Popup>
+          </BasePopover.Positioner>
+        </BasePopover.Portal>
+      </BasePopover.Root>
     </>
   );
 }

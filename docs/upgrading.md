@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.59.0 and web 0.9.3 (from 0.58.x and 0.9.2)
+
+No change needed. The feedback panel is now a popover next to the click that picked the element instead of a centred dialog, trimmed to a text box (placeholder "Send feedback") and the switches Include screenshot and Include DOM node; there is no title, Cancel or close button and no screenshot preview. `useFeedback` gains `anchor`, `includeElement` and `setIncludeElement`; with an older web the panel still works and opens near the top centre.
+
 ## To ui 0.58.0 (from 0.57.x)
 
 New platform command in every app's Cmd+K (owner only): Switch to staging / Switch to production, which opens the same page in the other environment. The palette entrance is 50% faster (93ms instead of 140ms).

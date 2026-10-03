@@ -27,33 +27,35 @@ describe("FeedbackPanel", () => {
     const f = controller();
     const { rerender } = render(<FeedbackPanel feedback={f} />);
     expect(screen.getByRole("dialog", { name: "Send feedback" })).toBeTruthy();
-    // What is sent is no longer listed in the dialog.
+    expect(screen.getByPlaceholderText("Send feedback")).toBeTruthy();
+    // no title, Cancel, close or Send button: Enter sends
+    expect(screen.queryByRole("button")).toBeNull();
+    // What is sent is no longer listed in the panel.
     expect(screen.queryByText("The page: /x")).toBeNull();
     expect(screen.queryByText(/It goes to the agent/)).toBeNull();
-    fireEvent.change(screen.getByRole("textbox", { name: "What should change?" }), { target: { value: "hello" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Send feedback" }), { target: { value: "hello" } });
     expect(f.setText).toHaveBeenCalledWith("hello");
-    expect(screen.getByRole("button", { name: "Send" }).hasAttribute("disabled")).toBe(true);
     const g = controller({ text: "hello" });
     rerender(<FeedbackPanel feedback={g} />);
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "Send feedback" }), { key: "Enter" });
     expect(g.submit).toHaveBeenCalled();
   });
 
   it("Enter sends, Shift+Enter does not, and an empty text never sends", () => {
     const empty = controller();
     const { rerender } = render(<FeedbackPanel feedback={empty} />);
-    fireEvent.keyDown(screen.getByRole("textbox", { name: "What should change?" }), { key: "Enter" });
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "Send feedback" }), { key: "Enter" });
     expect(empty.submit).not.toHaveBeenCalled();
     const f = controller({ text: "hello" });
     rerender(<FeedbackPanel feedback={f} />);
-    const box = screen.getByRole("textbox", { name: "What should change?" });
+    const box = screen.getByRole("textbox", { name: "Send feedback" });
     fireEvent.keyDown(box, { key: "Enter", shiftKey: true });
     expect(f.submit).not.toHaveBeenCalled();
     fireEvent.keyDown(box, { key: "Enter" });
     expect(f.submit).toHaveBeenCalledTimes(1);
     const busy = controller({ text: "hello", status: "sending" });
     rerender(<FeedbackPanel feedback={busy} />);
-    fireEvent.keyDown(screen.getByRole("textbox", { name: "What should change?" }), { key: "Enter" });
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "Send feedback" }), { key: "Enter" });
     expect(busy.submit).not.toHaveBeenCalled();
   });
 
@@ -71,7 +73,7 @@ describe("FeedbackPanel", () => {
 
   it("puts the cursor in the text when the dialog shows", async () => {
     render(<FeedbackPanel feedback={controller()} />);
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "What should change?" })));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "Send feedback" })));
   });
 
   it("while an element is being picked it says what to do and how to skip, since a hotkey gives no other sign", () => {
@@ -91,22 +93,26 @@ describe("FeedbackPanel", () => {
     expect(screen.getByRole("dialog").hasAttribute("data-feedback-ignore")).toBe(true);
   });
 
-  it("picks an element, shows it, and can forget it", () => {
-    const f = controller({ element: { selector: "main > button", role: "button", text: "Save" } });
+  it("has two switches, for the screenshot and the picked element, and previews neither", () => {
+    const f = controller({
+      includeScreenshot: true,
+      screenshot: { url: "blob:x", type: "image/png", size: 2048 },
+      element: { selector: "main > button", role: "button", text: "Save" },
+      includeElement: true,
+      setIncludeElement: vi.fn(),
+    });
     render(<FeedbackPanel feedback={f} />);
-    expect(screen.getByText("main > button")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Forget the picked element" }));
-    expect(f.clearElement).toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Pick another element" }));
-    expect(f.startPicking).toHaveBeenCalled();
+    expect(screen.queryByRole("img")).toBeNull();
+    expect(screen.queryByText("main > button")).toBeNull();
+    fireEvent.click(screen.getByRole("switch", { name: "Include screenshot" }));
+    expect(f.setIncludeScreenshot).toHaveBeenCalledWith(false);
+    fireEvent.click(screen.getByRole("switch", { name: "Include DOM node" }));
+    expect(f.setIncludeElement).toHaveBeenCalledWith(false);
   });
 
-  it("shows the screenshot preview and a switch for it", () => {
-    const f = controller({ includeScreenshot: true, screenshot: { url: "blob:x", type: "image/png", size: 2048 } });
-    render(<FeedbackPanel feedback={f} />);
-    expect(screen.getByRole("img", { name: "Screenshot preview" }).getAttribute("src")).toBe("blob:x");
-    fireEvent.click(screen.getByRole("switch", { name: "Include a screenshot" }));
-    expect(f.setIncludeScreenshot).toHaveBeenCalledWith(false);
+  it("shows the DOM node switch only when an element was picked", () => {
+    render(<FeedbackPanel feedback={controller({ setIncludeElement: vi.fn() })} />);
+    expect(screen.queryByRole("switch", { name: "Include DOM node" })).toBeNull();
   });
 
   it("without a toast host the dialog says Sent with the bead and whether the agent was reached", () => {
