@@ -367,4 +367,14 @@ describe("DataTable", () => {
     expect(screen.getByText("card Beta")).toBeTruthy();
     expect(screen.queryByRole("grid")).toBeNull();
   });
+
+  it("gives cards a checkbox and a select-all row when the table is selectable", () => {
+    setViewportWidth(390);
+    const onSelectedKeysChange = vi.fn();
+    render(<DataTable {...base} selectedKeys={new Set()} onSelectedKeysChange={onSelectedKeysChange} renderCard={(r) => <span>card {r.name}</span>} />);
+    fireEvent.click(screen.getAllByRole("checkbox", { name: "Select row" })[1]!);
+    expect(onSelectedKeysChange).toHaveBeenLastCalledWith(new Set(["b"]));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select all rows" }));
+    expect(onSelectedKeysChange).toHaveBeenLastCalledWith(new Set(["a", "b", "c"]));
+  });
 });

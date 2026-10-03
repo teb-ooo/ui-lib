@@ -60,3 +60,26 @@ export const Composed = () => {
   );
 };
 Composed.storyMeta = { description: "Search, facet chips, a select, a multi combobox, and a count with views at the end." } satisfies StoryMeta;
+
+export const OneRowOnAPhone = () => {
+  const [q, setQ] = useState("");
+  const [type, setType] = useState<string | null>("bug");
+  return (
+    <FilterBar
+      aria-label="Filter issues"
+      primary={<SearchInput value={q} onValueChange={setQ} placeholder="Search issues" />}
+      activeCount={type === null ? 0 : 1}
+    >
+      <ToggleGroup
+        label="Type"
+        options={[
+          { value: "bug", label: "Bug" },
+          { value: "feature", label: "Feature" },
+        ]}
+        value={type}
+        onValueChange={setType}
+      />
+    </FilterBar>
+  );
+};
+OneRowOnAPhone.storyMeta = { description: "With primary, the search stays and the filters move into a sheet behind a Filters button below the sm breakpoint." } satisfies StoryMeta;

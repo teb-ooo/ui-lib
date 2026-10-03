@@ -137,12 +137,12 @@ Dense keyboard-driven table for many rows. The props table in the gallery is gen
 - `pagination` `{ page (from 0), pageSize, total, totalIsLowerBound?, onPageChange, pageSizes?, onPageSizeChange? }`: a footer under the table says "1-100 of 3455" (the server's total; "500+" for a lower bound) with Previous and Next icon buttons and an optional rows-per-page select; the table shows only the rows given (one page), `onLoadMore` is not used, Alt+PageUp/Alt+PageDown change page, a new page starts at the top. Works with `bleed` (footer inset like the cells) and cards.
 - Range selection (with `selectedKeys`): Shift+click a checkbox selects the rows from the last toggled one to it, taking that row's state (an unchecked anchor removes the range); Ctrl/Cmd+click and plain clicks toggle one; Shift+Space does the same from the active row; Shift+Up/Down extend the selection from the anchor and shrink it back; shift+mousedown does not select text. The header checkbox selects or clears only this page's rows (indeterminate when some are selected). Selection is by `rowKey`, so it survives rows being replaced; a page change clears nothing.
 - `bleed`: edge to edge, no outer border, radius or background; header rule and row dividers run the full width.
-- `renderCard` + `cardsBelow` (default `"md"`): below the breakpoint a list of cards replaces the table (cards are not windowed).
+- `renderCard` + `cardsBelow` (default `"md"`): below the breakpoint a list of cards replaces the table (cards are not windowed). With `selectedKeys` each card has a checkbox and the list starts with a select-all row, so bulk actions work on a phone.
 - Rows are one control-height line and are windowed past 100 rows. Keys: Up, Down, PageUp, PageDown, Home, End move the active row; Enter opens; Space toggles selection. Give it a parent with a height.
 
 ## FilterBar, SearchInput, ToggleGroup, Select, Combobox, ViewMenu
 The filter row. `Option` is `{ value: string; label: string; count?: number }`; values are strings.
-- `FilterBar`: a wrapping flex row; `end?: ReactNode` sits at the right (a count, a `ViewMenu`).
+- `FilterBar`: a wrapping flex row; `end?: ReactNode` sits at the right (a count, a `ViewMenu`). `primary?: ReactNode` (the SearchInput and the main action) keeps the bar to one row on a phone: below `sm` the `children` open in a bottom sheet behind a "Filters" button (`filtersLabel?`, `activeCount?` shows how many are set).
 - `SearchInput`: `value`, `onValueChange`, `label?` ("Search"), `clearLabel?`; clear button when non-empty, Escape clears; ref to the input.
 - `ToggleGroup`: `options`, `label`, `value` and `onValueChange` (`string | null`, or `string[]` with `multiple`).
 - `Select` and single `Combobox` share one field look (border, background, height, one chevron); Combobox adds typing and a clear button once it has a value.

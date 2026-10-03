@@ -435,6 +435,18 @@ export function DataTable<T>({
     extent.current = null;
     onSelectedKeysChange(next);
   };
+  /** The header box works on this page's rows only; selections made elsewhere stay. */
+  const selectAll = (checked: boolean) => {
+    if (!selectable) return;
+    const next = new Set(selectedKeys);
+    for (const k of allKeys) {
+      if (checked) next.add(k);
+      else next.delete(k);
+    }
+    anchor.current = null;
+    extent.current = null;
+    onSelectedKeysChange(next);
+  };
   /** Shift+click: every row from the anchor to this one takes the anchor row's state (selected adds, unselected removes). */
   const rangeTo = (key: string) => {
     if (!selectable) return;
@@ -587,6 +599,17 @@ export function DataTable<T>({
         >
           {cards ? (
             <div>
+              {selectable && !stateBody ? (
+                <div className="flex h-[var(--control-h)] items-center gap-3 border-b border-line px-3">
+                  <Checkbox
+                    aria-label="Select all rows"
+                    checked={rows.length > 0 && selectedCount === rows.length}
+                    indeterminate={selectedCount > 0 && selectedCount < rows.length}
+                    onCheckedChange={selectAll}
+                  />
+                  <span className="text-ink-muted">{selectedCount > 0 ? `${selectedCount} selected` : "Select all"}</span>
+                </div>
+              ) : null}
               {stateBody ??
                 rows.map((row) => {
                   const key = rowKey(row);
@@ -602,7 +625,16 @@ export function DataTable<T>({
                       }}
                       className={cn("p-3", rowClasses(key))}
                     >
-                      {renderCard?.(row)}
+                      {selectable ? (
+                        <div className="flex gap-3">
+                          <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
+                            <Checkbox aria-label="Select row" checked={selectedKeys.has(key)} onCheckedChange={() => toggleKey(key)} />
+                          </div>
+                          <div className="min-w-0 flex-1">{renderCard?.(row)}</div>
+                        </div>
+                      ) : (
+                        renderCard?.(row)
+                      )}
                     </div>
                   );
                 })}
@@ -620,17 +652,7 @@ export function DataTable<T>({
                       aria-label="Select all rows"
                       checked={rows.length > 0 && selectedCount === rows.length}
                       indeterminate={selectedCount > 0 && selectedCount < rows.length}
-                      onCheckedChange={(checked) => {
-                        // The header box works on this page's rows only; selections made elsewhere stay.
-                        const next = new Set(selectedKeys);
-                        for (const k of allKeys) {
-                          if (checked) next.add(k);
-                          else next.delete(k);
-                        }
-                        anchor.current = null;
-                        extent.current = null;
-                        onSelectedKeysChange(next);
-                      }}
+                      onCheckedChange={selectAll}
                     />
                   </div>
                 ) : null}

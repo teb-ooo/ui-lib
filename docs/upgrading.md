@@ -2,6 +2,14 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.39.0 and web 0.8.0 (from 0.38.x and 0.7.x)
+
+No change is required; these are additions and one wording change.
+
+- **web 0.8.0** `useForm().fieldError(name)` now returns a sentence for a person ("Enter a value.", "Use at most 20 characters.") instead of the schema wording ("expected length >= 1"); `errors` keeps the raw text, and `friendlyMessage(text)` is exported for other places that show a field message. A test that matches the old wording in `fieldError` must change.
+- **ui 0.39.0 DataTable** with `selectedKeys`: below `cardsBelow` each card now has a checkbox and the list starts with a select-all row (bulk actions work on a phone).
+- **ui 0.39.0 FilterBar**: new `primary` slot. Put the SearchInput and the main action there and the filters in `children`; on a phone the filters open in a sheet behind a "Filters" button (`activeCount` shows how many are set). Without `primary` nothing changes.
+
 ## To ui 0.26.3 and web 0.7.3 (from 0.25.x and 0.7.2)
 
 No code change is needed in an app that is already on the closed shell (0.23 or later). Visible differences, so nobody is surprised:
