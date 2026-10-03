@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.64.1 (from 0.64.0)
+
+No change needed. The agent bubble measured its text while still scaling in, so it could open too narrow; it now measures the layout width.
+
 ## To ui 0.64.0 (from 0.63.x)
 
 No code change needed. The platform bar's agent icon is now a plain link to the agent's session (it no longer opens a popover). While the agent works, a chat bubble to its left shows the action and the turn time (`Running a command  24m23s`) at all times; it animates in and out and its width glides when the text changes. `onAgentOpenChange` now reports whether the bubble is shown (that is, whether the agent is working). Without `agentHref` the icon is not a link.

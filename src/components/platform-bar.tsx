@@ -161,9 +161,9 @@ function AgentBubble({ working, details }: { working: boolean; details: AgentBar
   useLayoutEffect(() => {
     const el = inner.current;
     if (!el) return;
-    setWidth(el.getBoundingClientRect().width);
+    setWidth(el.offsetWidth);
     if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => setWidth(el.getBoundingClientRect().width));
+    const ro = new ResizeObserver(() => setWidth(el.offsetWidth));
     ro.observe(el);
     return () => ro.disconnect();
   }, [mounted]);
