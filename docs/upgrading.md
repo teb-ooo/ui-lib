@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.44.2 (from 0.44.1)
+
+New `FrequencyInput knobSide`, `Button`/`LinkButton` `tipSide`. Visible change: a FrequencyInput knob drag now snaps the change relative to the start value (it snapped the absolute value to 0.05), so a value such as 9905.27 moves in clean steps and keeps its offset. The page cursor is `ew-resize` during the drag.
+
 ## To ui 0.44.1 (from 0.44.0)
 
 The Send feedback hotkey is Cmd or Ctrl+I again (it was Cmd or Ctrl+; from 0.38.2). Nothing to change in an app. Some browsers bind Cmd+I (Page Info in Firefox); the hotkey takes it over while the app has focus. In a rich-text editor Cmd+I is italic: an editor that wants it must stop the keydown before it reaches the document.

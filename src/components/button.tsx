@@ -31,6 +31,8 @@ export interface ButtonProps extends Omit<BaseButton.Props, "className"> {
   active?: boolean;
   /** Tooltip text. For an icon-only button it is also the accessible name. */
   tip?: ReactNode;
+  /** Which side of the button the tip opens on. @default "top" */
+  tipSide?: "top" | "bottom" | "left" | "right";
   /** Draws the dashed "add" affordance. */
   dashed?: boolean;
   /**
@@ -42,7 +44,7 @@ export interface ButtonProps extends Omit<BaseButton.Props, "className"> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { intent = "default", icon, active, tip, dashed = false, loading = false, disabled, className, children, type = "button", ...rest },
+  { intent = "default", icon, active, tip, tipSide = "top", dashed = false, loading = false, disabled, className, children, type = "button", ...rest },
   ref,
 ) {
   const hasChildren = children !== undefined && children !== null && children !== false;
@@ -73,5 +75,5 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {children}
     </BaseButton>
   );
-  return tip ? <Tooltip tip={tip}>{button}</Tooltip> : button;
+  return tip ? <Tooltip tip={tip} side={tipSide}>{button}</Tooltip> : button;
 });

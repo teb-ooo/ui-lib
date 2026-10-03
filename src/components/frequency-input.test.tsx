@@ -194,4 +194,32 @@ describe("FrequencyInput", () => {
     render(<FrequencyInput value={740} onValueChange={() => undefined} playbackMode />);
     expect(screen.getByRole("spinbutton").className).toContain("text-warning");
   });
+
+  it("a drag snaps the change, not the absolute value: from 9905.27, 1 px is +0.50 and 2 px is +1.00", () => {
+    render(<Tuner start={9905.27} />);
+    const knob = screen.getByRole("slider");
+    fireEvent.pointerDown(knob, { clientX: 100, pointerId: 1 });
+    fireEvent.pointerMove(knob, { clientX: 101, pointerId: 1 });
+    expect(knob.getAttribute("aria-valuenow")).toBe("9905.77");
+    fireEvent.pointerMove(knob, { clientX: 102, pointerId: 1 });
+    expect(knob.getAttribute("aria-valuenow")).toBe("9906.27");
+    fireEvent.pointerUp(knob, { pointerId: 1 });
+  });
+
+  it("the page cursor is ew-resize for the whole drag and is restored afterwards", () => {
+    render(<Tuner />);
+    const knob = screen.getByRole("slider");
+    fireEvent.pointerDown(knob, { clientX: 0, pointerId: 1 });
+    expect(document.body.style.cursor).toBe("ew-resize");
+    fireEvent.pointerUp(knob, { pointerId: 1 });
+    expect(document.body.style.cursor).toBe("");
+  });
+
+  it("knobSide start puts the knob before the number; the default puts it after", () => {
+    const { container, rerender } = render(<FrequencyInput value={740} onValueChange={() => undefined} />);
+    const order = () => [...container.querySelectorAll('[role="slider"], [role="spinbutton"]')].map((e) => e.getAttribute("role"));
+    expect(order()).toEqual(["spinbutton", "slider"]);
+    rerender(<FrequencyInput value={740} onValueChange={() => undefined} knobSide="start" />);
+    expect(order()).toEqual(["slider", "spinbutton"]);
+  });
 });

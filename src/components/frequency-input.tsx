@@ -33,6 +33,8 @@ export interface FrequencyInputProps {
   submitLabel?: string;
   /** Tooltip of the knob. @default "Hold shift for fine tuning" */
   knobTip?: string;
+  /** Which side of the number the knob sits on: `start` puts it before the number, `end` after the unit. @default "end" */
+  knobSide?: "start" | "end";
   className?: string;
 }
 
@@ -127,6 +129,7 @@ export function FrequencyInput({
   fineStep = 0.01,
   submitLabel = "Set frequency",
   knobTip = "Hold shift for fine tuning",
+  knobSide = "end",
   className,
 }: FrequencyInputProps) {
   const [editing, setEditing] = useState(false);
@@ -218,10 +221,20 @@ export function FrequencyInput({
     e.preventDefault();
   };
 
+  // A drag that is cut short (the input unmounts) must not leave the page cursor behind.
+  useEffect(
+    () => () => {
+      if (drag.current) document.body.style.cursor = "";
+    },
+    [],
+  );
+
   const onKnobDown = (e: PointerEvent<HTMLDivElement>) => {
     if (inert) return;
     e.currentTarget.setPointerCapture?.(e.pointerId);
     drag.current = { x: e.clientX, value: latest.current, fine: e.shiftKey, angle };
+    // The pointer is captured, but the page cursor must say "dragging" wherever it goes, not only over the knob.
+    document.body.style.cursor = "ew-resize";
   };
   const onKnobMove = (e: PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
@@ -234,20 +247,50 @@ export function FrequencyInput({
     const dx = e.clientX - d.x;
     const per = d.fine ? FINE_PER_PX : COARSE_PER_PX;
     const snap = d.fine ? FINE_SNAP : COARSE_SNAP;
-    const next = round2(clamp(Math.round((d.value + dx * per) / snap) * snap, min, max));
+    // Snap the change, not the absolute value, so a drag from 9905.27 moves in clean steps (+0.50, +1.00) and keeps its offset.
+    const next = round2(clamp(d.value + Math.round((dx * per) / snap) * snap, min, max));
     setAngle(d.angle + dx * DEG_PER_PX);
     if (next !== latest.current) onValueChange(next);
   };
   const onKnobUp = () => {
     if (!drag.current) return;
     drag.current = null;
+    document.body.style.cursor = "";
     onValueCommit?.(latest.current);
   };
 
+  const knob = (
+  <Tooltip tip={knobTip} side="bottom">
+    <div
+      role="slider"
+      tabIndex={inert ? -1 : 0}
+      aria-label={`Tune ${label.toLowerCase()}`}
+      aria-valuenow={value}
+      aria-valuemin={min}
+      aria-valuemax={max}
+      aria-valuetext={`${formatKhz(value)} kilohertz`}
+      onPointerDown={onKnobDown}
+      onPointerMove={onKnobMove}
+      onPointerUp={onKnobUp}
+      onPointerCancel={onKnobUp}
+      onKeyDown={onNumberKey}
+      className="group relative size-8 shrink-0 cursor-ew-resize touch-none outline-none"
+    >
+      {/* The knob is a drawing, not a box: a circle is drawn in SVG like the graph's nodes, so the one corner radius stays one. */}
+      <svg aria-hidden="true" viewBox="0 0 32 32" className="absolute inset-0 size-full">
+        <circle cx="16" cy="16" r="15" strokeWidth="1" className="fill-surface-raised stroke-ink-muted group-hover:stroke-ink group-focus-visible:stroke-ink group-focus-visible:[stroke-width:2.5]" />
+        <g style={{ transform: `rotate(${angle}deg)`, transformOrigin: "16px 16px" }}>
+          <circle cx="16" cy="6" r="2" className="fill-ink" />
+        </g>
+      </svg>
+    </div>
+  </Tooltip>
+  );
   const tone = playbackMode ? "text-warning" : "text-ink";
   return (
     <div ref={root} aria-disabled={inert || undefined} className={cn("inline-flex flex-col gap-2", dimmed && "pointer-events-none opacity-35", disabled && !dimmed && "pointer-events-none opacity-50", className)}>
       <div className={cn("flex items-center gap-3", optimistic && "opacity-50")}>
+        {knobSide === "start" ? knob : null}
         {editing ? (
           <input
             ref={field}
@@ -285,31 +328,7 @@ export function FrequencyInput({
         <span aria-hidden="true" className={cn("text-ink-faint", editing && "invisible")}>
           kHz
         </span>
-        <Tooltip tip={knobTip} side="bottom">
-          <div
-            role="slider"
-            tabIndex={inert ? -1 : 0}
-            aria-label={`Tune ${label.toLowerCase()}`}
-            aria-valuenow={value}
-            aria-valuemin={min}
-            aria-valuemax={max}
-            aria-valuetext={`${formatKhz(value)} kilohertz`}
-            onPointerDown={onKnobDown}
-            onPointerMove={onKnobMove}
-            onPointerUp={onKnobUp}
-            onPointerCancel={onKnobUp}
-            onKeyDown={onNumberKey}
-            className="group relative size-8 shrink-0 cursor-ew-resize touch-none outline-none"
-          >
-            {/* The knob is a drawing, not a box: a circle is drawn in SVG like the graph's nodes, so the one corner radius stays one. */}
-            <svg aria-hidden="true" viewBox="0 0 32 32" className="absolute inset-0 size-full">
-              <circle cx="16" cy="16" r="15" strokeWidth="1" className="fill-surface-raised stroke-ink-muted group-hover:stroke-ink group-focus-visible:stroke-ink group-focus-visible:[stroke-width:2.5]" />
-              <g style={{ transform: `rotate(${angle}deg)`, transformOrigin: "16px 16px" }}>
-                <circle cx="16" cy="6" r="2" className="fill-ink" />
-              </g>
-            </svg>
-          </div>
-        </Tooltip>
+        {knobSide === "end" ? knob : null}
       </div>
       {editing ? (
         <div className="flex flex-col gap-1">

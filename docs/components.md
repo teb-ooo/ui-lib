@@ -181,3 +181,7 @@ The page or pane for something that is not there: `title` ("Nothing here"), `des
 
 ## Delayed loading feedback
 Loading UI waits 100ms before it appears and then fades in over 150ms (`.anim-delayed`, the delay is `--loading-delay`), so a response that arrives at once shows nothing instead of a skeleton that flashes. The package does this itself for DataTable skeleton rows and its "Loading" line, the spinner of a `Button loading` (the button is still disabled at once) and the palette's "Searching..." line. For an app's own loading line, skeleton or spinner, wrap it in `<Delayed>`; failures and empty states are not delayed.
+
+## Parity options (0.44.2)
+- `FrequencyInput knobSide="start"` puts the tuning knob before the number (default `"end"`, after the unit). A knob drag snaps the change, not the absolute value (from 9905.27 one pixel is +0.50, two are +1.00), and the page cursor stays `ew-resize` for the whole drag.
+- `Button` and `LinkButton` take `tipSide` (`top` default, `bottom`, `left`, `right`) for where the tip opens.

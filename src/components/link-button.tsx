@@ -13,12 +13,14 @@ export interface LinkButtonProps extends Omit<AnchorHTMLAttributes<HTMLAnchorEle
   active?: boolean;
   /** Tooltip text; for an icon-only link it is also the accessible name. */
   tip?: ReactNode;
+  /** Which side of the link the tip opens on. @default "top" */
+  tipSide?: "top" | "bottom" | "left" | "right";
   className?: string;
 }
 
 /** The look of `Button` for navigation: a real anchor. */
 export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(function LinkButton(
-  { intent = "default", icon, active, tip, className, children, ...rest },
+  { intent = "default", icon, active, tip, tipSide = "top", className, children, ...rest },
   ref,
 ) {
   const hasChildren = children !== undefined && children !== null && children !== false;
@@ -38,5 +40,5 @@ export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(functio
       {children}
     </a>
   );
-  return tip ? <Tooltip tip={tip}>{link}</Tooltip> : link;
+  return tip ? <Tooltip tip={tip} side={tipSide}>{link}</Tooltip> : link;
 });
