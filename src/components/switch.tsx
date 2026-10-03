@@ -27,7 +27,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(function Switch
           )}
           {...rest}
         >
-          <BaseSwitch.Thumb className="block size-3.5 rounded bg-ink-muted transition-transform data-[checked]:translate-x-4 data-[checked]:bg-ok" />
+          <BaseSwitch.Thumb className="block size-3.5 rounded bg-line-strong transition-transform data-[checked]:translate-x-4 data-[checked]:bg-ok" />
         </BaseSwitch.Root>
         <span className="min-w-0 text-ink">{label}</span>
       </label>

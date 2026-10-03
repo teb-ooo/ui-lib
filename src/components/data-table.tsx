@@ -623,7 +623,7 @@ export function DataTable<T>({
                         onActiveKeyChange?.(key);
                         onRowClick?.(row);
                       }}
-                      className={cn("p-3", rowClasses(key))}
+                      className={cn(bleed ? "px-4 py-3" : "p-3", rowClasses(key))}
                     >
                       {selectable ? (
                         <div className="flex gap-3">

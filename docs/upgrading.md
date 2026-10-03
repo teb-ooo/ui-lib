@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.39.2 and web 0.8.1 (from 0.39.1 and 0.8.0)
+
+No change needed. **Switch**: the off thumb is a light grey (it was dark, so an off switch could read as on). **DataTable** with `bleed`: cards have 16px side padding, like the footer and the page gutter. **web** `friendlyMessage` also words pattern errors ("Use lowercase letters, digits and underscore.").
+
 ## To ui 0.39.1 and web 0.8.0 (from 0.38.x and 0.7.x)
 
 0.39.0 was published with a peer range that excluded web 0.8.0; use 0.39.1.
