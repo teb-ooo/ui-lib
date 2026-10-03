@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.67.0 (from 0.66.x)
+
+No code change needed. Signed out, the platform bar draws neither the agent link nor the search icon (Cmd+K still opens the palette). `PlatformBar` gallery stories and tests that relied on them without a `user` must pass one.
+
 ## To ui 0.66.2 (from 0.65.x)
 
 No change needed. The AudioPlayer story plays `/silence.wav` from the gallery's own origin (a data address is blocked by a `default-src 'self'` policy: an app that sets `media-src` must allow where its audio comes from).

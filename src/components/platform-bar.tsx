@@ -193,7 +193,7 @@ const menuItem =
 /**
  * The platform's top bar, 2.25rem (36px) tall, one line, on every screen size. The only text is the app's name; everything
  * else is an icon with an accessible name and a tooltip (the environment mark is an orange bar after the name): the live dot, the palette trigger, Send
- * feedback (owner only) and the person menu.
+ * feedback (owner only) and the person menu. Signed out (or while the person is not known yet) it shows neither the agent link nor the search icon.
  *
  * `Shell` draws it from the platform's own data and takes nothing from the app. It is exported for the design gallery
  * only: an app never renders it, and the platform shell contract (docs/shell.md) forbids adding anything to it.
@@ -242,7 +242,7 @@ export function PlatformBar({
         </Tooltip>
       ) : null}
       <div className="flex-1" />
-      {agentStatus ? (
+      {!user ? null : agentStatus ? (
         <span className="relative inline-flex">
           <AgentBubble working={agentStatus === "working"} details={agentDetails} />
           <Tooltip tip={`Agent ${agentTexts[agentStatus]}`} side="bottom">
@@ -266,9 +266,11 @@ export function PlatformBar({
           </a>
         </Tooltip>
       ) : null}
+      {user ? (
       <Icon tip="Open command palette" shortcut="mod+k" aria-haspopup="dialog" aria-expanded={paletteOpen} onClick={onOpenPalette}>
         <Search aria-hidden="true" className="size-4" />
       </Icon>
+      ) : null}
       {onFeedback ? (
         <Icon tip="Send feedback" shortcut={FEEDBACK_SHORTCUT} onClick={onFeedback}>
           <MessageCircle aria-hidden="true" className="size-4" />

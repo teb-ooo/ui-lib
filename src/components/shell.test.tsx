@@ -79,15 +79,22 @@ describe("Shell", () => {
     expect(screen.queryByRole("button", { name: "Open menu" })).toBeNull();
   });
 
-  it("has an agent icon that opens the app's session, only when the app has one", () => {
-    const { unmount } = mount(null, { claude_session_url: "https://claude.ai/code/session_x" });
-    const link = screen.getByRole("link", { name: "Open the agent" });
+  it("has an agent icon that opens the app's session, only when the app has one", async () => {
+    const { unmount } = mount(member, { claude_session_url: "https://claude.ai/code/session_x" });
+    const link = await screen.findByRole("link", { name: "Open the agent" });
     expect(link.getAttribute("href")).toBe("https://claude.ai/code/session_x");
     expect(link.getAttribute("target")).toBe("_blank");
     expect(link.getAttribute("rel")).toContain("noopener");
     unmount();
-    mount(null, { claude_session_url: "" });
+    mount(member, { claude_session_url: "" });
     expect(screen.queryByRole("link", { name: "Open the agent" })).toBeNull();
+  });
+
+  it("signed out the bar shows neither the agent link nor the search icon, only Sign in", async () => {
+    mount(null, { claude_session_url: "https://claude.ai/code/session_x" });
+    await waitFor(() => expect(screen.getByRole("link", { name: "Sign in" })).toBeTruthy());
+    expect(screen.queryByRole("link", { name: /agent/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Open command palette" })).toBeNull();
   });
 
   it("takes no header prop and no slot", () => {
@@ -163,7 +170,9 @@ describe("Shell", () => {
   it("signed out: Sign in in the bar, no Sign out command", async () => {
     mount(null);
     await waitFor(() => expect(screen.getByRole("link", { name: "Sign in" })).toBeTruthy());
-    const palette = await openPalette();
+    // The search icon is not drawn signed out; the keyboard still opens the palette.
+    await userEvent.keyboard("{Control>}k{/Control}");
+    const palette = await screen.findByRole("dialog");
     expect(within(palette).queryByText("Sign out")).toBeNull();
     expect(within(palette).getByText("Go to dashboard")).toBeTruthy();
   });
@@ -187,11 +196,11 @@ describe("Shell", () => {
     expect(screen.queryByRole("button", { name: "Expand sidebar" })).toBeNull();
   });
 
-  it("without a sidebar there is no column, no menu icon and no drawer, at any width", () => {
+  it("without a sidebar there is no column, no menu icon and no drawer, at any width", async () => {
     for (const width of [1024, 390]) {
       setViewportWidth(width);
       window.__PLAYGROUND__ = { app_name: "tracker" } as never;
-      vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 401 })));
+      vi.stubGlobal("fetch", vi.fn(async (input: unknown) => (String(input).includes("/auth/me") ? Response.json(member) : new Response("", { status: 404 }))));
       const { container, unmount } = render(
         <QueryClientProvider client={new QueryClient()}>
           <Shell>
@@ -202,26 +211,26 @@ describe("Shell", () => {
       expect(container.querySelector("aside")).toBeNull();
       expect(screen.queryByRole("button", { name: "Open menu" })).toBeNull();
       expect(screen.getByText("Content")).toBeTruthy();
-      expect(screen.getByRole("button", { name: "Open command palette" })).toBeTruthy();
+      expect(await screen.findByRole("button", { name: "Open command palette" })).toBeTruthy();
       unmount();
     }
     setViewportWidth(1024);
   });
 
-  it("works without a CommandProvider: the trigger is inert", () => {
+  it("works without a CommandProvider: the trigger is inert", async () => {
     window.__PLAYGROUND__ = { app_name: "tracker" } as never;
-    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 401 })));
+    vi.stubGlobal("fetch", vi.fn(async (input: unknown) => (String(input).includes("/auth/me") ? Response.json(member) : new Response("", { status: 404 }))));
     render(
       <QueryClientProvider client={new QueryClient()}>
         <Shell sidebar={null}>x</Shell>
       </QueryClientProvider>,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Open command palette" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Open command palette" }));
   });
 });
 
 describe("agent status dot and bubble", () => {
-  const base = { appName: "a", live: null, user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
+  const base = { appName: "a", live: null, user: { name: "a" }, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
   it.each([
     ["working", "is working"],
     ["idle", "is idle"],
@@ -301,7 +310,7 @@ describe("platform bar icon order", () => {
 });
 
 describe("PlatformBar", () => {
-  const base = { appName: "a", user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
+  const base = { appName: "a", user: { name: "a" }, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
   it.each([
     ["live", false],
     ["off", false],
@@ -321,7 +330,7 @@ describe("PlatformBar", () => {
   });
 
   it("shows the menu icon only when asked and the feedback icon only when given a handler", () => {
-    const props = { appName: "a", live: "live" as const, user: null, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
+    const props = { appName: "a", live: "live" as const, user: { name: "a" }, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
     const { rerender } = render(<PlatformBar {...props} />);
     expect(screen.queryByRole("button", { name: "Open menu" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Send feedback" })).toBeNull();
