@@ -51,7 +51,7 @@ export function Tabs({ tabs, value, onValueChange, label, activation = "automati
             disabled={t.disabled}
             className={cn(
               "relative flex h-[var(--control-h)] shrink-0 cursor-pointer items-center gap-2 border-0 border-b-2 border-transparent bg-transparent px-3 whitespace-nowrap text-ink-muted outline-none max-sm:h-11",
-              "hover:text-ink data-[active]:border-ink data-[active]:text-ink data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+              "transition-colors duration-100 hover:text-ink data-[active]:text-ink data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
               "focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-solid focus-visible:outline-ink-muted",
             )}
           >
@@ -59,6 +59,7 @@ export function Tabs({ tabs, value, onValueChange, label, activation = "automati
             {t.badge !== undefined ? <span className="text-ink-faint">{t.badge}</span> : null}
           </BaseTabs.Tab>
         ))}
+        <BaseTabs.Indicator className="absolute bottom-0 left-(--active-tab-left) h-0.5 w-(--active-tab-width) bg-ink transition-[left,width] duration-150 ease-out motion-reduce:transition-none" />
       </BaseTabs.List>
       {tabs.map((t) => (
         <BaseTabs.Panel key={t.value} value={t.value} keepMounted={keepMounted} className="min-h-0 flex-1 pt-3 outline-none">

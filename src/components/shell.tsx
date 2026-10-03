@@ -81,7 +81,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
         <BaseDialog.Root open={open} onOpenChange={setOpen}>
           <BaseDialog.Portal>
             <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
-            <BaseDialog.Popup className="anim-fade fixed inset-y-0 left-0 z-50 flex w-[min(20rem,85vw)] flex-col border-r border-line bg-ground text-ink outline-none">
+            <BaseDialog.Popup className="anim-slide-left fixed inset-y-0 left-0 z-50 flex w-[min(20rem,85vw)] flex-col border-r border-line bg-ground text-ink outline-none">
               <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-2">
                 <BaseDialog.Title className="text-ink">{drawerLabel}</BaseDialog.Title>
                 <BaseDialog.Close render={<Button icon={<X aria-hidden="true" className="size-4" />} aria-label={closeLabel} className="border-transparent" />} />

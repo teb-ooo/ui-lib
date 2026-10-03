@@ -18,6 +18,11 @@
 /* Both schemes are supported; the tokens below follow the OS. No app sets data-theme: the attribute exists so a gallery can force a theme. */
 :root {
   color-scheme: light dark;
+  /* Motion: quick and subtle. Things arrive in 140ms and leave in 100ms; transform and opacity only. */
+  --motion-in: 140ms;
+  --motion-out: 100ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
 }
 
 /*
@@ -592,28 +597,71 @@ input.display-lg {
     }
   }
 
-  /* Popup transitions, driven by Base UI's data-starting-style and data-ending-style. */
+  /*
+   * Popup motion, driven by Base UI's data-starting-style and data-ending-style. A popup grows a little from the point it
+   * is anchored to (Base UI sets --transform-origin) and drifts 4px from the side it opens on; a dialog settles in from 6px
+   * below. Arriving takes --motion-in and leaving --motion-out, so closing never makes anyone wait.
+   */
   .anim-fade {
+    transform-origin: var(--transform-origin, center);
     transition:
-      opacity 120ms ease,
-      transform 120ms ease;
+      opacity var(--motion-in) var(--ease-out),
+      transform var(--motion-in) var(--ease-out);
+  }
+  .anim-fade[data-ending-style] {
+    transition-duration: var(--motion-out);
+    transition-timing-function: var(--ease-in);
   }
   .anim-fade[data-starting-style],
   .anim-fade[data-ending-style] {
     opacity: 0;
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
-  .anim-slide-right {
-    transition: transform 180ms ease;
+  .anim-fade[data-side="bottom"][data-starting-style],
+  .anim-fade[data-side="bottom"][data-ending-style] {
+    transform: translateY(-4px) scale(0.97);
+  }
+  .anim-fade[data-side="top"][data-starting-style],
+  .anim-fade[data-side="top"][data-ending-style] {
+    transform: translateY(4px) scale(0.97);
+  }
+  .anim-fade[data-side="left"][data-starting-style],
+  .anim-fade[data-side="left"][data-ending-style] {
+    transform: translateX(4px) scale(0.97);
+  }
+  .anim-fade[data-side="right"][data-starting-style],
+  .anim-fade[data-side="right"][data-ending-style] {
+    transform: translateX(-4px) scale(0.97);
+  }
+  .anim-fade[data-placement="center"][data-starting-style],
+  .anim-fade[data-placement="center"][data-ending-style] {
+    transform: translateY(6px) scale(0.98);
+  }
+  .anim-fade[data-placement="top"][data-starting-style],
+  .anim-fade[data-placement="top"][data-ending-style] {
+    transform: translateY(-6px) scale(0.98);
+  }
+  /* Panels that slide in from an edge. */
+  .anim-slide-right,
+  .anim-slide-left,
+  .anim-sheet {
+    transition: transform 180ms var(--ease-out);
+  }
+  .anim-slide-right[data-ending-style],
+  .anim-slide-left[data-ending-style],
+  .anim-sheet[data-ending-style] {
+    transition-duration: 140ms;
+    transition-timing-function: var(--ease-in);
   }
   .anim-slide-right[data-starting-style],
   .anim-slide-right[data-ending-style] {
     transform: translateX(100%);
   }
-  /* A sheet comes up from the bottom on a phone and in from its side from the lg breakpoint (64rem). */
-  .anim-sheet {
-    transition: transform 180ms ease;
+  .anim-slide-left[data-starting-style],
+  .anim-slide-left[data-ending-style] {
+    transform: translateX(-100%);
   }
+  /* A sheet comes up from the bottom on a phone and in from its side from the lg breakpoint (64rem). */
   .anim-sheet[data-starting-style],
   .anim-sheet[data-ending-style] {
     transform: translateY(100%);
@@ -629,11 +677,98 @@ input.display-lg {
     }
   }
   .anim-backdrop {
-    transition: opacity 150ms ease;
+    transition: opacity var(--motion-in) var(--ease-out);
+  }
+  .anim-backdrop[data-ending-style] {
+    transition-duration: var(--motion-out);
   }
   .anim-backdrop[data-starting-style],
   .anim-backdrop[data-ending-style] {
     opacity: 0;
+  }
+  /* A toast rises 12px as it arrives and sinks 4px as it leaves. */
+  .anim-toast {
+    transition:
+      opacity var(--motion-in) var(--ease-out),
+      transform 180ms var(--ease-out);
+  }
+  .anim-toast[data-ending-style] {
+    transition-duration: var(--motion-out);
+    transition-timing-function: var(--ease-in);
+  }
+  .anim-toast[data-starting-style] {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .anim-toast[data-ending-style] {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  /* Accordion and collapsible panels open and close by height. */
+  .anim-collapse {
+    overflow: hidden;
+    height: var(--accordion-panel-height, var(--collapsible-panel-height, auto));
+    transition: height 160ms var(--ease-out);
+  }
+  .anim-collapse[data-starting-style],
+  .anim-collapse[data-ending-style] {
+    height: 0;
+  }
+  /* Something that appears without Base UI: a checkmark, a banner. */
+  .anim-pop {
+    animation: anim-pop-in var(--motion-in) var(--ease-out);
+  }
+  .anim-enter {
+    animation: anim-enter-in 160ms var(--ease-out);
+  }
+  /* Controls change colour in 100ms, and a pressed button sits 1px lower. */
+  .btn,
+  .input,
+  .chip {
+    transition:
+      background-color var(--motion-out) var(--ease-out),
+      border-color var(--motion-out) var(--ease-out),
+      color var(--motion-out) var(--ease-out);
+  }
+  .btn:active:not(:disabled, [data-disabled]) {
+    translate: 0 1px;
+  }
+  /* Reduced motion keeps the fades and drops the movement. */
+  @media (prefers-reduced-motion: reduce) {
+    .anim-fade,
+    .anim-slide-right,
+    .anim-slide-left,
+    .anim-sheet,
+    .anim-toast {
+      transition-property: opacity;
+    }
+    .anim-fade[data-starting-style],
+    .anim-fade[data-ending-style],
+    .anim-fade[data-side][data-starting-style],
+    .anim-fade[data-side][data-ending-style],
+    .anim-fade[data-placement][data-starting-style],
+    .anim-fade[data-placement][data-ending-style],
+    .anim-slide-right[data-starting-style],
+    .anim-slide-right[data-ending-style],
+    .anim-slide-left[data-starting-style],
+    .anim-slide-left[data-ending-style],
+    .anim-sheet[data-starting-style],
+    .anim-sheet[data-ending-style],
+    .anim-toast[data-starting-style],
+    .anim-toast[data-ending-style] {
+      opacity: 0;
+      transform: none;
+    }
+    .anim-collapse {
+      transition: none;
+    }
+    .anim-pop,
+    .anim-enter {
+      animation: none;
+    }
+    .btn:active:not(:disabled, [data-disabled]) {
+      translate: none;
+    }
   }
 }
 
@@ -768,5 +903,18 @@ input.display-lg {
 @keyframes anim-delayed-in {
   to {
     opacity: 1;
+  }
+}
+
+@keyframes anim-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@keyframes anim-enter-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
 }

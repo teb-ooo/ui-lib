@@ -15,14 +15,14 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(function Ch
     <BaseCheckbox.Root
       ref={ref}
       className={cn(
-        "inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded border border-line-strong bg-surface text-ink outline-none",
+        "inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded border border-line-strong bg-surface text-ink outline-none transition-colors duration-100",
         "hover:border-ink-muted focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-ink-muted",
         "data-[checked]:bg-surface-raised data-[indeterminate]:bg-surface-raised data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
         className,
       )}
       {...rest}
     >
-      <BaseCheckbox.Indicator keepMounted={false} className="flex">
+      <BaseCheckbox.Indicator keepMounted={false} className="anim-pop flex">
         {rest.indeterminate ? <Minus aria-hidden="true" className="size-3" /> : <Check aria-hidden="true" className="size-3" />}
       </BaseCheckbox.Indicator>
     </BaseCheckbox.Root>

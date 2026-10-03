@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.46.0 (from 0.45.x)
+
+No code change; visible, quick and subtle motion across the library (140ms in, 100ms out, transform and opacity only; reduced motion keeps fades and drops movement): popups, menus, selects and tooltips grow a little from their anchor and drift 4px from the side they open on; dialogs settle in from 6px below; toasts rise and sink; the shell drawer slides in; accordion and collapsible panels open by height; the tabs underline slides; checkmarks pop; switches and checkboxes change colour smoothly; buttons, inputs and chips change colour in 100ms and a pressed button sits 1px lower; the feedback banner eases in. Tokens: `--motion-in`, `--motion-out`, `--ease-out`, `--ease-in`. A test that asserts an element is gone immediately after closing must wait for the 100ms exit (Base UI unmounts after the transition).
+
 ## To ui 0.45.0 (from 0.44.x)
 
 No change needed. New: `Card` and `CardGrid` (tiles in a responsive grid, arrow-key navigation), `PageHeader` and `Section` (page bands with full-width rules), `ToggleGroup required` (a view switch that cannot be cleared). `best-practices.md` section 11 states the page layout rule: lines are full width, content is inset by the gutter.

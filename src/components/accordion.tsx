@@ -54,12 +54,12 @@ export function Accordion({ items, value, defaultValue, onValueChange, multiple 
                 "[&[data-panel-open]>svg]:rotate-90",
               )}
             >
-              <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-ink-faint transition-transform" />
+              <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-ink-faint transition-transform duration-150 ease-out" />
               <span className="min-w-0 flex-1 truncate">{item.title}</span>
             </BaseAccordion.Trigger>
             {item.trailing ? <div className="flex shrink-0 items-center">{item.trailing}</div> : null}
           </BaseAccordion.Header>
-          <BaseAccordion.Panel className="px-1 pt-1 pb-3 text-ink">{item.content}</BaseAccordion.Panel>
+          <BaseAccordion.Panel className="anim-collapse px-1 pt-1 pb-3 text-ink">{item.content}</BaseAccordion.Panel>
         </BaseAccordion.Item>
       ))}
     </BaseAccordion.Root>

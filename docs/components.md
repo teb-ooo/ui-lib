@@ -191,3 +191,6 @@ Loading UI waits 100ms before it appears and then fades in over 150ms (`.anim-de
 
 ## Section, PageHeader
 (0.45.0) Page bands. `PageHeader`: `title` (display size), `description?`, `actions?`, `width?`, children; a full-width rule under it. `Section`: `title?`, `description?`, `actions?`, `rule?` ("bottom" default, "top", "both", "none"), `width?`, children. The rule is edge to edge; the content is inset by the page gutter (`Container`, 16px, 24px from md). See best-practices.md, "Page layout: rules run to the edges".
+
+## Motion
+(0.46.0) Quick and subtle: things arrive in `--motion-in` (140ms) and leave in `--motion-out` (100ms) with `--ease-out`/`--ease-in`; only transform and opacity move. Popups and menus grow a little from their anchor (`--transform-origin`) and drift 4px from the side they open on; dialogs settle in from 6px below; toasts rise 12px; drawers and sheets slide; accordion and collapsible panels open by height; the tabs underline slides to the active tab; a checkmark pops; controls change colour in 100ms and a pressed button sits 1px lower. `prefers-reduced-motion` keeps the fades and removes the movement. Classes for your own Base UI popups: `anim-fade` (popup), `anim-toast`, `anim-slide-left`/`anim-slide-right`, `anim-collapse` (height), `anim-backdrop`; `anim-pop` and `anim-enter` for things that appear without Base UI.

@@ -27,7 +27,7 @@ export interface CardProps {
 const face =
   "panel flex h-full w-full min-w-0 flex-col gap-2 p-3 text-left text-ink outline-none";
 const actionable =
-  "cursor-pointer hover:bg-surface-raised focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:-outline-offset-1 focus-visible:outline-ink";
+  "cursor-pointer transition-colors duration-100 hover:bg-surface-raised focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:-outline-offset-1 focus-visible:outline-ink";
 
 /**
  * A summary of one thing (an app, a project, a person) as a tile. The whole card is the one link or button, so it holds

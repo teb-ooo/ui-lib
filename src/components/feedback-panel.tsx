@@ -79,7 +79,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
   if (!f.available) return null;
   const hint = f.picking ? (
     // While the dialog steps aside to let the page be clicked, say what to do: a keyboard shortcut gives no other sign.
-    <div role="status" {...IGNORE} className="panel panel-float pointer-events-none fixed bottom-4 left-1/2 z-[60] flex -translate-x-1/2 items-center gap-3 px-3 py-2 text-ink">
+    <div role="status" {...IGNORE} className="anim-enter panel panel-float pointer-events-none fixed bottom-4 left-1/2 z-[60] flex -translate-x-1/2 items-center gap-3 px-3 py-2 text-ink">
       Click the element this is about
       <span className="flex items-center gap-1 text-ink-muted">
         <Kbd shortcut="esc" /> to skip
