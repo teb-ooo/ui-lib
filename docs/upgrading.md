@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.52.1 (from 0.52.0)
+
+While text is selected the strip above the editor hides (the selection toolbar takes over), so the two never overlap on the first line.
+
 ## To ui 0.52.0 (from 0.51.x)
 
 `RichTextEditor` shows a selection toolbar above selected text (Bold, Italic, Code, Link, draft). Visible; turn it off with `selectionToolbar={false}`. With text selected there are now two Link buttons (the strip and the selection toolbar).

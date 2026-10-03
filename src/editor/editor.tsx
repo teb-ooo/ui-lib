@@ -279,7 +279,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
         <div
           role="toolbar"
           aria-label="Formatting"
-          className={cn("absolute left-0 z-10 flex flex-wrap items-center gap-1 transition-opacity duration-100", toolbar === "reserved" ? "top-0" : "-top-9", active?.focused || link ? "opacity-100" : "pointer-events-none opacity-0 focus-within:pointer-events-auto focus-within:opacity-100")}
+          className={cn("absolute left-0 z-10 flex flex-wrap items-center gap-1 transition-opacity duration-100", toolbar === "reserved" ? "top-0" : "-top-9", (active?.focused || link) && !showSelection ? "opacity-100" : "pointer-events-none opacity-0 focus-within:pointer-events-auto focus-within:opacity-100")}
         >
           {tb("Bold", <Bold className="size-4" aria-hidden="true" />, active?.bold, () => editor.chain().focus().toggleBold().run())}
           {tb("Italic", <Italic className="size-4" aria-hidden="true" />, active?.italic, () => editor.chain().focus().toggleItalic().run())}
