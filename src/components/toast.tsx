@@ -73,12 +73,13 @@ function List() {
         <BaseToast.Root
           key={toast.id}
           toast={toast}
+          swipeDirection="right"
           className={cn(
-            "anim-toast panel panel-float pointer-events-auto flex w-full items-start gap-3 p-3 text-ink",
+            "toast panel panel-float pointer-events-auto flex items-start gap-3 overflow-hidden p-3 text-ink",
             tones[(toast.type as ToastTone | undefined) ?? "default"] ?? tones.default,
           )}
         >
-          <BaseToast.Content className="flex min-w-0 flex-1 flex-col gap-1">
+          <BaseToast.Content className="toast-content flex min-w-0 flex-1 flex-col gap-1">
             <BaseToast.Title className="text-ink" />
             <BaseToast.Description className="text-ink-muted" />
           </BaseToast.Content>
@@ -93,8 +94,9 @@ function List() {
 }
 
 /**
- * Owns the toasts: a stack at the bottom right (full width on a phone) above everything else, announced to assistive
- * technology, paused while hovered or focused, closed by Escape-free dismiss buttons. The `Shell` mounts one, so an app
+ * Owns the toasts: a 3D stack at the bottom right (full width on a phone) above everything else, announced to assistive
+ * technology. The newest is in front with older ones peeking out behind; hovering or focusing the stack fans it out
+ * and pauses the timers. A toast leaves by sliding off to the right (timed out, dismissed or swiped right). The `Shell` mounts one, so an app
  * only calls `useToast()`.
  */
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -102,7 +104,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <BaseToast.Provider limit={4}>
       <Bridge>{children}</Bridge>
       <BaseToast.Portal>
-        <BaseToast.Viewport className="pointer-events-none fixed inset-x-4 bottom-4 z-[60] flex flex-col items-end gap-2 sm:left-auto sm:w-96">
+        <BaseToast.Viewport className="pointer-events-none fixed inset-x-4 bottom-4 z-[60] sm:left-auto sm:w-96">
           <List />
         </BaseToast.Viewport>
       </BaseToast.Portal>

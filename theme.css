@@ -761,23 +761,66 @@ input.display-lg {
   .anim-backdrop[data-ending-style] {
     opacity: 0;
   }
-  /* A toast rises 12px as it arrives and sinks 4px as it leaves. */
-  .anim-toast {
+  /*
+   * Toasts are a stack: the newest in front, the older ones peeking out behind it, smaller and fading. Hovering or
+   * focusing the stack (Base UI marks it `data-expanded`) fans it out to full size and pauses every timer. A toast
+   * leaves by sliding off to the right, whether it timed out, was dismissed or was swiped; `translate` does that
+   * apart from `transform`, which keeps its place in the stack. Only transform, translate and opacity move.
+   */
+  .toast {
+    --gap: 0.5rem;
+    --peek: 0.5rem;
+    --scale: calc(max(0, 1 - (var(--toast-index) * 0.06)));
+    --shrink: calc(1 - var(--scale));
+    --height: var(--toast-frontmost-height, var(--toast-height));
+    --offset-y: calc(var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) + var(--toast-swipe-movement-y));
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: var(--height);
+    transform-origin: bottom center;
+    transform: translateX(var(--toast-swipe-movement-x)) translateY(calc(var(--toast-swipe-movement-y) - (var(--toast-index) * var(--peek)) - (var(--shrink) * var(--height)))) scale(var(--scale));
     transition:
-      opacity var(--motion-in) var(--ease-out),
-      transform 180ms var(--ease-out);
+      transform 300ms var(--ease-out),
+      translate var(--motion-out) var(--ease-in),
+      opacity 200ms var(--ease-out);
   }
-  .anim-toast[data-ending-style] {
-    transition-duration: var(--motion-out);
-    transition-timing-function: var(--ease-in);
+  /* A hit area over the gap, so the pointer can travel between toasts without the stack closing. */
+  .toast::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: calc(var(--gap) + 1px);
   }
-  .anim-toast[data-starting-style] {
+  .toast[data-expanded] {
+    height: var(--toast-height);
+    transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+  }
+  .toast[data-starting-style] {
     opacity: 0;
     transform: translateY(12px);
   }
-  .anim-toast[data-ending-style] {
+  .toast[data-ending-style] {
     opacity: 0;
-    transform: translateY(4px);
+    translate: calc(100% + 2rem) 0;
+  }
+  .toast[data-limited] {
+    opacity: 0;
+  }
+  .toast[data-swiping] {
+    transition: none;
+  }
+  .toast-content {
+    transition: opacity 200ms var(--ease-out);
+  }
+  .toast-content[data-behind] {
+    opacity: 0;
+  }
+  .toast-content[data-expanded] {
+    opacity: 1;
   }
   /* Accordion and collapsible panels open and close by height. */
   .anim-collapse {
@@ -818,7 +861,7 @@ input.display-lg {
     .anim-slide-right,
     .anim-slide-left,
     .anim-sheet,
-    .anim-toast {
+    .toast {
       transition-property: opacity;
     }
     .anim-fade[data-starting-style],
@@ -833,10 +876,10 @@ input.display-lg {
     .anim-slide-left[data-ending-style],
     .anim-sheet[data-starting-style],
     .anim-sheet[data-ending-style],
-    .anim-toast[data-starting-style],
-    .anim-toast[data-ending-style] {
+    .toast[data-starting-style],
+    .toast[data-ending-style] {
       opacity: 0;
-      transform: none;
+      translate: none;
     }
     .anim-collapse {
       transition: none;

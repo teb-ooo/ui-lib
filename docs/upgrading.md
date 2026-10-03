@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.63.0 (from 0.62.x)
+
+No code change needed. Toasts are a 3D stack and leave by sliding off to the right (timed out, dismissed or swiped right). Hover or focus fans the stack out and pauses the timers. The `anim-toast` class is gone (theme.css has `.toast` and `.toast-content`); an app that used it by hand, which it should not, must drop it.
+
 ## To ui 0.62.2 (from 0.62.0)
 
 No change needed. The popover arrow tucks 1px under the popup edge (no seam), the left and right arrows sat 2.5px off the popup, and the feedback text box really has no resize grip.
