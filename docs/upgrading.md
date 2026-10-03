@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.56.0 (from 0.55.x)
+
+No change needed. New entry `@teb-ooo/ui/markdown` with `Markdown`; it needs the optional peers `react-markdown` and `remark-gfm`, which only an app using it installs.
+
 ## To ui 0.55.0 and web 0.9.1 (from 0.54.x and 0.9.0)
 
 No change needed. New `useListTable` in `@teb-ooo/web` (server-driven lists on `DataTable`) and `DataTable` `pagination.hasNext` for cursor lists. See best-practices.md section 14.
