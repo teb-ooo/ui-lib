@@ -918,3 +918,21 @@ input.display-lg {
     transform: translateY(6px);
   }
 }
+
+/* The editor's placeholder (TipTap marks the empty first paragraph) and its focus: no box, the caret says where you are. */
+.editor-surface p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--color-ink-faint);
+  pointer-events: none;
+}
+.editor-surface .ProseMirror-focused {
+  outline: none;
+}
+.editor-surface .ProseMirror [data-mention-id] {
+  cursor: pointer;
+}
+.editor-surface .ProseMirror-selectednode[data-mention-id] {
+  outline: 1px solid var(--color-ink-muted);
+}

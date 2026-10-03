@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.50.0 (from 0.49.x)
+
+No change needed. New entry `@teb-ooo/ui/editor` with `RichTextEditor` (see components.md). It needs the engine's packages, which are optional peers: install them only in an app that uses the editor. Nothing else in the package loads them.
+
 ## To ui 0.49.0 (from 0.48.x)
 
 Visible: a `bleed` `DataTable`'s text (header, rows, pagination, select-all row) is inset 24px from md instead of 16px, so it lines up with `PageHeader`/`Section`/`Container` text (the doc already said so; it was a bug). A long description in `PageHeader` or `Section` wraps beside the actions instead of pushing them under it. New `NotAllowed`. Docs: best-practices sections 2 and 13.

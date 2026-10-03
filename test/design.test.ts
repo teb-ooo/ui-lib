@@ -170,8 +170,12 @@ describe("design language", () => {
   });
 
   it("mentions no other product by name", () => {
-    const names = /\b(lore|ory|kratos|hydra|resend|postmark|pocket-?id|tiptap)\b/i;
+    const names = /\b(lore|ory|kratos|hydra|resend|postmark|pocket-?id)\b/i;
     expectNone(find(names), "nothing shipped names another product");
+    // The editor library is the one product the package may name, and only in the editor's own files (src/editor), its
+    // story, the theme and the package files: it is an optional peer of the `@teb-ooo/ui/editor` entry. An app never names it.
+    const editorLib = /\btiptap\b/i;
+    expectNone(find(editorLib, { skip: (f) => IS_UI_PACKAGE && (f === THEME_PATH || f.includes(`${sep}editor${sep}`)) }), "only the editor entry names its library");
     if (IS_UI_PACKAGE) {
       const extra = ["README.md", "package.json", "theme-init.js", ...listDir("docs", /\.md$/), ...listDir("email", /./)];
       const hits: Hit[] = [];
@@ -181,7 +185,7 @@ describe("design language", () => {
         readFileSync(p, "utf8")
           .split("\n")
           .forEach((text, i) => {
-            const m = names.exec(text);
+            const m = names.exec(text) ?? (/^(package\.json|docs\/)/.test(rel) ? null : editorLib.exec(text));
             if (m) hits.push({ file: rel, line: i + 1, text: m[0] });
           });
       }

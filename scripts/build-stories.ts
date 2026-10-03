@@ -27,7 +27,7 @@ rmSync(out, { recursive: true, force: true });
 for (const file of walk(src)) {
   const dest = join(out, relative(src, file));
   mkdirSync(dirname(dest), { recursive: true });
-  const code = rewrite(readFileSync(file, "utf8"), relative(src, file).startsWith("cmdk") ? `${PKG}/cmdk` : PKG);
+  const code = rewrite(readFileSync(file, "utf8"), relative(src, file).startsWith("cmdk") ? `${PKG}/cmdk` : relative(src, file).startsWith("editor") ? `${PKG}/editor` : PKG);
   if (/from\s+"\.{1,2}\//.test(code)) throw new Error(`unrewritten relative import in ${file}`);
   writeFileSync(dest, code);
 }
