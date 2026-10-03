@@ -534,3 +534,131 @@ input.display-lg {
     opacity: 0;
   }
 }
+
+/*
+ * Rich text: how headings, lists, quotes and code look inside <Prose>. One body size throughout; headings are told apart by
+ * case, style, colour, rules and spacing, never by a new size or a heavier weight (the design test forbids both). (The type scale demo shows every element.)
+ */
+@layer components {
+  .prose {
+    color: var(--color-ink);
+    overflow-wrap: break-word;
+  }
+  .prose > * + * {
+    margin-top: 0.75rem;
+  }
+  .prose h1 {
+    margin-top: 2rem;
+    border-bottom: 1px solid var(--color-line-strong);
+    padding-bottom: 0.25rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .prose h2 {
+    margin-top: 1.75rem;
+    border-bottom: 1px dotted var(--color-line-strong);
+    padding-bottom: 0.125rem;
+  }
+  .prose h3 {
+    margin-top: 1.5rem;
+    color: var(--color-ink-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .prose h4 {
+    margin-top: 1.25rem;
+    font-style: italic;
+  }
+  .prose h5,
+  .prose h6 {
+    margin-top: 1.25rem;
+    color: var(--color-ink-muted);
+  }
+  .prose > :is(h1, h2, h3, h4, h5, h6):first-child {
+    margin-top: 0;
+  }
+  .prose :is(h1, h2, h3, h4, h5, h6) + * {
+    margin-top: 0.5rem;
+  }
+  .prose em {
+    font-style: italic;
+  }
+  .prose del {
+    color: var(--color-ink-muted);
+    text-decoration: line-through;
+  }
+  .prose a {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .prose ul,
+  .prose ol {
+    padding-left: 1.5rem;
+  }
+  .prose ul {
+    list-style: disc;
+  }
+  .prose ol {
+    list-style: decimal;
+  }
+  .prose li + li {
+    margin-top: 0.25rem;
+  }
+  .prose li > :is(ul, ol) {
+    margin-top: 0.25rem;
+  }
+  .prose blockquote {
+    border-left: 2px solid var(--color-line-strong);
+    padding-left: 0.75rem;
+    color: var(--color-ink-muted);
+  }
+  .prose code {
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    padding: 0.0625rem 0.25rem;
+  }
+  .prose pre {
+    overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    padding: 0.5rem 0.75rem;
+  }
+  .prose pre code {
+    background: transparent;
+    padding: 0;
+  }
+  .prose hr {
+    border: 0;
+    border-top: 1px solid var(--color-line-strong);
+    margin-block: 1.5rem;
+  }
+  .prose table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+  .prose th,
+  .prose td {
+    border: 1px solid var(--color-line);
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+  }
+  .prose th {
+    color: var(--color-ink-muted);
+    text-transform: uppercase;
+  }
+  .prose img {
+    max-width: 100%;
+    border-radius: var(--radius);
+  }
+  .prose input[type="checkbox"] {
+    margin-right: 0.5rem;
+  }
+  .prose li:has(> input[type="checkbox"]) {
+    list-style: none;
+    margin-left: -1.5rem;
+  }
+}

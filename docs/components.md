@@ -172,3 +172,6 @@ Import once: `@import "@teb-ooo/ui/theme.css";`.
 - **Shared classes** (components layer): `.btn`, `.btn-solid`, `.btn-danger`, `.btn-warning`, `.btn-icon`, `.btn-add`, `.chip` with `.chip-ok`, `.chip-warn`, `.chip-muted`, `.chip-danger`, `.chip-link`, `.chip-agent`, `.input`, `.panel`, and the popup transitions `anim-fade`, `anim-slide-right`, `anim-backdrop`.
 - **Font.** Geist Mono (variable woff2, OFL) is in `fonts/` with its license. There is no second typeface.
 - **Design test.** `test/design.test.ts` is the rule set (sizes, radius, weights, palette and literal colours, theme control, raw buttons, title attributes, product names). Copy it unchanged to an app's `web/test/`.
+
+## Prose
+Wrap rendered rich text (a markdown render, an editor's content) in `<Prose>` and its elements are styled: `p`, `h1`-`h6`, `ul`/`ol`, `blockquote`, `pre`/`code`, `hr`, `a`, `table`, `img`, task-list checkboxes. One type size and no heavier weight: h1 is uppercase with a rule under it, h2 has a dotted rule, h3 is a muted uppercase label, h4 is italic, h5/h6 are muted; `strong` and `em` are the browser's bold and italic. The Prose story is the type scale demo; the styles live under `.prose` in theme.css, so iterate there. It does not parse markdown: pass it HTML elements.

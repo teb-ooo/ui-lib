@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.40.0 (from 0.39.4)
+
+No change needed. New `Prose` component for rich text (headings, lists, quotes, code, tables): wrap your rendered markdown or editor content in it instead of styling elements locally. See the Prose story (the type scale demo).
+
 ## To ui 0.39.4 and web 0.8.2 (from 0.39.3 and 0.8.1)
 
 No change needed; visible differences:
