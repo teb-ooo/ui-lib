@@ -7,7 +7,7 @@ export default {
   group: "Atoms",
   description:
     "Chooses a number on a scale: drag the thumb or use the keyboard (arrows, Home, End, PageUp, PageDown). The value shows next to the label with its unit and is spoken with it; the thumb has a 28px touch target. RangeSlider has two thumbs for a low and a high value (a passband, a floor and ceiling) that cannot cross and keep a minimum gap. onValueCommit fires once when the person lets go.",
-  aliases: ["range", "scrubber", "volume", "fader", "dial", "range input", "level", "knob", "seek bar", "two thumbs"],
+  aliases: ["range", "scrubber", "volume", "fader", "range input", "level", "knob", "seek bar", "two thumbs"],
   component: "Slider",
   source: "src/components/slider.tsx",
 } satisfies StoryDefault;
