@@ -136,7 +136,7 @@ const menuItem =
  * feedback (owner only) and the person menu.
  *
  * `Shell` draws it from the platform's own data and takes nothing from the app. It is exported for the design gallery
- * only: an app never renders it, and WEB-52 forbids adding anything to it.
+ * only: an app never renders it, and the platform shell contract (docs/shell.md) forbids adding anything to it.
  */
 export function PlatformBar({
   appName,
