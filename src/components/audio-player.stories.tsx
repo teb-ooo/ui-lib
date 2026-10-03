@@ -11,8 +11,8 @@ export default {
   source: "src/components/audio-player.tsx",
 } satisfies StoryDefault;
 
-// A one-second silent WAV, so the story needs no file.
-const SILENCE = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+// A one-second silent file the gallery serves from its own origin (the page's content security policy allows only that).
+const SILENCE = "/silence.wav";
 
 export const Basic = () => <AudioPlayer src={SILENCE} label="Recording: 7.2 MHz AM" />;
 Basic.storyMeta = { description: "Play or pause, seek, elapsed and total time, mute." } satisfies StoryMeta;
