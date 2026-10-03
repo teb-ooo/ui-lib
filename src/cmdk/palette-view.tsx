@@ -175,7 +175,7 @@ export function PaletteView(props: PaletteViewProps) {
               <Row key={row.command.id + (row.fallback ? ":fallback" : "")} row={row} props={props} />
             ))}
             {section.status ? (
-              <div role="status" className="px-3 py-1 text-ink-faint">
+              <div role="status" className={section.status === "loading" ? "anim-delayed px-3 py-1 text-ink-faint" : "px-3 py-1 text-ink-faint"}>
                 {section.status === "loading" ? "Searching..." : `Could not search ${section.group.toLowerCase()}`}
               </div>
             ) : null}

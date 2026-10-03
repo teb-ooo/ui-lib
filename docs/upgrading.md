@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.43.0 (from 0.42.x)
+
+Visible change, no code needed: loading skeletons, the "Loading" line, a loading Button's spinner and the palette's "Searching..." line now stay invisible for 100ms and then fade in, so a fast response no longer flashes them. New `Delayed` wrapper for your own loading UI (see components.md). The delay is `--loading-delay`; set it in your CSS to change it. A test that looks for a skeleton immediately must wait 100ms or check the element's presence, which is unchanged.
+
 ## To ui 0.42.0 (from 0.41.x)
 
 No change needed. New `Chip priority={0..4}` and a priority colour scale (`--color-p0` to `--color-p4` with `-soft` and `-line`, ramps `--color-p0-50` to `-950`, repointable like any state ramp). Use it for a five-level priority; colour for labels and categories is still not offered.

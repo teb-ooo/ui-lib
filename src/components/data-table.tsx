@@ -563,7 +563,7 @@ export function DataTable<T>({
       );
     if (rows.length === 0 && loading) {
       return Array.from({ length: 8 }, (_, i) => (
-        <div key={i} aria-hidden="true" className="flex h-[var(--control-h)] items-center border-b border-line px-2">
+        <div key={i} aria-hidden="true" className="anim-delayed flex h-[var(--control-h)] items-center border-b border-line px-2">
           <div className="h-2 w-1/3 rounded bg-surface-raised" />
         </div>
       ));
@@ -765,7 +765,7 @@ export function DataTable<T>({
               )}
             </div>
           )}
-          {rows.length > 0 && loading ? <div className="p-2 text-ink-faint">Loading</div> : null}
+          {rows.length > 0 && loading ? <div className="anim-delayed p-2 text-ink-faint">Loading</div> : null}
         </div>
         {pagination ? (
           <div

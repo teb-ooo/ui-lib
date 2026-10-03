@@ -63,7 +63,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {...rest}
       {...(label !== undefined ? { "aria-label": label } : {})}
     >
-      {loading ? <Loader2 aria-hidden="true" className="size-4 animate-spin" /> : icon}
+      {loading ? (
+        <span aria-hidden="true" className="anim-delayed inline-flex">
+          <Loader2 className="size-4 animate-spin" />
+        </span>
+      ) : (
+        icon
+      )}
       {children}
     </BaseButton>
   );

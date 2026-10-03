@@ -178,3 +178,6 @@ Wrap rendered rich text (a markdown render, an editor's content) in `<Prose>` an
 
 ## NotFound
 The page or pane for something that is not there: `title` ("Nothing here"), `description`, `action` (a `LinkButton` back), `variant` "page" (display-size heading in a narrow column) or "pane" (an unknown item in a detail area). Give it to the router: `createRouter({ defaultNotFoundComponent: () => <NotFound action={<LinkButton href="/">Back to the start</LinkButton>} /> })`.
+
+## Delayed loading feedback
+Loading UI waits 100ms before it appears and then fades in over 150ms (`.anim-delayed`, the delay is `--loading-delay`), so a response that arrives at once shows nothing instead of a skeleton that flashes. The package does this itself for DataTable skeleton rows and its "Loading" line, the spinner of a `Button loading` (the button is still disabled at once) and the palette's "Searching..." line. For an app's own loading line, skeleton or spinner, wrap it in `<Delayed>`; failures and empty states are not delayed.

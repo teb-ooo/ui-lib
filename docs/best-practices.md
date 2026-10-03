@@ -4,7 +4,7 @@ What five apps got wrong most often and how to build it right the first time. Ea
 
 ## 1. Every data screen has four states
 Loading, error, empty and loaded are designed, not left to chance.
-- **Loading:** `DataTable loading`; hide counts ("0 rules") until the data is there. With `createQueryClient` an error shows within about a second.
+- **Loading:** `DataTable loading` (its skeleton waits 100ms before it appears; wrap your own loading line or spinner in `Delayed`); hide counts ("0 rules") until the data is there. With `createQueryClient` an error shows within about a second.
 - **Error:** `DataTable error={error.userMessage} onRetry={refetch}`. Never print `error.message` ("Internal Server Error: internal error"); `ApiError.userMessage` is a sentence for a person.
 - **Empty:** say why it is empty. With a filter on, name the filter and offer "Clear filters" ("No retired rules. Show all rules"); with none, say how to add the first one.
 - **Loaded:** the normal screen.
