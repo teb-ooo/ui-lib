@@ -51,6 +51,12 @@ export interface Pagination {
   total: number;
   /** The total is a count up to a limit ("500+"): Next stays on while a full page was returned. */
   totalIsLowerBound?: boolean;
+  /**
+   * For a list the server pages with a cursor: whether another page exists (the server sent a next cursor). When given it
+   * decides Next, instead of "a full page was returned" or the total. Pair it with `total` as the rows seen so far and
+   * `totalIsLowerBound` set to this value.
+   */
+  hasNext?: boolean;
   onPageChange: (page: number) => void;
   /** Giving this with `pageSizes` adds a rows-per-page select. */
   onPageSizeChange?: (pageSize: number) => void;
@@ -404,9 +410,11 @@ export function DataTable<T>({
   }, [pageNow]);
 
   const lastPage = pagination
-    ? pagination.totalIsLowerBound
-      ? rows.length < pagination.pageSize
-      : (pagination.page + 1) * pagination.pageSize >= pagination.total
+    ? pagination.hasNext !== undefined
+      ? !pagination.hasNext
+      : pagination.totalIsLowerBound
+        ? rows.length < pagination.pageSize
+        : (pagination.page + 1) * pagination.pageSize >= pagination.total
     : true;
   const rangeStart = pagination ? pagination.page * pagination.pageSize + 1 : 0;
   const rangeEnd = pagination

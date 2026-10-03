@@ -88,3 +88,6 @@ The model (from ah's layout-and-scrolling notes):
 ## 13. Small things that trip people
 - A `LinkButton` or `Button` that is a direct child of a `Section` (a column) stretches to the full width: wrap it in a `div` (or put it in the section's `actions`).
 - A `Chip tone="muted"` keeps the chip's padding, so quiet status text in a table cell starts about 8px right of its column header. If that matters, show the common value as plain text (`text-ink-faint`) and use a chip only for the unusual one.
+
+## 14. A list the server pages is searched by the server
+([API-bpe](https://rb.teb.ooo/rule/API-bpe).) Never filter, sort or search the rows of one page in the client: the row you want may be on page 3. Use `useListTable` (`@teb-ooo/web` 0.9.1) over the generated list hook and spread its `table` onto `DataTable`; it sends the search (debounced), filters and sort as the operation's parameters, keeps the cursor stack for Next and Previous and returns to the first page on any change. Name the active search and filters in the empty state and offer Clear filters (`hasActiveFilters`, `clearFilters`). See the web package README.

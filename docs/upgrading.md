@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.55.0 and web 0.9.1 (from 0.54.x and 0.9.0)
+
+No change needed. New `useListTable` in `@teb-ooo/web` (server-driven lists on `DataTable`) and `DataTable` `pagination.hasNext` for cursor lists. See best-practices.md section 14.
+
 ## To ui 0.54.1 (from 0.54.0)
 
 Story only: the broken-picture example uses an undecodable data URI, so the route makes no failing request.

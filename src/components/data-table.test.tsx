@@ -384,4 +384,15 @@ describe("DataTable", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
+
+  it("hasNext decides Next for a cursor list, even when the last page is exactly full", () => {
+    const onPageChange = vi.fn();
+    const pagination = { page: 0, pageSize: 3, total: 3, totalIsLowerBound: false, hasNext: false, onPageChange };
+    const { rerender } = render(<DataTable {...base} pagination={pagination} />);
+    const next = screen.getByRole("button", { name: /next/i });
+    expect((next as HTMLButtonElement).disabled).toBe(true);
+    rerender(<DataTable {...base} pagination={{ ...pagination, total: 3, totalIsLowerBound: true, hasNext: true }} />);
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    expect(onPageChange).toHaveBeenCalledWith(1);
+  });
 });

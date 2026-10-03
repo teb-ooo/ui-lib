@@ -223,3 +223,6 @@ The shared writing surface: page-like rich text with no box. `import { RichTextE
 
 ## ImagePreview (0.54.0)
 A picture in the panel look: `src`, `alt` (required), `maxHeight` (rem, 20; proportions kept), `href` (adds an "Open full size" link that opens in a new tab), `openLabel`. If the picture fails to load nothing is drawn (no broken-image icon). Use it for a screenshot or an attachment preview instead of a raw `img`.
+
+## Server-driven lists (0.55.0)
+`DataTable`'s `pagination.hasNext` (optional) says whether the server sent a next cursor and then decides Next, even when the last page is exactly full; pair it with `total` as the rows seen so far and `totalIsLowerBound` set to the same value (the pager reads "26-50 of 50+"). `useListTable` in `@teb-ooo/web` 0.9.1 builds all of this (search, filters, sort, cursor stack, page size) over a generated list hook: spread its `table` onto `DataTable`. Search, filter and sort go to the server through the list operation's parameters, not over one page of rows in the client.
