@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.54.0 (from 0.53.x)
+
+No change needed. New `ImagePreview` (a picture in the panel look with a max height, an optional Open full size link and no broken-image icon).
+
 ## To ui 0.53.1 (from 0.53.0)
 
 Tests and docs only (0.53.0 was published with two tests still to update).

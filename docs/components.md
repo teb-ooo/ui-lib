@@ -220,3 +220,6 @@ The shared writing surface: page-like rich text with no box. `import { RichTextE
 - **Link editor** (0.51.0): select text (or put the caret in a link) and press Link in the toolbar: an address field opens beside it; Enter applies, Escape cancels and returns to the text, Remove link unsets it. The address must pass `validateHref` (default http, https, mailto) or the field says so. The toolbar stays visible while the field has focus and is reachable by Tab.
 - External changes to `value` replace the content only while the editor is not focused; an update that leaves the document as the app already has it is not reported.
 - Cmd or Ctrl+I in the editor is italic: the editor keeps the keydown from reaching the document, so the Send feedback hotkey does not fire while you type (0.50.3).
+
+## ImagePreview (0.54.0)
+A picture in the panel look: `src`, `alt` (required), `maxHeight` (rem, 20; proportions kept), `href` (adds an "Open full size" link that opens in a new tab), `openLabel`. If the picture fails to load nothing is drawn (no broken-image icon). Use it for a screenshot or an attachment preview instead of a raw `img`.

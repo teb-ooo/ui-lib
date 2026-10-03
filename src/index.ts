@@ -26,6 +26,8 @@ export { NotAllowed, NotFound } from "./components/not-found";
 export type { NotAllowedProps, NotFoundProps } from "./components/not-found";
 export { Prose } from "./components/prose";
 export type { ProseProps } from "./components/prose";
+export { ImagePreview } from "./components/image-preview";
+export type { ImagePreviewProps } from "./components/image-preview";
 export { Card, CardGrid } from "./components/card";
 export type { CardGridProps, CardProps } from "./components/card";
 export { EmptyState } from "./components/empty-state";
