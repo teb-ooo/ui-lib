@@ -8,6 +8,7 @@ import { Kbd } from "./kbd";
 import { LinkButton } from "./link-button";
 import { LiveIndicator } from "./live-indicator";
 import { Popover } from "./popover";
+import { FEEDBACK_SHORTCUT } from "./platform-commands";
 import type { LiveStatus } from "./live-indicator";
 
 export type AgentBarStatus = "working" | "idle" | "offline" | "logged_out";
@@ -217,7 +218,7 @@ export function PlatformBar({
         <Search aria-hidden="true" className="size-4" />
       </Icon>
       {onFeedback ? (
-        <Icon tip="Send feedback" shortcut="mod+shift+l" onClick={onFeedback}>
+        <Icon tip="Send feedback" shortcut={FEEDBACK_SHORTCUT} onClick={onFeedback}>
           <MessageSquarePlus aria-hidden="true" className="size-4" />
         </Icon>
       ) : null}

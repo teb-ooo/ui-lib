@@ -329,18 +329,18 @@ describe("PlatformBar", () => {
 });
 
 describe("Send feedback hotkey", () => {
-  it("is Cmd or Ctrl+Shift+L, on the command and on the bar icon's tooltip, only for the owner", async () => {
+  it("is Cmd or Ctrl+I (no Shift), on the command and on the bar icon's tooltip, only for the owner", async () => {
     const open = vi.fn();
     const cmds = platformCommands({ signedIn: true, feedback: { available: true, open } });
     const send = cmds.find((c) => c.id === "send-feedback");
-    expect(send?.shortcut).toBe("mod+shift+l");
-    expect(FEEDBACK_SHORTCUT).toBe("mod+shift+l");
+    expect(send?.shortcut).toBe("mod+i");
+    expect(FEEDBACK_SHORTCUT).toBe("mod+i");
     const when = send?.when;
     expect(typeof when === "function" ? when() : when).toBe(true);
     const other = platformCommands({ signedIn: true, feedback: { available: false, open } }).find((c) => c.id === "send-feedback");
     expect(typeof other?.when === "function" ? other.when() : other?.when).toBe(false);
     render(<PlatformBar appName="a" live={null} user={{ name: "o" }} signOutHref="/o" signInHref="/i" onOpenPalette={() => undefined} onFeedback={open} />);
     await userEvent.hover(screen.getByRole("button", { name: "Send feedback" }));
-    expect(await screen.findByRole("group", { name: /Shift/ })).toBeTruthy();
+    expect(await screen.findByRole("group", { name: /^(Control|Command) I$/ })).toBeTruthy();
   });
 });
