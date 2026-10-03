@@ -25,6 +25,9 @@ Label, control, description and error, wired for assistive tech (label associati
 ## className on components
 Every component takes `className` for layout utilities only (width, margin, flex). It is appended to the component's own classes, not merged: `cn` joins strings and the package has no class-merging library, so when your class sets the same property as the component's own (a width on `Select`, `Combobox` or `SearchInput`, whose default is `w-56`, `w-72` or `min-w-48`), both apply and the stylesheet order decides. Override with Tailwind's important suffix: `className="w-32!"`. A property the component does not set (margin, `flex-none`) needs no suffix.
 
+## NumberField
+A number typed or stepped (0.31.0): `label`, `value: number | null`, `onValueChange`, `onValueCommit?` (Enter, leaving the box, or letting go of a stepper), `min?`, `max?`, `step` (1), `largeStep` (Shift+arrow, default ten steps), `smallStep` (Alt+arrow, a tenth), `unit?` (text inside the box, such as `kHz`), `format?` (`Intl.NumberFormat` options), `steppers` (minus and plus buttons, default true: the way to step on a phone), `description?`, `error?`, `disabled?`, `readOnly?`. ArrowUp/ArrowDown step, Home/End jump to the limits, typing is parsed in the person's locale, digits are tabular.
+
 ## Dialog
 Modal on Base UI `Dialog`: focus moves in, Escape closes, focus returns to the trigger.
 - `title: ReactNode` (required; the accessible name), `description?`, `footer?`, `children?`

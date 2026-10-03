@@ -68,3 +68,5 @@ export { ToastProvider, useToast } from "./components/toast";
 export type { ToastApi, ToastOptions, ToastTone } from "./components/toast";
 export { Slider, RangeSlider } from "./components/slider";
 export type { SliderProps, RangeSliderProps } from "./components/slider";
+export { NumberField } from "./components/number-field";
+export type { NumberFieldProps } from "./components/number-field";
