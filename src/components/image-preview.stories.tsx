@@ -22,7 +22,7 @@ Tall.storyMeta = { description: "A tall picture is cut to the max height without
 export const Broken = () => (
   <div>
     <p className="text-ink-muted">Below, a picture that fails to load: nothing is drawn.</p>
-    <ImagePreview src="/nope-missing.png" alt="Missing" />
+    <ImagePreview src="data:image/png;base64,AAAA" alt="Missing" />
   </div>
 );
 Broken.storyMeta = { state: "error", description: "No broken-image icon: the component draws nothing." } satisfies StoryMeta;

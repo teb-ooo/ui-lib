@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.54.1 (from 0.54.0)
+
+Story only: the broken-picture example uses an undecodable data URI, so the route makes no failing request.
+
 ## To ui 0.54.0 (from 0.53.x)
 
 No change needed. New `ImagePreview` (a picture in the panel look with a max height, an optional Open full size link and no broken-image icon).
