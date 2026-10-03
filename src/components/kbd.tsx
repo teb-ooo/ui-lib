@@ -119,10 +119,11 @@ const glyphNudge: Record<string, number> = { "⌃": 3.9, "↵": 0.75, "⌥": -0.
 // when all are down the box itself lights.
 const chordClass =
   "inline-flex h-6 items-stretch gap-0.5 rounded border border-line bg-surface p-0.5 text-ink-muted " +
-  "transition-colors data-[complete]:border-ink data-[complete]:bg-surface-raised data-[complete]:text-ink";
+  // The same pressed look as one keycap: darker, a stronger edge, a pixel lower. No other highlight.
+  "transition-colors data-[complete]:translate-y-px data-[complete]:border-line-strong data-[complete]:bg-surface-raised data-[complete]:text-ink";
 const chordKeyClass =
   "inline-flex min-w-5 items-center justify-center rounded px-1 leading-none transition-colors " +
-  "data-[pressed]:bg-surface-raised data-[pressed]:text-ink data-[complete-key]:bg-transparent";
+  "data-[pressed]:bg-line data-[pressed]:text-ink";
 
 function Glyph({ children }: { children: ReactNode }) {
   const nudge = typeof children === "string" ? glyphNudge[children] : undefined;

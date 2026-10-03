@@ -122,3 +122,21 @@ describe("Kbd chord box", () => {
     expect(container.querySelectorAll("kbd")).toHaveLength(2);
   });
 });
+
+describe("Kbd chord highlight matches a single key", () => {
+  it("the full chord uses the same pressed look as one keycap (stronger edge, raised ground, a pixel lower), not a different one", () => {
+    const { container } = render(
+      <>
+        <Kbd shortcut="g" />
+        <Kbd shortcut="ctrl+n" />
+      </>,
+    );
+    const single = (container.querySelector("kbd") as HTMLElement).className;
+    const chord = (container.querySelector("span.h-6") as HTMLElement).className;
+    for (const cls of ["data-[pressed]:translate-y-px", "data-[pressed]:border-line-strong", "data-[pressed]:bg-surface-raised"]) {
+      expect(single).toContain(cls);
+      expect(chord).toContain(cls.replace("data-[pressed]", "data-[complete]"));
+    }
+    expect(chord).not.toContain("border-ink");
+  });
+});
