@@ -2,6 +2,7 @@ import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { setViewportWidth } from "../../test/cmdk/viewport";
+import { EmptyState } from "./empty-state";
 import { DataTable } from "./data-table";
 import type { Column } from "./data-table";
 
@@ -395,5 +396,16 @@ describe("DataTable", () => {
     rerender(<DataTable {...base} pagination={{ ...pagination, total: 3, totalIsLowerBound: true, hasNext: true }} />);
     fireEvent.click(screen.getByRole("button", { name: /next/i }));
     expect(onPageChange).toHaveBeenCalledWith(1);
+  });
+});
+
+describe("DataTable empty", () => {
+  it("pads a text `empty` once and does not add padding around an EmptyState", () => {
+    const { container, rerender } = render(<DataTable {...base} rows={[]} empty="Nothing here" />);
+    expect(screen.getByText("Nothing here").className).toContain("px-2");
+    rerender(<DataTable {...base} rows={[]} empty={<EmptyState title="No rows" description="Clear the filter." />} />);
+    const status = screen.getByText("No rows").closest('[role="status"]') as HTMLElement;
+    expect(status.parentElement?.className).not.toContain("p-4");
+    expect(container.querySelectorAll(".p-4").length).toBe(1);
   });
 });

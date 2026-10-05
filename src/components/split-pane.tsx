@@ -4,6 +4,7 @@ import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { useMinWidth } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
+import { readStored, removeStored, writeStored } from "../lib/storage";
 import { Button } from "./button";
 
 export interface SplitPaneProps {
@@ -68,25 +69,13 @@ export function SplitPane({
   const wide = useMinWidth("lg");
   const storageKey = persistKey ? `teb-ui:split-pane:${persistKey}` : null;
   const [size, setSize] = useState(() => {
-    if (storageKey) {
-      try {
-        const saved = Number(window.localStorage.getItem(storageKey));
-        if (Number.isFinite(saved) && saved > 0) return Math.min(maxSize, Math.max(minSize, saved));
-      } catch {
-        // storage blocked: use the default
-      }
-    }
+    const raw = storageKey ? readStored(storageKey) : null;
+    const saved = Number(raw);
+    if (raw !== null && Number.isFinite(saved) && saved > 0) return Math.min(maxSize, Math.max(minSize, saved));
     return defaultSize;
   });
   // False until a saved width is restored, the divider moves or a key changes it: then the width follows the screen.
-  const [sized, setSized] = useState(() => {
-    if (!storageKey) return false;
-    try {
-      return window.localStorage.getItem(storageKey) !== null;
-    } catch {
-      return false;
-    }
-  });
+  const [sized, setSized] = useState(() => (storageKey ? readStored(storageKey) !== null : false));
   const sizeRef = useRef(size);
   const dragging = useRef<{ startX: number; startSize: number } | null>(null);
 
@@ -98,22 +87,12 @@ export function SplitPane({
     onSizeChange?.(next);
   };
   const save = () => {
-    if (!storageKey) return;
-    try {
-      window.localStorage.setItem(storageKey, String(sizeRef.current));
-    } catch {
-      // not remembered
-    }
+    if (storageKey) writeStored(storageKey, String(sizeRef.current));
   };
   const reset = () => {
     change(defaultSize);
     setSized(false);
-    if (!storageKey) return;
-    try {
-      window.localStorage.removeItem(storageKey);
-    } catch {
-      // nothing to forget
-    }
+    if (storageKey) removeStored(storageKey);
   };
   const remPx = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
 

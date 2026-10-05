@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, ChevronsUpDown, C
 import { useMinWidth } from "../hooks/use-media-query";
 import type { Breakpoint } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
+import { readStoredJson, writeStoredJson } from "../lib/storage";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
 import { Select } from "./select";
@@ -142,42 +143,30 @@ export interface DataTableProps<T> {
 
 const STORAGE_PREFIX = "teb-ui:data-table:";
 
+function isFlagMap(parsed: unknown): parsed is Record<string, unknown> {
+  return parsed !== null && typeof parsed === "object" && !Array.isArray(parsed);
+}
+
 function readSaved(key: string | undefined): Record<string, boolean> {
   if (!key) return {};
-  try {
-    const parsed: unknown = JSON.parse(window.localStorage.getItem(STORAGE_PREFIX + key) ?? "null");
-    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-    return Object.fromEntries(Object.entries(parsed).filter((e): e is [string, boolean] => typeof e[1] === "boolean"));
-  } catch {
-    return {};
-  }
+  const parsed = readStoredJson(STORAGE_PREFIX + key);
+  if (!isFlagMap(parsed)) return {};
+  return Object.fromEntries(Object.entries(parsed).filter((e): e is [string, boolean] => typeof e[1] === "boolean"));
 }
 
 function writeSaved(key: string, value: Record<string, boolean>): void {
-  try {
-    window.localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
-  } catch {
-    // storage is full or blocked: the configuration just is not remembered
-  }
+  writeStoredJson(STORAGE_PREFIX + key, value);
 }
 
 function readWidths(key: string | undefined): Record<string, number> {
   if (!key) return {};
-  try {
-    const parsed: unknown = JSON.parse(window.localStorage.getItem(`${STORAGE_PREFIX}${key}:widths`) ?? "null");
-    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-    return Object.fromEntries(Object.entries(parsed).filter((e): e is [string, number] => typeof e[1] === "number" && e[1] > 0));
-  } catch {
-    return {};
-  }
+  const parsed = readStoredJson(`${STORAGE_PREFIX}${key}:widths`);
+  if (!isFlagMap(parsed)) return {};
+  return Object.fromEntries(Object.entries(parsed).filter((e): e is [string, number] => typeof e[1] === "number" && e[1] > 0));
 }
 
 function writeWidths(key: string, value: Record<string, number>): void {
-  try {
-    window.localStorage.setItem(`${STORAGE_PREFIX}${key}:widths`, JSON.stringify(value));
-  } catch {
-    // not remembered
-  }
+  writeStoredJson(`${STORAGE_PREFIX}${key}:widths`, value);
 }
 
 const MIN_COLUMN_REM = 4;
@@ -592,7 +581,11 @@ export function DataTable<T>({
         </div>
       ));
     }
-    if (rows.length === 0) return <div className="p-4 text-ink-muted">{empty}</div>;
+    // Text gets the table's own padding; an EmptyState brings its own, so it is only lined up with the first column.
+    if (rows.length === 0) {
+      const text = typeof empty === "string" || typeof empty === "number";
+      return <div className={text ? "px-2 py-4 text-ink-muted" : "[&>[role=status]]:px-2"}>{empty}</div>;
+    }
     return null;
   };
   const stateBody = body();
