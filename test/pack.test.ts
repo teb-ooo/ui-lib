@@ -13,11 +13,13 @@ function storySources(dir: string): string[] {
 
 describe("packed tarball", () => {
   // stories/ is generated (and gitignored), so a fresh clone has none: build it here instead of trusting an earlier build.
+  // --ignore-scripts: dist/ is built by `npm run build` (prepack) before a release; only stories/ matters for this test.
+  let files: string[] = [];
   beforeAll(() => {
     execFileSync("npm", ["run", "build:stories"], { cwd: root, stdio: "ignore" });
-  }, 60_000);
-  const out = execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: root, encoding: "utf8" });
-  const files: string[] = (JSON.parse(out)[0].files as { path: string }[]).map((f) => f.path);
+    const out = execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: root, encoding: "utf8" });
+    files = (JSON.parse(out)[0].files as { path: string }[]).map((f) => f.path);
+  }, 120_000);
 
   it("ships every story file and the story format doc", () => {
     const expected = storySources(join(root, "src")).map((p) => "stories/" + p.slice(join(root, "src").length + 1));
