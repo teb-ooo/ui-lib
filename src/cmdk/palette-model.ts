@@ -50,13 +50,13 @@ export function buildPaletteModel({ query, commands, recents, root, external = [
     sections.push({ group, rows });
   };
 
-  let pool = commands;
+  let pool = commands.filter((c) => (c.minChars ?? 0) <= q.length);
   if (q === "" && root) {
-    const byId = new Map(commands.map((c) => [c.id, c]));
+    const byId = new Map(pool.map((c) => [c.id, c]));
     const recent = recents.map((id) => byId.get(id)).filter((c): c is Command => c !== undefined);
     push("Recent", recent.map((command) => ({ command, label: command.title, indices: [] })));
     const recentIds = new Set(recent.map((c) => c.id));
-    pool = commands.filter((c) => !recentIds.has(c.id));
+    pool = pool.filter((c) => !recentIds.has(c.id));
   }
 
   const ranked = rankCommands(q, pool);

@@ -1,0 +1,71 @@
+import { describe, expect, it, vi } from "vitest";
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PaletteFromApi, paletteFetch, usePaletteSelection } from "../../src/cmdk/index";
+import type { OpenApiDocument } from "../../src/cmdk/index";
+import { renderApp } from "./harness";
+
+const spec: OpenApiDocument = {
+  paths: {
+    "/api/items": { get: { operationId: "list-items", "x-palette": { source: { group: "Items", title: "{name}", route: "/items/{id}" } } } },
+    "/api/items/{id}/archive": {
+      post: { operationId: "archive-item", "x-palette": { title: "Archive this item", group: "Item", when: { route: "/items/$id" }, args: { id: "route.id" }, confirm: true } },
+    },
+    "/api/items/{id}/pin": {
+      post: { operationId: "pin-item", "x-palette": { title: "Pin {name}", group: "Item", when: { route: "/items", needs: "selection" }, args: { id: "selection.id" } } },
+    },
+  },
+};
+
+function Selected() {
+  usePaletteSelection({ id: "9", name: "Salt" });
+  return <p>list</p>;
+}
+
+async function open(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole("button", { name: "Open command palette" }));
+  return await screen.findByRole("combobox", { name: "Search commands" });
+}
+
+describe("PaletteFromApi", () => {
+  it("offers the action tagged for the open route, confirms, calls the operation with the route parameter", async () => {
+    const call = vi.fn(async () => null);
+    const confirm = vi.fn(() => true);
+    const client = new QueryClient();
+    const user = userEvent.setup();
+    await renderApp({ initialPath: "/items/42", extra: <QueryClientProvider client={client}><PaletteFromApi spec={spec} call={call} confirm={confirm} /></QueryClientProvider> });
+    await open(user);
+    await user.click(await screen.findByRole("option", { name: /Archive this item/ }));
+    await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "archive-item", method: "post", path: "/api/items/{id}/archive", args: { id: "42" } }));
+    expect(confirm).toHaveBeenCalledWith("Archive this item?");
+  });
+
+  it("does not offer it on another route, and offers a selection action once a screen publishes its row", async () => {
+    const call = vi.fn(async () => null);
+    const client = new QueryClient();
+    const user = userEvent.setup();
+    await renderApp({
+      initialPath: "/items",
+      routes: [{ path: "/items", component: () => <Selected /> }, { path: "/items/$id" }],
+      extra: <QueryClientProvider client={client}><PaletteFromApi spec={spec} call={call} /></QueryClientProvider>,
+    });
+    await open(user);
+    expect(screen.queryByRole("option", { name: /Archive this item/ })).toBeNull();
+    await user.click(await screen.findByRole("option", { name: /Pin Salt/ }));
+    await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "pin-item", method: "post", path: "/api/items/{id}/pin", args: { id: "9" } }));
+  });
+});
+
+describe("paletteFetch", () => {
+  it("fills path parameters, puts the rest in the query of a GET and in a JSON body otherwise, and throws a problem's detail", async () => {
+    const f = vi.fn(async () => Response.json({ items: [] }));
+    const call = paletteFetch({ fetch: f as unknown as typeof fetch });
+    await call({ operationId: "x", method: "get", path: "/api/people/{id}", args: { id: "a b", q: "x" } });
+    expect(f).toHaveBeenLastCalledWith("/api/people/a%20b?q=x", expect.objectContaining({ method: "GET", credentials: "include" }));
+    await call({ operationId: "y", method: "post", path: "/api/people/{id}/rename", args: { id: "1", title: "T" } });
+    expect(f).toHaveBeenLastCalledWith("/api/people/1/rename", expect.objectContaining({ method: "POST", body: JSON.stringify({ title: "T" }) }));
+    const bad = paletteFetch({ fetch: (async () => new Response(JSON.stringify({ detail: "Not yours." }), { status: 403 })) as unknown as typeof fetch });
+    await expect(bad({ operationId: "z", method: "post", path: "/x", args: {} })).rejects.toThrow("Not yours.");
+  });
+});

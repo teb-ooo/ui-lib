@@ -42,6 +42,8 @@ export interface Command {
   icon?: CommandIcon;
   /** Quiet text after the title: the kind of thing it opens, such as an entry's type ("City"). */
   hint?: string;
+  /** Hide the command until the query has at least this many characters (a command that fits no screen in particular, so it does not crowd the empty palette). @default 0 */
+  minChars?: number;
   /** Hide the command while this is false. Evaluated each time the palette renders or a shortcut is pressed. */
   when?: boolean | (() => boolean);
   /** Executed on Enter, click or shortcut. Return a promise to show a spinner; a rejection shows an inline error row. */

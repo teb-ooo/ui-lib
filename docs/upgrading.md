@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.69.0 (from 0.68.x)
+
+No change needed. New in `@teb-ooo/ui/cmdk`: `PaletteFromApi`, `usePaletteSelection`, `paletteFetch`, `commandsFromSpec`, `sourcesFromSpec`, `paletteProblems`, `untaggedActions` (Cmd+K commands from `x-palette` tags in the API document; see components.md) and `Command.minChars` (hide a command until the query has that many characters).
+
 ## To ui 0.68.0 (from 0.67.x)
 
 No change needed. `AudioPlayer` takes `autoPlay` (requested by waves for continuing into the next recorded minute).
