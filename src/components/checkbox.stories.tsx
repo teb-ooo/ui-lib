@@ -14,6 +14,7 @@ export default {
 export const Default = () => {
   const [checked, setChecked] = useState(false);
   return (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control -- the label wraps the Checkbox (a button); the rule cannot see it
     <label className="flex items-center gap-2 text-ink">
       <Checkbox checked={checked} onCheckedChange={setChecked} />
       Notify me

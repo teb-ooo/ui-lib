@@ -9,7 +9,7 @@ export default {
   group: "Molecules",
   aliases: ["feedback", "report a problem", "bug report", "send feedback", "suggestion box", "screenshot", "element picker"],
   description:
-    "The feedback dialog: free text, an optional picked element, an optional screenshot with a preview and a line saying what is sent. It is driven by useFeedback() from @teb-ooo/web and opened only from Cmd+K (Send feedback, useFeedbackCommand in @teb-ooo/ui/cmdk); there is no header button, and only the superadmin or the app owner ever sees it. These examples use a stand-in controller and send nothing.",
+    "The feedback panel: a popover next to the picked element with a text box, a screenshot toggle and a DOM-node toggle. It is driven by useFeedback() from @teb-ooo/web and opened by the Send feedback command (Cmd+K) or Cmd or Ctrl+I; only the superadmin or the app owner ever sees it. These examples use a stand-in controller and send nothing.",
   component: "FeedbackPanel",
   source: "src/components/feedback-panel.tsx",
 } satisfies StoryDefault;

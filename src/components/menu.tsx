@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement, ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { Menu as BaseMenu } from "@base-ui/react/menu";
 import { Check } from "lucide-react";
 import { cn } from "../lib/cn";

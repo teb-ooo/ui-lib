@@ -496,9 +496,9 @@ export function Graph({
                         {n.label}
                       </a>
                     ) : onNodeSelect ? (
-                      <a href="#" onClick={(e) => choose(n, e)} className={cn("underline-offset-2 hover:underline", n.draft ? "text-ink-muted" : "text-ink")}>
+                      <button type="button" onClick={(e) => choose(n, e)} className={cn("cursor-pointer border-0 bg-transparent p-0 text-left underline-offset-2 hover:underline", n.draft ? "text-ink-muted" : "text-ink")}>
                         {n.label}
-                      </a>
+                      </button>
                     ) : (
                       <span className={n.draft ? "text-ink-muted" : "text-ink"}>{n.label}</span>
                     )}

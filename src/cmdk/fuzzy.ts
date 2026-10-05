@@ -51,8 +51,8 @@ export function fuzzyMatch(query: string, text: string): FuzzyMatch | null {
   const score: number[][] = [];
   const from: number[][] = [];
   for (let i = 0; i < n; i++) {
-    score.push(new Array<number>(m).fill(NEG));
-    from.push(new Array<number>(m).fill(-1));
+    score.push(Array.from({ length: m }, () => NEG));
+    from.push(Array.from({ length: m }, () => -1));
   }
 
   for (let j = 0; j < m; j++) {
@@ -103,7 +103,7 @@ export function fuzzyMatch(query: string, text: string): FuzzyMatch | null {
   }
   if (bestJ < 0) return null;
 
-  const indices = new Array<number>(n);
+  const indices = Array.from({ length: n }, () => 0);
   let j = bestJ;
   for (let i = n - 1; i >= 0; i--) {
     indices[i] = j;

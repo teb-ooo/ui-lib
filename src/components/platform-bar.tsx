@@ -238,6 +238,7 @@ export function PlatformBar({
       ) : null}
       {marked ? (
         <Tooltip tip={envName} side="bottom">
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- focusable so its tooltip (the only text) is reachable by keyboard */}
           <span role="img" aria-label={envName} tabIndex={0} className="h-2 w-12 shrink-0 rounded bg-agent outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
         </Tooltip>
       ) : null}
@@ -252,6 +253,7 @@ export function PlatformBar({
                 <AgentDot status={agentStatus} />
               </a>
             ) : (
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- focusable so its tooltip (the status) is reachable by keyboard
               <span role="img" tabIndex={0} aria-label={`Agent ${agentTexts[agentStatus]}`} data-agent-status={agentStatus} className={cn(iconButton, "relative cursor-default")}>
                 <Bot aria-hidden="true" className="size-4" />
                 <AgentDot status={agentStatus} />
@@ -297,11 +299,13 @@ export function PlatformBar({
                 <div className="px-2 py-1 text-ink-muted">{user.email ?? user.name}</div>
                 <Menu.Separator className="my-1 h-px bg-line" />
                 {profileHref ? (
+                  // eslint-disable-next-line jsx-a11y/control-has-associated-label -- the menu item has text; the rule cannot see through render={<a />}
                   <Menu.Item render={<a href={profileHref} />} className={menuItem}>
                     <User aria-hidden="true" className="size-4" />
                     My profile
                   </Menu.Item>
                 ) : null}
+                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label -- the menu item has text; the rule cannot see through render={<a />} */}
                 <Menu.Item render={<a href={signOutHref} />} className={menuItem}>
                   <LogOut aria-hidden="true" className="size-4" />
                   Sign out

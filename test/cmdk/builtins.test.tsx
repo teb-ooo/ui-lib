@@ -2,12 +2,12 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { isNavigableRoute } from "../../src/cmdk/builtins";
-import { readPlayground } from "../../src/cmdk/playground-global";
+import type * as External from "../../src/cmdk/external";
 import { renderApp } from "./harness";
 
 const external = vi.hoisted(() => ({ assignLocation: vi.fn(), openInNewTab: vi.fn() }));
 vi.mock("../../src/cmdk/external", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../src/cmdk/external")>();
+  const actual = await importOriginal<typeof External>();
   return { ...actual, ...external };
 });
 
@@ -69,14 +69,14 @@ describe("theme", () => {
 });
 
 describe("environment-dependent entries", () => {
-  it("Open in Claude app appears only when the URL is set, accepting snake_case and camelCase", async () => {
+  it("Open in Claude app appears only when the URL is set", async () => {
     const user = userEvent.setup();
     await renderApp();
     await openPalette(user);
     expect(has("Open in Claude app")).toBe(false);
     await user.keyboard("{Escape}");
     await waitFor(() => expect(dialog()).toBeNull());
-    (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = { claudeSessionUrl: "https://claude.ai/code/session_1" };
+    (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = { claude_session_url: "https://claude.ai/code/session_1" };
     await openPalette(user);
     await user.keyboard("claude app{Enter}");
     expect(external.openInNewTab).toHaveBeenCalledWith("https://claude.ai/code/session_1");
@@ -99,14 +99,3 @@ describe("environment-dependent entries", () => {
 });
 
 
-describe("readPlayground", () => {
-  it("is safe when absent or malformed and accepts both key styles", () => {
-    expect(readPlayground()).toEqual({ appName: "", env: "", claudeSessionUrl: "" });
-    (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = null;
-    expect(readPlayground().appName).toBe("");
-    (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = { app_name: "a", env: 3 };
-    expect(readPlayground()).toMatchObject({ appName: "a", env: "" });
-    (window as unknown as { __PLAYGROUND__: unknown }).__PLAYGROUND__ = { appName: "b" };
-    expect(readPlayground()).toMatchObject({ appName: "b" });
-  });
-});

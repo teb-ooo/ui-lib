@@ -16,6 +16,7 @@ import { Tabs } from "./tabs";
 
 describe("router-aware LinkButton", () => {
   it("draws the link through render, with the class and children", () => {
+    // eslint-disable-next-line jsx-a11y/anchor-has-content -- the link's children arrive in the spread props
     const render1 = vi.fn((props: Record<string, unknown>) => <a data-router="1" {...props} href="/rules" />);
     render(<LinkButton render={render1 as never}>Back to the rules</LinkButton>);
     const a = screen.getByRole("link", { name: "Back to the rules" });

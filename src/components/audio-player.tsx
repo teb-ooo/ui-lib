@@ -48,6 +48,7 @@ export function AudioPlayer({ src, label, onEnded, autoPlay = false, className }
 
   return (
     <div role="group" aria-label={label} className={cn("flex items-center gap-2", className)}>
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption -- a recording has no transcript to caption */}
       <audio
         ref={audio}
         src={src}

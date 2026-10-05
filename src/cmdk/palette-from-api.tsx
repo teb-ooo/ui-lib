@@ -13,7 +13,7 @@ let selection: Record<string, unknown> | null = null;
 const listeners = new Set<() => void>();
 function setSelection(next: Record<string, unknown> | null): void {
   selection = next;
-  for (const l of [...listeners]) l();
+  for (const l of Array.from(listeners)) l();
 }
 function useSelection(): Record<string, unknown> | null {
   return useSyncExternalStore(

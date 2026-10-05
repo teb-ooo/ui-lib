@@ -122,6 +122,7 @@ export function CardGrid({ label, minCardWidth = 18, className, children, ...res
     next.focus();
   };
   return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- arrow keys move focus between the cards inside the list
     <div
       ref={root}
       role="list"

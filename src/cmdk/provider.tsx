@@ -23,10 +23,6 @@ export interface CommandProviderProps {
   sequenceTimeout?: number;
   /** Set when there is deliberately no router (a gallery, a test): silences the development warning about it. */
   standalone?: boolean;
-  /**
-   * @deprecated Sign out is one of the platform commands the `Shell` registers; this is ignored.
-   */
-  signOutPath?: string | false;
 }
 
 /**
@@ -48,7 +44,7 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
   routerRef.current = router;
   const afterCloseQueue = useRef<Array<() => void>>([]);
 
-  // Development checks: the provider belongs inside the router, and the app must have imported source.css
+  // Development checks: the provider belongs inside the router, and the app must have imported theme.css
   // (which defines --cmdk-loaded) or the palette renders unstyled without any error.
   useEffect(() => {
     if (!router && !standalone) {

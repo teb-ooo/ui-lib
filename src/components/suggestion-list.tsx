@@ -115,6 +115,7 @@ export function SuggestionList({
             ) : (
               <div role="listbox" id={id} aria-label={label} className="flex flex-col">
                 {items.map((item, i) => (
+                  // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus -- options of the listbox: focus stays in the input (aria-activedescendant) and the keys are handled there
                   <div
                     key={item.id}
                     id={`${id}-option-${i}`}

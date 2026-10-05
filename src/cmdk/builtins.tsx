@@ -1,7 +1,7 @@
 import { Compass, ExternalLink, Keyboard } from "lucide-react";
 import type { AnyRouter } from "@tanstack/react-router";
 import { openInNewTab } from "./external";
-import { readPlayground } from "./playground-global";
+import { getPlayground } from "@teb-ooo/web";
 import type { Command } from "./types";
 
 export const SHORTCUTS_ID = "builtin:keyboard-shortcuts";
@@ -42,7 +42,7 @@ export interface BuiltinDeps {
 
 /** The commands the provider registers in every app. */
 export function builtinCommands({ router, listShortcuts }: BuiltinDeps): Command[] {
-  const playground = readPlayground;
+  const playground = getPlayground;
   return [
     ...navigationCommands(router),
     {

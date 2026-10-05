@@ -49,6 +49,7 @@ describe("DataTable range selection", () => {
   function Controlled({ initial = [] as string[], list = many, activeKey }: { initial?: string[]; list?: Row[]; activeKey?: string }) {
     const [sel, setSel] = useState<ReadonlySet<string>>(new Set(initial));
     const [active, setActive] = useState<string | null>(activeKey ?? null);
+    // eslint-disable-next-line react/globals -- a test double records the latest selection
     latest = sel;
     return <DataTable {...base} rows={list} selectedKeys={sel} onSelectedKeysChange={setSel} activeKey={active} onActiveKeyChange={setActive} />;
   }
@@ -322,9 +323,9 @@ describe("DataTable", () => {
     const onSelectedKeysChange = vi.fn();
     render(<DataTable {...base} activeKey="b" selectedKeys={new Set(["a"])} onSelectedKeysChange={onSelectedKeysChange} />);
     fireEvent.keyDown(screen.getByRole("grid"), { key: " " });
-    expect([...(onSelectedKeysChange.mock.lastCall?.[0] as Set<string>)].sort()).toEqual(["a", "b"]);
+    expect(Array.from(onSelectedKeysChange.mock.lastCall?.[0] as Set<string>).sort()).toEqual(["a", "b"]);
     fireEvent.click(screen.getByRole("checkbox", { name: "Select all rows" }));
-    expect([...(onSelectedKeysChange.mock.lastCall?.[0] as Set<string>)].sort()).toEqual(["a", "b", "c"]);
+    expect(Array.from(onSelectedKeysChange.mock.lastCall?.[0] as Set<string>).sort()).toEqual(["a", "b", "c"]);
   });
 
   it("windows thousands of rows", () => {

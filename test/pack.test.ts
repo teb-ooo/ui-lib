@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -12,7 +12,10 @@ function storySources(dir: string): string[] {
 }
 
 describe("packed tarball", () => {
-  // --ignore-scripts: dist/ and stories/ are built by `npm run build` (prepack) before this runs in CI/release.
+  // stories/ is generated (and gitignored), so a fresh clone has none: build it here instead of trusting an earlier build.
+  beforeAll(() => {
+    execFileSync("npm", ["run", "build:stories"], { cwd: root, stdio: "ignore" });
+  }, 60_000);
   const out = execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: root, encoding: "utf8" });
   const files: string[] = (JSON.parse(out)[0].files as { path: string }[]).map((f) => f.path);
 

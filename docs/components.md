@@ -176,7 +176,7 @@ The filter row. `Option` is `{ value: string; label: string; count?: number }`; 
 **Upgrading an app to 0.23 (breaking; the platform shell contract, docs/shell.md).** Needs `@teb-ooo/web` 0.7.0 (a peer dependency now). In `__root.tsx`: (1) delete the `AppHeader` and the `header` prop of `Shell`; (2) delete every control the header held (the staging chip, `CommandTrigger`, sign in/out, the Claude link, the assistant link: the person menu and palette cover them; app-specific links belong in the sidebar, the page or a Cmd+K command); (3) delete `useFeedback()`, `useFeedbackCommand()` and `<FeedbackPanel />`: the shell does them; (4) keep `CommandProvider` around `Shell`; (5) `useLive` stays where it is, the dot follows it by itself; (6) drop `signOutPath` from `CommandProvider` if set.
 
 ## Command palette
-`@teb-ooo/ui/cmdk` (a subpath export, part of this package since 0.6.0; formerly `@teb-ooo/cmdk`): `CommandProvider`, `CommandTrigger`, `useRegisterCommands`, `useCommandPalette`, `fuzzyMatch`. Needs `@tanstack/react-router` (an optional peer of the package, required only for this subpath). Full guide: [cmdk.md](cmdk.md).
+`@teb-ooo/ui/cmdk` (a subpath export, part of this package since 0.6.0; formerly `@teb-ooo/cmdk`): `CommandProvider`, `CommandTrigger`, `useRegisterCommands`, `useCommandPalette`, `fuzzyMatch`. Needs `@tanstack/react-router` (a peer of the package, already needed by `Shell`). Full guide: [cmdk.md](cmdk.md).
 
 ## Hooks
 `useMinWidth("sm" | "md" | "lg")` and `useMediaQuery(query)`; `BREAKPOINTS` holds the widths (40rem, 48rem, 64rem).
@@ -189,7 +189,7 @@ Import once: `@import "@teb-ooo/ui/theme.css";`.
 - **Shape.** One control height `--control-h` (1.75rem) and one radius `--radius` (0.25rem, the plain `rounded` utility).
 - **Shared classes** (components layer): `.btn`, `.btn-solid`, `.btn-danger`, `.btn-warning`, `.btn-icon`, `.btn-add`, `.chip` with `.chip-ok`, `.chip-warn`, `.chip-muted`, `.chip-danger`, `.chip-link`, `.chip-agent`, `.input`, `.panel`, and the popup transitions `anim-fade`, `anim-slide-right`, `anim-backdrop`.
 - **Font.** Geist Mono (variable woff2, OFL) is in `fonts/` with its license. There is no second typeface.
-- **Design test.** `test/design.test.ts` is the rule set (sizes, radius, weights, palette and literal colours, theme control, raw buttons, title attributes, product names). Copy it unchanged to an app's `web/test/`.
+- **Design test.** `test/design.test.ts` is the rule set (sizes, radius, weights, palette and literal colours, theme control, raw buttons, title attributes, product names). The app's copy is playground-owned (synced from the template, which has more checks); do not copy this one by hand.
 
 ## Prose
 Wrap rendered rich text (a markdown render, an editor's content) in `<Prose>` and its elements are styled: `p`, `h1`-`h6`, `ul`/`ol`, `blockquote`, `pre`/`code`, `hr`, `a`, `table`, `img`, task-list checkboxes. One type size and no heavier weight: h1 is uppercase with a rule under it, h2 has a dotted rule, h3 is a muted uppercase label, h4 is italic, h5/h6 are muted; `strong` and `em` are the browser's bold and italic. The Prose story is the type scale demo; the styles live under `.prose` in theme.css, so iterate there. It does not parse markdown: pass it HTML elements.

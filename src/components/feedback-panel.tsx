@@ -65,8 +65,7 @@ function agentLine(agent: string, status: string): string {
  * The feedback panel: a popover next to the click that picked an element (or near the top of the page when nothing was
  * picked), with an arrow to the element (none when it sits inside a screen-filling element), holding a full-bleed text box (Enter sends, Shift+Enter adds a line) above a footer, divided by a full-width line, with
  * the icon toggles for the screenshot and the DOM node inline and the Send button. Neither is previewed. There is no title, Cancel or close button: Escape or a press outside closes it.
- * A sent message is confirmed with a toast. Opened from Cmd+K ("Send feedback", `useFeedbackCommand` in
- * `@teb-ooo/ui/cmdk`), never from a header button. While an element is being picked the panel steps aside so the page
+ * A sent message is confirmed with a toast. Opened by the Send feedback command or Cmd or Ctrl+I, never from a header button. While an element is being picked the panel steps aside so the page
  * can be clicked.
  */
 export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {

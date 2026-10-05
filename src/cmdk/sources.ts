@@ -75,7 +75,7 @@ export class SourceRegistry {
 
   private emit(): void {
     this.version += 1;
-    for (const l of [...this.listeners]) l();
+    for (const l of Array.from(this.listeners)) l();
   }
 }
 

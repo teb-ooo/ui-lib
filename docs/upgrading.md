@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.70.0 (from 0.69.x)
+
+Breaking only if an app still uses them (none of the nine did): `useFeedbackCommand` (and its type `FeedbackCommandSource`) and the `signOutPath` prop of `CommandProvider` are removed; the Shell registers Send feedback and Sign out.
+
 ## To ui 0.69.1 (from 0.69.0)
 
 No change needed. Documentation only: the Go `palette` package (playground-go v0.15.0) and `paletteRouteProblems` in `@teb-ooo/web/testing` 0.9.6 for `PaletteFromApi` tags.

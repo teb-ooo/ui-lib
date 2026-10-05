@@ -4,7 +4,7 @@ The Cmd+K command palette for every playground app: a provider that owns the reg
 
 ## Usage
 
-Peers: `react`, `react-dom`, `@tanstack/react-router` (optional for the rest of `@teb-ooo/ui`, required here) and `lucide-react`. The palette is part of `@teb-ooo/ui` (one version); until 0.6.0 it was the separate package `@teb-ooo/cmdk`.
+Peers: `react`, `react-dom`, `@tanstack/react-router` (a required peer of the package; this subpath needs a router) and `lucide-react`. The palette is part of `@teb-ooo/ui` (one version); until 0.6.0 it was the separate package `@teb-ooo/cmdk`.
 
 CSS: nothing extra. `@import "@teb-ooo/ui/theme.css";` already scans the palette classes and defines the `--cmdk-loaded` sentinel.
 
@@ -48,7 +48,7 @@ function ItemsPage() {
 
 `run` may return a promise (spinner, inline error on failure) or a `Command[]` (opens a nested view). `deps` (second argument) says when the list itself changed; `run` and `when` always see the latest render. `shortcut` is a chord (`mod+shift+n`) or a sequence (`g i`). `useCommandPalette()` returns `{ open, close, isOpen }`.
 
-`CommandProvider`'s `signOutPath` is deprecated and ignored: Sign out is a platform command now. The built-in Profile and Sign out commands are gone for the same reason. `useFeedbackCommand` is deprecated too: the `Shell` registers Send feedback and owns the feedback panel, so an app calls neither it nor `useFeedback`. `CommandTrigger` is for the gallery only: the bar has the trigger.
+Sign out, Profile and Send feedback are platform commands the `Shell` registers; `CommandProvider` has no `signOutPath` and there is no `useFeedbackCommand` (both removed in 0.70.0). `CommandTrigger` is for the gallery only: the bar has the trigger.
 
 **Search sources (0.27.0).** Registered commands are a fixed list, filtered in the browser. To make the palette search an app's own listing or search API (jump to an entry, an issue, a note), register a source where the data's screen lives:
 

@@ -98,7 +98,7 @@ export function platformCommands({ signedIn, feedback }: PlatformCommandsInput):
       id: "send-feedback",
       title: "Send feedback",
       group,
-      // Semicolon, two keys right of K: no Shift, and none of Chrome, Firefox, Safari or Edge uses Cmd or Ctrl with it.
+      // Cmd or Ctrl+I (no Shift, unlike Cmd+K): see FEEDBACK_SHORTCUT.
       shortcut: FEEDBACK_SHORTCUT,
       keywords: ["report", "bug", "problem", "idea", "suggestion", "screenshot", "tell the agent"],
       icon: MessageCircle,

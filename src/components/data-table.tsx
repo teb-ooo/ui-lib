@@ -616,6 +616,7 @@ export function DataTable<T>({
       className={cn("flex min-h-0 flex-col", fit ? "max-h-full flex-initial" : "h-full", className)}
     >
       <div className={cn("flex min-h-0 flex-col", fit ? "flex-initial" : "flex-1", pagination && !bleed && "panel overflow-hidden")}>
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- the scroll region forwards the grid's keyboard handling; the grid role is on the inner element */}
         <div
           ref={scroller}
           tabIndex={0}
@@ -652,6 +653,7 @@ export function DataTable<T>({
                 rows.map((row) => {
                   const key = rowKey(row);
                   return (
+                    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus -- card options: focus stays on the list (aria-activedescendant), which handles the keys
                     <div
                       key={key}
                       id={rowId(key)}
@@ -665,6 +667,7 @@ export function DataTable<T>({
                     >
                       {selectable ? (
                         <div className="flex gap-3">
+                          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- only stops the click reaching the row; the checkbox inside is the control */}
                           <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
                             <Checkbox aria-label="Select row" checked={selectedKeys.has(key)} onCheckedChange={() => toggleKey(key)} />
                           </div>
@@ -749,6 +752,7 @@ export function DataTable<T>({
                     {visibleRows.map((row, i) => {
                       const key = rowKey(row);
                       return (
+                        // eslint-disable-next-line jsx-a11y/click-events-have-key-events -- grid rows: focus stays on the grid (aria-activedescendant), which handles the keys
                         <div
                           key={key}
                           id={rowId(key)}
@@ -763,6 +767,7 @@ export function DataTable<T>({
                           className={cn("grid items-center", wraps ? "min-h-[var(--control-h)] py-1" : "h-[var(--control-h)]", bleed && "px-2 md:px-4", rowClasses(key))}
                         >
                           {selectable ? (
+                            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus -- the select cell holds a checkbox, which is the focusable control
                             <div
                               role="gridcell"
                               className="flex items-center justify-center select-none"
@@ -785,6 +790,7 @@ export function DataTable<T>({
                               {c.cell(row)}
                             </div>
                           ))}
+                          {/* eslint-disable-next-line jsx-a11y/control-has-associated-label -- an empty cell that holds the row menu's place in the grid */}
                           {menuCell ? <div role="gridcell" /> : null}
                         </div>
                       );

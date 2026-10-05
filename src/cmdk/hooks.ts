@@ -1,22 +1,4 @@
-import { useEffect, useSyncExternalStore } from "react";
-
-function subscribeMedia(query: string): (cb: () => void) => () => void {
-  return (cb) => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return () => undefined;
-    const mql = window.matchMedia(query);
-    mql.addEventListener("change", cb);
-    return () => mql.removeEventListener("change", cb);
-  };
-}
-
-/** Tracks a CSS media query. `false` when `matchMedia` is unavailable. */
-export function useMediaQuery(query: string): boolean {
-  return useSyncExternalStore(
-    subscribeMedia(query),
-    () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(query).matches,
-    () => false,
-  );
-}
+import { useEffect } from "react";
 
 /** Below Tailwind's `sm` breakpoint: the palette is a full-height sheet. */
 export const SHEET_QUERY = "(max-width: 639px)";

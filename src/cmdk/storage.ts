@@ -1,9 +1,9 @@
-import { readPlayground } from "./playground-global";
+import { getPlayground } from "@teb-ooo/web";
 
 export const MAX_RECENTS = 8;
 
 /** localStorage key for the recents of this app. */
-export function recentsKey(appName: string = readPlayground().appName): string {
+export function recentsKey(appName: string = getPlayground().appName): string {
   return `playground-command:recents:${appName || "app"}`;
 }
 

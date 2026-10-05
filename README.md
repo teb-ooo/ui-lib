@@ -11,3 +11,7 @@ Releasing (bump, test, tag, push, publish with `scripts/publish.sh`): [docs/rele
 The Cmd+K command palette is the subpath `@teb-ooo/ui/cmdk` ([docs/cmdk.md](docs/cmdk.md)).
 
 Agents: the design gallery also serves a public, read-only MCP server at `https://ui.teb.ooo/mcp` (no token), shown in a session as `mcp__design-system__*` (load the deferred tools with ToolSearch, then call `search-entries` with the word you have and `get-entry` for props, an example and the import). Use it before asking for a component or choosing a colour. How and when: the shared brain's `docs/design-system.md`, section "Where to look".
+
+## Lint
+
+`npm run lint` runs Oxlint with the template's configuration (`.oxlintrc.json`, the same rules the apps are gated on); `scripts/publish.sh` refuses to publish with lint errors. Where a rule cannot see what a component does (a listbox driven by `aria-activedescendant`, a link given its text through props), the line carries an `eslint-disable-next-line` comment with the reason. There is no formatter: formatting is not enforced here (the apps' `oxfmt` check does not apply to this package).

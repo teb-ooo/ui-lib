@@ -66,6 +66,7 @@ function Row({ row, props }: { row: PaletteRow; props: PaletteViewProps }) {
   const active = row.index === props.activeIndex;
   const pending = props.pendingId === command.id;
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus -- options: focus stays in the search input (aria-activedescendant), which handles the keys
     <div
       id={optionId(props.id, row.index)}
       role="option"
@@ -160,6 +161,7 @@ export function PaletteView(props: PaletteViewProps) {
           {props.error.title} failed: {props.error.message}
         </div>
       ) : null}
+      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus -- the listbox is driven from the search input through aria-activedescendant */}
       <div
         id={listboxId}
         role="listbox"

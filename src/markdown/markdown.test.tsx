@@ -49,6 +49,7 @@ describe("Markdown", () => {
 
   it("draws internal links through renderLink", () => {
     render(
+      // eslint-disable-next-line jsx-a11y/anchor-has-content -- the link's children arrive in the spread props
       <Markdown renderLink={(p) => <a data-router="1" {...p} />}>
         {"[home](/notes)"}
       </Markdown>,

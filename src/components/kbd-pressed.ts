@@ -43,7 +43,7 @@ function onKeyUp(e: KeyboardEvent) {
   const key = e.key.toLowerCase();
   release(key);
   // Letting go of Command also lets go of the keys pressed with it.
-  if (key === "meta") for (const k of [...down]) if (!MODIFIERS.has(k)) release(k);
+  if (key === "meta") for (const k of Array.from(down)) if (!MODIFIERS.has(k)) release(k);
 }
 
 function onBlur() {

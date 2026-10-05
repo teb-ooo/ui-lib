@@ -16,7 +16,6 @@ export interface AppOptions {
   playground?: Record<string, unknown>;
   withRouter?: boolean;
   initialPath?: string;
-  signOutPath?: string | false;
 }
 
 export const DEFAULT_ROUTES: TestRoute[] = [
@@ -32,7 +31,7 @@ export async function renderApp(options: AppOptions = {}) {
   if (options.playground) (window as unknown as { __PLAYGROUND__?: unknown }).__PLAYGROUND__ = options.playground;
   const root = createRootRoute({
     component: () => (
-      <CommandProvider {...(options.signOutPath !== undefined ? { signOutPath: options.signOutPath } : {})}>
+      <CommandProvider>
         <header>
           <CommandTrigger />
           <input aria-label="page field" />
