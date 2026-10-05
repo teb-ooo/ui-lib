@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.69.1 (from 0.69.0)
+
+No change needed. Documentation only: the Go `palette` package (playground-go v0.15.0) and `paletteRouteProblems` in `@teb-ooo/web/testing` 0.9.6 for `PaletteFromApi` tags.
+
 ## To ui 0.69.0 (from 0.68.x)
 
 No change needed. New in `@teb-ooo/ui/cmdk`: `PaletteFromApi`, `usePaletteSelection`, `paletteFetch`, `commandsFromSpec`, `sourcesFromSpec`, `paletteProblems`, `untaggedActions` (Cmd+K commands from `x-palette` tags in the API document; see components.md) and `Command.minChars` (hide a command until the query has that many characters).
