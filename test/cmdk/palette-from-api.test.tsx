@@ -57,6 +57,24 @@ describe("PaletteFromApi", () => {
   });
 });
 
+describe("after.invalidate", () => {
+  it("invalidates the queries of a generated hook, whose key is [method, path, init], and leaves others alone", async () => {
+    const call = vi.fn(async () => null);
+    const client = new QueryClient();
+    client.setQueryData(["get", "/api/items", { params: {} }], { items: [] });
+    client.setQueryData(["get", "/api/other", { params: {} }], { items: [] });
+    const withAfter: OpenApiDocument = {
+      paths: { "/api/items/{id}/archive": { post: { operationId: "archive-item", "x-palette": { title: "Archive this item", group: "Item", when: { route: "/items/$id" }, args: { id: "route.id" }, after: { invalidate: ["/api/items"] } } } } },
+    };
+    const user = userEvent.setup();
+    await renderApp({ initialPath: "/items/42", extra: <QueryClientProvider client={client}><PaletteFromApi spec={withAfter} call={call} /></QueryClientProvider> });
+    await open(user);
+    await user.click(await screen.findByRole("option", { name: /Archive this item/ }));
+    await waitFor(() => expect(client.getQueryState(["get", "/api/items", { params: {} }])?.isInvalidated).toBe(true));
+    expect(client.getQueryState(["get", "/api/other", { params: {} }])?.isInvalidated).toBe(false);
+  });
+});
+
 describe("paletteFetch", () => {
   it("fills path parameters, puts the rest in the query of a GET and in a JSON body otherwise, and throws a problem's detail", async () => {
     const f = vi.fn(async () => Response.json({ items: [] }));

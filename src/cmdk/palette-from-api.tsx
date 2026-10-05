@@ -111,7 +111,13 @@ export function PaletteFromApi({ spec, call, confirm }: PaletteFromApiProps): Re
       call: call ?? paletteFetch(),
       confirm: confirm ?? ((m) => window.confirm(m)),
       invalidate: (prefixes) => {
-        void client.invalidateQueries({ predicate: (q) => prefixes.some((p) => String(q.queryKey[0] ?? "").startsWith(p)) });
+        // openapi-react-query keys are [method, path, init]; a hand-made key may start with the path itself.
+        void client.invalidateQueries({
+          predicate: (q) => {
+            const path = typeof q.queryKey[1] === "string" ? q.queryKey[1] : typeof q.queryKey[0] === "string" ? q.queryKey[0] : "";
+            return path !== "" && prefixes.some((p) => path.startsWith(p));
+          },
+        });
       },
       navigate: (to) => void navigate({ to }),
     }),
