@@ -10,3 +10,6 @@ How a new version of the package is cut and published; only the `ui` agent does 
 6. Publish: `scripts/publish.sh`. It refuses unless the tree is clean and `HEAD` carries the tag, builds a mode-600 temporary npm config from `UI_LIB_NPM_PASSWORD` (the `ui-publisher` account, allowed to publish only this package), publishes to `http://npm-registry:4873/` and deletes the config. Add `--dry-run` to rehearse. The password is never printed or written anywhere else.
 7. Check: `npm view @teb-ooo/ui version` shows the new version.
 8. Tell the apps that asked for it (messages to the orchestrator's channel or the asking agent) that the version exists. The template pins the exact version; an app may use a caret range (ah does), and upgrades go under the 14-day release-age gate.
+
+## Versions and the upgrade notes (owner decision 2026-10-05)
+A version is cut for every change that goes to staging; do not batch patches to save version numbers. `docs/upgrading.md` records only what needs an app to act (a breaking change, a removed export, a new required step); a release that needs nothing from the apps gets no entry. Older "No change needed" entries stay as history.
