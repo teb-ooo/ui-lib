@@ -31,10 +31,10 @@ export const Grid = () => (
         title={a.name}
         description={a.what}
         href={`#${a.name}`}
-        marker={a.needs ? <Chip tone="warn">Needs you</Chip> : undefined}
+        marker={a.needs ? <Chip tone="warning">Needs you</Chip> : undefined}
         meta={
           <>
-            <Chip tone={a.agent === "working" ? "agent" : a.agent === "offline" ? "warn" : "muted"}>{a.agent}</Chip>
+            <Chip tone={a.agent === "working" ? "agent" : a.agent === "offline" ? "warning" : "muted"}>{a.agent}</Chip>
             <Chip tone={a.version === "not live" ? "muted" : "ok"}>{a.version}</Chip>
             <Chip>{a.mode} promote</Chip>
           </>

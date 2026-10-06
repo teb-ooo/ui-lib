@@ -12,8 +12,8 @@ export default {
   source: "src/components/alert.tsx",
 } satisfies StoryDefault;
 
-export const Warn = () => <Alert tone="warn">Saved recordings are a single copy on the server and are not backed up. Keep what matters somewhere else too.</Alert>;
-Warn.storyMeta = { description: "A warning in the page: say what is at risk." } satisfies StoryMeta;
+export const Warning = () => <Alert tone="warning">Saved recordings are a single copy on the server and are not backed up. Keep what matters somewhere else too.</Alert>;
+Warning.storyMeta = { description: "A warning in the page: say what is at risk." } satisfies StoryMeta;
 
 export const Danger = () => (
   <Alert tone="danger" title="The source keeps dropping" action={<Button>Swap source</Button>}>

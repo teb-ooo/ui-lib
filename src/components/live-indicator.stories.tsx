@@ -32,7 +32,7 @@ WithTooltip.storyMeta = {
 export const NextToTheStagingLabel = () => (
   <div className="flex items-center gap-2">
     <span className="text-ink">app</span>
-    <Chip tone="warn">staging</Chip>
+    <Chip tone="warning">staging</Chip>
     <LiveIndicator status="live" />
   </div>
 );

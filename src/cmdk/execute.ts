@@ -1,3 +1,4 @@
+import { describeError } from "@teb-ooo/web";
 import type { Command, CommandContext } from "./types";
 
 /** What running a command led to. */
@@ -30,8 +31,7 @@ export function execute(command: Command, ctx: CommandContext): Outcome | Promis
   }
 }
 
+/** The sentence the palette shows for a failed command: `describeError`, never a thrown `Error`'s own message. */
 export function errorMessage(err: unknown): string {
-  if (err instanceof Error && err.message !== "") return err.message;
-  if (typeof err === "string" && err !== "") return err;
-  return "Something went wrong";
+  return describeError(err);
 }

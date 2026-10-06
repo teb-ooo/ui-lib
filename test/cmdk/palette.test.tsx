@@ -255,7 +255,7 @@ describe("running", () => {
 
   it("reports an async failure in an inline error row and stays open", async () => {
     const user = userEvent.setup();
-    const run = () => Promise.reject(new Error("Server said no"));
+    const run = () => Promise.reject({ detail: "Server said no" });
     await renderApp({ extra: <Registrar commands={[cmd("Publish", { run })]} /> });
     await openPalette(user);
     await user.keyboard("publish{Enter}");
@@ -268,12 +268,20 @@ describe("running", () => {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
+  it("never shows a thrown Error's own message, only describeError's sentence", async () => {
+    const user = userEvent.setup();
+    await renderApp({ extra: <Registrar commands={[cmd("Leak", { run: () => Promise.reject(new Error("pg: connection refused")) })]} /> });
+    await openPalette(user);
+    await user.keyboard("leak{Enter}");
+    expect(await screen.findByRole("alert")).not.toHaveTextContent("pg:");
+  });
+
   it("reports a synchronous throw the same way", async () => {
     const user = userEvent.setup();
     await renderApp({ extra: <Registrar commands={[cmd("Boom", { run: () => { throw new Error("sync fail"); } })]} /> });
     await openPalette(user);
     await user.keyboard("boom{Enter}");
-    expect(await screen.findByRole("alert")).toHaveTextContent("Boom failed: sync fail");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Boom failed: Something went wrong. Try again.");
   });
 
   it("runs on click", async () => {
@@ -416,7 +424,7 @@ describe("shortcuts", () => {
     const user = userEvent.setup();
     await renderApp({ extra: <Registrar commands={[cmd("Flaky", { shortcut: "g f", run: () => Promise.reject(new Error("nope")) })]} /> });
     await user.keyboard("gf");
-    expect(await screen.findByRole("alert")).toHaveTextContent("Flaky failed: nope");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Flaky failed: Something went wrong. Try again.");
   });
 
   it("a shortcut whose command has children opens the palette in that view", async () => {

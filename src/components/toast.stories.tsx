@@ -18,7 +18,7 @@ function Buttons() {
     <div className="flex flex-wrap gap-2">
       <Button onClick={() => toast.show({ title: "Saved" })}>Plain</Button>
       <Button onClick={() => toast.show({ title: "Feedback sent, tracked as ui-12", description: "ui was notified.", tone: "ok" })}>Success</Button>
-      <Button onClick={() => toast.show({ title: "Offline", description: "Changes are kept on this device.", tone: "warn" })}>Warning</Button>
+      <Button onClick={() => toast.show({ title: "Offline", description: "Changes are kept on this device.", tone: "warning" })}>Warning</Button>
       <Button onClick={() => toast.show({ title: "Could not save", description: "Try again in a moment.", tone: "danger" })}>Failure</Button>
     </div>
   );

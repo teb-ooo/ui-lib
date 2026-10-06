@@ -7,18 +7,19 @@ import { cn } from "../lib/cn";
 export const CHIP_COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"] as const;
 export type ChipColor = (typeof CHIP_COLORS)[number];
 
-export type ChipTone = "default" | "ok" | "warn" | "muted" | "danger" | "link" | "agent";
+/** `warn` is the old spelling of `warning`, accepted until the next minor release. */
+export type ChipTone = "default" | "ok" | "warning" | "warn" | "muted" | "danger" | "link" | "agent";
 
 export interface ChipProps extends Omit<HTMLAttributes<HTMLSpanElement>, "className"> {
   /**
-   * Colour is state: ok, warn, danger, link (a reference), agent (assistant activity). `muted` is quiet text.
+   * Colour is state: ok, warning, danger, link (a reference), agent (assistant activity). `muted` is quiet text.
    * @default "default"
    */
   tone?: ChipTone;
   /**
    * An app-chosen swatch: one of the palette hues, drawn with a soft background, a line and ink that read well in light and
    * dark. For categories the app names itself (a label, a project, a priority level the app maps to hues). Use it instead
-   * of `tone`, which carries state (ok, warn, danger).
+   * of `tone`, which carries state (ok, warning, danger).
    */
   color?: ChipColor;
   /** Adds a remove control (an X) after the label. */
@@ -38,7 +39,8 @@ export interface ChipProps extends Omit<HTMLAttributes<HTMLSpanElement>, "classN
 const tones: Record<ChipTone, string | false> = {
   default: false,
   ok: "chip-ok",
-  warn: "chip-warn",
+  warning: "chip-warning",
+  warn: "chip-warning",
   muted: "chip-muted",
   danger: "chip-danger",
   link: "chip-link",

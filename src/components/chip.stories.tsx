@@ -16,7 +16,7 @@ export const Default = () => <Chip>draft</Chip>;
 export const Ok = () => <Chip tone="ok">healthy</Chip>;
 Ok.storyMeta = { state: "default" } satisfies StoryMeta;
 
-export const Warn = () => <Chip tone="warn">staging</Chip>;
+export const Warning = () => <Chip tone="warning">staging</Chip>;
 
 export const Danger = () => <Chip tone="danger">failed</Chip>;
 Danger.storyMeta = { state: "error" } satisfies StoryMeta;

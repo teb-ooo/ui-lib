@@ -5,6 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PaletteFromApi, paletteFetch, usePaletteSelection } from "../../src/cmdk/index";
 import type { OpenApiDocument } from "../../src/cmdk/index";
 import { renderApp } from "./harness";
+import { redirectToLogin } from "@teb-ooo/web";
+
+vi.mock("@teb-ooo/web", async (original) => ({ ...(await original<typeof import("@teb-ooo/web")>()), redirectToLogin: vi.fn() }));
 
 const spec: OpenApiDocument = {
   paths: {
@@ -103,5 +106,19 @@ describe("paletteFetch", () => {
     expect(f).toHaveBeenLastCalledWith("/api/people/1/rename", expect.objectContaining({ method: "POST", body: JSON.stringify({ title: "T" }) }));
     const bad = paletteFetch({ fetch: (async () => new Response(JSON.stringify({ detail: "Not yours." }), { status: 403 })) as unknown as typeof fetch });
     await expect(bad({ operationId: "z", method: "post", path: "/x", args: {} })).rejects.toThrow("Not yours.");
+  });
+
+  it("sends a signed-out person to sign in, like the rest of the app, and still throws", async () => {
+    const out = paletteFetch({ fetch: (async () => new Response("", { status: 401 })) as unknown as typeof fetch });
+    await expect(out({ operationId: "z", method: "post", path: "/x", args: {} })).rejects.toBeTruthy();
+    expect(redirectToLogin).toHaveBeenCalled();
+  });
+
+  it("sends the playground request defaults: cookies, Accept and a request id", async () => {
+    const f = vi.fn(async () => Response.json({}));
+    await paletteFetch({ fetch: f as unknown as typeof fetch })({ operationId: "x", method: "get", path: "/api/a", args: {} });
+    const init = (f.mock.calls[0] as unknown as [string, RequestInit])[1];
+    expect(init.credentials).toBe("include");
+    expect(new Headers(init.headers).get("X-Request-Id")).toBeTruthy();
   });
 });

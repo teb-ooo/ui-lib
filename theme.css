@@ -414,7 +414,7 @@ input.display-lg {
     background: color-mix(in oklab, var(--color-ok-soft) 40%, transparent);
     color: var(--color-ok);
   }
-  .chip-warn {
+  .chip-warning {
     border-color: var(--color-warning-line);
     background: color-mix(in oklab, var(--color-warning-soft) 40%, transparent);
     color: var(--color-warning);

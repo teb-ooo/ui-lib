@@ -5,14 +5,15 @@ import { X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
 
-export type ToastTone = "default" | "ok" | "warn" | "danger";
+/** `warn` is the old spelling of `warning`, accepted until the next minor release. */
+export type ToastTone = "default" | "ok" | "warning" | "warn" | "danger";
 
 export interface ToastOptions {
   /** One short line: what happened. */
   title: ReactNode;
   /** A second line with the detail. */
   description?: ReactNode;
-  /** Colour is state: `ok` for a thing that worked, `warn`, `danger` for a failure. @default "default" */
+  /** Colour is state: `ok` for a thing that worked, `warning`, `danger` for a failure. @default "default" */
   tone?: ToastTone;
   /** Milliseconds before it goes away; 0 keeps it until it is closed. @default 5000 (danger: 8000) */
   timeout?: number;
@@ -43,6 +44,7 @@ export function useToast(): ToastApi {
 const tones: Record<ToastTone, string> = {
   default: "",
   ok: "border-l-4 border-l-ok",
+  warning: "border-l-4 border-l-warning",
   warn: "border-l-4 border-l-warning",
   danger: "border-l-4 border-l-danger",
 };

@@ -6,6 +6,14 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.76.0 (from 0.75.x)
+
+**Tone spelling.** `Alert`, `Chip` and `Toast` take `tone="warning"`, the one spelling the token, `Button` and `Meter` already use; `tone="warn"` still works and is removed in the next minor release (change it now: a search for `tone="warn"` finds them). The class is `.chip-warning` (`.chip-warn` is gone; an app that used the class itself renames it). `Alert`'s `data-tone` now says `warning`.
+
+**Palette errors.** A failed palette command shows `describeError`'s sentence, never a thrown `Error`'s own message: a command that wants its text shown rejects with `{ detail: "..." }` (a problem document) or an `ApiError`. `paletteFetch` now sends the playground request defaults (cookies, `X-Request-Id`), throws an `ApiError`, and sends a signed-out person to sign in.
+
+**Web peer.** Already `^0.9.10` since 0.75.0.
+
 ## To ui 0.71.0 (from 0.70.x)
 
 Visual change, nothing to change in code: hovered and open controls reverse (white on a dark page, black on a light one), a focused input drops to the page colour, the dropdown popups are inverted panels, and the environment mark is yellow. An app that styled a button's hover itself with its own classes may now fight the new rule.

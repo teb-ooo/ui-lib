@@ -10,9 +10,11 @@ describe("Alert", () => {
     expect(a.textContent).toContain("Failed");
     expect(a.textContent).toContain("It broke.");
     expect(screen.getByRole("button", { name: "Retry" })).toBeTruthy();
-    rerender(<Alert tone="warn">Careful</Alert>);
+    rerender(<Alert tone="warning">Careful</Alert>);
     expect(screen.queryByRole("alert")).toBeNull();
-    expect(screen.getByRole("status").getAttribute("data-tone")).toBe("warn");
+    expect(screen.getByRole("status").getAttribute("data-tone")).toBe("warning");
+    rerender(<Alert tone="warn">Careful</Alert>); // the old spelling is the same tone
+    expect(screen.getByRole("status").getAttribute("data-tone")).toBe("warning");
     rerender(<Alert>Plain</Alert>);
     expect(screen.getByRole("status").getAttribute("data-tone")).toBe("info");
   });

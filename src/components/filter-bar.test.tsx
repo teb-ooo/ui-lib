@@ -38,3 +38,19 @@ describe("FilterBar", () => {
     expect(screen.queryByRole("button", { name: "Filters" })).toBeNull();
   });
 });
+
+describe("FilterBar", () => {
+  it("shows no Filters button on a phone when there are no filters, and puts end in the sheet", () => {
+    setViewportWidth(390);
+    const { rerender } = render(<FilterBar aria-label="f" primary={<span>search</span>} end={<span>12 rules</span>} />);
+    expect(screen.queryByRole("button", { name: /Filters/ })).toBeNull();
+    rerender(
+      <FilterBar aria-label="f" primary={<span>search</span>} end={<span>12 rules</span>}>
+        <button>Open only</button>
+      </FilterBar>,
+    );
+    expect(screen.queryByText("12 rules")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
+    expect(screen.getByText("12 rules")).toBeTruthy();
+  });
+});

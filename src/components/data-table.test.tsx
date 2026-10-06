@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { setViewportWidth } from "../../test/cmdk/viewport";
-import { EmptyState } from "./empty-state";
 import { DataTable } from "./data-table";
+import { EmptyState } from "./empty-state";
+import { useState } from "react";
 import type { Column } from "./data-table";
 
 interface Row {
@@ -407,5 +407,25 @@ describe("DataTable empty", () => {
     const status = screen.getByText("No rows").closest('[role="status"]') as HTMLElement;
     expect(status.parentElement?.className).not.toContain("p-4");
     expect(container.querySelectorAll(".p-4").length).toBe(1);
+  });
+});
+
+describe("DataTable lines", () => {
+  it("lets a cell take two lines and the row grow", () => {
+    const { container } = render(
+      <DataTable label="T" rowKey={(r: { id: string }) => r.id} rows={[{ id: "a" }]} columns={[{ id: "a", header: "A", cell: () => "x".repeat(200), lines: 2 }]} />,
+    );
+    expect(container.querySelector(".line-clamp-2")).not.toBeNull();
+    expect(container.querySelector('[role="row"].min-h-\\[var\\(--control-h\\)\\]')).not.toBeNull();
+  });
+});
+
+describe("data table layout", () => {
+  it("DataTable fit is only as tall as its rows and marks a bleed table", () => {
+    const { container } = render(<DataTable label="T" bleed fit rowKey={(r: { id: string }) => r.id} rows={[{ id: "a" }]} columns={[{ id: "a", header: "A", cell: () => "x" }]} />);
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.className).toContain("flex-initial");
+    expect(root.className.split(" ")).not.toContain("h-full");
+    expect(root.getAttribute("data-bleed")).toBe("");
   });
 });

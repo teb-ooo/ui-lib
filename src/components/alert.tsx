@@ -3,10 +3,11 @@ import { AlertTriangle, CheckCircle2, Info, OctagonAlert, X } from "lucide-react
 import { cn } from "../lib/cn";
 import { Button } from "./button";
 
-export type AlertTone = "info" | "ok" | "warn" | "danger";
+/** `warn` is the old spelling of `warning`, accepted until the next minor release. */
+export type AlertTone = "info" | "ok" | "warning" | "warn" | "danger";
 
 export interface AlertProps {
-  /** What kind of message it is. Colour is state: `ok` worked, `warn` needs care, `danger` failed, `info` is neutral. @default "info" */
+  /** What kind of message it is. Colour is state: `ok` worked, `warning` needs care, `danger` failed, `info` is neutral. @default "info" */
   tone?: AlertTone;
   /** A short heading in the base size, before the text. */
   title?: ReactNode;
@@ -21,10 +22,10 @@ export interface AlertProps {
   className?: string;
 }
 
-const tones: Record<AlertTone, { box: string; icon: string; Icon: typeof Info }> = {
+const tones: Record<Exclude<AlertTone, "warn">, { box: string; icon: string; Icon: typeof Info }> = {
   info: { box: "border-line-strong bg-surface", icon: "text-ink-muted", Icon: Info },
   ok: { box: "border-ok-line bg-ok-soft", icon: "text-ok", Icon: CheckCircle2 },
-  warn: { box: "border-warning-line bg-warning-soft", icon: "text-warning", Icon: AlertTriangle },
+  warning: { box: "border-warning-line bg-warning-soft", icon: "text-warning", Icon: AlertTriangle },
   danger: { box: "border-danger-line bg-danger-soft", icon: "text-danger", Icon: OctagonAlert },
 };
 
@@ -35,9 +36,10 @@ const tones: Record<AlertTone, { box: string; icon: string; Icon: typeof Info }>
  * blocks the page.
  */
 export function Alert({ tone = "info", title, children, action, onDismiss, dismissLabel = "Dismiss", className }: AlertProps) {
-  const t = tones[tone];
+  const resolved = tone === "warn" ? "warning" : tone;
+  const t = tones[resolved];
   return (
-    <div role={tone === "danger" ? "alert" : "status"} data-tone={tone} className={cn("flex items-start gap-3 rounded border p-3 text-ink", t.box, className)}>
+    <div role={tone === "danger" ? "alert" : "status"} data-tone={resolved} className={cn("flex items-start gap-3 rounded border p-3 text-ink", t.box, className)}>
       <t.Icon aria-hidden="true" className={cn("mt-0.5 size-4 shrink-0", t.icon)} />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {title ? <p className="text-ink">{title}</p> : null}

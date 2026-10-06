@@ -23,7 +23,7 @@ component: `import { Alert } from "@teb-ooo/ui"`
 
 A message that stays on the page: a source that keeps dropping, saved data that is not backed up, a failed save, a confirmation that needs an answer. It is announced when it appears (`role="alert"` for `danger`, `status` for the rest). Use `Toast` for something that goes away by itself, `Field`'s error for one input, `Dialog` for a decision that blocks the page.
 
-- `tone?`: `AlertTone`, default "info". What kind of message it is. Colour is state: `ok` worked, `warn` needs care, `danger` failed, `info` is neutral.
+- `tone?`: `AlertTone`, default "info". What kind of message it is. Colour is state: `ok` worked, `warning` needs care, `danger` failed, `info` is neutral.
 - `title?`: `ReactNode`. A short heading in the base size, before the text.
 - `children?`: `ReactNode`. The message: say what happened and what to do about it.
 - `action?`: `ReactNode`. The way out: a `Button` or `LinkButton`, shown at the end.
@@ -127,8 +127,8 @@ A token: a status, a count, a reference. It can carry a remove control or a lock
 
 Also accepts the props of `Omit<HTMLAttributes<HTMLSpanElement>, "className">`.
 
-- `tone?`: `ChipTone`, default "default". Colour is state: ok, warn, danger, link (a reference), agent (assistant activity). `muted` is quiet text.
-- `color?`: `ChipColor`. An app-chosen swatch: one of the palette hues, drawn with a soft background, a line and ink that read well in light and dark. For categories the app names itself (a label, a project, a priority level the app maps to hues). Use it instead of `tone`, which carries state (ok, warn, danger).
+- `tone?`: `ChipTone`, default "default". Colour is state: ok, warning, danger, link (a reference), agent (assistant activity). `muted` is quiet text.
+- `color?`: `ChipColor`. An app-chosen swatch: one of the palette hues, drawn with a soft background, a line and ink that read well in light and dark. For categories the app names itself (a label, a project, a priority level the app maps to hues). Use it instead of `tone`, which carries state (ok, warning, danger).
 - `onRemove?`: `() => void`. Adds a remove control (an X) after the label.
 - `removeLabel?`: `string`, default "Remove". Accessible name of the remove control.
 - `locked?`: `boolean`. Adds a lock toggle after the label: locked (closed padlock) or unlocked. Set together with `onLockedChange`.
@@ -949,12 +949,12 @@ Saved filter views. It only shows them and asks; the app keeps the list and what
 ### Types
 
 - `AccordionItem`
-- `AlertTone`
+- `AlertTone`: `warn` is the old spelling of `warning`, accepted until the next minor release.
 - `AvatarSize`
 - `Breakpoint`
 - `ButtonIntent`
 - `ChipColor`
-- `ChipTone`
+- `ChipTone`: `warn` is the old spelling of `warning`, accepted until the next minor release.
 - `Column`
 - `CommandHost`: What `CommandProvider` (from `@teb-ooo/ui/cmdk`) hands to the page frame: open the palette and register commands. It exists so `Shell` can show the palette trigger and register the platform commands without importing the palette. Internal: an app never provides or reads it.
 - `ContainerWidth`
@@ -992,7 +992,7 @@ Saved filter views. It only shows them and asks; the app keeps the list and what
 - `TabItem`
 - `ToastApi`
 - `ToastOptions`
-- `ToastTone`
+- `ToastTone`: `warn` is the old spelling of `warning`, accepted until the next minor release.
 
 ## @teb-ooo/ui/cmdk
 

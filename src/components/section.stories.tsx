@@ -20,7 +20,7 @@ export const PageOfBands = () => (
     <Section rule="bottom">
       <SearchInput value="" onValueChange={() => undefined} label="Search apps" placeholder="Search apps" />
     </Section>
-    <Section title="Needs you" description="Things only you can decide." actions={<Chip tone="warn">2</Chip>}>
+    <Section title="Needs you" description="Things only you can decide." actions={<Chip tone="warning">2</Chip>}>
       <p className="text-ink-muted">A band can hold anything: a list, a table, a form.</p>
     </Section>
     <Section title="All apps" rule="none">

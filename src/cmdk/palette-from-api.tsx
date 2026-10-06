@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { ConfirmDialog } from "@teb-ooo/ui";
+import { platformFetch, redirectToLogin, throwIfNotOk } from "@teb-ooo/web";
 import { commandsFromSpec, sourcesFromSpec } from "./from-spec";
 import type { OpenApiDocument, PaletteCall, PaletteRuntime } from "./from-spec";
 import { useRegisterCommands } from "./use-register-commands";
@@ -59,23 +60,18 @@ export function paletteFetch({ base = "", fetch: f = globalThis.fetch }: Palette
     });
     const isGet = method === "get";
     const query = isGet && Object.keys(rest).length > 0 ? `?${new URLSearchParams(rest).toString()}` : "";
-    const res = await f(`${base}${url}${query}`, {
-      method: method.toUpperCase(),
-      credentials: "include",
-      headers: { Accept: "application/json", ...(isGet || Object.keys(rest).length === 0 ? {} : { "Content-Type": "application/json" }) },
-      ...(isGet || Object.keys(rest).length === 0 ? {} : { body: JSON.stringify(rest) }),
-      ...(signal ? { signal } : {}),
-    });
-    if (!res.ok) {
-      let message = `The server answered ${res.status}.`;
-      try {
-        const p = (await res.json()) as { detail?: string; title?: string };
-        message = p.detail ?? p.title ?? message;
-      } catch {
-        // not a problem document
-      }
-      throw new Error(message);
-    }
+    const hasBody = !isGet && Object.keys(rest).length > 0;
+    const res = await platformFetch(
+      `${base}${url}${query}`,
+      {
+        method: method.toUpperCase(),
+        ...(hasBody ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify(rest) } : {}),
+        ...(signal ? { signal } : {}),
+      },
+      { fetch: f },
+    );
+    if (res.status === 401) redirectToLogin();
+    await throwIfNotOk(res);
     if (res.status === 204) return null;
     try {
       return await res.json();
