@@ -176,7 +176,7 @@ describe("form.fields, form.options and the field kinds", () => {
             group: "Proposals",
             when: { route: "/rules" },
             args: { description: "prompt", scope: "prompt", title: "prompt", email: "prompt" },
-            form: { submit: "Create", fields: ["scope", "title", "description"], options: { scope: { from: "list-apps", value: "name", label: "label" } } },
+            form: { submit: "Create", fields: ["scope", "title", "description"], options: { scope: { from: "list-apps", value: "name", label: "label", also: ["platform"] } } },
           },
         },
       },
@@ -224,6 +224,7 @@ describe("form.fields, form.options and the field kinds", () => {
     const dialog = await screen.findByRole("dialog", { name: "New proposal" });
     await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "list-apps", method: "get", path: "/api/apps", args: { limit: "100" } }));
     await user.click(await within(dialog).findByRole("combobox", { name: "Scope" }));
+    expect((await screen.findAllByRole("option")).map((o) => o.textContent)).toEqual(["platform", "Dashboard", "Work tracker"]); // the fixed item first
     await user.click(await screen.findByRole("option", { name: "Work tracker" }));
     await user.type(within(dialog).getByLabelText("Title"), "A proposal");
     await user.click(within(dialog).getByRole("button", { name: "Create" }));

@@ -50,9 +50,9 @@ export interface PaletteActionTag {
     /**
      * Choices for a text field that must be one of a changing list, taken from a list operation (a GET) when the form
      * opens: `options: { scope: { from: "list-apps", value: "name" } }`. `label` is the property shown (default: `value`).
-     * The field is a select; if the list cannot be loaded it stays a text box.
+     * `also` lists fixed values offered before the list's own ("platform" beside the apps). The field is a select; if the list cannot be loaded it stays a text box.
      */
-    options?: Record<string, { from: string; value: string; label?: string }>;
+    options?: Record<string, { from: string; value: string; label?: string; also?: string[] }>;
   };
   /** `true` asks "<title>?"; a string is the question (`{name}` filled as in the title). A DELETE asks by default; `false` turns that off. */
   confirm?: boolean | string;
@@ -308,11 +308,12 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
       loaders[name] = async () => {
         const body = (await runtime.call({ operationId: o.from, method: "get", path: from.path, args: { limit: "100" } })) as { items?: Array<Record<string, unknown>> } | Array<Record<string, unknown>> | null;
         const items = Array.isArray(body) ? body : (body?.items ?? []);
-        return items.flatMap((item) => {
+        const listed = items.flatMap((item) => {
           const value = item[o.value];
           const label = item[o.label ?? o.value];
           return typeof value === "string" ? [{ value, label: typeof label === "string" ? label : value }] : [];
         });
+        return [...(o.also ?? []).filter((v) => !listed.some((l) => l.value === v)).map((v) => ({ value: v, label: v })), ...listed];
       };
     }
     const ask: string | null =

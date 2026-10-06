@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.82.0 (from 0.81.x)
+
+New: `form.options.<field>.also`, fixed values offered before the list's own items. Nothing to change.
+
 ## To ui 0.81.0 (from 0.80.x)
 
 New in the form step: `form.fields` (the order of the questions), `form.options` (choices from a list operation). Changed: a text field is a multi-line box only above 1000 characters of `maxLength` and with no `format` (it was 200), and an email field is an email input; an app that relied on the box for a field of 201 to 1000 characters gets a one-line input.
