@@ -1,14 +1,15 @@
 import { describeError } from "@teb-ooo/web";
-import type { Command, CommandContext } from "./types";
+import type { Command, CommandContext, CommandForm } from "./types";
 
 /** What running a command led to. */
-export type Outcome = { kind: "done" } | { kind: "view"; title: string; commands: Command[] };
+export type Outcome = { kind: "done" } | { kind: "view"; title: string; commands: Command[] } | { kind: "form"; form: CommandForm };
 
 function isThenable(v: unknown): v is PromiseLike<unknown> {
   return typeof v === "object" && v !== null && "then" in v && typeof (v as { then: unknown }).then === "function";
 }
 
 function toOutcome(command: Command, value: unknown): Outcome {
+  if (typeof value === "object" && value !== null && "form" in value) return { kind: "form", form: (value as { form: CommandForm }).form };
   if (Array.isArray(value)) return { kind: "view", title: command.title, commands: value as Command[] };
   return { kind: "done" };
 }

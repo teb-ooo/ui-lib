@@ -1,4 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
+import type { PaletteFormField } from "./form-fields";
 
 /** Props an icon component receives. Lucide icons satisfy this. */
 export interface CommandIconProps {
@@ -25,8 +26,34 @@ export interface CommandContext {
   afterClose: (fn: () => void) => void;
 }
 
-/** What `run` may return: nothing, a promise, or a list that opens as a nested view. */
-export type CommandResult = void | Command[] | Promise<void | Command[]>;
+/**
+ * A form the palette walks through, one field at a time in its own input, then a review step with the answers and the
+ * submit row. A command returns it from `run` as `{ form }`.
+ */
+export interface CommandForm {
+  /** The command's title: it is the breadcrumb of the form and the heading of its review. */
+  title: string;
+  /** The submit row of the review: "Create rule". */
+  submitLabel: string;
+  fields: PaletteFormField[];
+  /** For a field whose choices come from a list operation: loads them (`value` is sent, `label` is shown). */
+  loadOptions?: Record<string, () => Promise<{ value: string; label: string }[]>>;
+  /** An object schema of just these fields, for `createBodyValidator`. */
+  schema: Record<string, unknown>;
+  /**
+   * Runs the action with the answers. A rejection with an `ApiError` takes the person back to the field the server
+   * names, with its message; any other failure is shown on the review step. Resolving closes the palette.
+   */
+  submit: (values: Record<string, string | number | boolean>) => Promise<void>;
+}
+
+/** What a command returns to start a form step inside the palette. */
+export interface CommandFormResult {
+  form: CommandForm;
+}
+
+/** What `run` may return: nothing, a promise, a list that opens as a nested view, or a form to step through. */
+export type CommandResult = void | Command[] | CommandFormResult | Promise<void | Command[] | CommandFormResult>;
 
 export interface Command {
   /** Stable, unique id. Registering the same id twice keeps the later one. */

@@ -1,7 +1,6 @@
-import type { Command } from "./types";
+import type { Command, CommandForm } from "./types";
 import type { CommandSource } from "./sources";
 import { promptFieldsOf } from "./form-fields";
-import type { PaletteFormField } from "./form-fields";
 
 /** A value a `when.field` condition compares the selection's field with. */
 export type PaletteScalar = string | number | boolean;
@@ -126,23 +125,8 @@ export interface PaletteContext {
   user?: Record<string, unknown> | null;
 }
 
-/** What `PaletteRuntime.prompt` shows: a form for the arguments marked `"prompt"`. */
-export interface PaletteFormRequest {
-  /** The command's title. */
-  title: string;
-  /** @default the title's first word */
-  submitLabel: string;
-  fields: PaletteFormField[];
-  /** For a field whose choices come from a list operation: loads them (`value` is sent, `label` is shown). */
-  loadOptions?: Record<string, () => Promise<{ value: string; label: string }[]>>;
-  /** An object schema of just these fields, for `createBodyValidator`. */
-  schema: Record<string, unknown>;
-  /**
-   * Runs the action with the answers. The form stays open with the server's field errors (an `ApiError`) or a sentence
-   * when it rejects, and closes when it resolves.
-   */
-  submit: (values: Record<string, string | number | boolean>) => Promise<void>;
-}
+/** The form a prompted command walks the person through inside the palette (the same type as `CommandForm`). */
+export type PaletteFormRequest = CommandForm;
 
 /** How a command acts. `PaletteFromApi` supplies the real one; tests pass fakes. */
 export interface PaletteRuntime {
@@ -151,8 +135,6 @@ export interface PaletteRuntime {
   confirm: (message: string, options?: { danger?: boolean }) => boolean | Promise<boolean>;
   invalidate: (prefixes: readonly string[]) => void;
   navigate: (to: string) => void;
-  /** Shows a form step and resolves when the person has submitted it or given up. Needed only for tags with `"prompt"` arguments. */
-  prompt?: (request: PaletteFormRequest) => Promise<void>;
 }
 
 const METHODS = ["get", "post", "put", "patch", "delete"];
@@ -335,11 +317,9 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
             if (to !== null) runtime.navigate(to);
           }
         };
-        // A form step is its own confirmation: the person reads what they type, then presses the verb.
+        // A form step is its own confirmation: the palette steps through the fields, then a review that submits.
         if (form !== null) {
-          if (!runtime.prompt) throw new Error(`${title}: this palette has no form step`);
-          await runtime.prompt({ title, submitLabel: tag.form?.submit ?? title.split(" ")[0] ?? "Submit", fields: form.fields, ...(Object.keys(loaders).length > 0 ? { loadOptions: loaders } : {}), schema: form.schema, submit: act });
-          return;
+          return { form: { title, submitLabel: tag.form?.submit ?? title.split(" ")[0] ?? "Submit", fields: form.fields, ...(Object.keys(loaders).length > 0 ? { loadOptions: loaders } : {}), schema: form.schema, submit: act } };
         }
         if (ask !== null && !(await runtime.confirm(ask, { danger: method === "delete" }))) return;
         await act({});

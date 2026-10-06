@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import type { CommandRegistry } from "./registry";
 import type { SourceRegistry } from "./sources";
-import type { Command } from "./types";
+import type { Command, CommandForm } from "./types";
 import type { Outcome } from "./execute";
 
 /** Public: what `useCommandPalette` returns. */
@@ -13,7 +13,7 @@ export interface CommandPaletteApi {
 
 /** State the palette needs to show, set when a shortcut ran a command that has more to show. */
 export interface PaletteInitial {
-  stack?: Array<{ title: string; commands: Command[] }>;
+  stack?: Array<{ title: string; commands: Command[]; form?: CommandForm }>;
   error?: { title: string; message: string };
 }
 

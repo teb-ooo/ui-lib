@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { screen, waitFor, within } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApiError } from "@teb-ooo/web";
 import { commandsFromSpec, PaletteFromApi, paletteProblems } from "../../src/cmdk/index";
-import type { OpenApiDocument, PaletteRuntime } from "../../src/cmdk/index";
+import type { CommandForm, OpenApiDocument, PaletteRuntime } from "../../src/cmdk/index";
 import { renderApp } from "./harness";
 
 const spec: OpenApiDocument = {
@@ -48,15 +48,13 @@ function runtime(over: Partial<PaletteRuntime> = {}): PaletteRuntime {
 }
 
 describe("commandsFromSpec with prompt arguments", () => {
-  it("asks for the fields in the tag's order, built from the body schema, and runs the action with the answers", async () => {
-    const prompt = vi.fn(async (request: Parameters<NonNullable<PaletteRuntime["prompt"]>>[0]) => {
-      await request.submit({ code: "UI-1", title: "T", weight: 2, strict: true });
-    });
-    const rt = runtime({ prompt });
+  it("returns a form built from the body schema, in the tag's order, and its submit runs the action with the answers", async () => {
+    const rt = runtime();
     const [cmd] = commandsFromSpec(spec, here, rt);
     expect(cmd?.title).toBe("Create a rule");
-    await cmd?.run?.({ query: "", fallback: false, close: () => undefined, afterClose: () => undefined });
-    const request = prompt.mock.calls[0]![0];
+    const out = (await cmd?.run?.({ query: "", fallback: false, close: () => undefined, afterClose: () => undefined })) as { form: CommandForm };
+    const request = out.form;
+    expect(request.title).toBe("Create a rule");
     expect(request.submitLabel).toBe("Create rule");
     expect(request.fields.map((f) => [f.name, f.label, f.kind, f.required])).toEqual([
       ["code", "Code", "text", true],
@@ -69,13 +67,10 @@ describe("commandsFromSpec with prompt arguments", () => {
     expect(request.fields[0]?.description).toBe("Short and stable.");
     expect(request.fields[2]?.options).toEqual(["must", "should"]);
     expect(rt.confirm).not.toHaveBeenCalled();
+    expect(rt.call).not.toHaveBeenCalled(); // nothing runs until the review is submitted
+    await request.submit({ code: "UI-1", title: "T", weight: 2, strict: true });
     expect(rt.call).toHaveBeenCalledWith({ operationId: "create-rule", method: "post", path: "/api/rules", args: { code: "UI-1", title: "T", weight: 2, strict: true } });
     expect(rt.invalidate).toHaveBeenCalledWith(["/api/rules"]);
-  });
-
-  it("fails clearly when the palette has no form step", async () => {
-    const [cmd] = commandsFromSpec(spec, here, runtime());
-    await expect(cmd?.run?.({ query: "", fallback: false, close: () => undefined, afterClose: () => undefined })).rejects.toThrow(/no form step/u);
   });
 
   it("paletteProblems refuses what a form cannot ask for, and accepts what it can", () => {
@@ -93,73 +88,119 @@ describe("commandsFromSpec with prompt arguments", () => {
   });
 });
 
-describe("the form step in PaletteFromApi", () => {
-  async function start(call: PaletteRuntime["call"]) {
+describe("the form step inside the palette", () => {
+  async function start(call: PaletteRuntime["call"], doc: OpenApiDocument = spec, name: RegExp = /Create a rule/) {
     const user = userEvent.setup();
     await renderApp({
       initialPath: "/rules",
       routes: [{ path: "/rules" }],
       extra: (
         <QueryClientProvider client={new QueryClient()}>
-          <PaletteFromApi spec={spec} call={call} />
+          <PaletteFromApi spec={doc} call={call} />
         </QueryClientProvider>
       ),
     });
     await user.click(screen.getByRole("button", { name: "Open command palette" }));
-    await user.click(await screen.findByRole("option", { name: /Create a rule/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Create a rule" });
-    return { user, dialog };
+    await user.click(await screen.findByRole("option", { name }));
+    return user;
   }
+  const field = (label: string) => screen.findByRole("combobox", { name: label });
+  const type = async (user: ReturnType<typeof userEvent.setup>, label: string, text: string) => {
+    await user.type(await field(label), `${text}{Enter}`);
+  };
 
-  it("shows the fields, refuses an empty submit with the validator's messages, then submits typed answers and closes", async () => {
+  it("steps through the fields in the palette's own input, then reviews and submits typed answers", async () => {
     const call = vi.fn<PaletteRuntime["call"]>(async () => ({}));
-    const { user, dialog } = await start(call);
-    expect(within(dialog).getByLabelText("Code")).toBeTruthy();
-    expect(within(dialog).getByText("Short and stable.")).toBeTruthy();
-    expect(within(dialog).getByLabelText("Notes (optional)")).toBeTruthy();
-    await user.click(within(dialog).getByRole("button", { name: "Create rule" }));
-    expect((await within(dialog).findAllByText("Required.")).length).toBe(2);
+    const user = await start(call);
+    // No dialog opens over the palette: the palette itself is the form.
+    expect(screen.getAllByRole("dialog")).toHaveLength(1);
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" }).textContent).toContain("Create a rule");
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" }).textContent).toContain("Code (1/6)");
+    expect(screen.getByText(/Code · 1 of 6 · Short and stable\./u)).toBeTruthy();
+    await user.keyboard("{Enter}"); // required and empty
+    expect(await screen.findByRole("alert")).toHaveTextContent("Required.");
+    await type(user, "Code", "UI-9");
+    await type(user, "Rule title", "Be kind");
+    // kind: a list of the schema's enum, chosen from rows (Skip is offered: it is optional)
+    expect(await screen.findByRole("option", { name: "Skip" })).toBeTruthy();
+    await user.click(screen.getByRole("option", { name: "must" }));
+    await type(user, "Weight", "3");
+    await user.click(await screen.findByRole("option", { name: "Yes" })); // strict: yes or no
+    await user.keyboard("{Enter}"); // notes: optional, empty skips
+    // the review: the submit row first, then every answer, changeable
+    expect(await screen.findByRole("option", { name: "Create rule" })).toBeTruthy();
+    expect(screen.getByRole("option", { name: /Code: UI-9/ })).toBeTruthy();
+    expect(screen.getByRole("option", { name: /Strict: Yes/ })).toBeTruthy();
+    expect(screen.getByRole("option", { name: /Notes: skipped/ })).toBeTruthy();
     expect(call).not.toHaveBeenCalled();
-    await user.type(within(dialog).getByLabelText("Code"), "UI-9");
-    await user.type(within(dialog).getByLabelText("Rule title"), "Be kind");
-    await user.type(within(dialog).getByLabelText("Weight (optional)"), "3");
-    await user.click(within(dialog).getByRole("checkbox", { name: "Strict (optional)" }));
-    await user.click(within(dialog).getByRole("button", { name: "Create rule" }));
-    await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "create-rule", method: "post", path: "/api/rules", args: { code: "UI-9", title: "Be kind", weight: 3, strict: true } }));
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Create a rule" })).toBeNull());
+    await user.keyboard("{Enter}");
+    await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "create-rule", method: "post", path: "/api/rules", args: { code: "UI-9", title: "Be kind", kind: "must", weight: 3, strict: true } }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
-  it("keeps the form open with the server's field error under its field", async () => {
+  it("refuses an answer the schema refuses, under the input, and a text that is not a number", async () => {
+    const user = await start(vi.fn<PaletteRuntime["call"]>(async () => ({})));
+    await type(user, "Code", "ab"); // minLength 3
+    expect(await screen.findByRole("alert")).toHaveTextContent("Use at least 3 characters.");
+    await user.clear(await field("Code"));
+    await type(user, "Code", "UI-9");
+    await type(user, "Rule title", "T");
+    await user.click(await screen.findByRole("option", { name: "Skip" })); // kind
+    await type(user, "Weight", "abc");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Enter a number.");
+  });
+
+  it("Backspace on an empty input goes back a step with its answer; at the first step it leaves the form", async () => {
+    const user = await start(vi.fn<PaletteRuntime["call"]>(async () => ({})));
+    await type(user, "Code", "UI-9");
+    await field("Rule title");
+    await user.keyboard("{Backspace}");
+    expect(((await field("Code")) as HTMLInputElement).value).toBe("UI-9");
+    await user.clear(await field("Code"));
+    await user.keyboard("{Backspace}");
+    expect(await screen.findByRole("option", { name: /Create a rule/ })).toBeTruthy(); // back at the commands
+  });
+
+  it("a review answer can be changed and returns to the review", async () => {
+    const call = vi.fn<PaletteRuntime["call"]>(async () => ({}));
+    const user = await start(call);
+    await type(user, "Code", "UI-9");
+    await type(user, "Rule title", "Old");
+    for (let i = 0; i < 4; i++) await user.keyboard("{Enter}"); // kind (skip is the first row), weight, strict, notes
+    await user.click(await screen.findByRole("option", { name: /Rule title: Old/ }));
+    const input = (await field("Rule title")) as HTMLInputElement;
+    expect(input.value).toBe("Old");
+    await user.clear(input);
+    await user.type(input, "New{Enter}");
+    await user.click(await screen.findByRole("option", { name: /Rule title: New/ }));
+    expect(((await field("Rule title")) as HTMLInputElement).value).toBe("New");
+  });
+
+  it("takes the person back to the field the server names, with its message", async () => {
     const call = vi.fn<PaletteRuntime["call"]>(async () => {
       throw new ApiError({ status: 422, title: "Unprocessable", errors: [{ location: "body.code", message: "code already exists" }] });
     });
-    const { user, dialog } = await start(call);
-    await user.type(within(dialog).getByLabelText("Code"), "UI-9");
-    await user.type(within(dialog).getByLabelText("Rule title"), "Be kind");
-    await user.click(within(dialog).getByRole("button", { name: "Create rule" }));
-    expect(await within(dialog).findByText("code already exists")).toBeTruthy();
-    expect(screen.getByRole("dialog", { name: "Create a rule" })).toBeTruthy();
+    const user = await start(call);
+    await type(user, "Code", "UI-9");
+    await type(user, "Rule title", "T");
+    for (let i = 0; i < 4; i++) await user.keyboard("{Enter}");
+    await user.click(await screen.findByRole("option", { name: "Create rule" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("code already exists");
+    expect(((await field("Code")) as HTMLInputElement).value).toBe("UI-9");
   });
 
-  it("says a sentence, never the raw message, when the call fails without a field", async () => {
+  it("says a sentence, never the raw message, when the call fails without a field, and stays on the review", async () => {
     const call = vi.fn<PaletteRuntime["call"]>(async () => {
       throw new Error("pg: connection refused");
     });
-    const { user, dialog } = await start(call);
-    await user.type(within(dialog).getByLabelText("Code"), "UI-9");
-    await user.type(within(dialog).getByLabelText("Rule title"), "Be kind");
-    await user.click(within(dialog).getByRole("button", { name: "Create rule" }));
-    const alert = await within(dialog).findByRole("alert");
+    const user = await start(call);
+    await type(user, "Code", "UI-9");
+    await type(user, "Rule title", "T");
+    for (let i = 0; i < 4; i++) await user.keyboard("{Enter}");
+    await user.click(await screen.findByRole("option", { name: "Create rule" }));
+    const alert = await screen.findByRole("alert");
     expect(alert.textContent).not.toContain("pg:");
-    expect(screen.getByRole("dialog", { name: "Create a rule" })).toBeTruthy();
-  });
-
-  it("Cancel closes without calling the operation", async () => {
-    const call = vi.fn<PaletteRuntime["call"]>(async () => ({}));
-    const { user, dialog } = await start(call);
-    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Create a rule" })).toBeNull());
-    expect(call).not.toHaveBeenCalled();
+    expect(screen.getByRole("option", { name: "Create rule" })).toBeTruthy();
   });
 });
 
@@ -197,59 +238,54 @@ describe("form.fields, form.options and the field kinds", () => {
     },
   };
 
+  const go = async (call: PaletteRuntime["call"]) => {
+    const user = userEvent.setup();
+    await renderApp({
+      initialPath: "/rules",
+      routes: [{ path: "/rules" }],
+      extra: (
+        <QueryClientProvider client={new QueryClient()}>
+          <PaletteFromApi spec={proposal} call={call} />
+        </QueryClientProvider>
+      ),
+    });
+    await user.click(screen.getByRole("button", { name: "Open command palette" }));
+    await user.click(await screen.findByRole("option", { name: /New proposal/ }));
+    return user;
+  };
+
   it("asks in form.fields order, then the rest in key order; a long free text is a box, an email is one line", async () => {
-    const prompt = vi.fn(async () => undefined);
-    const [cmd] = commandsFromSpec(proposal, here, runtime({ prompt }));
-    await cmd?.run?.({ query: "", fallback: false, close: () => undefined, afterClose: () => undefined });
-    const fields = (prompt.mock.calls[0] as unknown as [{ fields: { name: string; kind: string; format?: string }[] }])[0].fields;
+    const [cmd] = commandsFromSpec(proposal, here, runtime());
+    const out = (await cmd?.run?.({ query: "", fallback: false, close: () => undefined, afterClose: () => undefined })) as { form: CommandForm };
+    const fields = out.form.fields;
     expect(fields.map((f) => f.name)).toEqual(["scope", "title", "description", "email"]);
     expect(fields.find((f) => f.name === "description")?.kind).toBe("multiline"); // maxLength 5000, no format
     expect(fields.find((f) => f.name === "email")).toMatchObject({ kind: "text", format: "email" }); // maxLength 254 stays one line
   });
 
-  it("loads a field's choices from a list operation and sends the chosen value", async () => {
+  it("offers a list operation's items as the rows of a step, the fixed ones first, and sends the chosen value", async () => {
     const call = vi.fn<PaletteRuntime["call"]>(async (c) => (c.operationId === "list-apps" ? { items: [{ name: "ah", label: "Dashboard" }, { name: "bd", label: "Work tracker" }, { name: 3 }] } : {}));
-    const user = userEvent.setup();
-    await renderApp({
-      initialPath: "/rules",
-      routes: [{ path: "/rules" }],
-      extra: (
-        <QueryClientProvider client={new QueryClient()}>
-          <PaletteFromApi spec={proposal} call={call} />
-        </QueryClientProvider>
-      ),
-    });
-    await user.click(screen.getByRole("button", { name: "Open command palette" }));
-    await user.click(await screen.findByRole("option", { name: /New proposal/ }));
-    const dialog = await screen.findByRole("dialog", { name: "New proposal" });
+    const user = await go(call);
     await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "list-apps", method: "get", path: "/api/apps", args: { limit: "100" } }));
-    await user.click(await within(dialog).findByRole("combobox", { name: "Scope" }));
-    expect((await screen.findAllByRole("option")).map((o) => o.textContent)).toEqual(["platform", "Dashboard", "Work tracker"]); // the fixed item first
-    await user.click(await screen.findByRole("option", { name: "Work tracker" }));
-    await user.type(within(dialog).getByLabelText("Title"), "A proposal");
-    await user.click(within(dialog).getByRole("button", { name: "Create" }));
+    await waitFor(() => expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["platform", "Dashboard", "Work tracker"])); // the fixed item first
+    await user.type(await screen.findByRole("combobox", { name: "Scope" }), "work"); // typing filters the rows
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["Work tracker"]);
+    await user.click(screen.getByRole("option", { name: "Work tracker" }));
+    await user.type(await screen.findByRole("combobox", { name: "Title" }), "A proposal{Enter}");
+    await user.keyboard("{Enter}"); // description: optional, skipped
+    await user.keyboard("{Enter}"); // email: optional, skipped
+    await user.click(await screen.findByRole("option", { name: "Create" }));
     await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "create-proposal", method: "post", path: "/api/proposals", args: { scope: "bd", title: "A proposal" } }));
   });
 
-  it("falls back to a text box when the choices cannot be loaded", async () => {
+  it("falls back to typing when the choices cannot be loaded", async () => {
     const call = vi.fn<PaletteRuntime["call"]>(async (c) => {
       if (c.operationId === "list-apps") throw new Error("down");
       return {};
     });
-    const user = userEvent.setup();
-    await renderApp({
-      initialPath: "/rules",
-      routes: [{ path: "/rules" }],
-      extra: (
-        <QueryClientProvider client={new QueryClient()}>
-          <PaletteFromApi spec={proposal} call={call} />
-        </QueryClientProvider>
-      ),
-    });
-    await user.click(screen.getByRole("button", { name: "Open command palette" }));
-    await user.click(await screen.findByRole("option", { name: /New proposal/ }));
-    const dialog = await screen.findByRole("dialog", { name: "New proposal" });
-    expect(await within(dialog).findByRole("textbox", { name: "Scope" })).toBeTruthy();
+    await go(call);
+    expect(await screen.findByPlaceholderText("Scope")).toBeTruthy();
+    expect(screen.queryByRole("option")).toBeNull();
   });
 
   it("paletteProblems checks the order list and the option sources", () => {

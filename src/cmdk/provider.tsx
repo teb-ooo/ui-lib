@@ -177,11 +177,14 @@ export function CommandProvider({ children, sequenceTimeout = 1000, standalone =
           out.then(
             (o) => {
               if (o.kind === "view") openPalette({ stack: [{ title: o.title, commands: o.commands }] });
+              else if (o.kind === "form") openPalette({ stack: [{ title: o.form.title, commands: [], form: o.form }] });
             },
             (err: unknown) => openPalette({ error: { title: target.title, message: errorMessage(err) } }),
           );
         } else if (out.kind === "view") {
           openPalette({ stack: [{ title: out.title, commands: out.commands }] });
+        } else if (out.kind === "form") {
+          openPalette({ stack: [{ title: out.form.title, commands: [], form: out.form }] });
         }
       } catch (err) {
         openPalette({ error: { title: target.title, message: errorMessage(err) } });

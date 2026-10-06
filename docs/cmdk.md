@@ -46,7 +46,7 @@ function ItemsPage() {
 }
 ```
 
-`run` may return a promise (spinner, inline error on failure) or a `Command[]` (opens a nested view). `deps` (second argument) says when the list itself changed; `run` and `when` always see the latest render. `shortcut` is a chord (`mod+shift+n`) or a sequence (`g i`). `useCommandPalette()` returns `{ open, close, isOpen }`.
+`run` may return a promise (spinner, inline error on failure), a `Command[]` (opens a nested view) or `{ form }` (a `CommandForm`: the palette steps through its fields in its own input, then a review that submits; see the Palette form step entry in the gallery). `deps` (second argument) says when the list itself changed; `run` and `when` always see the latest render. `shortcut` is a chord (`mod+shift+n`) or a sequence (`g i`). `useCommandPalette()` returns `{ open, close, isOpen }`.
 
 Sign out, Profile and Send feedback are platform commands the `Shell` registers; `CommandProvider` has no `signOutPath` and there is no `useFeedbackCommand` (both removed in 0.70.0). `CommandTrigger` is for the gallery only: the bar has the trigger.
 

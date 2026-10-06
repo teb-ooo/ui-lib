@@ -21,10 +21,19 @@ export interface PaletteViewProps {
   onBreadcrumb: (depth: number) => void;
   /** Id of the row whose `run` is in flight. */
   pendingId: string | null;
-  error: { title: string; message: string } | null;
+  /** `plain` shows the message alone (a form step's own validation), instead of "<title> failed: <message>". */
+  error: { title: string; message: string; plain?: boolean } | null;
   /** Unique id prefix for the listbox and its options. */
   id: string;
   inputRef?: Ref<HTMLInputElement>;
+  /** The input's accessible name. @default "Search commands" */
+  inputLabel?: string;
+  /** A quiet line under the input (a form step's position and help text). */
+  note?: string;
+  /** What to say with no rows; `null` says nothing (a form step where typing is the answer). @default "No results" */
+  emptyMessage?: string | null;
+  /** What Enter does, in the footer hint. @default "run" */
+  enterLabel?: string;
   /** Closes the palette: shown as a button on phones, where the sheet covers the screen and there is no Esc key. */
   onClose?: () => void;
 }
@@ -136,7 +145,7 @@ export function PaletteView(props: PaletteViewProps) {
           ref={props.inputRef}
           autoFocus
           role="combobox"
-          aria-label="Search commands"
+          aria-label={props.inputLabel ?? "Search commands"}
           aria-expanded="true"
           aria-controls={listboxId}
           aria-autocomplete="list"
@@ -156,9 +165,10 @@ export function PaletteView(props: PaletteViewProps) {
           <Button className="sm:hidden" icon={<X aria-hidden="true" className="size-4" />} aria-label="Close command palette" onClick={props.onClose} />
         ) : null}
       </div>
+      {props.note ? <div className="border-b border-line px-3 py-1 text-ink-faint">{props.note}</div> : null}
       {props.error ? (
         <div role="alert" className="border-b border-line px-3 py-2 text-danger">
-          {props.error.title} failed: {props.error.message}
+          {props.error.plain ? props.error.message : `${props.error.title} failed: ${props.error.message}`}
         </div>
       ) : null}
       {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus -- the listbox is driven from the search input through aria-activedescendant */}
@@ -185,9 +195,9 @@ export function PaletteView(props: PaletteViewProps) {
           </div>
         ))}
       </div>
-      {model.rows.length === 0 && !model.sections.some((s) => s.status === "loading") ? (
+      {model.rows.length === 0 && !model.sections.some((s) => s.status === "loading") && props.emptyMessage !== null ? (
         <div role="status" className="px-3 py-6 text-center text-ink-muted">
-          No results
+          {props.emptyMessage ?? "No results"}
         </div>
       ) : null}
       <div className="flex items-center gap-3 border-t border-line px-3 py-2 text-ink-faint max-sm:hidden" aria-hidden="true">
@@ -196,7 +206,7 @@ export function PaletteView(props: PaletteViewProps) {
           <Kbd shortcut="down" /> navigate
         </span>
         <span className="flex items-center gap-1">
-          <Kbd shortcut="enter" /> run
+          <Kbd shortcut="enter" /> {props.enterLabel ?? "run"}
         </span>
         <span className="flex items-center gap-1">
           <Kbd shortcut="esc" /> close

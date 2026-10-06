@@ -9,11 +9,14 @@ import { useSourceResults } from "./use-source-results";
 import { buildPaletteModel } from "./palette-model";
 import type { PaletteRow } from "./palette-model";
 import { optionId, PaletteView } from "./palette-view";
-import type { Command } from "./types";
+import { useFormStep } from "./form-step";
+import type { Command, CommandForm } from "./types";
 
 interface View {
   title: string;
   commands: Command[];
+  /** A form to step through in this view, instead of a list of commands. */
+  form?: CommandForm;
 }
 
 // Below 640px the top-placed panel becomes a full-height sheet. `max-sm:` variants are emitted after the
@@ -53,15 +56,22 @@ export function Palette() {
 
   const root = stack.length === 0;
   const top = stack[stack.length - 1];
+  const step = useFormStep(top?.form, query, setQuery, close);
   const external = useSourceResults(sources, query, root, sourcesVersion);
-  const model = buildPaletteModel({
+  const listModel = buildPaletteModel({
     query,
     commands: top ? top.commands : getCommands(),
     recents,
     root,
     external,
   });
+  const model = step ? step.model : listModel;
   const activeIndex = model.rows.length === 0 ? -1 : Math.min(active, model.rows.length - 1);
+  // A new step of a form starts on its first row: the submit row of the review, the first option of a list.
+  const stepLabel = step?.stepLabel;
+  useEffect(() => {
+    setActive(0);
+  }, [stepLabel]);
 
   useEffect(() => {
     if (activeIndex < 0) return;
@@ -76,6 +86,10 @@ export function Palette() {
   };
 
   const select = (row: PaletteRow): void => {
+    if (step) {
+      step.select(row);
+      return;
+    }
     if (pending !== null) return;
     setError(null);
     const out = run(row.command, query, row.fallback);
@@ -86,6 +100,7 @@ export function Palette() {
           if (!mounted.current) return;
           setPending(null);
           if (o.kind === "view") pushView({ title: o.title, commands: o.commands });
+          else if (o.kind === "form") pushView({ title: o.form.title, commands: [], form: o.form });
           else close();
         },
         (err: unknown) => {
@@ -96,6 +111,8 @@ export function Palette() {
       );
     } else if (out.kind === "view") {
       pushView({ title: out.title, commands: out.commands });
+    } else if (out.kind === "form") {
+      pushView({ title: out.form.title, commands: [], form: out.form });
     } else {
       close();
     }
@@ -131,6 +148,10 @@ export function Palette() {
         break;
       case "Enter": {
         e.preventDefault();
+        if (step?.typing) {
+          step.enter(query);
+          break;
+        }
         const row = model.rows[activeIndex];
         if (row) select(row);
         break;
@@ -138,7 +159,8 @@ export function Palette() {
       case "Backspace":
         if (query === "" && stack.length > 0) {
           e.preventDefault();
-          goBackTo(stack.length - 1);
+          // In a form, Backspace on nothing goes back a step; from the first step it leaves the form.
+          if (!step?.back()) goBackTo(stack.length - 1);
         }
         break;
       default:
@@ -166,16 +188,20 @@ export function Palette() {
           setQuery(q);
           setActive(0);
           setError(null);
+          step?.clearError();
         }}
-        placeholder={top ? `Search ${top.title.replace(/\.{3}$/u, "")}` : "Type a command or search"}
+        placeholder={step ? step.placeholder : top ? `Search ${top.title.replace(/\.{3}$/u, "")}` : "Type a command or search"}
         activeIndex={activeIndex}
         onActiveChange={setActive}
         onSelect={select}
         onKeyDown={onKeyDown}
-        breadcrumb={stack.map((v) => v.title)}
-        onBreadcrumb={goBackTo}
-        pendingId={pending}
-        error={error}
+        breadcrumb={step ? [...stack.map((v) => v.title), step.stepLabel] : stack.map((v) => v.title)}
+        onBreadcrumb={(depth) => {
+          if (depth < stack.length) goBackTo(depth);
+        }}
+        pendingId={step ? step.pendingId : pending}
+        error={step ? step.error : error}
+        {...(step ? { inputLabel: step.inputLabel, note: step.note, enterLabel: step.typing ? "next" : "choose", ...(step.typing ? { emptyMessage: null } : {}) } : {})}
         inputRef={inputRef}
         onClose={close}
       />

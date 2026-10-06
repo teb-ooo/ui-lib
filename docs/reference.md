@@ -1061,15 +1061,6 @@ function: `import { paletteFetch } from "@teb-ooo/ui/cmdk"`
 
 The default way to call an operation: `{name}` in the path from `args`, the rest as query parameters on a GET and as a JSON body otherwise; cookies included; a problem answer throws its `detail` or `title`. An app with a generated client passes its own `call` to `PaletteFromApi` instead.
 
-### PaletteFormDialog
-
-component: `import { PaletteFormDialog } from "@teb-ooo/ui/cmdk"`
-
-The form step of a generated command: a dialog with one field per `"prompt"` argument, built from the operation's request body schema and validated by it (`createBodyValidator`, so it refuses what the API would). The server's field errors land under their fields, any other failure above the buttons; the form stays open until the action succeeds.
-
-- `request`: `PaletteFormRequest`
-- `onClose`: `() => void`. Called once when the form closes: after a successful submit, or when the person cancels.
-
 ### PaletteFromApi
 
 component: `import { PaletteFromApi } from "@teb-ooo/ui/cmdk"`
@@ -1104,9 +1095,13 @@ The palette surface without the modal around it: breadcrumb, combobox input, gro
 - `breadcrumb`: `string[]`. Titles of the views above the current one, root first; the current view is last. Empty at the root.
 - `onBreadcrumb`: `(depth: number) => void`
 - `pendingId`: `string | null`. Id of the row whose `run` is in flight.
-- `error`: `{ title: string; message: string } | null`
+- `error`: `{ title: string; message: string; plain?: boolean } | null`. `plain` shows the message alone (a form step's own validation), instead of "<title> failed: <message>".
 - `id`: `string`. Unique id prefix for the listbox and its options.
 - `inputRef?`: `Ref<HTMLInputElement>`
+- `inputLabel?`: `string`, default "Search commands". The input's accessible name.
+- `note?`: `string`. A quiet line under the input (a form step's position and help text).
+- `emptyMessage?`: `string | null`, default "No results". What to say with no rows; `null` says nothing (a form step where typing is the answer).
+- `enterLabel?`: `string`, default "run". What Enter does, in the footer hint.
 - `onClose?`: `() => void`. Closes the palette: shown as a button on phones, where the sheet covers the screen and there is no Esc key.
 
 ### runCommandSource
@@ -1155,10 +1150,12 @@ Registers commands while the calling component is mounted; they are removed on u
 
 - `Command`
 - `CommandContext`: Passed to `Command.run`.
+- `CommandForm`: A form the palette walks through, one field at a time in its own input, then a review step with the answers and the submit row. A command returns it from `run` as `{ form }`.
+- `CommandFormResult`: What a command returns to start a form step inside the palette.
 - `CommandIcon`: An icon: a component such as a Lucide icon (`Plus`), or a ready element.
 - `CommandIconProps`: Props an icon component receives. Lucide icons satisfy this.
 - `CommandPaletteApi`: Public: what `useCommandPalette` returns.
-- `CommandResult`: What `run` may return: nothing, a promise, or a list that opens as a nested view.
+- `CommandResult`: What `run` may return: nothing, a promise, a list that opens as a nested view, or a form to step through.
 - `CommandSource`: A place the palette searches while someone types: an app's own list or search API. The app says how to ask it and how to turn what comes back into commands (usually "open this entry"); the palette does the debouncing, the cancelling and the showing.
 - `FuzzyMatch`: Result of matching a query against one string.
 - `ModelInput`
@@ -1170,7 +1167,7 @@ Registers commands while the calling component is mounted; they are removed on u
 - `PaletteFetchOptions`
 - `PaletteFieldKind`: How one field is drawn.
 - `PaletteFormField`: One question of a form step.
-- `PaletteFormRequest`: What `PaletteRuntime.prompt` shows: a form for the arguments marked `"prompt"`.
+- `PaletteFormRequest`: The form a prompted command walks the person through inside the palette (the same type as `CommandForm`).
 - `PaletteModel`
 - `PaletteRole`
 - `PaletteRow`

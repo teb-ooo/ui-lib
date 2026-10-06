@@ -1,21 +1,18 @@
-import { useState } from "react";
 import { ApiError } from "@teb-ooo/web";
-import { Button } from "@teb-ooo/ui";
-import { PaletteFormDialog } from "./index";
-import type { PaletteFormRequest } from "./index";
+import { CommandProvider, CommandTrigger, useRegisterCommands } from "./index";
+import type { Command, CommandForm } from "./index";
 import type { StoryDefault, StoryMeta } from "../stories";
 
 export default {
   title: "Palette form step",
   group: "Molecules",
   description:
-    "The dialog a generated Cmd+K command opens when its x-palette tag marks arguments as prompt: one field per argument, built from the operation's request body schema (text, number, yes/no, one of a list) and validated by it, the server's field errors under their fields, any other failure in a sentence above the buttons. PaletteFromApi renders it by itself; this entry shows it with a stand-in request that sends nothing.",
-  aliases: ["command form", "palette prompt", "cmdk form", "create from palette", "form step", "prompt dialog", "generated form"],
-  component: "PaletteFormDialog",
-  source: "src/cmdk/palette-form.tsx",
+    "A form inside the palette. A command that needs typed answers (an x-palette tag with prompt arguments, or any command returning { form }) walks the person through them in the palette's own input: one field per step (text and numbers typed, yes/no and lists chosen from rows, optional ones skipped with Enter), with the breadcrumb showing where they are, then a review that lists the answers, lets any be changed and submits. A server's field error takes the person back to that field; Backspace on an empty input goes back a step.",
+  aliases: ["command form", "palette prompt", "cmdk form", "create from palette", "form step", "wizard", "prompt", "generated form", "steps"],
+  source: "src/cmdk/palette-form.stories.tsx",
 } satisfies StoryDefault;
 
-const request: PaletteFormRequest = {
+const form: CommandForm = {
   title: "Create a rule",
   submitLabel: "Create rule",
   fields: [
@@ -42,13 +39,17 @@ const request: PaletteFormRequest = {
   },
 };
 
-export const Form = () => {
-  const [open, setOpen] = useState(false);
-  return (
-    <>
-      <Button onClick={() => setOpen(true)}>Open the form</Button>
-      {open ? <PaletteFormDialog request={request} onClose={() => setOpen(false)} /> : null}
-    </>
-  );
-};
-Form.storyMeta = { description: "Press Create with nothing filled in to see the required messages; use the code \"taken\" to see a server's field error stay under its field." } satisfies StoryMeta;
+const commands: Command[] = [{ id: "story-create-rule", title: "Create a rule", group: "Rules", run: () => ({ form }) }];
+
+function Register() {
+  useRegisterCommands(commands, []);
+  return null;
+}
+
+export const Steps = () => (
+  <CommandProvider standalone>
+    <Register />
+    <CommandTrigger />
+  </CommandProvider>
+);
+Steps.storyMeta = { description: "Open the palette, choose Create a rule and answer step by step. Press Enter with nothing typed on a required field to see the message; use the code \"taken\" to see a server's field error take you back to that field." } satisfies StoryMeta;
