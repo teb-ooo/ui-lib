@@ -88,6 +88,8 @@ export interface PaletteFromApiProps {
   call?: PaletteRuntime["call"];
   /** Asks before an action that confirms. @default a `ConfirmDialog` over the page */
   confirm?: PaletteRuntime["confirm"];
+  /** Turns the generated commands and searches off (a section of the app where they do not apply). Prefer a tag's `role` for who may see them. @default true */
+  enabled?: boolean;
 }
 
 /**
@@ -96,7 +98,7 @@ export interface PaletteFromApiProps {
  * published with `usePaletteSelection`; sources are searched while typing. Hand-written `useRegisterCommands` still
  * works beside it for everything that is not tagged.
  */
-export function PaletteFromApi({ spec, call, confirm }: PaletteFromApiProps): ReactElement {
+export function PaletteFromApi({ spec, call, confirm, enabled = true }: PaletteFromApiProps): ReactElement {
   const navigate = useNavigate();
   const client = useQueryClient();
   const row = useSelection();
@@ -125,9 +127,9 @@ export function PaletteFromApi({ spec, call, confirm }: PaletteFromApiProps): Re
     }),
     [call, confirm, client, navigate],
   );
-  const commands = useMemo(() => commandsFromSpec(spec, { route, params, selection: row, user: user as Record<string, unknown> | null }, runtime), [spec, route, params, row, user, runtime]);
+  const commands = useMemo(() => (enabled ? commandsFromSpec(spec, { route, params, selection: row, user: user as Record<string, unknown> | null }, runtime) : []), [enabled, spec, route, params, row, user, runtime]);
   useRegisterCommands(commands, [commands]);
-  const sources = useMemo(() => sourcesFromSpec(spec, runtime), [spec, runtime]);
+  const sources = useMemo(() => (enabled ? sourcesFromSpec(spec, runtime, user as Record<string, unknown> | null) : []), [enabled, spec, runtime, user]);
   // One source per tagged list: they are registered by a child so each can use the hook.
   const answer = (ok: boolean) => {
     asking?.settle(ok);

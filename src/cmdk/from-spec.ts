@@ -38,9 +38,21 @@ export interface PaletteActionTag {
   after?: { invalidate?: string[]; navigate?: string };
   hint?: string;
   keywords?: string[];
+  /** Only for these people: `admin` (an administrator or the app's owner) or `owner`. Hidden for everyone else, and while nobody is signed in. */
+  role?: PaletteRole;
+}
+
+export type PaletteRole = "admin" | "owner";
+
+function hasRole(role: PaletteRole | undefined, user: Record<string, unknown> | null | undefined): boolean {
+  if (role === undefined) return true;
+  if (!user) return false;
+  return role === "owner" ? user.is_owner === true : user.is_admin === true || user.is_owner === true;
 }
 
 export interface PaletteSourceTag {
+  /** Only for these people, as on an action: a search the API would answer 403 is never asked for anyone else. */
+  role?: PaletteRole;
   source: {
     group: string;
     /** `{field}` is filled from each result. */
@@ -135,9 +147,11 @@ export function paletteProblems(doc: OpenApiDocument): string[] {
       if (method !== "get") out.push(`${where}: a source must be a GET`);
       const s = tag.source;
       if (!s.group || !s.title || !s.route) out.push(`${where}: a source needs group, title and route`);
+      if (tag.role !== undefined && tag.role !== "admin" && tag.role !== "owner") out.push(`${where}: role must be "admin" or "owner"`);
     } else if (isAction(tag)) {
       if (method === "get") out.push(`${where}: an action must change something (use a source for a list)`);
       if (!tag.group) out.push(`${where}: an action needs a group`);
+      if (tag.role !== undefined && tag.role !== "admin" && tag.role !== "owner") out.push(`${where}: role must be "admin" or "owner"`);
       for (const [name, ref] of Object.entries(tag.when?.differs ?? {})) {
         if (!/^(user|route)\.\w+$/u.test(ref)) out.push(`${where}: when.differs.${name} must be "user.<field>" or "route.<param>"`);
       }
@@ -188,6 +202,7 @@ function resolveArgs(args: Record<string, string> | undefined, ctx: PaletteConte
 }
 
 function applies(tag: PaletteActionTag, ctx: PaletteContext): boolean {
+  if (!hasRole(tag.role, ctx.user)) return false;
   const w = tag.when;
   if (w?.route !== undefined && w.route !== ctx.route) return false;
   if ((w?.needs === "selection" || w?.field !== undefined || w?.differs !== undefined) && !ctx.selection) return false;
@@ -242,10 +257,10 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
 }
 
 /** The searchable lists the tags describe, one `CommandSource` each; choosing a result navigates to its route. */
-export function sourcesFromSpec(doc: OpenApiDocument, runtime: Pick<PaletteRuntime, "call" | "navigate">): CommandSource[] {
+export function sourcesFromSpec(doc: OpenApiDocument, runtime: Pick<PaletteRuntime, "call" | "navigate">, user?: Record<string, unknown> | null): CommandSource[] {
   const out: CommandSource[] = [];
   for (const { method, path, op, tag } of operations(doc)) {
-    if (!isSource(tag) || method !== "get" || op.operationId === undefined) continue;
+    if (!isSource(tag) || method !== "get" || op.operationId === undefined || !hasRole(tag.role, user)) continue;
     const s = tag.source;
     const operationId = op.operationId;
     out.push({

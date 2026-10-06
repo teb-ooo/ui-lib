@@ -1047,6 +1047,7 @@ Turns the `x-palette` tags of the API document into Cmd+K commands and sources: 
 - `spec`: `OpenApiDocument`. The app's OpenAPI document (generated; `web/src/api/openapi.json`).
 - `call?`: `PaletteRuntime["call"]`, default `paletteFetch()`. Calls an operation.
 - `confirm?`: `PaletteRuntime["confirm"]`, default a `ConfirmDialog` over the page. Asks before an action that confirms.
+- `enabled?`: `boolean`, default true. Turns the generated commands and searches off (a section of the app where they do not apply). Prefer a tag's `role` for who may see them.
 
 ### paletteProblems
 
@@ -1136,6 +1137,7 @@ Registers commands while the calling component is mounted; they are removed on u
 - `PaletteContext`: Where the person is: the matched route pattern, its parameters, and the selected row a screen published.
 - `PaletteFetchOptions`
 - `PaletteModel`
+- `PaletteRole`
 - `PaletteRow`
 - `PaletteRuntime`: How a command acts. `PaletteFromApi` supplies the real one; tests pass fakes.
 - `PaletteScalar`: A value a `when.field` condition compares the selection's field with.

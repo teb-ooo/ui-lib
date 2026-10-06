@@ -67,6 +67,28 @@ describe("commandsFromSpec", () => {
     expect(paletteProblems(bad as never).join()).toContain("when.differs.id");
   });
 
+  it("`role` hides an action and a source from anyone it is not for, and while nobody is signed in", () => {
+    const d = {
+      paths: {
+        "/api/users/{id}/disable": { post: { operationId: "disable-user", "x-palette": { title: "Disable {name}", group: "Users", role: "admin", when: { route: "/users" }, args: { id: "selection.id" } } } },
+        "/api/rules/{code}": { delete: { operationId: "retire-rule", "x-palette": { title: "Retire {code}", group: "Rule", role: "owner", args: { code: "selection.code" } } } },
+        "/api/users": { get: { operationId: "list-users", "x-palette": { role: "admin", source: { group: "Users", title: "{name}", route: "/users/{id}" } } } },
+      },
+    };
+    const sel = { id: "1", name: "ada", code: "R1" };
+    const titles = (user: Record<string, unknown> | null) => commandsFromSpec(d, { route: "/users", params: {}, selection: sel, user }, runtime()).map((c) => c.title);
+    expect(titles(null)).toEqual([]);
+    expect(titles({ is_admin: false })).toEqual([]);
+    expect(titles({ is_admin: true })).toEqual(["Disable ada"]);
+    expect(titles({ is_owner: true })).toEqual(["Disable ada", "Retire R1"]); // the owner is an administrator too
+    expect(commandsFromSpec(d, { route: "/x", params: {}, selection: sel, user: { is_owner: true } }, runtime()).map((c) => c.title)).toEqual(["Retire R1"]);
+    expect(sourcesFromSpec(d, runtime(), null)).toHaveLength(0);
+    expect(sourcesFromSpec(d, runtime(), { is_admin: true })).toHaveLength(1);
+    expect(paletteProblems(d)).toEqual([]);
+    const bad = { paths: { "/x": { post: { operationId: "x", "x-palette": { title: "X", group: "G", role: "root" } } } } };
+    expect(paletteProblems(bad as never).join()).toContain("role must be");
+  });
+
   it("fills arguments from route parameters and asks to confirm a DELETE by default", async () => {
     const rt = runtime({ confirm: vi.fn(() => false) });
     const [cmd] = commandsFromSpec(doc, { route: "/rule/$code", params: { code: "UI-yze" }, selection: null }, rt);
