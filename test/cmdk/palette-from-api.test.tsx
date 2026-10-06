@@ -6,8 +6,9 @@ import { PaletteFromApi, paletteFetch, usePaletteSelection } from "../../src/cmd
 import type { OpenApiDocument } from "../../src/cmdk/index";
 import { renderApp } from "./harness";
 import { redirectToLogin } from "@teb-ooo/web";
+import type * as WebPackage from "@teb-ooo/web";
 
-vi.mock("@teb-ooo/web", async (original) => ({ ...(await original<typeof import("@teb-ooo/web")>()), redirectToLogin: vi.fn() }));
+vi.mock("@teb-ooo/web", async (original) => ({ ...(await original<typeof WebPackage>()), redirectToLogin: vi.fn() }));
 
 const spec: OpenApiDocument = {
   paths: {

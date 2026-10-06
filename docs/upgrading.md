@@ -6,7 +6,7 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
-## To ui 0.76.0 (from 0.75.x)
+## To ui 0.76.1 (from 0.75.x; 0.76.0 was tagged but never published)
 
 **Tone spelling.** `Alert`, `Chip` and `Toast` take `tone="warning"`, the one spelling the token, `Button` and `Meter` already use; `tone="warn"` still works and is removed in the next minor release (change it now: a search for `tone="warn"` finds them). The class is `.chip-warning` (`.chip-warn` is gone; an app that used the class itself renames it). `Alert`'s `data-tone` now says `warning`.
 
