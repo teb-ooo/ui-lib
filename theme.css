@@ -889,7 +889,7 @@ input.display-lg {
   .anim-palette {
     animation: anim-palette-in 93ms var(--ease-out);
   }
-  /* Controls change colour in 100ms, and a pressed button sits 1px lower. */
+  /* Controls change colour in 100ms, and a pressed button scales down very slightly. */
   .btn,
   .input,
   .chip {
@@ -898,8 +898,11 @@ input.display-lg {
       border-color var(--motion-out) var(--ease-out),
       color var(--motion-out) var(--ease-out);
   }
+  .btn {
+    transition-property: background-color, border-color, color, scale;
+  }
   .btn:active:not(:disabled, [data-disabled]) {
-    translate: 0 1px;
+    scale: 0.97;
   }
   /* Reduced motion keeps the fades and drops the movement. */
   @media (prefers-reduced-motion: reduce) {
@@ -944,7 +947,7 @@ input.display-lg {
       animation: none;
     }
     .btn:active:not(:disabled, [data-disabled]) {
-      translate: none;
+      scale: none;
     }
   }
 }
