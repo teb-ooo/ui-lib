@@ -21,4 +21,4 @@ export { runCommandSource } from "./sources";
 export { PaletteFromApi, usePaletteSelection, paletteFetch } from "./palette-from-api";
 export type { PaletteFromApiProps, PaletteFetchOptions } from "./palette-from-api";
 export { commandsFromSpec, sourcesFromSpec, paletteProblems, untaggedActions } from "./from-spec";
-export type { OpenApiDocument, OpenApiOperation, PaletteActionTag, PaletteSourceTag, PaletteTag, PaletteCall, PaletteContext, PaletteRuntime } from "./from-spec";
+export type { OpenApiDocument, OpenApiOperation, PaletteActionTag, PaletteSourceTag, PaletteScalar, PaletteTag, PaletteCall, PaletteContext, PaletteRuntime } from "./from-spec";

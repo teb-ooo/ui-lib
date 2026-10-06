@@ -1,6 +1,9 @@
 import type { Command } from "./types";
 import type { CommandSource } from "./sources";
 
+/** A value a `when.field` condition compares the selection's field with. */
+export type PaletteScalar = string | number | boolean;
+
 /**
  * What an operation says about the palette (`x-palette` in the OpenAPI document). Two kinds: an action (a mutating
  * operation that becomes a command) and a source (a list or search operation the palette searches while typing).
@@ -10,8 +13,13 @@ export interface PaletteActionTag {
   /** Verb-first title; `{name}` is filled from the selection, then the route parameters. A command with an unfilled name is hidden. */
   title: string;
   group: string;
-  /** Where it applies: the router's route pattern (`/rule/$code`) and whether a selected row is needed. With no `when` the command shows only once two characters are typed. */
-  when?: { route?: string; needs?: "selection" };
+  /**
+   * Where it applies: the router's route pattern (`/rule/$code`), whether a selected row is needed, and what that row
+   * must hold: `field: { status: "staged" }` (or a list of accepted values) shows the command only while the published
+   * selection has that value, so "Apply" appears only for a staged proposal. `field` implies `needs: "selection"`.
+   * With no `when` the command shows only once two characters are typed.
+   */
+  when?: { route?: string; needs?: "selection"; field?: Record<string, PaletteScalar | readonly PaletteScalar[]> };
   /** Each path, query or body field: `route.<param>`, `selection.<field>`, or a literal. (`prompt` arrives with phase 2.) */
   args?: Record<string, string>;
   /** `true` asks "<title>?"; a string is the question (`{name}` filled as in the title). A DELETE asks by default; `false` turns that off. */
@@ -118,6 +126,10 @@ export function paletteProblems(doc: OpenApiDocument): string[] {
     } else if (isAction(tag)) {
       if (method === "get") out.push(`${where}: an action must change something (use a source for a list)`);
       if (!tag.group) out.push(`${where}: an action needs a group`);
+      for (const [name, want] of Object.entries(tag.when?.field ?? {})) {
+        const ok = (v: unknown) => ["string", "number", "boolean"].includes(typeof v);
+        if (!(Array.isArray(want) ? want.length > 0 && want.every(ok) : ok(want))) out.push(`${where}: when.field.${name} must be a string, number or boolean, or a non-empty list of them`);
+      }
       for (const [arg, from] of Object.entries(tag.args ?? {})) {
         if (from === "prompt") out.push(`${where}: argument ${arg} is "prompt", which is not supported yet`);
       }
@@ -163,7 +175,11 @@ function resolveArgs(args: Record<string, string> | undefined, ctx: PaletteConte
 function applies(tag: PaletteActionTag, ctx: PaletteContext): boolean {
   const w = tag.when;
   if (w?.route !== undefined && w.route !== ctx.route) return false;
-  if (w?.needs === "selection" && !ctx.selection) return false;
+  if ((w?.needs === "selection" || w?.field !== undefined) && !ctx.selection) return false;
+  for (const [name, want] of Object.entries(w?.field ?? {})) {
+    const have = ctx.selection?.[name];
+    if (!(Array.isArray(want) ? (want as readonly unknown[]).includes(have) : have === want)) return false;
+  }
   return true;
 }
 

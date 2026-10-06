@@ -1138,6 +1138,7 @@ Registers commands while the calling component is mounted; they are removed on u
 - `PaletteModel`
 - `PaletteRow`
 - `PaletteRuntime`: How a command acts. `PaletteFromApi` supplies the real one; tests pass fakes.
+- `PaletteScalar`: A value a `when.field` condition compares the selection's field with.
 - `PaletteSection`
 - `PaletteSourceTag`
 - `PaletteTag`

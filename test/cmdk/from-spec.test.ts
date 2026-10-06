@@ -35,6 +35,27 @@ describe("commandsFromSpec", () => {
     expect(commandsFromSpec(doc, { ...ctx, route: "/other" }, runtime())).toEqual([]);
   });
 
+  it("`when.field` shows an action only while the selection holds that value (one value or a list)", () => {
+    const staged = {
+      paths: {
+        "/api/proposals/{id}/apply": {
+          post: { operationId: "apply-proposal", "x-palette": { title: "Apply {name}", group: "Proposal", when: { route: "/p", field: { status: "staged" } }, args: { id: "selection.id" } } },
+        },
+        "/api/proposals/{id}/withdraw": {
+          post: { operationId: "withdraw-proposal", "x-palette": { title: "Withdraw {name}", group: "Proposal", when: { route: "/p", field: { status: ["open", "staged"] } }, args: { id: "selection.id" } } },
+        },
+      },
+    };
+    const at = (status: string | null) => commandsFromSpec(staged, { route: "/p", params: {}, selection: status === null ? null : { id: "1", name: "rb-1", status } }, runtime()).map((c) => c.title);
+    expect(at("staged")).toEqual(["Apply rb-1", "Withdraw rb-1"]);
+    expect(at("open")).toEqual(["Withdraw rb-1"]);
+    expect(at("applied")).toEqual([]);
+    expect(at(null)).toEqual([]);
+    expect(paletteProblems(staged)).toEqual([]);
+    const bad = { paths: { "/x": { post: { operationId: "x", "x-palette": { title: "X", group: "G", when: { field: { status: [] } } } } } } };
+    expect(paletteProblems(bad as never).join()).toContain("when.field.status");
+  });
+
   it("fills arguments from route parameters and asks to confirm a DELETE by default", async () => {
     const rt = runtime({ confirm: vi.fn(() => false) });
     const [cmd] = commandsFromSpec(doc, { route: "/rule/$code", params: { code: "UI-yze" }, selection: null }, rt);
