@@ -3,7 +3,7 @@
 What five apps got wrong most often and how to build it right the first time. Each item names the component to use. See `components.md` for props.
 
 ## 1. Every data screen has four states
-Loading, error, empty and loaded are designed, not left to chance.
+Loading, error, empty and loaded are designed, not left to chance. For a table, `DataTable` draws them from its props (below). For any other screen over a query, `QueryState` does it: `<QueryState query={q} empty={<EmptyState title="No notes yet" />}>{(data) => <Notes data={data} />}</QueryState>` shows the delayed loading line, the error sentence (`describeError`) with Retry, your empty state, then your screen; a failed refresh keeps the data on screen. Do not hand-write `isPending ? ... : error ? ... : ...`.
 - **Loading:** `DataTable loading` (its skeleton waits 100ms before it appears; wrap your own loading line or spinner in `Delayed`); hide counts ("0 rules") until the data is there. With `createQueryClient` an error shows within about a second.
 - **Error:** `DataTable error={error.userMessage} onRetry={refetch}`. Never print `error.message` ("Internal Server Error: internal error"); `ApiError.userMessage` is a sentence for a person.
 - **Empty:** say why it is empty. `EmptyState` is the component: with a filter on, name the filter and offer "Clear filters" (`<EmptyState title="No retired rules" description="The Retired filter is on." action={<Button>Clear filters</Button>} />`); with none, say how to add the first one. Pass it as `DataTable`'s `empty`.

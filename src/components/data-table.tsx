@@ -7,6 +7,7 @@ import type { Breakpoint } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
 import { readStoredJson, writeStoredJson } from "../lib/storage";
 import { Button } from "./button";
+import { ErrorState } from "./query-state";
 import { Checkbox } from "./checkbox";
 import { Select } from "./select";
 
@@ -566,14 +567,7 @@ export function DataTable<T>({
 
   const body = (): ReactNode => {
     if (error)
-      return (
-        <div className="flex flex-col items-start gap-2 p-4">
-          <div role="alert" className="text-danger">
-            {error}
-          </div>
-          {onRetry ? <Button onClick={onRetry}>{retryLabel}</Button> : null}
-        </div>
-      );
+      return <ErrorState message={error} onRetry={onRetry} retryLabel={retryLabel} />;
     if (rows.length === 0 && loading) {
       return Array.from({ length: 8 }, (_, i) => (
         <div key={i} aria-hidden="true" className="anim-delayed flex h-[var(--control-h)] items-center border-b border-line px-2">

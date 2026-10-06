@@ -163,7 +163,7 @@ describe("Shell", () => {
       expect(within(palette).getByText(t)).toBeTruthy();
     }
     await userEvent.click(within(palette).getByText("Go to work tracker"));
-    expect(go).toHaveBeenCalledWith("https://bd.example.test/");
+    expect(go).toHaveBeenCalledWith("https://bd-staging.example.test/");
     go.mockRestore();
   });
 
@@ -180,7 +180,7 @@ describe("Shell", () => {
   it("the person menu has My profile and Sign out", async () => {
     mount(member);
     await userEvent.click(await screen.findByRole("button", { name: "Account" }));
-    expect(await screen.findByRole("menuitem", { name: "My profile" })).toHaveProperty("href", "https://id.example.test/profile");
+    expect(await screen.findByRole("menuitem", { name: "My profile" })).toHaveProperty("href", "https://id-staging.example.test/profile");
     expect(screen.getByRole("menuitem", { name: "Sign out" })).toHaveProperty("href", expect.stringContaining("/auth/logout"));
   });
 

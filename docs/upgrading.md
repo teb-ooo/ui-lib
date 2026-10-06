@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.75.0 (from 0.74.x)
+
+The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
+
 ## To ui 0.71.0 (from 0.70.x)
 
 Visual change, nothing to change in code: hovered and open controls reverse (white on a dark page, black on a light one), a focused input drops to the page colour, the dropdown popups are inverted panels, and the environment mark is yellow. An app that styled a button's hover itself with its own classes may now fight the new rule.

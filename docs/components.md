@@ -227,6 +227,7 @@ Loading UI waits 100ms before it appears and then fades in over 150ms (`.anim-de
 - `Field hideLabel`: the label for screen readers only.
 - `Column lines: 2 | 3`: the cell wraps to that many lines and the row grows (up to 100 rows).
 - `EmptyState` (`title`, `description?`, `action?`): the state of a list with nothing to show.
+- `QueryState` (`query`, `children(data)`, `isEmpty?`, `empty?`, `loading?`, `retryLabel?`, `describe?`) and `ErrorState` (`message`, `onRetry?`, `retryLabel?`): loading, error with Retry, empty and loaded over a query result; `DataTable` draws its error with `ErrorState`.
 - `Page` and `PageBody` (`fill`): the frame of a screen with one scroll surface; `Tabs fill`. See best-practices.md section 12.
 - web 0.8.3: `ApiError.userMessage` keeps a 4xx detail when there is one.
 

@@ -36,6 +36,8 @@ export { AudioPlayer } from "./components/audio-player";
 export type { AudioPlayerProps } from "./components/audio-player";
 export { EmptyState } from "./components/empty-state";
 export type { EmptyStateProps } from "./components/empty-state";
+export { ErrorState, QueryState } from "./components/query-state";
+export type { ErrorStateProps, QueryLike, QueryStateProps } from "./components/query-state";
 export { Page, PageBody, PageColumns } from "./components/page";
 export type { PageBodyProps, PageColumnsProps, PageProps } from "./components/page";
 export { PageHeader, Section } from "./components/section";
