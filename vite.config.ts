@@ -3,8 +3,6 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  // Relative URLs: the entrance scene loads its worker file as `new URL("./assets/...", import.meta.url)`, which must resolve beside the chunk in node_modules, not at the site root.
-  base: "./",
   plugins: [react(), tailwindcss()],
   build: {
     lib: {

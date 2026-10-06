@@ -1,6 +1,6 @@
 /**
  * The shape of the mist and the cloud of points that fills it. Working the cloud out takes a moment (a noise volume, then
- * rejection sampling), so it is done in a worker (./mist-cloud.worker.ts) and the page stays usable meanwhile.
+ * rejection sampling), so it is done in slices that hand the page back in between (`buildCloudSliced`) and the page stays usable.
  */
 
 export const RADIUS = 17.6; // the mist fades to nothing at this distance from the swingset, at the ground
@@ -78,7 +78,7 @@ const smooth = (a: number, b: number, x: number) => {
 };
 
 /** The wisps of the volume: noise warped by more noise, thresholded into clumps and gaps. */
-function wisps(): Uint8Array {
+function* wispSteps(): Generator<void, Uint8Array> {
   const out = new Uint8Array(FX * FX * FZ);
   const size = RADIUS * 2;
   // the warp is the same at every height, so it is worked out once for every column
@@ -90,6 +90,7 @@ function wisps(): Uint8Array {
       warp[(j * FX + i) * 2] = fbm(x + 3, y + 3, 0.5, 11);
       warp[(j * FX + i) * 2 + 1] = fbm(x - 3, y - 3, 0.5, 23);
     }
+    yield; // a row of the warp: time to hand the page back if the slice is used up
   }
   for (let k = 0; k < FZ; k++) {
     const z = ((k + 0.5) / FZ) * HEIGHT * SCALE_UP;
@@ -102,14 +103,15 @@ function wisps(): Uint8Array {
         const n = 0.5 + fbm(x + 2.2 * wx, y + 2.2 * wy, z, 37);
         out[(k * FX + j) * FX + i] = Math.round(255 * smooth(0.44, 0.58, n));
       }
+      yield; // a row of the volume
     }
   }
   return out;
 }
 
 /** The cloud: places in the mist's own frame of reference, more where the mist is thicker, three numbers for each point. */
-export function buildCloud(): Float32Array {
-  const field = wisps();
+function* cloudSteps(): Generator<void, Float32Array> {
+  const field = yield* wispSteps();
   const out = new Float32Array(POINTS * 3);
   let seed = 0x9e3779b9;
   const random = () => {
@@ -122,6 +124,7 @@ export function buildCloud(): Float32Array {
   const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
   let n = 0;
   for (let tries = 0; n < POINTS && tries < POINTS * 400; tries++) {
+    if (tries % 4000 === 3999) yield; // the rejection sampling: hand the page back now and then
     const x = (random() * 2 - 1) * RADIUS;
     const z = (random() * 2 - 1) * RADIUS;
     const y = random() * HEIGHT;
@@ -149,6 +152,42 @@ export function buildCloud(): Float32Array {
     n++;
   }
   return n < POINTS ? out.slice(0, n * 3) : out;
+}
+
+/** The cloud, worked out in one go (a test, a script). The page uses `buildCloudSliced`. */
+export function buildCloud(): Float32Array {
+  const steps = cloudSteps();
+  for (let r = steps.next(); ; r = steps.next()) if (r.done) return r.value;
+}
+
+/** Gives the page back to the browser: a message to ourselves, unlike a timer, is not held back to at least a few milliseconds. */
+function breathe(): Promise<void> {
+  return new Promise((resolve) => {
+    const channel = new MessageChannel();
+    channel.port1.onmessage = () => {
+      channel.port1.close();
+      resolve();
+    };
+    channel.port2.postMessage(null);
+  });
+}
+
+/**
+ * The cloud, worked out on the page's own thread in slices of a few milliseconds with the page handed back in between, so
+ * the page stays usable (it took about a second in one piece on a fast machine, which is why it was once done in a worker;
+ * a worker file is a bundler's and a content security policy's business, a slice is nobody's). The result is exactly what
+ * `buildCloud` makes.
+ */
+export async function buildCloudSliced(sliceMs = 6): Promise<Float32Array> {
+  const steps = cloudSteps();
+  for (;;) {
+    const until = performance.now() + sliceMs;
+    do {
+      const r = steps.next();
+      if (r.done) return r.value;
+    } while (performance.now() < until);
+    await breathe();
+  }
 }
 
 /** Names the cloud these constants make, so a cloud kept from an earlier visit is used only while it is still the same one. */

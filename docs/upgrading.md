@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.87.1 (from 0.87.0)
+
+Fix: `EntrancePage` worked its cloud of points out in a Web Worker, which a consuming app's bundler turned into a `data:` URL that a content security policy of `script-src 'self'` (the platform's) blocks. The cloud is now worked out in short slices on the page's own thread (the same cloud, byte for byte, kept in IndexedDB for the next visit), so no worker, no extra asset and nothing for the bundler or the policy to decide. Use 0.87.1, not 0.87.0.
+
 ## To ui 0.87.0 (from 0.86.x)
 
 New entry point `@teb-ooo/ui/entrance` with `EntrancePage`: the signed-out front door with the swingset scene (lifted from id). Nothing to change for an app that does not use it. To use it an app installs `three` (an optional peer dependency of ui: take the version named in its `peerDependencies`, saved exact) and replaces its own `/enter` page's wrapper with `<EntrancePage title="Sign in" busy={...}>` around its button. Keep your own button and copy: the scene only draws the picture. Give the button `bg-ground` so the mist never shows through it.

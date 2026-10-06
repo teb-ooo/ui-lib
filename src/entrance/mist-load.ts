@@ -1,10 +1,10 @@
-import { CLOUD_KEY } from "./mist-cloud";
+import { buildCloudSliced, CLOUD_KEY } from "./mist-cloud";
 
 /**
  * The cloud of points of the mist, as soon as it can be had: from the browser's own storage when an earlier visit kept it
- * (a sign-in page is visited again and again), otherwise worked out in a worker (the page stays usable) and kept for next
+ * (a sign-in page is visited again and again), otherwise worked out in slices that hand the page back (it stays usable) and kept for next
  * time. `loadCloud` starts the work once, so it can be called early, while the picture's own code is still being fetched,
- * and again later for the same answer. It rejects when the cloud can be had neither way.
+ * and again later for the same answer. It rejects only if working it out throws.
  */
 
 const DB = "swingset";
@@ -41,27 +41,12 @@ async function keepCloud(places: Float32Array): Promise<void> {
   }
 }
 
-function workedOut(): Promise<Float32Array> {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker(new URL("./mist-cloud.worker.ts", import.meta.url), { type: "module" });
-    // the worker starts working the moment it is created and answers once
-    worker.addEventListener("message", (e: MessageEvent<Float32Array>) => {
-      worker.terminate();
-      resolve(e.data);
-    });
-    worker.addEventListener("error", (e) => {
-      worker.terminate();
-      reject(new Error(e.message));
-    });
-  });
-}
-
 let pending: Promise<Float32Array> | undefined;
 export function loadCloud(): Promise<Float32Array> {
   pending ??= (async () => {
     const kept = await keptCloud();
     if (kept) return kept;
-    const places = await workedOut();
+    const places = await buildCloudSliced();
     void keepCloud(places);
     return places;
   })();

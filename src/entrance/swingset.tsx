@@ -146,7 +146,7 @@ export default function Swingset({ excited = false, contained = false }: { excit
     // One scene: the frame and the swing are drawn into a texture with their depth (`frameTarget`), and the mist's shader
     // draws the picture from that, putting the mist in front of and behind them where it really is. The picture is drawn
     // on every animation frame, because the mist never stops moving.
-    // The cloud of points is worked out in a worker, so the page is usable at once; the picture appears when it is ready.
+    // The cloud of points is worked out in short slices (or read from storage), so the page is usable at once; the picture appears when it is ready.
     let mist: Mist | null = null;
     let disposed = false;
     let frameTarget: WebGLRenderTarget;
