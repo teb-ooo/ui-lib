@@ -51,6 +51,11 @@ const placements: Record<DialogPlacement, string> = {
   right: "anim-slide-right panel panel-float right-0 top-0 h-dvh w-full max-w-xl overflow-y-auto rounded-none border-y-0 border-r-0",
 };
 
+/**
+ * A panel over the page for one decision or a short task: inverted, with a shaded header (the title, centred), a body
+ * and a shaded footer for the actions. Focus is trapped while it is open and Escape closes it. Use `ConfirmDialog` for a
+ * yes or no, `Sheet` for a side panel, `Popover` for something anchored to a control.
+ */
 export function Dialog({
   open,
   defaultOpen,

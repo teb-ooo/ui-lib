@@ -32,6 +32,7 @@ export function initialsOf(name: string): string {
   return `${first[0] ?? ""}${Array.from(b)[0] ?? ""}`.toUpperCase();
 }
 
+/** A person's picture, or their initials when there is none or it fails to load. */
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
   { src, name, size = "md", className, ...rest },
   ref,

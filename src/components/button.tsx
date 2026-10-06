@@ -45,6 +45,11 @@ export interface ButtonProps extends Omit<BaseButton.Props, "className"> {
   className?: string;
 }
 
+/**
+ * The control that does something. `intent` says how weighty it is (default, solid, danger, warning); with an `icon` and
+ * no children it is a square icon button (give it a `tip`, which is also its accessible name). Hover and open reverse the
+ * theme (see `inversion.md`).
+ */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { intent = "default", icon, active, tip, tipSide = "top", dashed = false, loading = false, disabled, className, children, type = "button", ...rest },
   ref,

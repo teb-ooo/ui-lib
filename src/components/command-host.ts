@@ -13,6 +13,7 @@ export interface CommandHost {
   register: (get: () => readonly Command[]) => { update: () => void; unregister: () => void };
 }
 
+/** How the shell hands its command registry to a `CommandProvider` mounted inside it, so one palette serves both. */
 export const CommandHostContext = createContext<CommandHost | null>(null);
 
 export function useCommandHost(): CommandHost | null {

@@ -17,6 +17,7 @@ export interface FieldProps extends Omit<BaseField.Root.Props, "className" | "in
   className?: string;
 }
 
+/** Label, control, description and error wired for assistive tech: label association, `aria-describedby`, `aria-invalid`, and the error announced as an alert. */
 export const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
   { label, hideLabel = false, error, description, children, className, ...rest },
   ref,

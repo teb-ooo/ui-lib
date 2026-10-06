@@ -3,6 +3,7 @@ import type { HTMLAttributes } from "react";
 import { Lock, LockOpen, X } from "lucide-react";
 import { cn } from "../lib/cn";
 
+/** The colour names a `Chip` can carry (user-chosen labels and tags), one per ramp of the palette. */
 export const CHIP_COLORS = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"] as const;
 export type ChipColor = (typeof CHIP_COLORS)[number];
 

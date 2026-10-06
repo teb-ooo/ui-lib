@@ -33,6 +33,7 @@ export function FieldGrid({ label, children, className }: FieldGridProps) {
   );
 }
 
+/** One labelled value of a `FieldGrid`: the label, the value (`children`), an optional draft mark and actions. */
 export function FieldRow({ label, children, draft = false, actions, className }: FieldRowProps) {
   return (
     <div data-draft={draft ? "" : undefined} className={cn("group/row grid items-baseline gap-x-4 gap-y-1 py-2 md:grid-cols-[8rem_1fr]", className)}>

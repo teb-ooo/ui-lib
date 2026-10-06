@@ -2,7 +2,7 @@
 
 How a new version of the package is cut and published; only the `ui` agent does this, from its checkout at `/app/ui-lib`.
 
-1. Make the change on `main` (stories and `docs/components.md` in the same commit as the component).
+1. Make the change on `main` (stories and the guide `docs/components.md` in the same commit as the component, with a doc comment on every export; run `npm run build:reference` to regenerate `docs/reference.md`, which a test keeps current; no version numbers in either).
 2. Bump `version` in `package.json` (patch for fixes and docs, minor for a new component or prop) and run `npm install --package-lock-only` so the lockfile agrees.
 3. Before a minor release (0.x minors break caret ranges; `scripts/publish.sh` now runs `scripts/check-peers.mjs`, which refuses a publish whose peer ranges would not resolve with the sibling package's latest, in both directions): check that `@teb-ooo/web` (which this package peer-depends on) still allows the new version and that this one's peer range on it covers its latest, e.g. `npm view @teb-ooo/web version`; `check-peers.mjs` does the comparison, so a refusal means releasing the sibling first.
 4. Test: `npm run typecheck`, `npm run lint` (the template's Oxlint config, zero errors; warnings are tolerated), `npm test` and `npm run check:release-age` all pass (run them before tagging; `scripts/publish.sh` runs them again and refuses on a failure). A fresh clone passes `npm test`: the pack test builds `stories/` itself.
