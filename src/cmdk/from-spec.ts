@@ -1,5 +1,7 @@
 import type { Command } from "./types";
 import type { CommandSource } from "./sources";
+import { promptFieldsOf } from "./form-fields";
+import type { PaletteFormField } from "./form-fields";
 
 /** A value a `when.field` condition compares the selection's field with. */
 export type PaletteScalar = string | number | boolean;
@@ -30,8 +32,14 @@ export interface PaletteActionTag {
      */
     differs?: Record<string, string>;
   };
-  /** Each path, query or body field: `route.<param>`, `selection.<field>`, or a literal. (`prompt` arrives with phase 2.) */
+  /**
+   * Each path, query or body field: `route.<param>`, `selection.<field>`, a literal, or `"prompt"`: the person is asked
+   * for it in a form step (a dialog) built from the operation's request body schema, in the order given here. A prompted
+   * field must be a single value of the body (text, number, yes/no, or one of a list).
+   */
   args?: Record<string, string>;
+  /** The form step's own text. */
+  form?: { /** The submit button's label. @default the title's first word */ submit?: string };
   /** `true` asks "<title>?"; a string is the question (`{name}` filled as in the title). A DELETE asks by default; `false` turns that off. */
   confirm?: boolean | string;
   /** After a success: refetch lists whose address starts with these, and/or go to a route. */
@@ -74,10 +82,14 @@ export type PaletteTag = PaletteActionTag | PaletteSourceTag | false;
 export interface OpenApiOperation {
   operationId?: string;
   summary?: string;
+  /** Read for the fields of a form step. */
+  requestBody?: unknown;
   "x-palette"?: unknown;
 }
 export interface OpenApiDocument {
   paths?: Record<string, Record<string, OpenApiOperation | undefined> | undefined>;
+  /** Where `$ref`s of the request bodies point. */
+  components?: Record<string, unknown>;
 }
 
 /** One call of an operation: the app's client (or `paletteFetch`) turns it into a request. */
@@ -86,8 +98,8 @@ export interface PaletteCall {
   method: string;
   /** The path template, such as `/api/people/{id}`. */
   path: string;
-  /** Path parameters, query parameters and body fields by name. */
-  args: Record<string, string>;
+  /** Path parameters, query parameters and body fields by name. Values from a form step keep their type (a number is a number). */
+  args: Record<string, string | number | boolean>;
   signal?: AbortSignal;
 }
 
@@ -100,6 +112,22 @@ export interface PaletteContext {
   user?: Record<string, unknown> | null;
 }
 
+/** What `PaletteRuntime.prompt` shows: a form for the arguments marked `"prompt"`. */
+export interface PaletteFormRequest {
+  /** The command's title. */
+  title: string;
+  /** @default the title's first word */
+  submitLabel: string;
+  fields: PaletteFormField[];
+  /** An object schema of just these fields, for `createBodyValidator`. */
+  schema: Record<string, unknown>;
+  /**
+   * Runs the action with the answers. The form stays open with the server's field errors (an `ApiError`) or a sentence
+   * when it rejects, and closes when it resolves.
+   */
+  submit: (values: Record<string, string | number | boolean>) => Promise<void>;
+}
+
 /** How a command acts. `PaletteFromApi` supplies the real one; tests pass fakes. */
 export interface PaletteRuntime {
   call: (call: PaletteCall) => Promise<unknown>;
@@ -107,6 +135,8 @@ export interface PaletteRuntime {
   confirm: (message: string, options?: { danger?: boolean }) => boolean | Promise<boolean>;
   invalidate: (prefixes: readonly string[]) => void;
   navigate: (to: string) => void;
+  /** Shows a form step and resolves when the person has submitted it or given up. Needed only for tags with `"prompt"` arguments. */
+  prompt?: (request: PaletteFormRequest) => Promise<void>;
 }
 
 const METHODS = ["get", "post", "put", "patch", "delete"];
@@ -159,8 +189,10 @@ export function paletteProblems(doc: OpenApiDocument): string[] {
         const ok = (v: unknown) => ["string", "number", "boolean"].includes(typeof v);
         if (!(Array.isArray(want) ? want.length > 0 && want.every(ok) : ok(want))) out.push(`${where}: when.field.${name} must be a string, number or boolean, or a non-empty list of them`);
       }
-      for (const [arg, from] of Object.entries(tag.args ?? {})) {
-        if (from === "prompt") out.push(`${where}: argument ${arg} is "prompt", which is not supported yet`);
+      const prompted = Object.entries(tag.args ?? {}).filter(([, from]) => from === "prompt").map(([arg]) => arg);
+      if (prompted.length > 0 && op.operationId !== undefined) {
+        const found = promptFieldsOf(doc, op.operationId, prompted);
+        if (typeof found === "string") out.push(`${where}: cannot ask for ${prompted.join(", ")}: ${found}`);
       }
     } else {
       out.push(`${where}: x-palette is neither an action (title, group), a source (source) nor false`);
@@ -192,6 +224,7 @@ function fill(template: string, values: (name: string) => unknown, encode = fals
 function resolveArgs(args: Record<string, string> | undefined, ctx: PaletteContext): Record<string, string> | null {
   const out: Record<string, string> = {};
   for (const [name, from] of Object.entries(args ?? {})) {
+    if (from === "prompt") continue;
     let value: unknown = from;
     if (from.startsWith("route.")) value = ctx.params[from.slice(6)];
     else if (from.startsWith("selection.")) value = ctx.selection?.[from.slice(10)];
@@ -232,6 +265,9 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
     const args = resolveArgs(tag.args, ctx);
     if (title === null || args === null) continue;
     const operationId = op.operationId;
+    const prompted = Object.entries(tag.args ?? {}).filter(([, from]) => from === "prompt").map(([arg]) => arg);
+    const form = prompted.length > 0 ? promptFieldsOf(doc, operationId, prompted) : null;
+    if (typeof form === "string") continue;
     const ask: string | null =
       tag.confirm === false ? null : typeof tag.confirm === "string" ? fill(tag.confirm, names) ?? `${title}?` : tag.confirm === true || method === "delete" ? `${title}?` : null;
     const after = tag.after;
@@ -243,13 +279,22 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
       ...(tag.keywords ? { keywords: tag.keywords } : {}),
       ...(tag.when === undefined ? { minChars: 2 } : {}),
       run: async () => {
-        if (ask !== null && !(await runtime.confirm(ask, { danger: method === "delete" }))) return;
-        await runtime.call({ operationId, method, path, args });
-        if (after?.invalidate) runtime.invalidate(after.invalidate);
-        if (after?.navigate) {
-          const to = fill(after.navigate, (n) => ctx.params[n] ?? ctx.selection?.[n], true);
-          if (to !== null) runtime.navigate(to);
+        const act = async (more: Record<string, string | number | boolean>) => {
+          await runtime.call({ operationId, method, path, args: { ...args, ...more } });
+          if (after?.invalidate) runtime.invalidate(after.invalidate);
+          if (after?.navigate) {
+            const to = fill(after.navigate, (n) => ctx.params[n] ?? ctx.selection?.[n], true);
+            if (to !== null) runtime.navigate(to);
+          }
+        };
+        // A form step is its own confirmation: the person reads what they type, then presses the verb.
+        if (form !== null) {
+          if (!runtime.prompt) throw new Error(`${title}: this palette has no form step`);
+          await runtime.prompt({ title, submitLabel: tag.form?.submit ?? title.split(" ")[0] ?? "Submit", fields: form.fields, schema: form.schema, submit: act });
+          return;
         }
+        if (ask !== null && !(await runtime.confirm(ask, { danger: method === "delete" }))) return;
+        await act({});
       },
     });
   }

@@ -3,9 +3,10 @@ import type { ReactElement } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { ConfirmDialog } from "@teb-ooo/ui";
+import { PaletteFormDialog } from "./palette-form";
 import { platformFetch, redirectToLogin, throwIfNotOk, useUser } from "@teb-ooo/web";
 import { commandsFromSpec, sourcesFromSpec } from "./from-spec";
-import type { OpenApiDocument, PaletteCall, PaletteRuntime } from "./from-spec";
+import type { OpenApiDocument, PaletteCall, PaletteFormRequest, PaletteRuntime } from "./from-spec";
 import { useRegisterCommands } from "./use-register-commands";
 import { useCommandSource } from "./use-register-source";
 import type { CommandSource } from "./sources";
@@ -56,10 +57,10 @@ export function paletteFetch({ base = "", fetch: f = globalThis.fetch }: Palette
     const url = path.replace(/\{([^}]+)\}/g, (_m, name: string) => {
       const v = rest[name] ?? "";
       delete rest[name];
-      return encodeURIComponent(v);
+      return encodeURIComponent(String(v));
     });
     const isGet = method === "get";
-    const query = isGet && Object.keys(rest).length > 0 ? `?${new URLSearchParams(rest).toString()}` : "";
+    const query = isGet && Object.keys(rest).length > 0 ? `?${new URLSearchParams(Object.entries(rest).map(([k, v]) => [k, String(v)])).toString()}` : "";
     const hasBody = !isGet && Object.keys(rest).length > 0;
     const res = await platformFetch(
       `${base}${url}${query}`,
@@ -109,11 +110,13 @@ export function PaletteFromApi({ spec, call, confirm, enabled = true }: PaletteF
   const paramsKey = JSON.stringify(last?.params ?? {});
   const params = useMemo(() => JSON.parse(paramsKey) as Record<string, string>, [paramsKey]);
   // The default confirm is a dialog over the page: the command waits on a promise the dialog settles.
+  const [filling, setFilling] = useState<{ request: PaletteFormRequest; settle: () => void } | null>(null);
   const [asking, setAsking] = useState<{ message: string; danger: boolean; settle: (ok: boolean) => void } | null>(null);
   const runtime = useMemo<PaletteRuntime>(
     () => ({
       call: call ?? paletteFetch(),
       confirm: confirm ?? ((message, options) => new Promise<boolean>((settle) => setAsking({ message, danger: options?.danger === true, settle }))),
+      prompt: (request) => new Promise<void>((settle) => setFilling({ request, settle })),
       invalidate: (prefixes) => {
         // openapi-react-query keys are [method, path, init]; a hand-made key may start with the path itself.
         void client.invalidateQueries({
@@ -150,6 +153,15 @@ export function PaletteFromApi({ spec, call, confirm, enabled = true }: PaletteF
         danger={asking?.danger === true}
         onConfirm={() => answer(true)}
       />
+      {filling ? (
+        <PaletteFormDialog
+          request={filling.request}
+          onClose={() => {
+            filling.settle();
+            setFilling(null);
+          }}
+        />
+      ) : null}
     </>
   );
 }

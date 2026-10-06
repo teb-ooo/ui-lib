@@ -152,7 +152,7 @@ describe("paletteProblems and untaggedActions", () => {
     };
     const problems = paletteProblems(bad);
     expect(problems.some((p) => p.includes("must change something"))).toBe(true);
-    expect(problems.some((p) => p.includes("not supported yet"))).toBe(true);
+    expect(problems.some((p) => p.includes("cannot ask for id") && p.includes("no JSON request body"))).toBe(true);
     expect(problems.some((p) => p.includes("needs an operationId"))).toBe(true);
     expect(problems.some((p) => p.includes("neither an action"))).toBe(true);
     expect(untaggedActions(doc)).toEqual(["POST /api/untagged (untagged)"]);

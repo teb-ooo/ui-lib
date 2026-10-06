@@ -1038,6 +1038,15 @@ function: `import { paletteFetch } from "@teb-ooo/ui/cmdk"`
 
 The default way to call an operation: `{name}` in the path from `args`, the rest as query parameters on a GET and as a JSON body otherwise; cookies included; a problem answer throws its `detail` or `title`. An app with a generated client passes its own `call` to `PaletteFromApi` instead.
 
+### PaletteFormDialog
+
+component: `import { PaletteFormDialog } from "@teb-ooo/ui/cmdk"`
+
+The form step of a generated command: a dialog with one field per `"prompt"` argument, built from the operation's request body schema and validated by it (`createBodyValidator`, so it refuses what the API would). The server's field errors land under their fields, any other failure above the buttons; the form stays open until the action succeeds.
+
+- `request`: `PaletteFormRequest`
+- `onClose`: `() => void`. Called once when the form closes: after a successful submit, or when the person cancels.
+
 ### PaletteFromApi
 
 component: `import { PaletteFromApi } from "@teb-ooo/ui/cmdk"`
@@ -1136,6 +1145,9 @@ Registers commands while the calling component is mounted; they are removed on u
 - `PaletteCall`: One call of an operation: the app's client (or `paletteFetch`) turns it into a request.
 - `PaletteContext`: Where the person is: the matched route pattern, its parameters, and the selected row a screen published.
 - `PaletteFetchOptions`
+- `PaletteFieldKind`: How one field is drawn.
+- `PaletteFormField`: One question of a form step.
+- `PaletteFormRequest`: What `PaletteRuntime.prompt` shows: a form for the arguments marked `"prompt"`.
 - `PaletteModel`
 - `PaletteRole`
 - `PaletteRow`
