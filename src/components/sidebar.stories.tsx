@@ -26,7 +26,7 @@ export const Default = () => (
     <Sidebar items={items} header="Tracker" footer={<span className="text-ink-faint">ada@example.com</span>} />
   </div>
 );
-Default.storyMeta = { description: "Expanded, with a header and a footer." } satisfies StoryMeta;
+Default.storyMeta = { description: "Expanded, with a header and a footer. The current page is reversed: white on a dark page, black on a light one." } satisfies StoryMeta;
 
 export const Collapsible = () => {
   const [collapsed, setCollapsed] = useState(true);
@@ -37,3 +37,15 @@ export const Collapsible = () => {
   );
 };
 Collapsible.storyMeta = { description: "Collapsed to icons; hover or focus an icon for its name. The toggle expands it again." } satisfies StoryMeta;
+
+export const Fit = () => (
+  <div className="flex items-start gap-4">
+    <div className="panel h-80 w-fit" data-testid="sidebar-fit">
+      <Sidebar items={items} header="Tracker" width="fit" />
+    </div>
+    <div className="panel h-80 w-fit" data-testid="sidebar-wide">
+      <Sidebar items={items} header="Tracker" />
+    </div>
+  </div>
+);
+Fit.storyMeta = { description: "A handful of static links: width=\"fit\" (left) sizes the column to its longest label, between 10rem and 16rem; the default wide column (right) is a fixed 16rem and mostly empty here. Use fit for static links, wide for items that change or have long labels." } satisfies StoryMeta;

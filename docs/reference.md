@@ -805,7 +805,7 @@ The closed platform shell: the platform's top bar (`PlatformBar`, built in), the
 
 component: `import { Sidebar } from "@teb-ooo/ui"`
 
-Left navigation: items with icon, label, badge and current-page state, collapsible to icons. The app supplies the items.
+Left navigation: items with icon, label, badge and current-page state (reversed), collapsible to icons. The app supplies the items.
 
 - `items`: `SidebarItem[]`
 - `header?`: `ReactNode`. Above the items (a name or logo). Hidden text should still have an accessible name.
@@ -813,6 +813,7 @@ Left navigation: items with icon, label, badge and current-page state, collapsib
 - `collapsed?`: `boolean`. Icons only. Ignored inside the phone drawer.
 - `onCollapsedChange?`: `(collapsed: boolean) => void`. Giving this shows the collapse toggle.
 - `label?`: `string`, default "Main". Accessible name of the navigation.
+- `width?`: `"wide" | "fit"`, default "wide". `wide` is a fixed 16rem column: right for items that change (a list of threads, projects) or have long labels. `fit` sizes the column to its longest label, between 10rem and 16rem: right for a handful of static links, where a fixed 16rem is mostly empty space. Audit the sidebar of a screen with static links only and choose `fit`. Ignored when collapsed to icons and in the phone drawer.
 - `renderLink?`: `( item: SidebarItem, content: ReactNode, props: SidebarLinkProps, ) => ReactNode`. Draws an item's link so an app can use its router's link: put `props` on the element you return and `content` inside it. The default is a plain anchor.
 - `className?`: `string`
 

@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.85.0 (from 0.84.x)
+
+`Sidebar`: the current page is reversed (it was a quiet raised fill), and a new `width` prop (`wide`, the default and unchanged, or `fit`). Audit your sidebar: if it has static links only and is mostly empty space, set `width="fit"`; see best-practices.md section 16. Nothing breaks if you do nothing, except the new look of the current item.
+
 ## To ui 0.84.0 (from 0.83.x)
 
 Reversal is relative now: a reversal inside a reversed surface restores the page's own look (a hovered button in a reversed row is dark on a light row, in a dark page), and a third level reverses again. Before, any reversal inside a reversed surface repeated the same colours, so a hovered button in a reversed row or popup became invisible (white on white). Nothing to change in code; a screen that relied on the old behaviour (a hovered button inside a popover or an active row) now looks as a button on the page does. New: the Reversal entry in the gallery.

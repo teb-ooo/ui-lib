@@ -37,6 +37,14 @@ export interface SidebarProps {
   /** Accessible name of the navigation. @default "Main" */
   label?: string;
   /**
+   * `wide` is a fixed 16rem column: right for items that change (a list of threads, projects) or have long labels.
+   * `fit` sizes the column to its longest label, between 10rem and 16rem: right for a handful of static links, where
+   * a fixed 16rem is mostly empty space. Audit the sidebar of a screen with static links only and choose `fit`.
+   * Ignored when collapsed to icons and in the phone drawer.
+   * @default "wide"
+   */
+  width?: "wide" | "fit";
+  /**
    * Draws an item's link so an app can use its router's link: put `props` on the element you return and `content` inside it.
    * The default is a plain anchor.
    */
@@ -51,7 +59,7 @@ export interface SidebarProps {
 const link =
   "flex h-[var(--control-h)] items-center gap-2 rounded px-2 text-ink-muted no-underline outline-none hover:bg-surface hover:text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ink-muted";
 
-/** Left navigation: items with icon, label, badge and current-page state, collapsible to icons. The app supplies the items. */
+/** Left navigation: items with icon, label, badge and current-page state (reversed), collapsible to icons. The app supplies the items. */
 export function Sidebar({
   items,
   header,
@@ -59,6 +67,7 @@ export function Sidebar({
   collapsed = false,
   onCollapsedChange,
   label = "Main",
+  width = "wide",
   renderLink,
   className,
 }: SidebarProps) {
@@ -68,7 +77,7 @@ export function Sidebar({
     <div
       className={cn(
         "flex h-full min-h-0 flex-col gap-2 bg-ground p-2",
-        iconsOnly ? "w-12" : "w-64",
+        iconsOnly ? "w-12" : width === "fit" ? "w-fit min-w-40 max-w-64" : "w-64",
         inDrawer && "w-full",
         className,
       )}
@@ -106,7 +115,8 @@ export function Sidebar({
             const props: SidebarLinkProps = {
               className: cn(
                 link,
-                item.active && "bg-surface-raised text-ink",
+                // The current page is reversed (white on a dark page): its icon, label and badge read as the other theme.
+                item.active && "reversed",
                 iconsOnly && "justify-center px-0",
                 // An item under a group heading with no icon is indented by half of what an empty icon slot used to take.
                 !iconsOnly && item.group !== undefined && item.icon === undefined && "pl-5",

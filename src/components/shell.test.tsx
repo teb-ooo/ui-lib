@@ -23,6 +23,21 @@ describe("Sidebar", () => {
     expect(screen.getByRole("link", { name: "Home" }).getAttribute("aria-current")).toBe("page");
     expect(screen.getByRole("link", { name: /Tasks/ }).textContent).toContain("3");
   });
+  it("reverses the current page, and only that item", () => {
+    render(<Sidebar items={items} />);
+    expect(screen.getByRole("link", { name: "Home" }).className.split(" ")).toContain("reversed");
+    expect(screen.getByRole("link", { name: /Tasks/ }).className.split(" ")).not.toContain("reversed");
+  });
+  it("width fit sizes to the content between 10rem and 16rem; wide is a fixed 16rem; icons only stays 3rem", () => {
+    const cls = (c: HTMLElement) => (c.firstElementChild as HTMLElement).className;
+    const fit = render(<Sidebar items={items} width="fit" />);
+    expect(cls(fit.container)).toContain("w-fit");
+    expect(cls(fit.container)).toContain("min-w-40");
+    fit.unmount();
+    expect(cls(render(<Sidebar items={items} />).container)).toContain("w-64");
+    const icons = render(<Sidebar items={items} width="fit" collapsed />);
+    expect(cls(icons.container)).toContain("w-12");
+  });
   it("collapsed: labels stay available to assistive technology only, and the toggle reports the change", () => {
     let next: boolean | null = null;
     render(<Sidebar items={items} collapsed onCollapsedChange={(c) => (next = c)} />);
