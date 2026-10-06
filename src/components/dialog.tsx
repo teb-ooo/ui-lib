@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode, RefObject } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
-import { useThemeContainer } from "../lib/theme-scope";
+import { usePortalContainer } from "../lib/theme-scope";
 import { Button } from "./button";
 
 export type DialogPlacement = "center" | "top" | "right";
@@ -67,20 +67,13 @@ export function Dialog({
   closeLabel = "Close",
   className,
 }: DialogProps) {
-  const { ref, container, track } = useThemeContainer<HTMLButtonElement>();
+  const container = usePortalContainer();
   // A dialog is inverted (white on a dark page, black on a light one) and drawn as three bands: a shaded header with the
   // title and close button, the content, and a shaded footer for the actions. A bare dialog (the palette) is only a surface.
   const invert = inverted || !bare;
   return (
-    <BaseDialog.Root
-      open={open}
-      defaultOpen={defaultOpen}
-      onOpenChange={(o, details) => {
-        track(o);
-        (onOpenChange as ((open: boolean, details: unknown) => void) | undefined)?.(o, details);
-      }}
-    >
-      {trigger ? <BaseDialog.Trigger ref={ref} render={trigger} /> : null}
+    <BaseDialog.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
+      {trigger ? <BaseDialog.Trigger render={trigger} /> : null}
       <BaseDialog.Portal container={container}>
         <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
         <BaseDialog.Popup

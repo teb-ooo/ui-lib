@@ -4,7 +4,7 @@ import { Popover as BasePopover } from "@base-ui/react/popover";
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
-import { useThemeContainer } from "../lib/theme-scope";
+import { usePortalContainer } from "../lib/theme-scope";
 import { Button } from "./button";
 
 type Side = "top" | "bottom" | "left" | "right";
@@ -83,18 +83,15 @@ const ARROW_PADDING = 8;
 function Tip({ tip, trigger, side = "top", align = "center", delay = 400 }: TipProps) {
   const id = useId();
   const [open, setOpen] = useState(false);
-  const { ref, container, track } = useThemeContainer<HTMLButtonElement>();
+  const container = usePortalContainer();
   // While it is open the trigger is described by the tip, so a screen reader reads both. A trigger that is already named
   // by its own aria-label (an icon-only button takes the tip as its label) is not described again.
   const named = trigger.props["aria-label"] !== undefined;
   const described = open && !named ? cloneElement(trigger, { "aria-describedby": id }) : trigger;
   return (
     <BaseTooltip.Provider>
-      <BaseTooltip.Root onOpenChange={(o) => {
-          setOpen(o);
-          track(o);
-        }}>
-        <BaseTooltip.Trigger ref={ref} delay={delay} render={described} />
+      <BaseTooltip.Root onOpenChange={setOpen}>
+        <BaseTooltip.Trigger delay={delay} render={described} />
         <BaseTooltip.Portal container={container}>
           <BaseTooltip.Positioner side={side} align={align} sideOffset={OFFSET} arrowPadding={ARROW_PADDING} className="z-50">
             <BaseTooltip.Popup id={id} role="tooltip" className={cn(panel, "px-2")}>
@@ -117,7 +114,7 @@ function Tip({ tip, trigger, side = "top", align = "center", delay = 400 }: TipP
  * holds controls is always reachable from the keyboard. Use `Dialog` for something that needs an answer.
  */
 export function Popover(props: PopoverProps) {
-  const { ref, container, track } = useThemeContainer<HTMLButtonElement>();
+  const container = usePortalContainer();
   if (props.openOn === "hover" && props.tip !== undefined) return <Tip {...props} />;
   const p = props as ClickPopoverProps | HoverCardProps;
   const { trigger, title, children, side = "bottom", align = "center", className } = p;
@@ -130,14 +127,10 @@ export function Popover(props: PopoverProps) {
     <BasePopover.Root
       open={p.open}
       defaultOpen={p.defaultOpen}
-      onOpenChange={(o) => {
-        track(o);
-        p.onOpenChange?.(o);
-      }}
+      onOpenChange={p.onOpenChange ? (o) => p.onOpenChange?.(o) : undefined}
       modal={hover ? false : (click.modal ?? false)}
     >
       <BasePopover.Trigger
-        ref={ref}
         render={trigger}
         {...(hover ? { openOnHover: true, delay: card.delay ?? 300, closeDelay: card.closeDelay ?? 150 } : {})}
       />

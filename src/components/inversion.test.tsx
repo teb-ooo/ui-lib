@@ -6,6 +6,7 @@ import { Button } from "./button";
 import { Combobox } from "./combobox";
 import { Dialog } from "./dialog";
 import { Select } from "./select";
+import { PortalContainerProvider } from "../lib/theme-scope";
 
 const options = [
   { value: "a", label: "Ada" },
@@ -41,13 +42,19 @@ describe("dialogs, selects and comboboxes after the inversion", () => {
     expect(ada.lastElementChild?.querySelector("svg")).not.toBeNull();
   });
 
-  it("a select opened inside a forced-theme container draws its popup inside it", async () => {
+  it("a popup is drawn inside the container a PortalContainerProvider names, so a forced theme holds", async () => {
     const user = userEvent.setup();
-    const { container } = render(
-      <div data-theme="light">
-        <Picked />
-      </div>,
-    );
+    function Frame() {
+      const [node, setNode] = useState<HTMLElement | null>(null);
+      return (
+        <div data-theme="light" ref={setNode}>
+          <PortalContainerProvider container={node}>
+            <Picked />
+          </PortalContainerProvider>
+        </div>
+      );
+    }
+    const { container } = render(<Frame />);
     await user.click(screen.getByRole("combobox", { name: "Owner" }));
     await screen.findByRole("option", { name: /Ada/ });
     expect(container.querySelector('[data-theme="light"] [role="listbox"]')).not.toBeNull();

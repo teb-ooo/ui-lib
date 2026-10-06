@@ -142,6 +142,13 @@ describe("design language", () => {
     expectNone(find(/\bmatchMedia\([^)]*prefers-color-scheme/), "no JS theming: the CSS follows the OS by itself");
   });
 
+  it("reverses surfaces only through the REVERSAL classes, never with its own hover colours", () => {
+    expectNone(
+      find(/(?<![\w-])(?:hover|focus|focus-within|data-\[(?:popup-open|dragging)\]):(?:bg-ink|text-ground|border-ground)(?![\w-])/),
+      "give the element .hover-invert, .reverses or .invert (see REVERSAL in theme.css, docs/inversion.md)",
+    );
+  });
+
   it("has no raw <button outside component sources", () => {
     expectNone(find(/<button\b/, { skip: isComponentSource }), "use Button (or LinkButton for navigation)");
   });

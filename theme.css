@@ -348,22 +348,11 @@ input.display-lg {
     white-space: nowrap;
     text-decoration: none;
   }
-  /*
-   * The reverse of the page: a hovered or open control takes the opposite colours (white on a dark page, black on a light
-   * one), the way popovers and tooltips do, so the thing you are on is the brightest thing there. A pressed toggle
-   * (data-active) keeps the quiet raised fill until it is hovered.
-   */
+  /* A pressed toggle keeps the quiet raised fill; hovered or open, a button reverses (see REVERSAL at the end). */
   .btn[data-active] {
     border-color: var(--color-line-strong);
     background: var(--color-surface-raised);
     color: var(--color-ink);
-  }
-  .btn:hover,
-  .btn[data-popup-open],
-  .btn[aria-expanded="true"] {
-    border-color: var(--color-ink);
-    background: var(--color-ink);
-    color: var(--color-ground);
   }
   .btn:focus-visible {
     outline: 1px solid var(--color-ink-muted);
@@ -389,20 +378,8 @@ input.display-lg {
   .btn-danger {
     color: var(--color-danger);
   }
-  .btn-danger:hover,
-  .btn-danger[data-popup-open] {
-    border-color: var(--color-danger);
-    background: var(--color-danger);
-    color: var(--color-ground);
-  }
   .btn-warning {
     color: var(--color-warning);
-  }
-  .btn-warning:hover,
-  .btn-warning[data-popup-open] {
-    border-color: var(--color-warning);
-    background: var(--color-warning);
-    color: var(--color-ground);
   }
   /* The environment mark in the platform bar (shown off production): yellow in both schemes. */
   .env-mark {
@@ -570,18 +547,7 @@ input.display-lg {
     color: var(--color-ink);
     outline: none;
   }
-  /*
-   * A focused or open single-line input reverses (white on a dark page, black on a light one) and needs no outline: the
-   * reversal is the sign of where you are, and its tokens are the inverted set above, so a combobox's chips and a select's
-   * icon stay legible. A textarea, the surface you write on, drops to the page colour instead.
-   */
-  .input:focus-within:not(textarea),
-  .input[data-popup-open],
-  .input[aria-expanded="true"] {
-    border-color: var(--color-ground);
-    background: var(--color-ground);
-    color: var(--color-ink);
-  }
+  /* A focused or open single-line input reverses (see REVERSAL at the end) and needs no outline; a textarea drops to the page colour. */
   textarea.input:focus {
     border-color: var(--color-ink-muted);
     background: var(--color-ground);
@@ -608,57 +574,8 @@ input.display-lg {
   .panel-float {
     box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
   }
-  /*
-   * Popovers and tooltips are inverted: white on a dark page, black on a light one, with no border. The tokens are
-   * redefined here as the opposite scheme, so everything inside (text, buttons, switches) reads correctly. It follows
-   * the page's colour scheme, the OS or a forced `data-theme`, through light-dark().
-   */
-  .panel-inverse,
-  .invert,
-  .hover-invert:hover,
-  .input:focus-within:not(textarea),
-  .input[data-popup-open],
-  .input[aria-expanded="true"] {
-    --color-ground: light-dark(#000000, #ffffff);
-    --color-surface: light-dark(var(--color-gray-900), var(--color-gray-100));
-    --color-surface-raised: light-dark(var(--color-gray-800), var(--color-gray-200));
-    --color-line: light-dark(var(--color-gray-700), var(--color-gray-300));
-    --color-line-strong: var(--color-gray-500);
-    --color-ink: light-dark(#ffffff, #000000);
-    --color-ink-muted: light-dark(var(--color-gray-300), var(--color-gray-700));
-    --color-ink-faint: light-dark(var(--color-gray-400), var(--color-gray-600));
-    --color-danger: light-dark(var(--color-danger-400), var(--color-danger-700));
-    --color-danger-hover: light-dark(var(--color-danger-300), var(--color-danger-800));
-    --color-danger-soft: light-dark(var(--color-danger-950), var(--color-danger-50));
-    --color-danger-line: light-dark(var(--color-danger-900), var(--color-danger-200));
-    --color-warning: light-dark(var(--color-warning-400), var(--color-warning-700));
-    --color-warning-hover: light-dark(var(--color-warning-300), var(--color-warning-800));
-    --color-warning-soft: light-dark(var(--color-warning-950), var(--color-warning-50));
-    --color-warning-line: light-dark(var(--color-warning-900), var(--color-warning-200));
-    --color-ok: light-dark(var(--color-ok-400), var(--color-ok-700));
-    --color-ok-hover: light-dark(var(--color-ok-300), var(--color-ok-800));
-    --color-ok-soft: light-dark(var(--color-ok-950), var(--color-ok-50));
-    --color-ok-line: light-dark(var(--color-ok-900), var(--color-ok-200));
-    --color-link: light-dark(var(--color-link-400), var(--color-link-700));
-    --color-link-hover: light-dark(var(--color-link-300), var(--color-link-800));
-    --color-link-soft: light-dark(var(--color-link-950), var(--color-link-50));
-    --color-link-line: light-dark(var(--color-link-900), var(--color-link-200));
-    --color-agent: light-dark(var(--color-agent-400), var(--color-agent-700));
-    --color-agent-hover: light-dark(var(--color-agent-300), var(--color-agent-800));
-    --color-agent-soft: light-dark(var(--color-agent-950), var(--color-agent-50));
-    --color-agent-line: light-dark(var(--color-agent-900), var(--color-agent-200));
-  }
-  /* A surface that is reversed: always (.invert, an active row) or while hovered (.hover-invert, a card). */
-  .invert,
-  .hover-invert:hover {
-    border-color: var(--color-ground);
-    background: var(--color-ground);
-    color: var(--color-ink);
-  }
   .panel-inverse {
     border-radius: var(--radius);
-    background: var(--color-ground);
-    color: var(--color-ink);
   }
 
   /*
@@ -1160,5 +1077,76 @@ input.display-lg {
       opacity: 0;
       transform: scale(1.04);
     }
+  }
+}
+
+/*
+ * REVERSAL: the one mechanism behind every reversed surface (white on a dark page, black on a light one).
+ *
+ * 1. The reversed token set. Inside any selector listed below the colour tokens are the opposite scheme's, picked by
+ *    light-dark() so it follows the OS or a forced theme. test/contrast.test.ts checks this set equals the dark and the
+ *    light sets, so it cannot drift from them.
+ * 2. The paint. The same selectors take the page colour as their fill and ink as their text, from the reversed tokens,
+ *    so children (icons, chips, faint text) need no colours of their own.
+ *
+ * It lives in the utilities layer so it beats a component's own background and border utilities. To make something
+ * reverse, give it a class from this list; do not write hover colours in a component.
+ *   .panel-inverse  a floating surface (popover, tooltip, menu, dialog, toast): reversed always
+ *   .invert         reversed now (an active row)
+ *   .hover-invert   reverses while hovered (a card, a checkbox)
+ *   .reverses       reverses while hovered, dragged, focused or open (a slider thumb)
+ *   .btn, .input    reverse by themselves: a button hovered or open, an input focused or open
+ */
+@layer utilities {
+  .panel-inverse,
+  .invert,
+  .hover-invert:hover:not([data-disabled], :disabled),
+  .reverses:is(:hover, :focus-within, [data-dragging], [data-popup-open]):not([data-disabled], :disabled),
+  .btn:is(:hover, [data-popup-open], [aria-expanded="true"]):not(:disabled, [data-disabled], [aria-disabled="true"]),
+  .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled) {
+    --color-ground: light-dark(#000000, #ffffff);
+    --color-surface: light-dark(var(--color-gray-900), var(--color-gray-100));
+    --color-surface-raised: light-dark(var(--color-gray-800), var(--color-gray-200));
+    --color-line: light-dark(var(--color-gray-700), var(--color-gray-300));
+    --color-line-strong: var(--color-gray-500);
+    --color-ink: light-dark(#ffffff, #000000);
+    --color-ink-muted: light-dark(var(--color-gray-300), var(--color-gray-700));
+    --color-ink-faint: light-dark(var(--color-gray-400), var(--color-gray-600));
+    --color-danger: light-dark(var(--color-danger-400), var(--color-danger-700));
+    --color-danger-hover: light-dark(var(--color-danger-300), var(--color-danger-800));
+    --color-danger-soft: light-dark(var(--color-danger-950), var(--color-danger-50));
+    --color-danger-line: light-dark(var(--color-danger-900), var(--color-danger-200));
+    --color-warning: light-dark(var(--color-warning-400), var(--color-warning-700));
+    --color-warning-hover: light-dark(var(--color-warning-300), var(--color-warning-800));
+    --color-warning-soft: light-dark(var(--color-warning-950), var(--color-warning-50));
+    --color-warning-line: light-dark(var(--color-warning-900), var(--color-warning-200));
+    --color-ok: light-dark(var(--color-ok-400), var(--color-ok-700));
+    --color-ok-hover: light-dark(var(--color-ok-300), var(--color-ok-800));
+    --color-ok-soft: light-dark(var(--color-ok-950), var(--color-ok-50));
+    --color-ok-line: light-dark(var(--color-ok-900), var(--color-ok-200));
+    --color-link: light-dark(var(--color-link-400), var(--color-link-700));
+    --color-link-hover: light-dark(var(--color-link-300), var(--color-link-800));
+    --color-link-soft: light-dark(var(--color-link-950), var(--color-link-50));
+    --color-link-line: light-dark(var(--color-link-900), var(--color-link-200));
+    --color-agent: light-dark(var(--color-agent-400), var(--color-agent-700));
+    --color-agent-hover: light-dark(var(--color-agent-300), var(--color-agent-800));
+    --color-agent-soft: light-dark(var(--color-agent-950), var(--color-agent-50));
+    --color-agent-line: light-dark(var(--color-agent-900), var(--color-agent-200));
+    border-color: var(--color-ground);
+    background: var(--color-ground);
+    color: var(--color-ink);
+  }
+  /* A tinted button fills with its tone when hovered. */
+  .btn-danger:hover:not(:disabled, [data-disabled]),
+  .btn-danger[data-popup-open] {
+    border-color: var(--color-danger);
+    background: var(--color-danger);
+    color: var(--color-ground);
+  }
+  .btn-warning:hover:not(:disabled, [data-disabled]),
+  .btn-warning[data-popup-open] {
+    border-color: var(--color-warning);
+    background: var(--color-warning);
+    color: var(--color-ground);
   }
 }

@@ -43,11 +43,9 @@ const track = "relative h-1 w-full rounded bg-line-strong";
 const indicator = "absolute h-full rounded bg-ink-muted data-[disabled]:bg-ink-faint";
 // The visible thumb is 16px; its ::before makes the touch target 28px (the control height).
 const thumb = cn(
-  "relative block size-4 rounded border border-ink-muted bg-surface-raised outline-none",
+  "reverses relative block size-4 rounded border border-ink-muted bg-surface-raised outline-none",
   "before:absolute before:-inset-2 before:content-['']",
-  // Hovered, dragged or focused, the thumb reverses (white on a dark page, black on a light one): no outline needed.
-  "hover:border-ink hover:bg-ink data-[dragging]:border-ink data-[dragging]:bg-ink focus-within:border-ink focus-within:bg-ink",
-  "data-[disabled]:cursor-not-allowed data-[disabled]:border-line-strong data-[disabled]:bg-surface-raised data-[disabled]:opacity-50",
+  "data-[disabled]:cursor-not-allowed data-[disabled]:border-line-strong data-[disabled]:opacity-50",
 );
 
 function Header({ label, readout, hideValue, labelId }: { label: string; readout: string; hideValue: boolean | undefined; labelId: string }) {

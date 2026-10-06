@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { root } from "./root";
 import { COLOR_TOKENS, TEXT_TOKENS, contrast, hexPalette, readThemeBlocks } from "../scripts/colors.ts";
@@ -60,6 +61,26 @@ describe.each([
   it("lines step away from the ground", () => {
     expect(contrast(p.line, p.ground)).toBeGreaterThanOrEqual(1.2);
     expect(contrast(p["line-strong"], p.ground)).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe("the reversed token set (REVERSAL in theme.css)", () => {
+  const css = readFileSync(join(root, "theme.css"), "utf8");
+  const block = css.slice(css.indexOf("@layer utilities {"));
+  const decls = Object.fromEntries([...block.matchAll(/(--color-[\w-]+):\s*([^;]+);/g)].map((m) => [m[1] ?? "", (m[2] ?? "").trim()]));
+
+  it("defines every colour token", () => {
+    for (const n of COLOR_TOKENS) expect(decls[`--color-${n}`], `--color-${n}`).toBeDefined();
+  });
+  it("is exactly the opposite scheme: light-dark(<dark value>, <light value>) for each token", () => {
+    for (const n of COLOR_TOKENS) {
+      const key = `--color-${n}`;
+      const v = decls[key] ?? "";
+      const m = /^light-dark\((.+),\s*(.+)\)$/.exec(v);
+      const [forLight, forDark] = m ? [m[1]?.trim(), m[2]?.trim()] : [v, v];
+      expect(forLight, `${key} in a light page is the dark set's value`).toBe(blocks.dark[key]);
+      expect(forDark, `${key} in a dark page is the light set's value`).toBe(blocks.light[key]);
+    }
   });
 });
 

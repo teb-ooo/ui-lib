@@ -1,7 +1,7 @@
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "../lib/cn";
-import { useThemeContainer } from "../lib/theme-scope";
+import { usePortalContainer } from "../lib/theme-scope";
 
 export interface Option {
   value: string;
@@ -25,10 +25,10 @@ export interface SelectProps {
 
 /** Choose one option from a short list. For long lists that need searching use `Combobox`. */
 export function Select({ options, value, onValueChange, label, placeholder, disabled, className }: SelectProps) {
-  const { ref, container, track } = useThemeContainer<HTMLButtonElement>();
+  const container = usePortalContainer();
   return (
-    <BaseSelect.Root items={options} value={value} onValueChange={onValueChange} onOpenChange={track} disabled={disabled}>
-      <BaseSelect.Trigger ref={ref} aria-label={label} className={cn("input flex w-56 max-w-full cursor-pointer items-center justify-between gap-2 text-left data-[disabled]:cursor-not-allowed", className)}>
+    <BaseSelect.Root items={options} value={value} onValueChange={onValueChange} disabled={disabled}>
+      <BaseSelect.Trigger aria-label={label} className={cn("input flex w-56 max-w-full cursor-pointer items-center justify-between gap-2 text-left data-[disabled]:cursor-not-allowed", className)}>
         <BaseSelect.Value placeholder={placeholder ?? label} className="truncate data-[placeholder]:text-ink-faint" />
         <BaseSelect.Icon className="text-ink-faint">
           <ChevronDown aria-hidden="true" className="size-3" />

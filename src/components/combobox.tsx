@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, X } from "lucide-react";
 import { cn } from "../lib/cn";
-import { useThemeContainer } from "../lib/theme-scope";
+import { usePortalContainer } from "../lib/theme-scope";
 import type { Option } from "./select";
 
 interface Common {
@@ -34,7 +34,7 @@ const itemClass =
 /** Search-as-you-type list for long option lists such as assignees or labels; with `multiple`, the chosen options show as chips. */
 export function Combobox(props: ComboboxProps) {
   const { options, label, placeholder, emptyLabel = "No matches", disabled, className } = props;
-  const { ref, container, track } = useThemeContainer<HTMLDivElement>();
+  const container = usePortalContainer();
   const items = useMemo(() => BaseCombobox.createItems(options, { getValue: (o) => o.value, getLabel: (o) => o.label }), [options]);
   const byValue = useMemo(() => new Map(options.map((o) => [o.value, o])), [options]);
 
@@ -61,8 +61,8 @@ export function Combobox(props: ComboboxProps) {
 
   if (props.multiple) {
     return (
-      <BaseCombobox.Root items={items} multiple value={props.value} onValueChange={props.onValueChange} onOpenChange={track} disabled={disabled}>
-        <BaseCombobox.InputGroup ref={ref} className={cn("input flex h-auto min-h-[var(--control-h)] w-72 max-w-full flex-wrap items-center gap-1 py-[calc((var(--control-h)-1.6em-2px)/2)]", className)}>
+      <BaseCombobox.Root items={items} multiple value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
+        <BaseCombobox.InputGroup className={cn("input flex h-auto min-h-[var(--control-h)] w-72 max-w-full flex-wrap items-center gap-1 py-[calc((var(--control-h)-1.6em-2px)/2)]", className)}>
           <BaseCombobox.Chips className="flex w-full flex-wrap items-center gap-1">
             {props.value.map((v) => (
               <BaseCombobox.Chip key={v} aria-label={byValue.get(v)?.label ?? v} className="chip h-5 gap-1 px-1.5 outline-none focus-within:border-line-strong">
@@ -81,8 +81,8 @@ export function Combobox(props: ComboboxProps) {
   }
 
   return (
-    <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} onOpenChange={track} disabled={disabled}>
-      <BaseCombobox.InputGroup ref={ref} className={cn("relative w-56 max-w-full", className)}>
+    <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
+      <BaseCombobox.InputGroup className={cn("relative w-56 max-w-full", className)}>
         <BaseCombobox.Input aria-label={label} placeholder={placeholder ?? label} className="input pr-[3.25rem]" />
         <div className="absolute top-0 right-0 flex h-full items-center">
           <BaseCombobox.Clear aria-label="Clear" className="flex size-7 cursor-pointer items-center justify-center text-ink-faint hover:text-ink">
