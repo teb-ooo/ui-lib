@@ -38,8 +38,22 @@ export interface PaletteActionTag {
    * field must be a single value of the body (text, number, yes/no, or one of a list).
    */
   args?: Record<string, string>;
-  /** The form step's own text. */
-  form?: { /** The submit button's label. @default the title's first word */ submit?: string };
+  /** The form step: its button, the order of its fields, and where a field's choices come from. */
+  form?: {
+    /** The submit button's label. @default the title's first word */
+    submit?: string;
+    /**
+     * The prompted arguments in the order they are asked. A JSON object's keys have no reliable order once an API
+     * document is generated (they come out sorted), so say it here; any prompted argument left out follows, in key order.
+     */
+    fields?: string[];
+    /**
+     * Choices for a text field that must be one of a changing list, taken from a list operation (a GET) when the form
+     * opens: `options: { scope: { from: "list-apps", value: "name" } }`. `label` is the property shown (default: `value`).
+     * The field is a select; if the list cannot be loaded it stays a text box.
+     */
+    options?: Record<string, { from: string; value: string; label?: string }>;
+  };
   /** `true` asks "<title>?"; a string is the question (`{name}` filled as in the title). A DELETE asks by default; `false` turns that off. */
   confirm?: boolean | string;
   /** After a success: refetch lists whose address starts with these, and/or go to a route. */
@@ -119,6 +133,8 @@ export interface PaletteFormRequest {
   /** @default the title's first word */
   submitLabel: string;
   fields: PaletteFormField[];
+  /** For a field whose choices come from a list operation: loads them (`value` is sent, `label` is shown). */
+  loadOptions?: Record<string, () => Promise<{ value: string; label: string }[]>>;
   /** An object schema of just these fields, for `createBodyValidator`. */
   schema: Record<string, unknown>;
   /**
@@ -159,6 +175,13 @@ function operations(doc: OpenApiDocument): Found[] {
   return found;
 }
 
+/** The prompted arguments in the order the tag asks them: `form.fields`, then the rest in key order. */
+function promptedNames(tag: PaletteActionTag): string[] {
+  const all = Object.entries(tag.args ?? {}).filter(([, from]) => from === "prompt").map(([arg]) => arg);
+  const first = (tag.form?.fields ?? []).filter((n) => all.includes(n));
+  return [...new Set([...first, ...all])];
+}
+
 function isSource(tag: PaletteTag | undefined): tag is PaletteSourceTag {
   return typeof tag === "object" && tag !== null && "source" in tag;
 }
@@ -189,10 +212,20 @@ export function paletteProblems(doc: OpenApiDocument): string[] {
         const ok = (v: unknown) => ["string", "number", "boolean"].includes(typeof v);
         if (!(Array.isArray(want) ? want.length > 0 && want.every(ok) : ok(want))) out.push(`${where}: when.field.${name} must be a string, number or boolean, or a non-empty list of them`);
       }
-      const prompted = Object.entries(tag.args ?? {}).filter(([, from]) => from === "prompt").map(([arg]) => arg);
+      const prompted = promptedNames(tag);
       if (prompted.length > 0 && op.operationId !== undefined) {
         const found = promptFieldsOf(doc, op.operationId, prompted);
         if (typeof found === "string") out.push(`${where}: cannot ask for ${prompted.join(", ")}: ${found}`);
+      }
+      if (tag.form !== undefined && prompted.length === 0) out.push(`${where}: form needs at least one "prompt" argument`);
+      for (const name of tag.form?.fields ?? []) {
+        if (!prompted.includes(name)) out.push(`${where}: form.fields names ${name}, which is not a "prompt" argument`);
+      }
+      for (const [name, o] of Object.entries(tag.form?.options ?? {})) {
+        if (!prompted.includes(name)) out.push(`${where}: form.options names ${name}, which is not a "prompt" argument`);
+        const from = operations(doc).find((x) => x.op.operationId === o.from);
+        if (!from || from.method !== "get") out.push(`${where}: form.options.${name}.from must be a GET operation of the document`);
+        if (!o.value) out.push(`${where}: form.options.${name} needs a value property`);
       }
     } else {
       out.push(`${where}: x-palette is neither an action (title, group), a source (source) nor false`);
@@ -265,9 +298,23 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
     const args = resolveArgs(tag.args, ctx);
     if (title === null || args === null) continue;
     const operationId = op.operationId;
-    const prompted = Object.entries(tag.args ?? {}).filter(([, from]) => from === "prompt").map(([arg]) => arg);
+    const prompted = promptedNames(tag);
     const form = prompted.length > 0 ? promptFieldsOf(doc, operationId, prompted) : null;
     if (typeof form === "string") continue;
+    const loaders: NonNullable<PaletteFormRequest["loadOptions"]> = {};
+    for (const [name, o] of Object.entries(tag.form?.options ?? {})) {
+      const from = operations(doc).find((x) => x.op.operationId === o.from && x.method === "get");
+      if (!from || !prompted.includes(name)) continue;
+      loaders[name] = async () => {
+        const body = (await runtime.call({ operationId: o.from, method: "get", path: from.path, args: { limit: "100" } })) as { items?: Array<Record<string, unknown>> } | Array<Record<string, unknown>> | null;
+        const items = Array.isArray(body) ? body : (body?.items ?? []);
+        return items.flatMap((item) => {
+          const value = item[o.value];
+          const label = item[o.label ?? o.value];
+          return typeof value === "string" ? [{ value, label: typeof label === "string" ? label : value }] : [];
+        });
+      };
+    }
     const ask: string | null =
       tag.confirm === false ? null : typeof tag.confirm === "string" ? fill(tag.confirm, names) ?? `${title}?` : tag.confirm === true || method === "delete" ? `${title}?` : null;
     const after = tag.after;
@@ -290,7 +337,7 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
         // A form step is its own confirmation: the person reads what they type, then presses the verb.
         if (form !== null) {
           if (!runtime.prompt) throw new Error(`${title}: this palette has no form step`);
-          await runtime.prompt({ title, submitLabel: tag.form?.submit ?? title.split(" ")[0] ?? "Submit", fields: form.fields, schema: form.schema, submit: act });
+          await runtime.prompt({ title, submitLabel: tag.form?.submit ?? title.split(" ")[0] ?? "Submit", fields: form.fields, ...(Object.keys(loaders).length > 0 ? { loadOptions: loaders } : {}), schema: form.schema, submit: act });
           return;
         }
         if (ask !== null && !(await runtime.confirm(ask, { danger: method === "delete" }))) return;

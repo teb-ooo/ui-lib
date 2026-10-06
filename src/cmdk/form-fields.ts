@@ -18,6 +18,8 @@ export interface PaletteFormField {
   required: boolean;
   /** For `select`: the schema's `enum`. */
   options?: string[];
+  /** The schema's `format` for a text field (`email` draws an email input). */
+  format?: string;
 }
 
 export interface PromptFields {
@@ -71,7 +73,8 @@ function kindOf(schema: Schema): PaletteFieldKind | null {
   if (types.length !== 1) return null;
   switch (types[0]) {
     case "string":
-      return typeof schema.maxLength === "number" && schema.maxLength > 200 ? "multiline" : "text";
+      // A long free text is a box; a value with a format (an email, an address) or a modest limit is one line.
+      return typeof schema.maxLength === "number" && schema.maxLength > 1000 && schema.format === undefined ? "multiline" : "text";
     case "integer":
       return "integer";
     case "number":
@@ -104,6 +107,7 @@ export function promptFieldsOf(doc: OpenApiDocument, operationId: string, names:
       kind,
       required: required.includes(name),
       ...(kind === "select" ? { options: prop.enum as string[] } : {}),
+      ...(kind === "text" && typeof prop.format === "string" ? { format: prop.format } : {}),
     });
   }
   return { fields, schema: { type: "object", properties: picked, required: names.filter((n) => required.includes(n)), components: components(doc) } };

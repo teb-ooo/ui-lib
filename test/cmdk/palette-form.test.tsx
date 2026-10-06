@@ -162,3 +162,101 @@ describe("the form step in PaletteFromApi", () => {
     expect(call).not.toHaveBeenCalled();
   });
 });
+
+describe("form.fields, form.options and the field kinds", () => {
+  const proposal: OpenApiDocument = {
+    paths: {
+      "/api/apps": { get: { operationId: "list-apps" } },
+      "/api/proposals": {
+        post: {
+          operationId: "create-proposal",
+          requestBody: { content: { "application/json": { schema: { $ref: "#/components/schemas/NewProposal" } } } },
+          "x-palette": {
+            title: "New proposal",
+            group: "Proposals",
+            when: { route: "/rules" },
+            args: { description: "prompt", scope: "prompt", title: "prompt", email: "prompt" },
+            form: { submit: "Create", fields: ["scope", "title", "description"], options: { scope: { from: "list-apps", value: "name", label: "label" } } },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        NewProposal: {
+          type: "object",
+          required: ["scope", "title"],
+          properties: {
+            description: { type: "string", maxLength: 5000 },
+            scope: { type: "string" },
+            title: { type: "string" },
+            email: { type: "string", format: "email", maxLength: 254 },
+          },
+        },
+      },
+    },
+  };
+
+  it("asks in form.fields order, then the rest in key order; a long free text is a box, an email is one line", async () => {
+    const prompt = vi.fn(async () => undefined);
+    const [cmd] = commandsFromSpec(proposal, here, runtime({ prompt }));
+    await cmd?.run?.({ query: "", fallback: false, close: () => undefined, afterClose: () => undefined });
+    const fields = (prompt.mock.calls[0] as unknown as [{ fields: { name: string; kind: string; format?: string }[] }])[0].fields;
+    expect(fields.map((f) => f.name)).toEqual(["scope", "title", "description", "email"]);
+    expect(fields.find((f) => f.name === "description")?.kind).toBe("multiline"); // maxLength 5000, no format
+    expect(fields.find((f) => f.name === "email")).toMatchObject({ kind: "text", format: "email" }); // maxLength 254 stays one line
+  });
+
+  it("loads a field's choices from a list operation and sends the chosen value", async () => {
+    const call = vi.fn<PaletteRuntime["call"]>(async (c) => (c.operationId === "list-apps" ? { items: [{ name: "ah", label: "Dashboard" }, { name: "bd", label: "Work tracker" }, { name: 3 }] } : {}));
+    const user = userEvent.setup();
+    await renderApp({
+      initialPath: "/rules",
+      routes: [{ path: "/rules" }],
+      extra: (
+        <QueryClientProvider client={new QueryClient()}>
+          <PaletteFromApi spec={proposal} call={call} />
+        </QueryClientProvider>
+      ),
+    });
+    await user.click(screen.getByRole("button", { name: "Open command palette" }));
+    await user.click(await screen.findByRole("option", { name: /New proposal/ }));
+    const dialog = await screen.findByRole("dialog", { name: "New proposal" });
+    await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "list-apps", method: "get", path: "/api/apps", args: { limit: "100" } }));
+    await user.click(await within(dialog).findByRole("combobox", { name: "Scope" }));
+    await user.click(await screen.findByRole("option", { name: "Work tracker" }));
+    await user.type(within(dialog).getByLabelText("Title"), "A proposal");
+    await user.click(within(dialog).getByRole("button", { name: "Create" }));
+    await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "create-proposal", method: "post", path: "/api/proposals", args: { scope: "bd", title: "A proposal" } }));
+  });
+
+  it("falls back to a text box when the choices cannot be loaded", async () => {
+    const call = vi.fn<PaletteRuntime["call"]>(async (c) => {
+      if (c.operationId === "list-apps") throw new Error("down");
+      return {};
+    });
+    const user = userEvent.setup();
+    await renderApp({
+      initialPath: "/rules",
+      routes: [{ path: "/rules" }],
+      extra: (
+        <QueryClientProvider client={new QueryClient()}>
+          <PaletteFromApi spec={proposal} call={call} />
+        </QueryClientProvider>
+      ),
+    });
+    await user.click(screen.getByRole("button", { name: "Open command palette" }));
+    await user.click(await screen.findByRole("option", { name: /New proposal/ }));
+    const dialog = await screen.findByRole("dialog", { name: "New proposal" });
+    expect(await within(dialog).findByRole("textbox", { name: "Scope" })).toBeTruthy();
+  });
+
+  it("paletteProblems checks the order list and the option sources", () => {
+    expect(paletteProblems(proposal)).toEqual([]);
+    const tag = (form: object) => ({ ...proposal, paths: { ...proposal.paths, "/api/proposals": { post: { ...proposal.paths!["/api/proposals"]!.post!, "x-palette": { ...(proposal.paths!["/api/proposals"]!.post!["x-palette"] as object), form } } } } }) as OpenApiDocument;
+    expect(paletteProblems(tag({ fields: ["nope"] })).join()).toContain("form.fields names nope");
+    expect(paletteProblems(tag({ options: { nope: { from: "list-apps", value: "name" } } })).join()).toContain("form.options names nope");
+    expect(paletteProblems(tag({ options: { scope: { from: "create-proposal", value: "name" } } })).join()).toContain("must be a GET operation");
+    expect(paletteProblems(tag({ options: { scope: { from: "list-apps", value: "" } } })).join()).toContain("needs a value property");
+  });
+});

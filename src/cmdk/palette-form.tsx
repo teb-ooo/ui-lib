@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import type { ReactElement } from "react";
 import { Button, Checkbox, Dialog, Field, Input, Select, Textarea } from "@teb-ooo/ui";
 import { createBodyValidator, describeError, isApiError, useForm } from "@teb-ooo/web";
@@ -12,9 +12,26 @@ export interface PaletteFormDialogProps {
 }
 
 type Answers = Record<string, string | number | boolean | undefined>;
+type Choice = { value: string; label: string };
+/** A loaded list of choices; `null` when it could not be loaded (the field stays a text box); absent while loading. */
+type Loaded = Record<string, Choice[] | null>;
 
-function control(f: PaletteFormField, answers: Answers, set: (name: string, value: string | number | boolean | undefined) => void, blur: () => void): ReactElement {
+function control(f: PaletteFormField, answers: Answers, set: (name: string, value: string | number | boolean | undefined) => void, blur: () => void, remote: boolean, loaded: Loaded): ReactElement {
   const value = answers[f.name];
+  if (remote && loaded[f.name] !== null) {
+    const choices = loaded[f.name];
+    return (
+      <Select
+        label={f.label}
+        placeholder={choices === undefined ? "Loading..." : f.label}
+        disabled={choices === undefined}
+        options={(choices ?? []).map((c) => ({ value: c.value, label: c.label }))}
+        value={typeof value === "string" ? value : null}
+        onValueChange={(v) => set(f.name, v ?? undefined)}
+        className="w-full"
+      />
+    );
+  }
   switch (f.kind) {
     case "boolean":
       return <Checkbox aria-label={f.label} checked={value === true} onCheckedChange={(c) => set(f.name, c)} />;
@@ -35,7 +52,7 @@ function control(f: PaletteFormField, answers: Answers, set: (name: string, valu
         />
       );
     default:
-      return <Input value={typeof value === "string" ? value : ""} onChange={(e) => set(f.name, e.target.value === "" ? undefined : e.target.value)} onBlur={blur} />;
+      return <Input type={f.format === "email" ? "email" : "text"} value={typeof value === "string" ? value : ""} onChange={(e) => set(f.name, e.target.value === "" ? undefined : e.target.value)} onBlur={blur} />;
   }
 }
 
@@ -49,6 +66,19 @@ export function PaletteFormDialog({ request, onClose }: PaletteFormDialogProps):
   const validator = useMemo(() => createBodyValidator<Answers>(request.schema), [request.schema]);
   const [failure, setFailure] = useState<string | null>(null);
   const defaults = useMemo(() => Object.fromEntries(request.fields.filter((f) => f.kind === "boolean").map((f) => [f.name, false])) as Answers, [request.fields]);
+  const [loaded, setLoaded] = useState<Loaded>({});
+  useEffect(() => {
+    let cancelled = false;
+    for (const [name, load] of Object.entries(request.loadOptions ?? {})) {
+      load().then(
+        (choices) => !cancelled && setLoaded((prev) => ({ ...prev, [name]: choices })),
+        () => !cancelled && setLoaded((prev) => ({ ...prev, [name]: null })),
+      );
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [request]);
   const form = useForm<Answers>(validator, {
     defaultValues: defaults,
     onSubmit: async (values) => {
@@ -86,7 +116,7 @@ export function PaletteFormDialog({ request, onClose }: PaletteFormDialogProps):
           const binding = form.field<string | number | boolean | undefined>(f.name);
           return (
             <Field key={f.name} label={f.required ? f.label : `${f.label} (optional)`} error={binding.error} {...(f.description ? { description: f.description } : {})}>
-              {control(f, form.values, form.setValue, binding.onBlur)}
+              {control(f, form.values, form.setValue, binding.onBlur, request.loadOptions?.[f.name] !== undefined, loaded)}
             </Field>
           );
         })}
