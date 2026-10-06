@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.87.3 (from 0.84.0 to 0.87.2)
+
+Fix, take it at once: from 0.84.0 to 0.87.2 `theme.css` wrote the relative reversal as nested rules, and an app's CSS tooling (Tailwind with lightningcss) flattened them into every combination of the parent selectors, so the built CSS grew from about 80 kB to 4.4 MB (62 kB gzip) in every app, on every page. The levels are written flat now and the built CSS is back to its old size; `test/theme-size.test.ts` builds the block the way an app does and refuses a result more than four times what was written. An app on 0.84.0 to 0.87.2 can check `dist/assets/*.css`: anything near 4 MB is this.
+
 ## To ui 0.87.1 (from 0.87.0)
 
 Fix: `EntrancePage` worked its cloud of points out in a Web Worker, which a consuming app's bundler turned into a `data:` URL that a content security policy of `script-src 'self'` (the platform's) blocks. The cloud is now worked out in short slices on the page's own thread (the same cloud, byte for byte, kept in IndexedDB for the next visit), so no worker, no extra asset and nothing for the bundler or the policy to decide. Use 0.87.1, not 0.87.0.
