@@ -8,7 +8,7 @@ export interface SectionProps extends Omit<HTMLAttributes<HTMLElement>, "classNa
   /** A heading for the section. At the body size; a page title is `PageHeader`. */
   title?: ReactNode;
   description?: ReactNode;
-  /** Controls at the right of the heading (buttons, a view switch). They wrap under it on a phone. */
+  /** Controls at the right of the heading (buttons, a view switch). They sit beside a short title and wrap under a long one (the title keeps at least 11rem). */
   actions?: ReactNode;
   /**
    * Where the section's rule runs. A rule is a full-width line: it goes from edge to edge of the content area, never
@@ -37,7 +37,7 @@ export const Section = forwardRef<HTMLElement, SectionProps>(function Section(
       <Container width={width} className="flex flex-col gap-3 py-3">
         {heading ? (
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <div className="flex min-w-[min(100%,16rem)] flex-1 flex-col gap-1">
+            <div className="flex min-w-[min(100%,11rem)] flex-1 flex-col gap-1">
               {title !== undefined ? <h2 className="text-ink">{title}</h2> : null}
               {description ? <p className="text-ink-muted">{description}</p> : null}
             </div>
@@ -80,7 +80,7 @@ export const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(function Page
     <section ref={ref} data-bleed="" className={cn("w-full border-b border-line", sticky && "sticky top-0 z-10 bg-ground", className)} {...rest}>
       <Container width={width} className="flex flex-col gap-3 py-4">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="flex min-w-[min(100%,16rem)] flex-1 flex-col gap-2">
+          <div className="flex min-w-[min(100%,11rem)] flex-1 flex-col gap-2">
             <h1 className="display-lg break-words text-ink">{title}</h1>
             {description ? <p className="text-ink-muted">{description}</p> : null}
           </div>

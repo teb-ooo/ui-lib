@@ -729,7 +729,7 @@ Also accepts the props of `Omit<HTMLAttributes<HTMLElement>, "className" | "titl
 
 - `title?`: `ReactNode`. A heading for the section. At the body size; a page title is `PageHeader`.
 - `description?`: `ReactNode`
-- `actions?`: `ReactNode`. Controls at the right of the heading (buttons, a view switch). They wrap under it on a phone.
+- `actions?`: `ReactNode`. Controls at the right of the heading (buttons, a view switch). They sit beside a short title and wrap under a long one (the title keeps at least 11rem).
 - `rule?`: `"bottom" | "top" | "both" | "none"`, default "bottom". Where the section's rule runs. A rule is a full-width line: it goes from edge to edge of the content area, never inset to the gutter. `bottom` separates this section from the next.
 - `width?`: `ContainerWidth`, default "full". Width of the content inside; the rule is always full width.
 - `sticky?`: `boolean`. Stays at the top while the page scrolls (a header on a phone, where the whole page scrolls as one).
