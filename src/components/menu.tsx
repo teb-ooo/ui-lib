@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from "react";
 import { Menu as BaseMenu } from "@base-ui/react/menu";
 import { Check } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useThemeContainer } from "../lib/theme-scope";
 import { Kbd } from "./kbd";
 import { renderIconProp } from "../lib/render-icon";
 import type { IconProp } from "../lib/render-icon";
@@ -66,10 +67,11 @@ const row = "flex min-h-[var(--control-h)] cursor-pointer items-center gap-2 rou
  * choices; separators and headings group them. Use `Popover` for details and `Select` to choose a value.
  */
 export function Menu({ trigger, items, side = "bottom", align = "start", className }: MenuProps) {
+  const { ref, container, track } = useThemeContainer<HTMLButtonElement>();
   return (
-    <BaseMenu.Root>
-      <BaseMenu.Trigger render={trigger} />
-      <BaseMenu.Portal>
+    <BaseMenu.Root onOpenChange={track}>
+      <BaseMenu.Trigger ref={ref} render={trigger} />
+      <BaseMenu.Portal container={container}>
         <BaseMenu.Positioner side={side} align={align} sideOffset={4} collisionPadding={8} className="z-50 outline-none">
           <BaseMenu.Popup className={cn("anim-fade panel-inverse panel-float min-w-48 p-1 text-ink outline-none", className)}>
             {items.map((entry) => {

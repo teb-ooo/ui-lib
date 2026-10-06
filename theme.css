@@ -365,8 +365,7 @@ input.display-lg {
     background: var(--color-ink);
     color: var(--color-ground);
   }
-  .btn:focus-visible,
-  .input:focus-visible {
+  .btn:focus-visible {
     outline: 1px solid var(--color-ink-muted);
     outline-offset: 2px;
   }
@@ -571,16 +570,24 @@ input.display-lg {
     color: var(--color-ink);
     outline: none;
   }
-  /* Focused, it drops to the page colour (black on a dark page, white on a light one); open (a select, a combobox), it reverses. */
-  .input:focus {
+  /*
+   * A focused or open single-line input reverses (white on a dark page, black on a light one) and needs no outline: the
+   * reversal is the sign of where you are, and its tokens are the inverted set above, so a combobox's chips and a select's
+   * icon stay legible. A textarea, the surface you write on, drops to the page colour instead.
+   */
+  .input:focus-within:not(textarea),
+  .input[data-popup-open],
+  .input[aria-expanded="true"] {
+    border-color: var(--color-ground);
+    background: var(--color-ground);
+    color: var(--color-ink);
+  }
+  textarea.input:focus {
     border-color: var(--color-ink-muted);
     background: var(--color-ground);
   }
-  .input[data-popup-open],
-  .input[aria-expanded="true"] {
-    border-color: var(--color-ink);
-    background: var(--color-ink);
-    color: var(--color-ground);
+  .input:focus-visible {
+    outline: none;
   }
   .input[data-invalid],
   .input[aria-invalid="true"] {
@@ -606,10 +613,10 @@ input.display-lg {
    * redefined here as the opposite scheme, so everything inside (text, buttons, switches) reads correctly. It follows
    * the page's colour scheme, the OS or a forced `data-theme`, through light-dark().
    */
-  .panel-inverse {
-    border-radius: var(--radius);
-    background: var(--color-ground);
-    color: var(--color-ink);
+  .panel-inverse,
+  .input:focus-within:not(textarea),
+  .input[data-popup-open],
+  .input[aria-expanded="true"] {
     --color-ground: light-dark(#000000, #ffffff);
     --color-surface: light-dark(var(--color-gray-900), var(--color-gray-100));
     --color-surface-raised: light-dark(var(--color-gray-800), var(--color-gray-200));
@@ -638,6 +645,11 @@ input.display-lg {
     --color-agent-hover: light-dark(var(--color-agent-300), var(--color-agent-800));
     --color-agent-soft: light-dark(var(--color-agent-950), var(--color-agent-50));
     --color-agent-line: light-dark(var(--color-agent-900), var(--color-agent-200));
+  }
+  .panel-inverse {
+    border-radius: var(--radius);
+    background: var(--color-ground);
+    color: var(--color-ink);
   }
 
   /*

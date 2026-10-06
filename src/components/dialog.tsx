@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode, RefObject } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useThemeContainer } from "../lib/theme-scope";
 import { Button } from "./button";
 
 export type DialogPlacement = "center" | "top" | "right";
@@ -31,7 +32,7 @@ export interface DialogProps {
    * @default false
    */
   bare?: boolean;
-  /** Inverted surface (white on a dark page, black on a light one, no border), as `Popover` is. @default false */
+  /** Inverted surface (white on a dark page, black on a light one, no border), as `Popover` is. A non-bare dialog is always inverted; a bare one (the palette) is inverted only when this is set. @default false */
   inverted?: boolean;
   /** Element to focus on open (a ref), or `false` to leave focus alone. Default: the first focusable element. */
   initialFocus?: boolean | RefObject<HTMLElement | null>;
@@ -66,18 +67,29 @@ export function Dialog({
   closeLabel = "Close",
   className,
 }: DialogProps) {
+  const { ref, container, track } = useThemeContainer<HTMLButtonElement>();
+  // A dialog is inverted (white on a dark page, black on a light one) and drawn as three bands: a shaded header with the
+  // title and close button, the content, and a shaded footer for the actions. A bare dialog (the palette) is only a surface.
+  const invert = inverted || !bare;
   return (
-    <BaseDialog.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
-      {trigger ? <BaseDialog.Trigger render={trigger} /> : null}
-      <BaseDialog.Portal>
+    <BaseDialog.Root
+      open={open}
+      defaultOpen={defaultOpen}
+      onOpenChange={(o, details) => {
+        track(o);
+        (onOpenChange as ((open: boolean, details: unknown) => void) | undefined)?.(o, details);
+      }}
+    >
+      {trigger ? <BaseDialog.Trigger ref={ref} render={trigger} /> : null}
+      <BaseDialog.Portal container={container}>
         <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
         <BaseDialog.Popup
           data-placement={placement}
           {...(initialFocus !== undefined ? { initialFocus } : {})}
           className={cn(
             "fixed z-50 text-ink outline-none",
-            inverted ? placements[placement].replace("panel ", "panel-inverse ") : placements[placement],
-            bare ? "overflow-hidden" : "flex flex-col gap-4 p-4",
+            invert ? placements[placement].replace("panel ", "panel-inverse ") : placements[placement],
+            bare ? "overflow-hidden" : "flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden",
             className,
           )}
         >
@@ -89,17 +101,17 @@ export function Dialog({
             </>
           ) : (
             <>
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex shrink-0 items-start justify-between gap-4 border-b border-line bg-surface px-4 py-3">
                 <BaseDialog.Title className="text-ink">{title}</BaseDialog.Title>
                 <BaseDialog.Close
                   render={<Button icon={<X aria-hidden="true" className="size-4" />} aria-label={closeLabel} className="border-transparent" />}
                 />
               </div>
-              {description ? (
-                <BaseDialog.Description className="text-ink-muted">{description}</BaseDialog.Description>
-              ) : null}
-              {children}
-              {footer ? <div className="flex justify-end gap-2">{footer}</div> : null}
+              <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
+                {description ? <BaseDialog.Description className="text-ink-muted">{description}</BaseDialog.Description> : null}
+                {children}
+              </div>
+              {footer ? <div className="flex shrink-0 justify-end gap-2 border-t border-line bg-surface px-4 py-3">{footer}</div> : null}
             </>
           )}
         </BaseDialog.Popup>
