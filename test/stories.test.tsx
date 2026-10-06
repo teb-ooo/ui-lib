@@ -56,8 +56,8 @@ describe.each(Object.entries(modules))("story module %s", (path, mod) => {
     expect(typeof def?.description).toBe("string");
     expect(def?.description.length).toBeGreaterThan(0);
     if (def?.component !== undefined) {
-      // Stories under src/cmdk describe the cmdk entry's exports, the others the root entry's.
-      const index = path.startsWith("../src/cmdk/") ? "src/cmdk/index.ts" : "src/index.ts";
+      // Stories under src/cmdk or src/entrance describe that entry's exports, the others the root entry's.
+      const index = path.startsWith("../src/cmdk/") ? "src/cmdk/index.ts" : path.startsWith("../src/entrance/") ? "src/entrance/index.ts" : "src/index.ts";
       expect(valueExports(index).map((e) => e.name), `${path}: component "${def.component}" is not exported by ${index}`).toContain(def.component);
       expect(typeof def.source).toBe("string");
     }

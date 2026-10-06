@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.87.0 (from 0.86.x)
+
+New entry point `@teb-ooo/ui/entrance` with `EntrancePage`: the signed-out front door with the swingset scene (lifted from id). Nothing to change for an app that does not use it. To use it an app installs `three` (an optional peer dependency of ui: take the version named in its `peerDependencies`, saved exact) and replaces its own `/enter` page's wrapper with `<EntrancePage title="Sign in" busy={...}>` around its button. Keep your own button and copy: the scene only draws the picture. Give the button `bg-ground` so the mist never shows through it.
+
 ## To ui 0.86.2 (from 0.86.1)
 
 Fix: a hovered button inside a surface three reversals deep was white on white (invisible), because only three levels of the relative reversal were written out and the hover is a fourth. Six levels are written out now.
