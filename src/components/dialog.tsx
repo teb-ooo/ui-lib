@@ -100,10 +100,12 @@ export function Dialog({
                   render={<Button icon={<X aria-hidden="true" className="size-4" />} aria-label={closeLabel} className="border-transparent" />}
                 />
               </div>
-              <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
-                {description ? <BaseDialog.Description className="text-ink-muted">{description}</BaseDialog.Description> : null}
-                {children}
-              </div>
+              {description || children ? (
+                <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
+                  {description ? <BaseDialog.Description className="text-ink-muted">{description}</BaseDialog.Description> : null}
+                  {children}
+                </div>
+              ) : null}
               {footer ? <div className="flex shrink-0 justify-end gap-2 border-t border-line bg-surface px-4 py-2">{footer}</div> : null}
             </>
           )}

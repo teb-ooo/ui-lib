@@ -106,3 +106,5 @@ export { FrequencyInput, formatKhz } from "./components/frequency-input";
 export type { FrequencyInputProps } from "./components/frequency-input";
 
 export { PortalContainerProvider, usePortalContainer } from "./lib/theme-scope";
+export { ConfirmDialog } from "./components/confirm-dialog";
+export type { ConfirmDialogProps } from "./components/confirm-dialog";

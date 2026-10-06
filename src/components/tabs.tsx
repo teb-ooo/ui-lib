@@ -33,6 +33,11 @@ export interface TabsProps {
    * @default false
    */
   fill?: boolean;
+  /**
+   * Line the first tab's text up with the page gutter (16px, 24px from `md`), for tabs that sit directly under a `PageHeader`
+   * or in a `PageBody` with `gutter`. The rule under the tabs still runs edge to edge. @default false
+   */
+  gutter?: boolean;
   /** Layout classes for the whole component. */
   className?: string;
 }
@@ -42,13 +47,13 @@ export interface TabsProps {
  * underlined, and on a narrow screen the row scrolls sideways instead of wrapping. Use `ToggleGroup` to filter, not to
  * switch panels.
  */
-export function Tabs({ tabs, value, onValueChange, label, activation = "automatic", keepMounted = false, fill = false, className }: TabsProps) {
+export function Tabs({ tabs, value, onValueChange, label, activation = "automatic", keepMounted = false, fill = false, gutter = false, className }: TabsProps) {
   return (
     <BaseTabs.Root value={value} onValueChange={(v) => onValueChange(String(v))} className={cn("flex min-h-0 flex-col", className)}>
       <BaseTabs.List
         aria-label={label}
         activateOnFocus={activation === "automatic"}
-        className="relative flex shrink-0 overflow-x-auto border-b border-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className={cn("relative flex shrink-0 overflow-x-auto border-b border-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", gutter && "px-1 md:px-3")}
       >
         {tabs.map((t) => (
           <BaseTabs.Tab

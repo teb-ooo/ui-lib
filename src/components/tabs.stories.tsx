@@ -31,3 +31,23 @@ export const Default = () => {
   );
 };
 Default.storyMeta = { description: "Arrow keys move and show the panel; a badge adds a count; a tab can be disabled." } satisfies StoryMeta;
+
+export const Gutter = () => {
+  const [value, setValue] = useState("a");
+  return (
+    <div className="w-96 max-w-full">
+      <p className="px-4 pb-2 text-ink">Page text at the gutter</p>
+      <Tabs
+        label="Aligned tabs"
+        gutter
+        value={value}
+        onValueChange={setValue}
+        tabs={[
+          { value: "a", label: "Overview", panel: <p className="px-4 text-ink-muted">The first tab's text lines up with the text above.</p> },
+          { value: "b", label: "History", panel: <p className="px-4 text-ink-muted">History.</p> },
+        ]}
+      />
+    </div>
+  );
+};
+Gutter.storyMeta = { description: "gutter lines the first tab up with the page text above it; the rule still runs edge to edge." } satisfies StoryMeta;

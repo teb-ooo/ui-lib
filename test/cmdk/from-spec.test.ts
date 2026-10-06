@@ -40,7 +40,7 @@ describe("commandsFromSpec", () => {
     const [cmd] = commandsFromSpec(doc, { route: "/rule/$code", params: { code: "UI-yze" }, selection: null }, rt);
     expect(cmd?.title).toBe("Retire this rule");
     await cmd?.run?.({ query: "", fallback: false, close: () => undefined, afterClose: () => undefined });
-    expect(rt.confirm).toHaveBeenCalledWith("Retire this rule?");
+    expect(rt.confirm).toHaveBeenCalledWith("Retire this rule?", { danger: true });
     expect(rt.call).not.toHaveBeenCalled();
     const ok = runtime();
     const [cmd2] = commandsFromSpec(doc, { route: "/rule/$code", params: { code: "UI-yze" }, selection: null }, ok);
@@ -53,7 +53,7 @@ describe("commandsFromSpec", () => {
     const rt = runtime();
     const [cmd] = commandsFromSpec(doc, ctx, rt);
     await cmd?.run?.({ query: "", fallback: false, close: () => undefined, afterClose: () => undefined });
-    expect(rt.confirm).toHaveBeenCalledWith("Disable ada?");
+    expect(rt.confirm).toHaveBeenCalledWith("Disable ada?", { danger: false });
     expect(rt.call).toHaveBeenCalledWith({ operationId: "disable-person", method: "post", path: "/api/people/{id}/disable", args: { id: "7" } });
     expect(rt.invalidate).toHaveBeenCalledWith(["/api/people"]);
   });

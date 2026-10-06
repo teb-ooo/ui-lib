@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type { ReactElement } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { ConfirmDialog } from "@teb-ooo/ui";
 import { commandsFromSpec, sourcesFromSpec } from "./from-spec";
 import type { OpenApiDocument, PaletteCall, PaletteRuntime } from "./from-spec";
 import { useRegisterCommands } from "./use-register-commands";
@@ -89,7 +90,7 @@ export interface PaletteFromApiProps {
   spec: OpenApiDocument;
   /** Calls an operation. @default `paletteFetch()` */
   call?: PaletteRuntime["call"];
-  /** Asks before a destructive action. @default `window.confirm` */
+  /** Asks before an action that confirms. @default a `ConfirmDialog` over the page */
   confirm?: PaletteRuntime["confirm"];
 }
 
@@ -106,10 +107,12 @@ export function PaletteFromApi({ spec, call, confirm }: PaletteFromApiProps): Re
   const last = useRouterState().matches.at(-1) as { fullPath?: string; params?: unknown } | undefined;
   const route = last?.fullPath ?? "";
   const params = (last?.params ?? {}) as Record<string, string>;
+  // The default confirm is a dialog over the page: the command waits on a promise the dialog settles.
+  const [asking, setAsking] = useState<{ message: string; danger: boolean; settle: (ok: boolean) => void } | null>(null);
   const runtime = useMemo<PaletteRuntime>(
     () => ({
       call: call ?? paletteFetch(),
-      confirm: confirm ?? ((m) => window.confirm(m)),
+      confirm: confirm ?? ((message, options) => new Promise<boolean>((settle) => setAsking({ message, danger: options?.danger === true, settle }))),
       invalidate: (prefixes) => {
         // openapi-react-query keys are [method, path, init]; a hand-made key may start with the path itself.
         void client.invalidateQueries({
@@ -128,7 +131,27 @@ export function PaletteFromApi({ spec, call, confirm }: PaletteFromApiProps): Re
   useRegisterCommands(commands, [commands]);
   const sources = useMemo(() => sourcesFromSpec(spec, runtime), [spec, runtime]);
   // One source per tagged list: they are registered by a child so each can use the hook.
-  return <>{sources.map((s) => <Source key={s.id} source={s} />)}</>;
+  const answer = (ok: boolean) => {
+    asking?.settle(ok);
+    setAsking(null);
+  };
+  return (
+    <>
+      {sources.map((s) => (
+        <Source key={s.id} source={s} />
+      ))}
+      <ConfirmDialog
+        open={asking !== null}
+        onOpenChange={(o) => {
+          if (!o) answer(false);
+        }}
+        title={asking?.message ?? ""}
+        confirmLabel={asking?.danger ? "Delete" : "Confirm"}
+        danger={asking?.danger === true}
+        onConfirm={() => answer(true)}
+      />
+    </>
+  );
 }
 
 function Source({ source }: { source: CommandSource }): null {

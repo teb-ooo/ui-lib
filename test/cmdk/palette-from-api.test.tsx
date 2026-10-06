@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PaletteFromApi, paletteFetch, usePaletteSelection } from "../../src/cmdk/index";
@@ -38,7 +38,7 @@ describe("PaletteFromApi", () => {
     await open(user);
     await user.click(await screen.findByRole("option", { name: /Archive this item/ }));
     await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "archive-item", method: "post", path: "/api/items/{id}/archive", args: { id: "42" } }));
-    expect(confirm).toHaveBeenCalledWith("Archive this item?");
+    expect(confirm).toHaveBeenCalledWith("Archive this item?", { danger: false });
   });
 
   it("does not offer it on another route, and offers a selection action once a screen publishes its row", async () => {
@@ -54,6 +54,24 @@ describe("PaletteFromApi", () => {
     expect(screen.queryByRole("option", { name: /Archive this item/ })).toBeNull();
     await user.click(await screen.findByRole("option", { name: /Pin Salt/ }));
     await waitFor(() => expect(call).toHaveBeenCalledWith({ operationId: "pin-item", method: "post", path: "/api/items/{id}/pin", args: { id: "9" } }));
+  });
+});
+
+describe("the default confirm", () => {
+  it("is a dialog over the page: Cancel does not call the operation, Confirm does", async () => {
+    const call = vi.fn(async () => null);
+    const user = userEvent.setup();
+    await renderApp({ initialPath: "/items/42", extra: <QueryClientProvider client={new QueryClient()}><PaletteFromApi spec={spec} call={call} /></QueryClientProvider> });
+    await open(user);
+    await user.click(await screen.findByRole("option", { name: /Archive this item/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Archive this item?" });
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Archive this item?" })).toBeNull());
+    expect(call).not.toHaveBeenCalled();
+    await open(user);
+    await user.click(await screen.findByRole("option", { name: /Archive this item/ }));
+    await user.click(within(await screen.findByRole("dialog", { name: "Archive this item?" })).getByRole("button", { name: "Confirm" }));
+    await waitFor(() => expect(call).toHaveBeenCalledTimes(1));
   });
 });
 

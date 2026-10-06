@@ -71,7 +71,8 @@ export interface PaletteContext {
 /** How a command acts. `PaletteFromApi` supplies the real one; tests pass fakes. */
 export interface PaletteRuntime {
   call: (call: PaletteCall) => Promise<unknown>;
-  confirm: (message: string) => boolean | Promise<boolean>;
+  /** Asks before an action; `danger` for a destructive one (a DELETE). */
+  confirm: (message: string, options?: { danger?: boolean }) => boolean | Promise<boolean>;
   invalidate: (prefixes: readonly string[]) => void;
   navigate: (to: string) => void;
 }
@@ -192,7 +193,7 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
       ...(tag.keywords ? { keywords: tag.keywords } : {}),
       ...(tag.when === undefined ? { minChars: 2 } : {}),
       run: async () => {
-        if (ask !== null && !(await runtime.confirm(ask))) return;
+        if (ask !== null && !(await runtime.confirm(ask, { danger: method === "delete" }))) return;
         await runtime.call({ operationId, method, path, args });
         if (after?.invalidate) runtime.invalidate(after.invalidate);
         if (after?.navigate) {
