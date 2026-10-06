@@ -1108,7 +1108,7 @@ input.display-lg {
   .hover-invert:hover:not([data-disabled], :disabled),
   .reverses:is(:hover, :focus-within, [data-dragging], [data-popup-open]):not([data-disabled], :disabled),
   .btn:is(:hover, [data-popup-open], [aria-expanded="true"]):not(:disabled, [data-disabled], [aria-disabled="true"]),
-  .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled) {
+  .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled, [data-bare]) {
     --color-ground: light-dark(#000000, #ffffff);
     --color-surface: light-dark(var(--color-gray-900), var(--color-gray-100));
     --color-surface-raised: light-dark(var(--color-gray-800), var(--color-gray-200));
@@ -1147,7 +1147,7 @@ input.display-lg {
     .hover-invert:hover:not([data-disabled], :disabled),
     .reverses:is(:hover, :focus-within, [data-dragging], [data-popup-open]):not([data-disabled], :disabled),
     .btn:is(:hover, [data-popup-open], [aria-expanded="true"]):not(:disabled, [data-disabled], [aria-disabled="true"]),
-    .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled) {
+    .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled, [data-bare]) {
       --color-ground: light-dark(#ffffff, #000000);
       --color-surface: light-dark(var(--color-gray-100), var(--color-gray-900));
       --color-surface-raised: light-dark(var(--color-gray-200), var(--color-gray-800));
@@ -1186,7 +1186,7 @@ input.display-lg {
       .hover-invert:hover:not([data-disabled], :disabled),
       .reverses:is(:hover, :focus-within, [data-dragging], [data-popup-open]):not([data-disabled], :disabled),
       .btn:is(:hover, [data-popup-open], [aria-expanded="true"]):not(:disabled, [data-disabled], [aria-disabled="true"]),
-      .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled) {
+      .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled, [data-bare]) {
         --color-ground: light-dark(#000000, #ffffff);
         --color-surface: light-dark(var(--color-gray-900), var(--color-gray-100));
         --color-surface-raised: light-dark(var(--color-gray-800), var(--color-gray-200));

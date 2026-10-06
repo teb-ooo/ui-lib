@@ -144,6 +144,7 @@ export function PaletteView(props: PaletteViewProps) {
         <Input
           ref={props.inputRef}
           autoFocus
+          data-bare=""
           role="combobox"
           aria-label={props.inputLabel ?? "Search commands"}
           aria-expanded="true"
