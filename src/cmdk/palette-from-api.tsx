@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { ConfirmDialog } from "@teb-ooo/ui";
-import { platformFetch, redirectToLogin, throwIfNotOk } from "@teb-ooo/web";
+import { platformFetch, redirectToLogin, throwIfNotOk, useUser } from "@teb-ooo/web";
 import { commandsFromSpec, sourcesFromSpec } from "./from-spec";
 import type { OpenApiDocument, PaletteCall, PaletteRuntime } from "./from-spec";
 import { useRegisterCommands } from "./use-register-commands";
@@ -100,6 +100,7 @@ export function PaletteFromApi({ spec, call, confirm }: PaletteFromApiProps): Re
   const navigate = useNavigate();
   const client = useQueryClient();
   const row = useSelection();
+  const { user } = useUser();
   const last = useRouterState().matches.at(-1) as { fullPath?: string; params?: unknown } | undefined;
   const route = last?.fullPath ?? "";
   // The route parameters by value, so the command list is rebuilt only when they change.
@@ -124,7 +125,7 @@ export function PaletteFromApi({ spec, call, confirm }: PaletteFromApiProps): Re
     }),
     [call, confirm, client, navigate],
   );
-  const commands = useMemo(() => commandsFromSpec(spec, { route, params, selection: row }, runtime), [spec, route, params, row, runtime]);
+  const commands = useMemo(() => commandsFromSpec(spec, { route, params, selection: row, user: user as Record<string, unknown> | null }, runtime), [spec, route, params, row, user, runtime]);
   useRegisterCommands(commands, [commands]);
   const sources = useMemo(() => sourcesFromSpec(spec, runtime), [spec, runtime]);
   // One source per tagged list: they are registered by a child so each can use the hook.

@@ -19,7 +19,17 @@ export interface PaletteActionTag {
    * selection has that value, so "Apply" appears only for a staged proposal. `field` implies `needs: "selection"`.
    * With no `when` the command shows only once two characters are typed.
    */
-  when?: { route?: string; needs?: "selection"; field?: Record<string, PaletteScalar | readonly PaletteScalar[]> };
+  when?: {
+    route?: string;
+    needs?: "selection";
+    field?: Record<string, PaletteScalar | readonly PaletteScalar[]>;
+    /**
+     * Fields of the selection that must differ from a value of the signed-in person (`user.<field>`, such as `user.subject`)
+     * or of the route (`route.<param>`): `differs: { id: "user.subject" }` keeps "Disable {user}" off the person's own row.
+     * A reference that does not resolve (nobody signed in, no such param) leaves the command out.
+     */
+    differs?: Record<string, string>;
+  };
   /** Each path, query or body field: `route.<param>`, `selection.<field>`, or a literal. (`prompt` arrives with phase 2.) */
   args?: Record<string, string>;
   /** `true` asks "<title>?"; a string is the question (`{name}` filled as in the title). A DELETE asks by default; `false` turns that off. */
@@ -74,6 +84,8 @@ export interface PaletteContext {
   route: string;
   params: Record<string, string>;
   selection?: Record<string, unknown> | null;
+  /** The signed-in person (`useUser().user`), for `when.differs`. */
+  user?: Record<string, unknown> | null;
 }
 
 /** How a command acts. `PaletteFromApi` supplies the real one; tests pass fakes. */
@@ -126,6 +138,9 @@ export function paletteProblems(doc: OpenApiDocument): string[] {
     } else if (isAction(tag)) {
       if (method === "get") out.push(`${where}: an action must change something (use a source for a list)`);
       if (!tag.group) out.push(`${where}: an action needs a group`);
+      for (const [name, ref] of Object.entries(tag.when?.differs ?? {})) {
+        if (!/^(user|route)\.\w+$/u.test(ref)) out.push(`${where}: when.differs.${name} must be "user.<field>" or "route.<param>"`);
+      }
       for (const [name, want] of Object.entries(tag.when?.field ?? {})) {
         const ok = (v: unknown) => ["string", "number", "boolean"].includes(typeof v);
         if (!(Array.isArray(want) ? want.length > 0 && want.every(ok) : ok(want))) out.push(`${where}: when.field.${name} must be a string, number or boolean, or a non-empty list of them`);
@@ -175,7 +190,11 @@ function resolveArgs(args: Record<string, string> | undefined, ctx: PaletteConte
 function applies(tag: PaletteActionTag, ctx: PaletteContext): boolean {
   const w = tag.when;
   if (w?.route !== undefined && w.route !== ctx.route) return false;
-  if ((w?.needs === "selection" || w?.field !== undefined) && !ctx.selection) return false;
+  if ((w?.needs === "selection" || w?.field !== undefined || w?.differs !== undefined) && !ctx.selection) return false;
+  for (const [name, ref] of Object.entries(w?.differs ?? {})) {
+    const other = ref.startsWith("user.") ? ctx.user?.[ref.slice(5)] : ref.startsWith("route.") ? ctx.params[ref.slice(6)] : undefined;
+    if (other === undefined || other === null || other === "" || String(ctx.selection?.[name]) === String(other)) return false;
+  }
   for (const [name, want] of Object.entries(w?.field ?? {})) {
     const have = ctx.selection?.[name];
     if (!(Array.isArray(want) ? (want as readonly unknown[]).includes(have) : have === want)) return false;

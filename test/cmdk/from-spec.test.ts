@@ -56,6 +56,17 @@ describe("commandsFromSpec", () => {
     expect(paletteProblems(bad as never).join()).toContain("when.field.status");
   });
 
+  it("`when.differs` keeps an action off the signed-in person's own row", () => {
+    const d = { paths: { "/api/users/{id}/disable": { post: { operationId: "disable-user", "x-palette": { title: "Disable {name}", group: "Users", when: { route: "/users", differs: { id: "user.subject" } }, args: { id: "selection.id" } } } } } };
+    const at = (id: string, user: Record<string, unknown> | null) => commandsFromSpec(d, { route: "/users", params: {}, selection: { id, name: "ada" }, user }, runtime()).map((c) => c.title);
+    expect(at("7", { subject: "9" })).toEqual(["Disable ada"]);
+    expect(at("9", { subject: "9" })).toEqual([]);
+    expect(at("7", null)).toEqual([]);
+    expect(paletteProblems(d)).toEqual([]);
+    const bad = { paths: { "/x": { post: { operationId: "x", "x-palette": { title: "X", group: "G", when: { differs: { id: "me" } } } } } } };
+    expect(paletteProblems(bad as never).join()).toContain("when.differs.id");
+  });
+
   it("fills arguments from route parameters and asks to confirm a DELETE by default", async () => {
     const rt = runtime({ confirm: vi.fn(() => false) });
     const [cmd] = commandsFromSpec(doc, { route: "/rule/$code", params: { code: "UI-yze" }, selection: null }, rt);
