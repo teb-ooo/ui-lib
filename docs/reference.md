@@ -513,6 +513,26 @@ Also accepts the props of `Omit<HTMLAttributes<HTMLSpanElement>, "className" | "
 - `tip?`: `ReactNode | true`. Add a tooltip: `true` shows the status name ("Live"), or give the text. The dot becomes focusable so the tooltip works from the keyboard. Off by default.
 - `className?`: `string`
 
+### MediaGrid
+
+component: `import { MediaGrid } from "@teb-ooo/ui"`
+
+A browser for pictures and other media: square-cropped thumbnails in a grid with as many columns as fit, an optional kind and length badge, a caption, lazy-loaded images that fade in over a placeholder, and paging for a long list ("Load more", or by itself when the end scrolls into view). Tab reaches each tile; the arrow keys, Home and End move between them like `CardGrid`, and Enter or Space opens one. Feed it a cursor-paged list (`useListTable`'s sibling for grids is the same `next_cursor` loop) and append each page to `items`; thousands of tiles stay cheap because tiles off screen are not laid out. For rows of text use `DataTable`; for summaries of things use `CardGrid`.
+
+- `label`: `string`. Accessible name of the list: "Photos in this thread".
+- `items`: `readonly MediaItem[]`
+- `onOpen?`: `(item: MediaItem) => void`. Called when a tile is clicked or opened with Enter or Space.
+- `activeId?`: `string`. The item shown elsewhere right now (a preview pane): its tile is marked and `aria-current`.
+- `minTileWidth?`: `number`, default 8. The narrowest a tile gets, in rem; columns are as many as fit. A smaller value is a denser contact sheet.
+- `hasMore?`: `boolean`. More items exist after the last one (the list's `next_cursor` is set).
+- `onLoadMore?`: `() => void`. Fetches the next page. Called by the "Load more" button, and by scrolling to the end when `autoLoad` is on.
+- `loading?`: `boolean`, default false. The next page is being fetched: the button waits and the list is `aria-busy`.
+- `autoLoad?`: `boolean`, default true. Load the next page by itself when the end of the grid scrolls into view (the button stays as the way to ask by hand).
+- `total?`: `number`. How many items exist in all, when the server knows: shown as "120 of 5,000".
+- `loadMoreLabel?`: `string`, default "Load more"
+- `empty?`: `ReactNode`. Shown when there are no items and none are loading.
+- `className?`: `string`
+
 ### Menu
 
 component: `import { Menu } from "@teb-ooo/ui"`
@@ -969,6 +989,8 @@ Saved filter views. It only shows them and asks; the app keeps the list and what
 - `GraphNode`
 - `LaidOutNode`
 - `LiveStatus`
+- `MediaItem`
+- `MediaKind`
 - `MenuAction`: A row that does something when chosen.
 - `MenuCheckbox`: A row that is on or off; choosing it flips it and leaves the menu open, so several can be set in one visit.
 - `MenuEntry`

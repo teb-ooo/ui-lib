@@ -94,6 +94,8 @@ export { NumberField } from "./components/number-field";
 export type { NumberFieldProps } from "./components/number-field";
 export { Popover } from "./components/popover";
 export type { PopoverProps } from "./components/popover";
+export { MediaGrid } from "./components/media-grid";
+export type { MediaGridProps, MediaItem, MediaKind } from "./components/media-grid";
 export { Menu } from "./components/menu";
 export type { MenuProps, MenuEntry, MenuAction, MenuCheckbox, MenuSeparator, MenuHeading } from "./components/menu";
 export { Tabs } from "./components/tabs";

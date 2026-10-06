@@ -1,6 +1,7 @@
 import { forwardRef, useRef } from "react";
 import type { HTMLAttributes, KeyboardEvent, ReactNode } from "react";
 import { cn } from "../lib/cn";
+import { moveFocusInGrid } from "../lib/grid-keys";
 
 export interface CardProps {
   /** The card's name; it is what a screen reader reads first. */
@@ -89,37 +90,7 @@ export interface CardGridProps extends Omit<HTMLAttributes<HTMLDivElement>, "cla
 export function CardGrid({ label, minCardWidth = 18, className, children, ...rest }: CardGridProps) {
   const root = useRef<HTMLDivElement>(null);
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"];
-    if (!keys.includes(e.key) || e.altKey || e.ctrlKey || e.metaKey) return;
-    const cards = [...(root.current?.querySelectorAll<HTMLElement>("[data-card]") ?? [])].filter((c) => c.tabIndex >= 0 && c.tagName !== "DIV");
-    const here = cards.findIndex((c) => c === document.activeElement);
-    if (here < 0) return;
-    let target = here;
-    if (e.key === "ArrowRight") target = here + 1;
-    else if (e.key === "ArrowLeft") target = here - 1;
-    else if (e.key === "Home") target = 0;
-    else if (e.key === "End") target = cards.length - 1;
-    else {
-      const rect = cards[here]!.getBoundingClientRect();
-      const down = e.key === "ArrowDown";
-      let best = -1;
-      let bestScore = Infinity;
-      cards.forEach((c, i) => {
-        const r = c.getBoundingClientRect();
-        if (down ? r.top <= rect.top + 1 : r.top >= rect.top - 1) return;
-        const score = Math.abs(r.top - rect.top) * 1000 + Math.abs(r.left - rect.left);
-        if (score < bestScore) {
-          bestScore = score;
-          best = i;
-        }
-      });
-      if (best < 0) return;
-      target = best;
-    }
-    const next = cards[Math.min(cards.length - 1, Math.max(0, target))];
-    if (!next || next === cards[here]) return;
-    e.preventDefault();
-    next.focus();
+    moveFocusInGrid(e, [...(root.current?.querySelectorAll<HTMLElement>("[data-card]") ?? [])].filter((c) => c.tabIndex >= 0 && c.tagName !== "DIV"));
   };
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- arrow keys move focus between the cards inside the list
