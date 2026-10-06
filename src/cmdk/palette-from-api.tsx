@@ -106,7 +106,9 @@ export function PaletteFromApi({ spec, call, confirm }: PaletteFromApiProps): Re
   const row = useSelection();
   const last = useRouterState().matches.at(-1) as { fullPath?: string; params?: unknown } | undefined;
   const route = last?.fullPath ?? "";
-  const params = (last?.params ?? {}) as Record<string, string>;
+  // The route parameters by value, so the command list is rebuilt only when they change.
+  const paramsKey = JSON.stringify(last?.params ?? {});
+  const params = useMemo(() => JSON.parse(paramsKey) as Record<string, string>, [paramsKey]);
   // The default confirm is a dialog over the page: the command waits on a promise the dialog settles.
   const [asking, setAsking] = useState<{ message: string; danger: boolean; settle: (ok: boolean) => void } | null>(null);
   const runtime = useMemo<PaletteRuntime>(
@@ -126,8 +128,7 @@ export function PaletteFromApi({ spec, call, confirm }: PaletteFromApiProps): Re
     }),
     [call, confirm, client, navigate],
   );
-  const paramsKey = JSON.stringify(params);
-  const commands = useMemo(() => commandsFromSpec(spec, { route, params, selection: row }, runtime), [spec, route, paramsKey, row, runtime]);
+  const commands = useMemo(() => commandsFromSpec(spec, { route, params, selection: row }, runtime), [spec, route, params, row, runtime]);
   useRegisterCommands(commands, [commands]);
   const sources = useMemo(() => sourcesFromSpec(spec, runtime), [spec, runtime]);
   // One source per tagged list: they are registered by a child so each can use the hook.
