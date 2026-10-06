@@ -1091,7 +1091,8 @@ input.display-lg {
  *
  * 3. Nesting. Reversal is relative to what the element sits in, not to the page: a reversal inside a reversal restores the
  *    page's own tokens (a hovered button inside a reversed row is dark on a light row, like a light-theme button hovered),
- *    and a third level reverses again. Three levels are written out; a deeper one stays at the third.
+ *    and a third level reverses again, and so on. Six levels are written out (a hovered button inside a surface at depth
+ *    three is depth four); the levels are generated from one token set, and the contrast test checks each of them.
  *
  * It lives in the utilities layer so it beats a component's own background and border utilities. To make something
  * reverse, give it a class from this list; do not write hover colours in a component.
@@ -1218,6 +1219,126 @@ input.display-lg {
         border-color: var(--color-ground);
         background: var(--color-ground);
         color: var(--color-ink);
+
+        /* REVERSAL depth 4: restored again */
+        .panel-inverse,
+        .reversed,
+        .hover-invert:hover:not([data-disabled], :disabled),
+        .reverses:is(:hover, :focus-within, [data-dragging], [data-popup-open]):not([data-disabled], :disabled),
+        .btn:is(:hover, [data-popup-open], [aria-expanded="true"]):not(:disabled, [data-disabled], [aria-disabled="true"]),
+        .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled, [data-bare]) {
+          --color-ground: light-dark(#ffffff, #000000);
+          --color-surface: light-dark(var(--color-gray-100), var(--color-gray-900));
+          --color-surface-raised: light-dark(var(--color-gray-200), var(--color-gray-800));
+          --color-line: light-dark(var(--color-gray-300), var(--color-gray-700));
+          --color-line-strong: var(--color-gray-500);
+          --color-ink: light-dark(#000000, #ffffff);
+          --color-ink-muted: light-dark(var(--color-gray-700), var(--color-gray-300));
+          --color-ink-faint: light-dark(var(--color-gray-600), var(--color-gray-400));
+          --color-danger: light-dark(var(--color-danger-700), var(--color-danger-400));
+          --color-danger-hover: light-dark(var(--color-danger-800), var(--color-danger-300));
+          --color-danger-soft: light-dark(var(--color-danger-50), var(--color-danger-950));
+          --color-danger-line: light-dark(var(--color-danger-200), var(--color-danger-900));
+          --color-warning: light-dark(var(--color-warning-700), var(--color-warning-400));
+          --color-warning-hover: light-dark(var(--color-warning-800), var(--color-warning-300));
+          --color-warning-soft: light-dark(var(--color-warning-50), var(--color-warning-950));
+          --color-warning-line: light-dark(var(--color-warning-200), var(--color-warning-900));
+          --color-ok: light-dark(var(--color-ok-700), var(--color-ok-400));
+          --color-ok-hover: light-dark(var(--color-ok-800), var(--color-ok-300));
+          --color-ok-soft: light-dark(var(--color-ok-50), var(--color-ok-950));
+          --color-ok-line: light-dark(var(--color-ok-200), var(--color-ok-900));
+          --color-link: light-dark(var(--color-link-700), var(--color-link-400));
+          --color-link-hover: light-dark(var(--color-link-800), var(--color-link-300));
+          --color-link-soft: light-dark(var(--color-link-50), var(--color-link-950));
+          --color-link-line: light-dark(var(--color-link-200), var(--color-link-900));
+          --color-agent: light-dark(var(--color-agent-700), var(--color-agent-400));
+          --color-agent-hover: light-dark(var(--color-agent-800), var(--color-agent-300));
+          --color-agent-soft: light-dark(var(--color-agent-50), var(--color-agent-950));
+          --color-agent-line: light-dark(var(--color-agent-200), var(--color-agent-900));
+          border-color: var(--color-ground);
+          background: var(--color-ground);
+          color: var(--color-ink);
+
+          /* REVERSAL depth 5: reversed again */
+          .panel-inverse,
+          .reversed,
+          .hover-invert:hover:not([data-disabled], :disabled),
+          .reverses:is(:hover, :focus-within, [data-dragging], [data-popup-open]):not([data-disabled], :disabled),
+          .btn:is(:hover, [data-popup-open], [aria-expanded="true"]):not(:disabled, [data-disabled], [aria-disabled="true"]),
+          .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled, [data-bare]) {
+            --color-ground: light-dark(#000000, #ffffff);
+            --color-surface: light-dark(var(--color-gray-900), var(--color-gray-100));
+            --color-surface-raised: light-dark(var(--color-gray-800), var(--color-gray-200));
+            --color-line: light-dark(var(--color-gray-700), var(--color-gray-300));
+            --color-line-strong: var(--color-gray-500);
+            --color-ink: light-dark(#ffffff, #000000);
+            --color-ink-muted: light-dark(var(--color-gray-300), var(--color-gray-700));
+            --color-ink-faint: light-dark(var(--color-gray-400), var(--color-gray-600));
+            --color-danger: light-dark(var(--color-danger-400), var(--color-danger-700));
+            --color-danger-hover: light-dark(var(--color-danger-300), var(--color-danger-800));
+            --color-danger-soft: light-dark(var(--color-danger-950), var(--color-danger-50));
+            --color-danger-line: light-dark(var(--color-danger-900), var(--color-danger-200));
+            --color-warning: light-dark(var(--color-warning-400), var(--color-warning-700));
+            --color-warning-hover: light-dark(var(--color-warning-300), var(--color-warning-800));
+            --color-warning-soft: light-dark(var(--color-warning-950), var(--color-warning-50));
+            --color-warning-line: light-dark(var(--color-warning-900), var(--color-warning-200));
+            --color-ok: light-dark(var(--color-ok-400), var(--color-ok-700));
+            --color-ok-hover: light-dark(var(--color-ok-300), var(--color-ok-800));
+            --color-ok-soft: light-dark(var(--color-ok-950), var(--color-ok-50));
+            --color-ok-line: light-dark(var(--color-ok-900), var(--color-ok-200));
+            --color-link: light-dark(var(--color-link-400), var(--color-link-700));
+            --color-link-hover: light-dark(var(--color-link-300), var(--color-link-800));
+            --color-link-soft: light-dark(var(--color-link-950), var(--color-link-50));
+            --color-link-line: light-dark(var(--color-link-900), var(--color-link-200));
+            --color-agent: light-dark(var(--color-agent-400), var(--color-agent-700));
+            --color-agent-hover: light-dark(var(--color-agent-300), var(--color-agent-800));
+            --color-agent-soft: light-dark(var(--color-agent-950), var(--color-agent-50));
+            --color-agent-line: light-dark(var(--color-agent-900), var(--color-agent-200));
+            border-color: var(--color-ground);
+            background: var(--color-ground);
+            color: var(--color-ink);
+
+            /* REVERSAL depth 6: restored again */
+            .panel-inverse,
+            .reversed,
+            .hover-invert:hover:not([data-disabled], :disabled),
+            .reverses:is(:hover, :focus-within, [data-dragging], [data-popup-open]):not([data-disabled], :disabled),
+            .btn:is(:hover, [data-popup-open], [aria-expanded="true"]):not(:disabled, [data-disabled], [aria-disabled="true"]),
+            .input:is(:focus-within, [data-popup-open], [aria-expanded="true"]):not(textarea, :disabled, [data-bare]) {
+              --color-ground: light-dark(#ffffff, #000000);
+              --color-surface: light-dark(var(--color-gray-100), var(--color-gray-900));
+              --color-surface-raised: light-dark(var(--color-gray-200), var(--color-gray-800));
+              --color-line: light-dark(var(--color-gray-300), var(--color-gray-700));
+              --color-line-strong: var(--color-gray-500);
+              --color-ink: light-dark(#000000, #ffffff);
+              --color-ink-muted: light-dark(var(--color-gray-700), var(--color-gray-300));
+              --color-ink-faint: light-dark(var(--color-gray-600), var(--color-gray-400));
+              --color-danger: light-dark(var(--color-danger-700), var(--color-danger-400));
+              --color-danger-hover: light-dark(var(--color-danger-800), var(--color-danger-300));
+              --color-danger-soft: light-dark(var(--color-danger-50), var(--color-danger-950));
+              --color-danger-line: light-dark(var(--color-danger-200), var(--color-danger-900));
+              --color-warning: light-dark(var(--color-warning-700), var(--color-warning-400));
+              --color-warning-hover: light-dark(var(--color-warning-800), var(--color-warning-300));
+              --color-warning-soft: light-dark(var(--color-warning-50), var(--color-warning-950));
+              --color-warning-line: light-dark(var(--color-warning-200), var(--color-warning-900));
+              --color-ok: light-dark(var(--color-ok-700), var(--color-ok-400));
+              --color-ok-hover: light-dark(var(--color-ok-800), var(--color-ok-300));
+              --color-ok-soft: light-dark(var(--color-ok-50), var(--color-ok-950));
+              --color-ok-line: light-dark(var(--color-ok-200), var(--color-ok-900));
+              --color-link: light-dark(var(--color-link-700), var(--color-link-400));
+              --color-link-hover: light-dark(var(--color-link-800), var(--color-link-300));
+              --color-link-soft: light-dark(var(--color-link-50), var(--color-link-950));
+              --color-link-line: light-dark(var(--color-link-200), var(--color-link-900));
+              --color-agent: light-dark(var(--color-agent-700), var(--color-agent-400));
+              --color-agent-hover: light-dark(var(--color-agent-800), var(--color-agent-300));
+              --color-agent-soft: light-dark(var(--color-agent-50), var(--color-agent-950));
+              --color-agent-line: light-dark(var(--color-agent-200), var(--color-agent-900));
+              border-color: var(--color-ground);
+              background: var(--color-ground);
+              color: var(--color-ink);
+            }
+          }
+        }
       }
     }
   }

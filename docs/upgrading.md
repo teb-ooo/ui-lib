@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.86.2 (from 0.86.1)
+
+Fix: a hovered button inside a surface three reversals deep was white on white (invisible), because only three levels of the relative reversal were written out and the hover is a fourth. Six levels are written out now.
+
 ## To ui 0.86.1 (from 0.86.0)
 
 Fix: the palette's search box turned into a white box when focused, since 0.84.0 (a focused input inside a reversed surface flips back, and the palette is one). An input with the attribute `data-bare` is left out of the focus reversal; the palette's input has it. An app with its own chrome-less input inside a reversed surface can set it too.

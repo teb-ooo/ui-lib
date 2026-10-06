@@ -44,4 +44,4 @@ export const Nested = () => (
     </div>
   </div>
 );
-Nested.storyMeta = { description: "Each reversal flips the one around it: three levels are written out, a deeper one stays at the third. Hover the buttons to see each level's own hover." } satisfies StoryMeta;
+Nested.storyMeta = { description: "Each reversal flips the one around it (six levels are written out, enough for a hovered button inside a surface three deep). Hover the buttons to see each level's own hover: it is the opposite of the surface it sits on." } satisfies StoryMeta;

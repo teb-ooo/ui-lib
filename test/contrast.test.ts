@@ -70,15 +70,11 @@ describe("the reversal token sets (REVERSAL in theme.css)", () => {
   const marks = [...layer.matchAll(/\/\* REVERSAL depth (\d): [^*]*\*\//g)];
   const section = (i: number) => layer.slice(marks[i]!.index!, marks[i + 1]?.index ?? layer.indexOf("/* A tinted button fills"));
   const decls = (text: string) => Object.fromEntries([...text.matchAll(/(--color-[\w-]+):\s*([^;]+);/g)].map((m) => [m[1] ?? "", (m[2] ?? "").trim()]));
-  // [depth index, which scheme's value a light page gets, which a dark page gets]
-  const sets = [
-    ["depth 1 is reversed", 0, blocks.dark, blocks.light],
-    ["depth 2 restores the page's own tokens", 1, blocks.light, blocks.dark],
-    ["depth 3 is reversed again", 2, blocks.dark, blocks.light],
-  ] as const;
+  // Odd depths are reversed (a light page gets the dark set's value), even depths restore the page's own tokens.
+  const sets = [1, 2, 3, 4, 5, 6].map((depth) => [`depth ${depth} ${depth % 2 === 1 ? "is reversed" : "restores the page's own tokens"}`, depth - 1, depth % 2 === 1 ? blocks.dark : blocks.light, depth % 2 === 1 ? blocks.light : blocks.dark] as const);
 
-  it("writes out three levels, in order", () => {
-    expect(marks.map((m) => m[1])).toEqual(["1", "2", "3"]);
+  it("writes out six levels, in order", () => {
+    expect(marks.map((m) => m[1])).toEqual(["1", "2", "3", "4", "5", "6"]);
   });
   it.each(sets)("%s: every colour token is light-dark(<for a light page>, <for a dark page>)", (_name, level, forLight, forDark) => {
     const d = decls(section(level));
