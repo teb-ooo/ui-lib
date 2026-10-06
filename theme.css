@@ -614,6 +614,8 @@ input.display-lg {
    * the page's colour scheme, the OS or a forced `data-theme`, through light-dark().
    */
   .panel-inverse,
+  .invert,
+  .hover-invert:hover,
   .input:focus-within:not(textarea),
   .input[data-popup-open],
   .input[aria-expanded="true"] {
@@ -645,6 +647,13 @@ input.display-lg {
     --color-agent-hover: light-dark(var(--color-agent-300), var(--color-agent-800));
     --color-agent-soft: light-dark(var(--color-agent-950), var(--color-agent-50));
     --color-agent-line: light-dark(var(--color-agent-900), var(--color-agent-200));
+  }
+  /* A surface that is reversed: always (.invert, an active row) or while hovered (.hover-invert, a card). */
+  .invert,
+  .hover-invert:hover {
+    border-color: var(--color-ground);
+    background: var(--color-ground);
+    color: var(--color-ink);
   }
   .panel-inverse {
     border-radius: var(--radius);

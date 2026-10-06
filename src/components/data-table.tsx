@@ -598,7 +598,7 @@ export function DataTable<T>({
       "border-b border-line",
       clickable ? "cursor-pointer" : "cursor-default",
       key === activeKey
-        ? "bg-surface-raised shadow-[inset_2px_0_0_0_var(--color-ink-muted)]"
+        ? "invert"
         : cn(selectedKeys?.has(key) && "bg-surface", clickable ? "hover:bg-surface-raised" : "hover:bg-surface"),
     );
 

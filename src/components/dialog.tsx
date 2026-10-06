@@ -101,7 +101,7 @@ export function Dialog({
             </>
           ) : (
             <>
-              <div className="flex shrink-0 items-start justify-between gap-4 border-b border-line bg-surface px-4 py-3">
+              <div className="flex shrink-0 items-center justify-between gap-4 border-b border-line bg-surface px-4 py-2">
                 <BaseDialog.Title className="text-ink">{title}</BaseDialog.Title>
                 <BaseDialog.Close
                   render={<Button icon={<X aria-hidden="true" className="size-4" />} aria-label={closeLabel} className="border-transparent" />}
@@ -111,7 +111,7 @@ export function Dialog({
                 {description ? <BaseDialog.Description className="text-ink-muted">{description}</BaseDialog.Description> : null}
                 {children}
               </div>
-              {footer ? <div className="flex shrink-0 justify-end gap-2 border-t border-line bg-surface px-4 py-3">{footer}</div> : null}
+              {footer ? <div className="flex shrink-0 justify-end gap-2 border-t border-line bg-surface px-4 py-2">{footer}</div> : null}
             </>
           )}
         </BaseDialog.Popup>

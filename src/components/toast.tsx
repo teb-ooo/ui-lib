@@ -39,11 +39,12 @@ export function useToast(): ToastApi {
   return api;
 }
 
+// An inverted toast has no border, so a tone is a thick edge on its left in the state colour (the tokens are the inverted set).
 const tones: Record<ToastTone, string> = {
-  default: "border-line-strong",
-  ok: "border-ok-line",
-  warn: "border-warning-line",
-  danger: "border-danger-line",
+  default: "",
+  ok: "border-l-4 border-l-ok",
+  warn: "border-l-4 border-l-warning",
+  danger: "border-l-4 border-l-danger",
 };
 
 function Bridge({ children }: { children: ReactNode }) {
@@ -75,7 +76,7 @@ function List() {
           toast={toast}
           swipeDirection="right"
           className={cn(
-            "toast panel panel-float pointer-events-auto flex items-start gap-3 overflow-hidden p-3 text-ink",
+            "toast panel-inverse panel-float pointer-events-auto flex items-start gap-3 overflow-hidden p-3 text-ink",
             tones[(toast.type as ToastTone | undefined) ?? "default"] ?? tones.default,
           )}
         >
