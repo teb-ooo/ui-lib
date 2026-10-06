@@ -2,6 +2,10 @@
 
 What an app must change when it moves between versions, newest first; only what needs action is listed, the rest is in `components.md`.
 
+## To ui 0.71.0 (from 0.70.x)
+
+Visual change, nothing to change in code: hovered and open controls reverse (white on a dark page, black on a light one), a focused input drops to the page colour, the dropdown popups are inverted panels, and the environment mark is yellow. An app that styled a button's hover itself with its own classes may now fight the new rule.
+
 ## To ui 0.70.0 (from 0.69.x)
 
 Breaking only if an app still uses them (none of the nine did): `useFeedbackCommand` (and its type `FeedbackCommandSource`) and the `signOutPath` prop of `CommandProvider` are removed; the Shell registers Send feedback and Sign out.

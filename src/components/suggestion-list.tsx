@@ -106,7 +106,7 @@ export function SuggestionList({
           <Popover.Popup
             initialFocus={false}
             finalFocus={false}
-            className={cn("anim-fade panel panel-float max-h-[min(16rem,var(--available-height))] w-72 max-w-[calc(100vw-2rem)] overflow-y-auto p-1 text-ink outline-none", className)}
+            className={cn("anim-fade panel-inverse panel-float max-h-[min(16rem,var(--available-height))] w-72 max-w-[calc(100vw-2rem)] overflow-y-auto p-1 text-ink outline-none", className)}
             // Keep the caret in the editor: a press on the list must not move focus.
             onMouseDown={(e) => e.preventDefault()}
           >

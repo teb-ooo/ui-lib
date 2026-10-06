@@ -26,7 +26,7 @@ export interface MultiComboboxProps extends Common {
 }
 export type ComboboxProps = SingleComboboxProps | MultiComboboxProps;
 
-const popup = "anim-fade panel panel-float z-50 max-h-[min(20rem,var(--available-height))] w-[var(--anchor-width)] min-w-56 overflow-y-auto p-1 text-ink outline-none";
+const popup = "anim-fade panel-inverse panel-float z-50 max-h-[min(20rem,var(--available-height))] w-[var(--anchor-width)] min-w-56 overflow-y-auto p-1 text-ink outline-none";
 const itemClass =
   "grid min-h-[var(--control-h)] cursor-pointer grid-cols-[1rem_1fr_auto] items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised";
 

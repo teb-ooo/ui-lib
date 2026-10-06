@@ -348,13 +348,22 @@ input.display-lg {
     white-space: nowrap;
     text-decoration: none;
   }
-  .btn:hover,
+  /*
+   * The reverse of the page: a hovered or open control takes the opposite colours (white on a dark page, black on a light
+   * one), the way popovers and tooltips do, so the thing you are on is the brightest thing there. A pressed toggle
+   * (data-active) keeps the quiet raised fill until it is hovered.
+   */
   .btn[data-active] {
     border-color: var(--color-line-strong);
+    background: var(--color-surface-raised);
     color: var(--color-ink);
   }
-  .btn[data-active] {
-    background: var(--color-surface-raised);
+  .btn:hover,
+  .btn[data-popup-open],
+  .btn[aria-expanded="true"] {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-ground);
   }
   .btn:focus-visible,
   .input:focus-visible {
@@ -370,31 +379,35 @@ input.display-lg {
   .btn:disabled:hover,
   .btn[data-disabled]:hover {
     border-color: var(--color-line);
+    background: transparent;
     color: var(--color-ink-muted);
   }
   .btn-solid {
     border-color: var(--color-line-strong);
     color: var(--color-ink);
   }
-  .btn-solid:hover {
-    background: var(--color-surface-raised);
-  }
-  /* Intent accents: tinted text at rest, tinted border and fill on hover. */
+  /* Intent accents: tinted text at rest; hovered, the button fills with its tone. */
   .btn-danger {
     color: var(--color-danger);
   }
-  .btn-danger:hover {
-    border-color: var(--color-danger-line);
-    background: color-mix(in oklab, var(--color-danger-soft) 30%, transparent);
-    color: var(--color-danger-hover);
+  .btn-danger:hover,
+  .btn-danger[data-popup-open] {
+    border-color: var(--color-danger);
+    background: var(--color-danger);
+    color: var(--color-ground);
   }
   .btn-warning {
     color: var(--color-warning);
   }
-  .btn-warning:hover {
-    border-color: var(--color-warning-line);
-    background: color-mix(in oklab, var(--color-warning-soft) 30%, transparent);
-    color: var(--color-warning-hover);
+  .btn-warning:hover,
+  .btn-warning[data-popup-open] {
+    border-color: var(--color-warning);
+    background: var(--color-warning);
+    color: var(--color-ground);
+  }
+  /* The environment mark in the platform bar (shown off production): yellow in both schemes. */
+  .env-mark {
+    background: light-dark(var(--color-yellow-500), var(--color-yellow-400));
   }
   .btn-icon {
     width: var(--control-h);
@@ -558,9 +571,16 @@ input.display-lg {
     color: var(--color-ink);
     outline: none;
   }
+  /* Focused, it drops to the page colour (black on a dark page, white on a light one); open (a select, a combobox), it reverses. */
   .input:focus {
     border-color: var(--color-ink-muted);
-    background: var(--color-surface-raised);
+    background: var(--color-ground);
+  }
+  .input[data-popup-open],
+  .input[aria-expanded="true"] {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-ground);
   }
   .input[data-invalid],
   .input[aria-invalid="true"] {

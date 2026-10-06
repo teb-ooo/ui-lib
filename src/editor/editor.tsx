@@ -318,7 +318,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
               <Popover.Popup
                 initialFocus={false}
                 finalFocus={false}
-                className="anim-fade panel panel-float max-w-[calc(100vw-1rem)] overflow-x-auto p-1 text-ink outline-none"
+                className="anim-fade panel-inverse panel-float max-w-[calc(100vw-1rem)] overflow-x-auto p-1 text-ink outline-none"
                 onMouseDown={(e) => {
                   if (!(e.target as HTMLElement).closest("input")) e.preventDefault();
                 }}

@@ -258,7 +258,7 @@ function ColumnMenu<T>({
       <Menu.Trigger render={<Button icon={<Columns3 aria-hidden="true" className="size-4" />} tip="Columns" className="border-transparent" />} />
       <Menu.Portal>
         <Menu.Positioner align="end" sideOffset={4} className="z-50">
-          <Menu.Popup className="anim-fade panel panel-float min-w-40 p-1 text-ink outline-none">
+          <Menu.Popup className="anim-fade panel-inverse panel-float min-w-40 p-1 text-ink outline-none">
             {hideable.map((c) => (
               <Menu.CheckboxItem
                 key={c.id}

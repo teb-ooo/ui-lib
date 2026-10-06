@@ -71,7 +71,7 @@ export function Menu({ trigger, items, side = "bottom", align = "start", classNa
       <BaseMenu.Trigger render={trigger} />
       <BaseMenu.Portal>
         <BaseMenu.Positioner side={side} align={align} sideOffset={4} collisionPadding={8} className="z-50 outline-none">
-          <BaseMenu.Popup className={cn("anim-fade panel panel-float min-w-48 p-1 text-ink outline-none", className)}>
+          <BaseMenu.Popup className={cn("anim-fade panel-inverse panel-float min-w-48 p-1 text-ink outline-none", className)}>
             {items.map((entry) => {
               if (entry.type === "separator") return <BaseMenu.Separator key={entry.id} className="my-1 h-px bg-line" />;
               if (entry.type === "heading")

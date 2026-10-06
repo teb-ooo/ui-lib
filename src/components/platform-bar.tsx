@@ -239,7 +239,7 @@ export function PlatformBar({
       {marked ? (
         <Tooltip tip={envName} side="bottom">
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- focusable so its tooltip (the only text) is reachable by keyboard */}
-          <span role="img" aria-label={envName} tabIndex={0} className="h-2 w-12 shrink-0 rounded bg-agent outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
+          <span role="img" aria-label={envName} tabIndex={0} className="env-mark h-2 w-12 shrink-0 rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
         </Tooltip>
       ) : null}
       <div className="flex-1" />
@@ -295,7 +295,7 @@ export function PlatformBar({
           </Tooltip>
           <Menu.Portal>
             <Menu.Positioner align="end" sideOffset={4} className="z-50">
-              <Menu.Popup className={cn("anim-fade panel panel-float min-w-48 p-1 text-ink outline-none")}>
+              <Menu.Popup className={cn("anim-fade panel-inverse panel-float min-w-48 p-1 text-ink outline-none")}>
                 <div className="px-2 py-1 text-ink-muted">{user.email ?? user.name}</div>
                 <Menu.Separator className="my-1 h-px bg-line" />
                 {profileHref ? (
