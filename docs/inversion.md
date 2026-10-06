@@ -11,7 +11,7 @@ The design language reverses the page's colours on whatever the person is on or 
 | Class | What it is |
 |---|---|
 | `.panel-inverse` | A floating surface (popover, tooltip, menu, dialog, toast, the palette), reversed always, no border |
-| `.invert` | Reversed now: an active row |
+| `.reversed` | Reversed now: an active row. Not `.invert`: Tailwind has a utility of that name (`filter: invert(1)`), which inverts the painted pixels a second time and undoes the reversal |
 | `.hover-invert` | Reverses while hovered: a card, a checkbox |
 | `.reverses` | Reverses while hovered, dragged, focused or open: a slider thumb |
 | `.btn`, `.input` | Reverse by themselves: a button hovered or open, a single-line input focused or open (a textarea drops to the page colour) |

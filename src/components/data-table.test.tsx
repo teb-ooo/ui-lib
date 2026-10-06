@@ -272,8 +272,8 @@ describe("DataTable row affordance", () => {
   });
   it("the active row is marked apart from hover", () => {
     render(<DataTable {...base} activeKey="b" onRowClick={() => undefined} />);
-    expect(rowOf("Beta").className.split(" ")).toContain("invert");
-    expect(rowOf("Alpha").className.split(" ")).not.toContain("invert");
+    expect(rowOf("Beta").className.split(" ")).toContain("reversed");
+    expect(rowOf("Alpha").className.split(" ")).not.toContain("reversed");
   });
 });
 

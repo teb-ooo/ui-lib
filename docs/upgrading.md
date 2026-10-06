@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.83.1 (from 0.83.0)
+
+Fix: the active row of a `DataTable` was drawn un-reversed (black in dark mode, white in light) because its class was named `invert`, which is also a Tailwind utility (`filter: invert(1)`) that inverted the reversed row again. The class is `reversed` now. **An app that put `className="invert"` on its own surface following the docs of 0.71 to 0.83 must change it to `reversed`** (search for `"invert"` and `invert ` in class names); until then that surface shows Tailwind's pixel inversion, not the theme's reversal.
+
 ## To ui 0.82.0 (from 0.81.x)
 
 New: `form.options.<field>.also`, fixed values offered before the list's own items. Nothing to change.

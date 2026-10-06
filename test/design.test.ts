@@ -145,8 +145,13 @@ describe("design language", () => {
   it("reverses surfaces only through the REVERSAL classes, never with its own hover colours", () => {
     expectNone(
       find(/(?<![\w-])(?:hover|focus|focus-within|data-\[(?:popup-open|dragging)\]):(?:bg-ink|text-ground|border-ground)(?![\w-])/),
-      "give the element .hover-invert, .reverses or .invert (see REVERSAL in theme.css, docs/inversion.md)",
+      "give the element .hover-invert, .reverses or .reversed (see REVERSAL in theme.css, docs/inversion.md)",
     );
+  });
+
+  it("names none of its own classes after a Tailwind utility: `.invert` would add Tailwind's invert(1) filter and undo the reversal", () => {
+    const css = readFileSync(THEME_PATH, "utf8");
+    expect(css.match(/\.(?:invert|blur|grayscale|sepia|opacity|hidden|block|flex|grid)(?![\w-])/gu) ?? []).toEqual([]);
   });
 
   it("has no raw <button outside component sources", () => {

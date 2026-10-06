@@ -1092,14 +1092,14 @@ input.display-lg {
  * It lives in the utilities layer so it beats a component's own background and border utilities. To make something
  * reverse, give it a class from this list; do not write hover colours in a component.
  *   .panel-inverse  a floating surface (popover, tooltip, menu, dialog, toast): reversed always
- *   .invert         reversed now (an active row)
+ *   .reversed       reversed now (an active row); not the bare word "invert": Tailwind has a filter utility of that name, which inverts the painted pixels again
  *   .hover-invert   reverses while hovered (a card, a checkbox)
  *   .reverses       reverses while hovered, dragged, focused or open (a slider thumb)
  *   .btn, .input    reverse by themselves: a button hovered or open, an input focused or open
  */
 @layer utilities {
   .panel-inverse,
-  .invert,
+  .reversed,
   .hover-invert:hover:not([data-disabled], :disabled),
   .reverses:is(:hover, :focus-within, [data-dragging], [data-popup-open]):not([data-disabled], :disabled),
   .btn:is(:hover, [data-popup-open], [aria-expanded="true"]):not(:disabled, [data-disabled], [aria-disabled="true"]),
