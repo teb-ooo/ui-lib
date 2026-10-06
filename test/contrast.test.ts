@@ -64,22 +64,32 @@ describe.each([
   });
 });
 
-describe("the reversed token set (REVERSAL in theme.css)", () => {
+describe("the reversal token sets (REVERSAL in theme.css)", () => {
   const css = readFileSync(join(root, "theme.css"), "utf8");
-  const block = css.slice(css.indexOf("@layer utilities {"));
-  const decls = Object.fromEntries([...block.matchAll(/(--color-[\w-]+):\s*([^;]+);/g)].map((m) => [m[1] ?? "", (m[2] ?? "").trim()]));
+  const layer = css.slice(css.indexOf("@layer utilities {"));
+  const marks = [...layer.matchAll(/\/\* REVERSAL depth (\d): [^*]*\*\//g)];
+  const section = (i: number) => layer.slice(marks[i]!.index!, marks[i + 1]?.index ?? layer.indexOf("/* A tinted button fills"));
+  const decls = (text: string) => Object.fromEntries([...text.matchAll(/(--color-[\w-]+):\s*([^;]+);/g)].map((m) => [m[1] ?? "", (m[2] ?? "").trim()]));
+  // [depth index, which scheme's value a light page gets, which a dark page gets]
+  const sets = [
+    ["depth 1 is reversed", 0, blocks.dark, blocks.light],
+    ["depth 2 restores the page's own tokens", 1, blocks.light, blocks.dark],
+    ["depth 3 is reversed again", 2, blocks.dark, blocks.light],
+  ] as const;
 
-  it("defines every colour token", () => {
-    for (const n of COLOR_TOKENS) expect(decls[`--color-${n}`], `--color-${n}`).toBeDefined();
+  it("writes out three levels, in order", () => {
+    expect(marks.map((m) => m[1])).toEqual(["1", "2", "3"]);
   });
-  it("is exactly the opposite scheme: light-dark(<dark value>, <light value>) for each token", () => {
+  it.each(sets)("%s: every colour token is light-dark(<for a light page>, <for a dark page>)", (_name, level, forLight, forDark) => {
+    const d = decls(section(level));
     for (const n of COLOR_TOKENS) {
       const key = `--color-${n}`;
-      const v = decls[key] ?? "";
+      expect(d[key], key).toBeDefined();
+      const v = d[key] ?? "";
       const m = /^light-dark\((.+),\s*(.+)\)$/.exec(v);
-      const [forLight, forDark] = m ? [m[1]?.trim(), m[2]?.trim()] : [v, v];
-      expect(forLight, `${key} in a light page is the dark set's value`).toBe(blocks.dark[key]);
-      expect(forDark, `${key} in a dark page is the light set's value`).toBe(blocks.light[key]);
+      const [light, dark] = m ? [m[1]?.trim(), m[2]?.trim()] : [v, v];
+      expect(light, `${key} in a light page`).toBe(forLight[key]);
+      expect(dark, `${key} in a dark page`).toBe(forDark[key]);
     }
   });
 });

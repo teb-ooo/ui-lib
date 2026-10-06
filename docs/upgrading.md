@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.84.0 (from 0.83.x)
+
+Reversal is relative now: a reversal inside a reversed surface restores the page's own look (a hovered button in a reversed row is dark on a light row, in a dark page), and a third level reverses again. Before, any reversal inside a reversed surface repeated the same colours, so a hovered button in a reversed row or popup became invisible (white on white). Nothing to change in code; a screen that relied on the old behaviour (a hovered button inside a popover or an active row) now looks as a button on the page does. New: the Reversal entry in the gallery.
+
 ## To ui 0.83.1 (from 0.83.0)
 
 Fix: the active row of a `DataTable` was drawn un-reversed (black in dark mode, white in light) because its class was named `invert`, which is also a Tailwind utility (`filter: invert(1)`) that inverted the reversed row again. The class is `reversed` now. **An app that put `className="invert"` on its own surface following the docs of 0.71 to 0.83 must change it to `reversed`** (search for `"invert"` and `invert ` in class names); until then that surface shows Tailwind's pixel inversion, not the theme's reversal.
