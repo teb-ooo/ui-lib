@@ -233,14 +233,15 @@ export function PlatformBar({
         </Icon>
       ) : null}
       <span className="truncate px-1 text-ink uppercase">{appName}</span>
-      {dot ? (
-        <LiveIndicator status={dot} tip className="size-7 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
-      ) : null}
       {marked ? (
         <Tooltip tip={envName} side="bottom">
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- focusable so its tooltip (the only text) is reachable by keyboard */}
           <span role="img" aria-label={envName} tabIndex={0} className="env-mark h-2 w-12 shrink-0 rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
         </Tooltip>
+      ) : null}
+      {/* After the environment mark, so the dot appearing and disappearing moves nothing that is already there. */}
+      {dot ? (
+        <LiveIndicator status={dot} tip className="size-7 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
       ) : null}
       <div className="flex-1" />
       {!user ? null : agentStatus ? (

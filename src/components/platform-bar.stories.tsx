@@ -23,10 +23,10 @@ Production.storyMeta = { description: "Production, someone who is not the owner,
 export const SignedOut = () => <PlatformBar {...base} env="staging" user={null} />;
 SignedOut.storyMeta = { description: "Signed out: the person icon becomes Sign in." } satisfies StoryMeta;
 
-export const Degraded = () => <PlatformBar {...base} live="degraded" user={{ name: "sam" }} />;
+export const Degraded = () => <PlatformBar {...base} env="staging" live="degraded" user={{ name: "sam" }} />;
 Degraded.storyMeta = { description: "Live updates are not connected: the dot appears on the left, after the name, as a ring. Connected shows nothing." } satisfies StoryMeta;
 
-export const Reconnecting = () => <PlatformBar {...base} live="reconnecting" user={{ name: "sam" }} />;
+export const Reconnecting = () => <PlatformBar {...base} env="staging" live="reconnecting" user={{ name: "sam" }} />;
 Reconnecting.storyMeta = { description: "Reconnecting: a pulsing dot in the warning colour." } satisfies StoryMeta;
 
 export const Phone = () => (

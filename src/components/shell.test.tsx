@@ -344,6 +344,19 @@ describe("PlatformBar", () => {
     }
   });
 
+  it("puts the live dot after the environment mark, so the dot coming and going moves nothing already on the bar", () => {
+    const { rerender } = render(<PlatformBar {...base} env="staging" live="live" />);
+    const bar = screen.getByRole("banner");
+    const markAt = () => [...bar.children].indexOf(screen.getByRole("img", { name: "Staging" }));
+    const before = markAt();
+    rerender(<PlatformBar {...base} env="staging" live="degraded" />);
+    const dot = screen.getByRole("status");
+    expect(markAt()).toBe(before); // the mark did not move
+    expect([...bar.children].indexOf(dot)).toBe(markAt() + 1); // the dot comes right after it
+    rerender(<PlatformBar {...base} env="staging" live="live" />);
+    expect(markAt()).toBe(before);
+  });
+
   it("shows the menu icon only when asked and the feedback icon only when given a handler", () => {
     const props = { appName: "a", live: "live" as const, user: { name: "a" }, signOutHref: "/o", signInHref: "/i", onOpenPalette: () => undefined };
     const { rerender } = render(<PlatformBar {...props} />);
