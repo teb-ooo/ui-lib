@@ -70,6 +70,8 @@ export type { PlatformBarProps } from "./components/platform-bar";
 export { CommandHostContext } from "./components/command-host";
 export type { CommandHost } from "./components/command-host";
 export type { ShellProps } from "./components/shell";
+export { StatusMark } from "./components/status-mark";
+export type { MarkStatus, StatusMarkProps } from "./components/status-mark";
 export { Switch } from "./components/switch";
 export type { SwitchProps } from "./components/switch";
 export { FilePicker } from "./components/file-picker";

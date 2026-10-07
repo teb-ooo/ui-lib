@@ -1,8 +1,10 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { setViewportWidth } from "../../test/cmdk/viewport";
 import { DataTable } from "./data-table";
 import { EmptyState } from "./empty-state";
+import { StatusMark } from "./status-mark";
 import { useState } from "react";
 import type { Column } from "./data-table";
 
@@ -428,5 +430,42 @@ describe("data table layout", () => {
     expect(root.className).toContain("flex-initial");
     expect(root.className.split(" ")).not.toContain("h-full");
     expect(root.getAttribute("data-bleed")).toBe("");
+  });
+});
+
+describe("DataTable rotated columns (a matrix)", () => {
+  const checks = ["Backups", "Certificates", "Disk space"];
+  const matrix: Column<Row>[] = [
+    { id: "name", header: "Time", cell: (r) => r.name, width: "8rem" },
+    ...checks.map((c): Column<Row> => ({ id: c, header: c, width: "2.5rem", align: "center", rotate: true, hideable: false, cell: (r) => <StatusMark status={r.id === "b" ? "fail" : "ok"} label={`${c}: ${r.id === "b" ? "failed" : "ok"}`} /> })),
+  ];
+
+  it("writes a rotated header vertically in a taller header row, and keeps the full name for assistive technology", () => {
+    render(<DataTable {...base} columns={matrix} />);
+    const header = screen.getByRole("columnheader", { name: "Backups" });
+    expect(header.querySelector("span")?.className).toContain("writing-mode:vertical-rl");
+    expect(header.parentElement?.className).toContain("min-h-");
+    expect(header.parentElement?.className).not.toContain(" h-[var(--control-h)]");
+    // an ordinary header row keeps its single row height
+    const plain = render(<DataTable {...base} />);
+    expect(plain.container.querySelector('[role="row"]')?.className).toContain("h-[var(--control-h)]");
+  });
+
+  it("shows the full header on focus, so a keyboard user can read a cut one", async () => {
+    render(<DataTable {...base} columns={matrix} />);
+    const header = screen.getByRole("columnheader", { name: "Certificates" });
+    const stop = header.querySelector("span") as HTMLElement;
+    expect(stop.tabIndex).toBe(0);
+    // Tab as a keyboard user does, until the header holds focus (the tooltip opens for keyboard focus, not for a script's).
+    for (let i = 0; i < 6 && document.activeElement !== stop; i++) await userEvent.tab();
+    expect(document.activeElement).toBe(stop);
+    expect((await screen.findAllByText("Certificates")).length).toBeGreaterThan(1); // the header and its tooltip
+  });
+
+  it("centres the cells, and each mark has an accessible name", () => {
+    render(<DataTable {...base} columns={matrix} />);
+    expect(screen.getAllByRole("img", { name: "Backups: ok" })).toHaveLength(2);
+    expect(screen.getByRole("img", { name: "Backups: failed" })).toBeTruthy();
+    expect(screen.getAllByRole("gridcell")[1]?.className).toContain("text-center");
   });
 });

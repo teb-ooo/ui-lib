@@ -850,6 +850,16 @@ List and detail. Side by side from `lg` up; below it the list fills the screen a
 - `closeLabel?`: `string`, default "Close". Label of the sheet's close button.
 - `className?`: `string`
 
+### StatusMark
+
+component: `import { StatusMark } from "@teb-ooo/ui"`
+
+A small state mark for a cell of a dense table or matrix (a run against its checks): an icon in the state's colour, with an accessible name. Colour is never the only signal: each state has its own shape. Pair it with `DataTable` columns of `width: "2.5rem"`, `align: "center"` and `rotate`.
+
+- `status`: `MarkStatus`. `ok` passed (a check), `fail` failed (a cross), `info` worth a look but not a failure (an i), `none` not run or not applicable (a dash).
+- `label?`: `string`, default the status word. What the mark says, as its accessible name: "Backups: ok". A mark is read by screen readers and found by tests through this, because the colour and the icon alone say nothing.
+- `className?`: `string`
+
 ### SuggestionList
 
 component: `import { SuggestionList } from "@teb-ooo/ui"`
@@ -990,6 +1000,7 @@ Saved filter views. It only shows them and asks; the app keeps the list and what
 - `GraphNode`
 - `LaidOutNode`
 - `LiveStatus`
+- `MarkStatus`
 - `MediaItem`
 - `MediaKind`
 - `MenuAction`: A row that does something when chosen.

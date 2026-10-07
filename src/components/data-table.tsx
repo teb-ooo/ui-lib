@@ -9,6 +9,7 @@ import { readStoredJson, writeStoredJson } from "../lib/storage";
 import { Button } from "./button";
 import { ErrorState } from "./query-state";
 import { Checkbox } from "./checkbox";
+import { Tooltip } from "./tooltip";
 
 export interface Column<T> {
   id: string;
@@ -18,7 +19,15 @@ export interface Column<T> {
   sortable?: boolean;
   /** A CSS length or an fr value such as "12rem" or "2fr". Default "1fr" (at least 8rem). */
   width?: string;
-  align?: "start" | "end";
+  /** Where the header and the cells sit in the column: `center` suits a column of small marks (a status icon). @default "start" */
+  align?: "start" | "end" | "center";
+  /**
+   * The header text is written vertically, reading upward, so a column of small marks can be as narrow as the mark
+   * (`width: "2.5rem"`, `align: "center"`) and still be named: a matrix of runs by checks. The header row grows to the
+   * longest such header (up to 8rem, then it is cut with an ellipsis); the full header is shown in a tooltip on hover and
+   * on focus, so a rotated header takes a Tab stop. For a short string header: a header with other content stays upright.
+   */
+  rotate?: boolean;
   /**
    * How many lines the cell may take before it is cut with an ellipsis. With 2 or 3 the rows of a table of up to 100 rows
    * grow to fit (a list of sentences); above 100 rows the table is windowed on a fixed row height and every cell is one line.
@@ -363,6 +372,13 @@ export function DataTable<T>({
   useLayoutEffect(() => {
     setRowH(1.75 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16));
   }, []);
+  // The header row is one row high, unless a column has a rotated header: then it is as tall as the longest one.
+  const headerRow = useRef<HTMLDivElement>(null);
+  const [headerH, setHeaderH] = useState(0);
+  useLayoutEffect(() => {
+    const h = headerRow.current?.offsetHeight ?? 0;
+    if (h !== headerH) setHeaderH(h);
+  });
   useEffect(() => {
     const el = scroller.current;
     if (!el || typeof ResizeObserver === "undefined") return;
@@ -431,8 +447,9 @@ export function DataTable<T>({
     if (!el) return;
     if (virtual) {
       const idx = rows.indexOf(row);
+      const head = headerH || rowH;
       if (idx * rowH < el.scrollTop) el.scrollTop = idx * rowH;
-      else if ((idx + 2) * rowH > el.scrollTop + el.clientHeight) el.scrollTop = (idx + 2) * rowH - el.clientHeight;
+      else if (head + (idx + 1) * rowH > el.scrollTop + el.clientHeight) el.scrollTop = head + (idx + 1) * rowH - el.clientHeight;
     } else {
       document.getElementById(rowId(key))?.scrollIntoView?.({ block: "nearest" });
     }
@@ -617,6 +634,7 @@ export function DataTable<T>({
             checkNearEnd();
           }}
           onKeyDown={onKeyDown}
+          style={headerH > 0 ? { scrollPaddingTop: headerH } : undefined}
           className={cn(
             "min-h-0 overflow-auto outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ink-muted",
             fit ? "flex-initial" : "flex-1",
@@ -671,8 +689,9 @@ export function DataTable<T>({
             <div role="presentation" style={{ minWidth }}>
               <div
                 role="row"
+                ref={headerRow}
                 style={rowStyle}
-                className={cn("sticky top-0 z-10 grid h-[var(--control-h)] items-center border-b border-line bg-ground", bleed && "px-2 md:px-4")}
+                className={cn("sticky top-0 z-10 grid border-b border-line bg-ground", shown.some((c) => c.rotate) ? "min-h-[var(--control-h)] items-end py-1" : "h-[var(--control-h)] items-center", bleed && "px-2 md:px-4")}
               >
                 {selectable ? (
                   <div role="columnheader" className="flex items-center justify-center">
@@ -691,9 +710,16 @@ export function DataTable<T>({
                       key={c.id}
                       role="columnheader"
                       aria-sort={c.sortable ? (dir === "asc" ? "ascending" : dir === "desc" ? "descending" : "none") : undefined}
-                      className={cn("relative flex min-w-0 items-center px-2 text-ink-muted uppercase", c.align === "end" && "justify-end")}
+                      className={cn("relative flex min-w-0 items-center px-2 text-ink-muted uppercase", c.align === "end" && "justify-end", c.align === "center" && "justify-center", c.rotate && "items-end")}
                     >
-                      {c.sortable ? (
+                      {c.rotate && !c.sortable ? (
+                        <Tooltip tip={c.header}>
+                          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the full header is shown on focus, so a keyboard user can read a cut one */}
+                          <span tabIndex={0} className="max-h-32 truncate rounded outline-none [writing-mode:vertical-rl] rotate-180 focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ink-muted">
+                            {c.header}
+                          </span>
+                        </Tooltip>
+                      ) : c.sortable ? (
                         <Button
                           className="-mx-2 border-transparent uppercase"
                           onClick={() => cycleSort(c)}
@@ -773,7 +799,7 @@ export function DataTable<T>({
                             </div>
                           ) : null}
                           {shown.map((c) => (
-                            <div key={c.id} role="gridcell" className={cn("min-w-0 px-2", !virtual && c.lines === 2 ? "line-clamp-2 break-words" : !virtual && c.lines === 3 ? "line-clamp-3 break-words" : "truncate", c.align === "end" && "text-right")}>
+                            <div key={c.id} role="gridcell" className={cn("min-w-0 px-2", !virtual && c.lines === 2 ? "line-clamp-2 break-words" : !virtual && c.lines === 3 ? "line-clamp-3 break-words" : "truncate", c.align === "end" && "text-right", c.align === "center" && "text-center")}>
                               {c.cell(row)}
                             </div>
                           ))}

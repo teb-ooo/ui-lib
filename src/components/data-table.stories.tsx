@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { Chip } from "./chip";
 import { DataTable } from "./data-table";
+import { StatusMark } from "./status-mark";
+import type { MarkStatus } from "./status-mark";
 import type { Column, Sort } from "./data-table";
 import type { ChipTone } from "./chip";
 import type { StoryDefault, StoryMeta } from "../stories";
@@ -284,3 +286,54 @@ export const WrappedLines = () => {
   );
 };
 WrappedLines.storyMeta = { description: "`lines: 2` on a column lets a long sentence take two lines (then an ellipsis) and the row grows to fit." } satisfies StoryMeta;
+
+// A matrix: a row per run, a column per check. The set of checks comes from the server, so the columns are built from it.
+const CHECKS = ["Backups", "Certificates", "Disk space", "DNS", "Identity", "Live stream", "Logs", "Mail", "Memory", "Migrations", "Passkeys", "Queue", "Search", "Secrets", "Sessions", "Storage", "Uptime"];
+interface Run {
+  id: string;
+  time: string;
+  trigger: string;
+  result: string;
+  marks: MarkStatus[];
+}
+const RUNS: Run[] = Array.from({ length: 30 }, (_, i) => {
+  const marks = CHECKS.map((_, c): MarkStatus => ((i * 7 + c * 3) % 23 === 0 ? "fail" : (i + c) % 11 === 0 ? "info" : (i * 5 + c) % 13 === 0 ? "none" : "ok"));
+  return { id: `run-${i + 1}`, time: `2026-10-0${(i % 7) + 1} ${String(8 + (i % 12)).padStart(2, "0")}:${String((i * 7) % 60).padStart(2, "0")}`, trigger: ["schedule", "deploy", "manual"][i % 3] as string, result: marks.includes("fail") ? "failed" : "passed", marks };
+});
+const matrixColumns: Column<Run>[] = [
+  { id: "time", header: "Time", width: "10rem", cell: (r) => r.time },
+  { id: "trigger", header: "Trigger", width: "6rem", hideBelow: "md", cell: (r) => r.trigger },
+  ...CHECKS.map(
+    (name, c): Column<Run> => ({ id: `check-${c}`, header: name, width: "2.5rem", align: "center", rotate: true, hideable: false, cell: (r) => <StatusMark status={r.marks[c] ?? "none"} label={`${name}: ${r.marks[c] === "fail" ? "failed" : r.marks[c] === "info" ? "info" : r.marks[c] === "none" ? "not run" : "ok"}`} /> }),
+  ),
+  { id: "result", header: "Result", width: "6rem", cell: (r) => <Chip tone={r.result === "failed" ? "danger" : "ok"}>{r.result}</Chip> },
+];
+
+export const Matrix = () => {
+  const [active, setActive] = useState<string | null>("run-2");
+  return (
+    <div className="h-96 w-full">
+      <DataTable
+        label="Runs by check"
+        columns={matrixColumns}
+        rows={RUNS}
+        rowKey={(r) => r.id}
+        activeKey={active}
+        onActiveKeyChange={setActive}
+        renderCard={(r) => (
+          <div className="flex flex-col gap-1">
+            <span className="flex items-center justify-between gap-2">
+              <span className="text-ink">{r.time}</span>
+              <Chip tone={r.result === "failed" ? "danger" : "ok"}>{r.result}</Chip>
+            </span>
+            <span className="text-ink-muted">{r.trigger}</span>
+            <span className="flex flex-wrap gap-1">
+              {r.marks.map((m, c) => (m === "ok" ? null : <StatusMark key={CHECKS[c]} status={m} label={`${CHECKS[c]}: ${m === "fail" ? "failed" : m === "info" ? "info" : "not run"}`} />))}
+            </span>
+          </div>
+        )}
+      />
+    </div>
+  );
+};
+Matrix.storyMeta = { description: "A run per row and a check per column (the checks come from the server): columns of width 2.5rem, align center and rotate, so the header names read upward and the full name shows on hover or focus; each cell is a StatusMark with an accessible name. The first and last columns stay normal; the table scrolls sideways inside its pane, keeps the keyboard row selection, and below the md breakpoint shows cards that list only the marks that are not ok." } satisfies StoryMeta;
