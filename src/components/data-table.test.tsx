@@ -171,9 +171,10 @@ describe("DataTable pagination", () => {
     expect(onLoadMore).not.toHaveBeenCalled();
   });
 
-  it("offers a rows-per-page select when page sizes are given", () => {
-    render(<DataTable {...base} pagination={page({ pageSizes: [25, 50, 100], onPageSizeChange: () => undefined })} />);
-    expect(screen.getByRole("combobox", { name: "Rows per page" })).toBeTruthy();
+  it("offers no rows-per-page choice: the app picks the page size", () => {
+    render(<DataTable {...base} pagination={page({})} />);
+    expect(screen.queryByRole("combobox", { name: "Rows per page" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Next page" })).toBeTruthy();
   });
 });
 

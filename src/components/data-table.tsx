@@ -9,7 +9,6 @@ import { readStoredJson, writeStoredJson } from "../lib/storage";
 import { Button } from "./button";
 import { ErrorState } from "./query-state";
 import { Checkbox } from "./checkbox";
-import { Select } from "./select";
 
 export interface Column<T> {
   id: string;
@@ -48,6 +47,10 @@ export interface Sort {
 export interface Pagination {
   /** The page shown, counting from 0. */
   page: number;
+  /**
+   * The most rows a page holds. The app picks the one that suits the table (a dense list of one-line rows can take 100,
+   * a table of tall rows 25); the person is not offered a choice, so there is no rows-per-page control.
+   */
   pageSize: number;
   /** Rows matching the filters on the server, not the rows loaded. */
   total: number;
@@ -60,9 +63,6 @@ export interface Pagination {
    */
   hasNext?: boolean;
   onPageChange: (page: number) => void;
-  /** Giving this with `pageSizes` adds a rows-per-page select. */
-  onPageSizeChange?: (pageSize: number) => void;
-  pageSizes?: number[];
 }
 
 export interface DataTableProps<T> {
@@ -799,19 +799,6 @@ export function DataTable<T>({
               {pagination.total === 0 ? "0 of 0" : `${rangeStart}-${rangeEnd} of ${pagination.total}${pagination.totalIsLowerBound ? "+" : ""}`}
             </span>
             <div className="ml-auto flex items-center gap-2">
-              {pagination.onPageSizeChange && pagination.pageSizes ? (
-                <div className="w-24">
-                  <Select
-                    label="Rows per page"
-                    options={pagination.pageSizes.map((n) => ({
-                      value: String(n),
-                      label: String(n),
-                    }))}
-                    value={String(pagination.pageSize)}
-                    onValueChange={(v) => v && pagination.onPageSizeChange?.(Number(v))}
-                  />
-                </div>
-              ) : null}
               <Button
                 icon={<ChevronLeft aria-hidden="true" className="size-4" />}
                 tip="Previous page"

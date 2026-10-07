@@ -117,7 +117,7 @@ ColumnMenu.storyMeta = { description: "Giving onColumnVisibilityChange adds a Co
 export const Paginated = () => {
   const total = 3455;
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(100);
+  const pageSize = 100;
   const rows = useMemo(() => makeItems(Math.max(0, Math.min(pageSize, total - page * pageSize)), page * pageSize), [page, pageSize]);
   return (
     <div className="h-96">
@@ -131,11 +131,6 @@ export const Paginated = () => {
           pageSize,
           total,
           onPageChange: setPage,
-          pageSizes: [25, 50, 100],
-          onPageSizeChange: (n) => {
-            setPageSize(n);
-            setPage(0);
-          },
         }}
       />
     </div>
@@ -143,7 +138,7 @@ export const Paginated = () => {
 };
 Paginated.storyMeta = {
   description:
-    'pagination: the table shows the page it is given and a footer says "1-100 of 3455" (the server\'s total) with Previous, Next and a rows-per-page select. Alt+PageUp and Alt+PageDown change page. totalIsLowerBound shows "500+".',
+    'pagination: the table shows the page it is given and a footer says "1-100 of 3455" (the server\'s total) with Previous and Next (the app chooses the page size, so there is no rows-per-page select). Alt+PageUp and Alt+PageDown change page. totalIsLowerBound shows "500+".',
 } satisfies StoryMeta;
 
 export const PaginatedBleed = () => {

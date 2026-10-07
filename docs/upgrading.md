@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.88.0 (from 0.87.x)
+
+**Breaking, small:** `DataTable` has no rows-per-page select any more, and `Pagination` loses `pageSizes` and `onPageSizeChange`. The app picks the one `pageSize` that suits the table (100 for a dense list of one-line rows, 25 for tall ones); the person is not offered a choice. Remove `pageSizes` and `onPageSizeChange` from any `pagination` object you build by hand; a table fed by `useListTable` from `@teb-ooo/web` 0.10.0 needs nothing (that release drops them from the hook too: remove the `pageSizes` option, and a `limit` in the address is ignored). The `@teb-ooo/web` peer is now `^0.9.10 || ^0.10.0`.
+
 ## To ui 0.87.3 (from 0.84.0 to 0.87.2)
 
 Fix, take it at once: from 0.84.0 to 0.87.2 `theme.css` wrote the relative reversal as nested rules, and an app's CSS tooling (Tailwind with lightningcss) flattened them into every combination of the parent selectors, so the built CSS grew from about 80 kB to 4.4 MB (62 kB gzip) in every app, on every page. The levels are written flat now and the built CSS is back to its old size; `test/theme-size.test.ts` builds the block the way an app does and refuses a result more than four times what was written. An app on 0.84.0 to 0.87.2 can check `dist/assets/*.css`: anything near 4 MB is this.
