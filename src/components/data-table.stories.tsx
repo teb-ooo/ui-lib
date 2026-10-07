@@ -336,4 +336,4 @@ export const Matrix = () => {
     </div>
   );
 };
-Matrix.storyMeta = { description: "A run per row and a check per column (the checks come from the server): columns of width 2.5rem, align center and rotate, so the header names read upward and the full name shows on hover or focus; each cell is a StatusMark with an accessible name. The first and last columns stay normal; the table scrolls sideways inside its pane, keeps the keyboard row selection, and below the md breakpoint shows cards that list only the marks that are not ok." } satisfies StoryMeta;
+Matrix.storyMeta = { description: "A run per row and a check per column (the checks come from the server): columns of width 2.5rem, align center and rotate, so the header names rise at 45 degrees and the full name shows on hover or focus; each cell is a StatusMark with an accessible name. The first and last columns stay normal; the table scrolls sideways inside its pane, keeps the keyboard row selection, and below the md breakpoint shows cards that list only the marks that are not ok." } satisfies StoryMeta;

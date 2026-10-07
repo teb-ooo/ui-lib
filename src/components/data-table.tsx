@@ -22,10 +22,12 @@ export interface Column<T> {
   /** Where the header and the cells sit in the column: `center` suits a column of small marks (a status icon). @default "start" */
   align?: "start" | "end" | "center";
   /**
-   * The header text is written vertically, reading upward, so a column of small marks can be as narrow as the mark
-   * (`width: "2.5rem"`, `align: "center"`) and still be named: a matrix of runs by checks. The header row grows to the
-   * longest such header (up to 8rem, then it is cut with an ellipsis); the full header is shown in a tooltip on hover and
-   * on focus, so a rotated header takes a Tab stop. For a short string header: a header with other content stays upright.
+   * The header text is written at 45 degrees, rising from the column's centre to the right, so a column of small marks
+   * can be as narrow as the mark (`width: "2.5rem"`, `align: "center"`) and still be named: a matrix of runs by checks.
+   * The header row grows to the longest such header (up to 24 characters, then it is cut with an ellipsis); the full
+   * header is shown in a tooltip on hover and on focus, so a rotated header takes a Tab stop. Meant for short string
+   * headers. The labels rise into the space above the columns to the right, so keep the columns after the last
+   * rotated one (a result) short-headed.
    */
   rotate?: boolean;
   /**
@@ -570,6 +572,11 @@ export function DataTable<T>({
 
   // The Columns button is the last cell of the header row, so every row carries one more (empty) track.
   const menuCell = hasColumnMenu && !cards;
+  // A header row with angled headers is as tall as the longest label needs: a monospaced label of n characters at 45
+  // degrees rises about 0.71 n characters, plus the mark's own row.
+  const angled = shown.filter((c) => c.rotate);
+  const angledLen = Math.max(0, ...angled.map((c) => Math.min(24, typeof c.header === "string" ? c.header.length : 12)));
+  const headerMinHeight = angledLen > 0 ? `calc(${(angledLen * 0.71).toFixed(2)}ch + 1.5rem)` : undefined;
   const template = [
     selectable ? CHECK_WIDTH : null,
     ...shown.map((c) => (widths[c.id] !== undefined ? `${widths[c.id]}px` : trackOf(c))),
@@ -690,8 +697,8 @@ export function DataTable<T>({
               <div
                 role="row"
                 ref={headerRow}
-                style={rowStyle}
-                className={cn("sticky top-0 z-10 grid border-b border-line bg-ground", shown.some((c) => c.rotate) ? "min-h-[var(--control-h)] items-end py-1" : "h-[var(--control-h)] items-center", bleed && "px-2 md:px-4")}
+                style={headerMinHeight ? { ...rowStyle, minHeight: headerMinHeight } : rowStyle}
+                className={cn("sticky top-0 z-10 grid border-b border-line bg-ground", angledLen > 0 ? "items-end" : "h-[var(--control-h)] items-center", bleed && "px-2 md:px-4")}
               >
                 {selectable ? (
                   <div role="columnheader" className="flex items-center justify-center">
@@ -710,12 +717,12 @@ export function DataTable<T>({
                       key={c.id}
                       role="columnheader"
                       aria-sort={c.sortable ? (dir === "asc" ? "ascending" : dir === "desc" ? "descending" : "none") : undefined}
-                      className={cn("relative flex min-w-0 items-center px-2 text-ink-muted uppercase", c.align === "end" && "justify-end", c.align === "center" && "justify-center", c.rotate && "items-end")}
+                      className={cn("relative flex min-w-0 items-center px-2 text-ink-muted uppercase", c.align === "end" && "justify-end", c.align === "center" && "justify-center", c.rotate && "h-[var(--control-h)]")}
                     >
                       {c.rotate && !c.sortable ? (
                         <Tooltip tip={c.header}>
                           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the full header is shown on focus, so a keyboard user can read a cut one */}
-                          <span tabIndex={0} className="max-h-32 truncate rounded outline-none [writing-mode:vertical-rl] rotate-180 focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ink-muted">
+                          <span tabIndex={0} className="absolute bottom-1 left-1/2 max-w-[24ch] origin-bottom-left -rotate-45 truncate rounded px-0.5 whitespace-nowrap outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ink-muted">
                             {c.header}
                           </span>
                         </Tooltip>

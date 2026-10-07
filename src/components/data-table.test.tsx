@@ -440,12 +440,13 @@ describe("DataTable rotated columns (a matrix)", () => {
     ...checks.map((c): Column<Row> => ({ id: c, header: c, width: "2.5rem", align: "center", rotate: true, hideable: false, cell: (r) => <StatusMark status={r.id === "b" ? "fail" : "ok"} label={`${c}: ${r.id === "b" ? "failed" : "ok"}`} /> })),
   ];
 
-  it("writes a rotated header vertically in a taller header row, and keeps the full name for assistive technology", () => {
+  it("writes a rotated header at 45 degrees in a header row as tall as the longest label needs, and keeps the full name for assistive technology", () => {
     render(<DataTable {...base} columns={matrix} />);
     const header = screen.getByRole("columnheader", { name: "Backups" });
-    expect(header.querySelector("span")?.className).toContain("writing-mode:vertical-rl");
-    expect(header.parentElement?.className).toContain("min-h-");
+    expect(header.querySelector("span")?.className).toContain("-rotate-45");
     expect(header.parentElement?.className).not.toContain(" h-[var(--control-h)]");
+    // "Certificates" is the longest label (12 characters): 0.71 of a character per character, plus a row
+    expect(header.parentElement?.style.minHeight).toBe("calc(8.52ch + 1.5rem)");
     // an ordinary header row keeps its single row height
     const plain = render(<DataTable {...base} />);
     expect(plain.container.querySelector('[role="row"]')?.className).toContain("h-[var(--control-h)]");
