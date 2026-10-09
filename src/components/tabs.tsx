@@ -45,31 +45,32 @@ export interface TabsProps {
 
 /**
  * Tabs: a row of tabs and one panel at a time. Left and Right (and Home and End) move between tabs, the chosen tab sits on a raised
- * pill that zips (stretches and bounces) from tab to tab, and on a narrow screen the row scrolls sideways instead of wrapping. Use `ToggleGroup` to filter, not to
+ * pill that zips from tab to tab (it squashes while it moves, then springs back), and on a narrow screen the row scrolls sideways instead of wrapping. Use `ToggleGroup` to filter, not to
  * switch panels.
  */
 export function Tabs({ tabs, value, onValueChange, label, activation = "automatic", keepMounted = false, fill = false, gutter = false, className }: TabsProps) {
   const indicator = useRef<HTMLSpanElement>(null);
-  const first = useRef(true);
-  // The pill zips: it stretches and leans while it travels, then settles with a small bounce (left and width are the
-  // transition; this is the squash on top).
+  const previous = useRef<number | null>(null);
+  const index = tabs.findIndex((t) => t.value === value);
+  // The pill squashes while it travels: shorter and a little wider, more so the further it goes, quickly and then held; it
+  // springs back to full size before it arrives. left and width are the transition; this is the squash on top.
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
+    const from = previous.current;
+    previous.current = index;
     const el = indicator.current;
-    if (!el || typeof el.animate !== "function" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (from === null || from === index || !el || typeof el.animate !== "function" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const distance = Math.abs(index - from);
+    const squash = `scale(${1 + Math.min(distance, 6) / 40}, ${1 - Math.min(distance, 6) / 15})`;
     el.animate(
       [
-        { transform: "scaleX(1) skewX(0deg)" },
-        { transform: "scaleX(1.18) skewX(-14deg)", offset: 0.35 },
-        { transform: "scaleX(0.96) skewX(4deg)", offset: 0.75 },
-        { transform: "scaleX(1) skewX(0deg)" },
+        { transform: "scale(1, 1)", easing: "ease-out" },
+        { transform: squash, offset: 0.25 },
+        { transform: squash, offset: 0.7, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+        { transform: "scale(1, 1)" },
       ],
-      { duration: 380, easing: "ease-out" },
+      { duration: 420 },
     );
-  }, [value]);
+  }, [index]);
   return (
     <BaseTabs.Root value={value} onValueChange={(v) => onValueChange(String(v))} className={cn("flex min-h-0 flex-col", className)}>
       <BaseTabs.List

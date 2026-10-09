@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.93.0 (from 0.92.x)
+
+`Tabs`: the pill's motion now squashes it (shorter and a little wider, more the further it travels) and springs it back to full size instead of leaning it. No change for apps.
+
 ## To ui 0.92.0 (from 0.91.x)
 
 `Card` no longer has its own background: it is the page's colour with the border, like the page around it (ui-3w0k). Nothing to change; the `active` card keeps its raised fill.

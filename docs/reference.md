@@ -899,7 +899,7 @@ Also accepts the props of `Omit<BaseSwitch.Root.Props, "className" | "children" 
 
 component: `import { Tabs } from "@teb-ooo/ui"`
 
-Tabs: a row of tabs and one panel at a time. Left and Right (and Home and End) move between tabs, the chosen tab sits on a raised pill that zips (stretches and bounces) from tab to tab, and on a narrow screen the row scrolls sideways instead of wrapping. Use `ToggleGroup` to filter, not to switch panels.
+Tabs: a row of tabs and one panel at a time. Left and Right (and Home and End) move between tabs, the chosen tab sits on a raised pill that zips from tab to tab (it squashes while it moves, then springs back), and on a narrow screen the row scrolls sideways instead of wrapping. Use `ToggleGroup` to filter, not to switch panels.
 
 - `tabs`: `readonly TabItem[]`
 - `value`: `string`. The chosen tab's `value`.
