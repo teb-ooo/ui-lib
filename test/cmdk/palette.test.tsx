@@ -584,3 +584,32 @@ describe("testing the palette under jsdom", () => {
     expect(await screen.findByRole("dialog")).toBeTruthy();
   });
 });
+
+describe("the empty palette's order and the route opt-out", () => {
+  it("leads with the app's own groups; Go to, General and Platform follow; a query keeps best-match order", async () => {
+    const user = userEvent.setup();
+    await renderApp({
+      extra: <Registrar commands={[{ ...cmd("Add a note"), group: "Notes" }, { ...cmd("Platform thing"), group: "Platform" }]} />,
+    });
+    await openPalette(user);
+    const groups = within(screen.getByRole("listbox")).getAllByRole("group").map((g) => g.getAttribute("aria-label") ?? g.textContent ?? "");
+    const at = (name: string) => groups.findIndex((g) => g.includes(name));
+    expect(at("Notes")).toBeGreaterThanOrEqual(0);
+    expect(at("Notes")).toBeLessThan(at("Go to"));
+    expect(at("Go to")).toBeLessThan(at("Platform"));
+  });
+
+  it("a route with staticData palette:false is not listed under Go to", async () => {
+    const user = userEvent.setup();
+    const { navigationCommands } = await import("../../src/cmdk/builtins");
+    const router = {
+      routesByPath: {
+        "/games": { options: { staticData: { title: "Games" } } },
+        "/enter": { options: { staticData: { title: "Enter", palette: false } } },
+      },
+      navigate: () => undefined,
+    } as never;
+    expect(navigationCommands(router).map((c) => c.title)).toEqual(["Games"]);
+    void user;
+  });
+});

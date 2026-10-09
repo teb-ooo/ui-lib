@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.110.0 (from 0.109.x)
+
+Cmd+K: (1) the empty palette leads with the app's own groups, then Go to, General and Platform (it was the order of registration); (2) a route can opt out of "Go to" with `staticData: { palette: false }` (public pages, or a route you list yourself: add it on `/enter`, `/invite`, and wherever you register your own "Go to ..." command to stop the duplicate); (3) the links to the platform's other tools (dashboard, work tracker, design system) are for the owner and admins only: a player or member now sees only My profile (diplomacy). Platform bar: on a phone its icons are real 44 by 44px buttons (the bar stays 36px tall; they overlap its edges), not a hit area (diplomacy). Nothing else to change.
+
 ## To ui 0.109.1 (from 0.109.0)
 
 The platform bar is back to one 36px line on a phone (0.109.0 made it 56px): its icons keep their size and get a 36 by 44px hit area instead.

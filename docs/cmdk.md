@@ -50,6 +50,8 @@ function ItemsPage() {
 
 **Previewing a choice.** A command that opens a nested view (`children`, or a `run` that returns a list) may have `onHighlight(command | null)`: it is called with the command highlighted in that view each time the highlight moves (arrow keys or pointer), with the first one as the view opens, and with `null` when the view is left (Backspace, the breadcrumb, Escape) or the palette closes. Preview a colour preset in it and undo the preview on `null`; do nothing slow or irreversible there, and do not watch the palette's DOM.
 
+**What the empty palette shows.** Recent commands first, then the app's own groups (the commands a page registers, `x-palette` actions for the current route), then the generic groups: "Go to" (one command per route of the router), General and Platform. A query ranks by best match as before. A route is left out of "Go to" with `staticData: { palette: false }` on the route: use it for a public page (sign-in, an invitation) and for a route the app lists itself, so one destination is not offered twice. Only the owner and admins get the platform's other tools (dashboard, work tracker, design system); everyone signed in gets My profile.
+
 Sign out, Profile and Send feedback are platform commands the `Shell` registers; `CommandProvider` has no `signOutPath` and there is no `useFeedbackCommand` (both removed in 0.70.0). `CommandTrigger` is for the gallery only: the bar has the trigger.
 
 **Search sources (0.27.0).** Registered commands are a fixed list, filtered in the browser. To make the palette search an app's own listing or search API (jump to an entry, an issue, a note), register a source where the data's screen lives:

@@ -27,6 +27,9 @@ export interface PaletteModel {
   rows: PaletteRow[];
 }
 
+/** Groups the palette puts last on an empty query, in this order. */
+const TAIL = ["Go to", "General", "Platform"];
+
 export interface ModelInput {
   query: string;
   /** Commands of the current view (root: every available command). */
@@ -74,5 +77,13 @@ export function buildPaletteModel({ query, commands, recents, root, external = [
     sections.push({ group: ext.group, rows, ...(ext.status === "done" ? {} : { status: ext.status }) });
   }
 
+  // The empty palette leads with what the app offers here (its own groups, the current page's commands); the generic groups
+  // (every route, General, Platform) follow. A query keeps the order of the best match.
+  if (q === "" && root) {
+    const rank = (g: string): number => (g === "Recent" ? -1 : TAIL.indexOf(g) + 1);
+    sections.sort((a, b) => rank(a.group) - rank(b.group));
+    let n = 0;
+    for (const s of sections) for (const r of s.rows) r.index = n++;
+  }
   return { sections, rows: sections.flatMap((s) => s.rows) };
 }

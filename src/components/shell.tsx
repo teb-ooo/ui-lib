@@ -51,7 +51,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
   const feedback = useFeedback();
   const [agentOpen, setAgentOpen] = useState(false);
   const agent = useAgentStatus({ fast: agentOpen });
-  usePlatformCommands({ signedIn: user !== null && user !== undefined, feedback });
+  usePlatformCommands({ signedIn: user !== null && user !== undefined, admin: Boolean(user && (user.is_admin || user.is_owner)), feedback });
   const next = encodeURIComponent(typeof window === "undefined" ? "/" : window.location.pathname + window.location.search);
   const profile = platformLinks().find((l) => l.id === "platform:profile");
   return (

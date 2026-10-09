@@ -56,7 +56,7 @@ export interface PlatformBarProps {
 }
 
 const iconButton =
-  "relative inline-flex size-7 shrink-0 cursor-pointer before:absolute before:-inset-x-1 before:-inset-y-2 before:content-[''] sm:before:hidden items-center justify-center rounded border-0 bg-transparent p-0 text-ink-muted outline-none transition-colors hover:bg-surface-raised hover:text-ink focus-visible:bg-surface-raised focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink-muted";
+  "relative isolate inline-flex size-7 shrink-0 cursor-pointer items-center max-sm:size-11 max-sm:-my-2 before:hidden max-sm:before:block before:absolute before:inset-2 before:-z-10 before:rounded before:content-[''] max-sm:hover:bg-transparent max-sm:focus-visible:bg-transparent max-sm:hover:before:bg-surface-raised max-sm:focus-visible:before:bg-surface-raised max-sm:focus-visible:ring-0 max-sm:focus-visible:before:ring-1 before:ring-ink-muted justify-center rounded border-0 bg-transparent p-0 text-ink-muted outline-none transition-colors hover:bg-surface-raised hover:text-ink focus-visible:bg-surface-raised focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink-muted";
 
 function Icon({ tip, shortcut, children, ...rest }: { tip: string; shortcut?: string; children: ReactNode } & Record<string, unknown>) {
   return (

@@ -21,6 +21,8 @@ const icons: Record<string, CommandIcon> = {
 export interface PlatformCommandsInput {
   /** Whether someone is signed in (Sign out only then). */
   signedIn: boolean;
+  /** Whether the person is the owner or an admin: only they get the links to the platform's other tools (dashboard, tracker, design system). Everyone signed in gets their profile. @default false */
+  admin?: boolean;
   /** `useFeedback()`'s `available` and `open`. */
   feedback: { available: boolean; open: () => void };
 }
@@ -59,7 +61,7 @@ export const navigation = {
  * and the platform's other apps. They are registered by `Shell` under their own group, so no app registers them and no
  * app can remove them.
  */
-export function platformCommands({ signedIn, feedback }: PlatformCommandsInput): Command[] {
+export function platformCommands({ signedIn, admin = false, feedback }: PlatformCommandsInput): Command[] {
   return [
     {
       id: "platform:sign-out",
@@ -70,7 +72,9 @@ export function platformCommands({ signedIn, feedback }: PlatformCommandsInput):
       when: () => signedIn,
       run: () => navigation.go(LOGOUT_PATH),
     },
-    ...platformLinks().map(
+    ...platformLinks()
+      .filter((l) => l.id === "platform:profile" || admin)
+      .map(
       (l): Command => ({
         id: l.id,
         title: l.title,
@@ -125,5 +129,5 @@ export function usePlatformCommands(input: PlatformCommandsInput): void {
       h.unregister();
     };
   }, [host?.register]); // eslint-disable-line react-hooks/exhaustive-deps -- `register` is stable
-  useEffect(() => handle.current?.update(), [input.signedIn, input.feedback.available]);
+  useEffect(() => handle.current?.update(), [input.signedIn, input.admin, input.feedback.available]);
 }

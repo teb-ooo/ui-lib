@@ -189,7 +189,16 @@ describe("Shell", () => {
     await userEvent.keyboard("{Control>}k{/Control}");
     const palette = await screen.findByRole("dialog");
     expect(within(palette).queryByText("Sign out")).toBeNull();
-    expect(within(palette).getByText("Go to dashboard")).toBeTruthy();
+    // the platform's other tools are for the owner and admins only
+    expect(within(palette).queryByText("Go to dashboard")).toBeNull();
+  });
+
+  it("a member gets My profile but not the links to the platform's other tools", async () => {
+    mount(member);
+    await waitFor(() => expect(screen.getByRole("button", { name: "Account" })).toBeTruthy());
+    const palette = await openPalette();
+    await waitFor(() => expect(within(palette).getByText("My profile")).toBeTruthy());
+    for (const t of ["Go to dashboard", "Go to work tracker", "Go to design system"]) expect(within(palette).queryByText(t)).toBeNull();
   });
 
   it("the person menu has My profile and Sign out", async () => {

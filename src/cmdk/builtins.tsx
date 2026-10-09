@@ -17,9 +17,11 @@ export function isNavigableRoute(path: string): boolean {
 /** One "Go to" command per navigable route of the app's router. */
 export function navigationCommands(router: AnyRouter | undefined): Command[] {
   if (!router) return [];
-  const byPath = router.routesByPath as Record<string, { options?: { staticData?: { title?: string } } } | undefined>;
+  const byPath = router.routesByPath as Record<string, { options?: { staticData?: { title?: string; palette?: boolean } } } | undefined>;
   return Object.keys(byPath)
     .filter(isNavigableRoute)
+    // A route opts out with `staticData: { palette: false }`: a public page, or one the app lists itself.
+    .filter((path) => byPath[path]?.options?.staticData?.palette !== false)
     .sort((a, b) => a.localeCompare(b))
     .map((path): Command => {
       const title = byPath[path]?.options?.staticData?.title;
