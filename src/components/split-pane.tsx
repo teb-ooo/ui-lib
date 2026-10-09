@@ -28,13 +28,14 @@ export interface SplitPaneProps {
   resizable?: boolean;
   /**
    * The list's width in rem at narrow desktop widths. Until the person moves the divider the list grows with the screen,
-   * to 38% of the pane and no further than `maxSize`, so a wide screen is not mostly an empty detail area.
+   * to 38% of the pane and no further than 48rem (or `maxSize` if that is smaller), so a wide screen is not mostly an empty
+   * detail area.
    * @default 28
    */
   defaultSize?: number;
-  /** @default 16 */
+  /** The narrowest the list can be dragged, in rem. Deliberately small: the person decides. @default 6 */
   minSize?: number;
-  /** @default 48 */
+  /** The widest the list can be dragged, in rem. It can never take the room the detail needs (6rem stays), whatever this says. @default 96 */
   maxSize?: number;
   /** Called with the list width in rem after each change. */
   onSizeChange?: (rem: number) => void;
@@ -48,6 +49,8 @@ export interface SplitPaneProps {
   className?: string;
 }
 
+const DETAIL_MIN = 6;
+const AUTO_MAX = 48;
 const STEP = 1;
 
 /** List and detail. Side by side from `lg` up; below it the list fills the screen and the detail opens as a full-screen sheet. */
@@ -60,8 +63,8 @@ export function SplitPane({
   placeholder,
   resizable = false,
   defaultSize = 28,
-  minSize = 16,
-  maxSize = 48,
+  minSize = 6,
+  maxSize = 96,
   onSizeChange,
   persistKey,
   closeLabel = "Close",
@@ -81,8 +84,14 @@ export function SplitPane({
   const sizeRef = useRef(size);
   const dragging = useRef<{ startX: number; startSize: number } | null>(null);
 
+  const root = useRef<HTMLDivElement | null>(null);
+  // The list never takes the last 6rem of the pane: the detail always keeps a usable strip, whatever maxSize says.
+  const room = () => {
+    const w = root.current?.getBoundingClientRect().width ?? 0;
+    return w > 0 ? Math.max(minSize, w / remPx() - DETAIL_MIN) : maxSize;
+  };
   const change = (rem: number) => {
-    const next = Math.min(maxSize, Math.max(minSize, rem));
+    const next = Math.min(maxSize, room(), Math.max(minSize, rem));
     sizeRef.current = next;
     setSized(true);
     setSize(next);
@@ -138,8 +147,8 @@ export function SplitPane({
   };
 
   return (
-    <div className={cn("flex h-full min-h-0", className)}>
-      <div className="min-h-0 shrink-0" style={{ width: sized ? `${size}rem` : `clamp(${defaultSize}rem, 38%, ${maxSize}rem)` }}>
+    <div ref={root} className={cn("flex h-full min-h-0", className)}>
+      <div className="min-h-0 shrink-0" style={{ width: sized ? `${size}rem` : `clamp(${defaultSize}rem, 38%, ${Math.min(maxSize, AUTO_MAX)}rem)` }}>
         {list}
       </div>
       {resizable ? (

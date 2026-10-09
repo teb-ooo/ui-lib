@@ -46,3 +46,16 @@ describe("SplitPane responsive width", () => {
     expect(listWidth()).toBe("21rem");
   });
 });
+
+describe("SplitPane limits", () => {
+  it("lets the divider go far: the defaults are 6rem to 96rem, and the keys reach them", () => {
+    render(<SplitPane list={<p>list</p>} detail={<p>detail</p>} detailOpen detailLabel="Detail" onDetailClose={() => undefined} resizable />);
+    const sep = screen.getByRole("separator");
+    expect(sep.getAttribute("aria-valuemin")).toBe("6");
+    expect(sep.getAttribute("aria-valuemax")).toBe("96");
+    fireEvent.keyDown(sep, { key: "Home" });
+    expect(listWidth()).toBe("6rem");
+    fireEvent.keyDown(sep, { key: "End" });
+    expect(listWidth()).toBe("96rem");
+  });
+});

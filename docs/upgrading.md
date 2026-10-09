@@ -6,6 +6,12 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.103.0 (from 0.102.x)
+
+`Chip tone="muted"` has a background now (the raised surface, with the muted ink): without one it read as plain text, not a chip (ui-rm2j). That includes the unlocked chip of the lock toggle.
+
+`SplitPane`: the divider's default limits are 6rem to 96rem (they were 16 and 48), and the list can never take the last 6rem of the pane from the detail (ui-6mqa). An app that relied on the old limits passes `minSize={16} maxSize={48}`. The automatic width at wide screens still stops at 48rem. A saved width outside the old range is now kept.
+
 ## To ui 0.102.0 (from 0.101.x)
 
 New: `Column.tone` on `DataTable`, a status column whose whole cell is painted in the state colour instead of holding a chip (ui-00s1). Optional: swap a status `Chip` for it. A toast's tone is a bar down its left edge drawn as its own element (the colour did not show in light mode before), and a one-line toast is centred vertically (ui-zbc5). Nothing to change.

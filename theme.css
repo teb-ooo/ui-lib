@@ -407,7 +407,8 @@ input.display-lg {
   }
   .chip-muted {
     border-color: transparent;
-    color: var(--color-ink-faint);
+    background: var(--color-surface-raised);
+    color: var(--color-ink-muted);
   }
   .chip-ok {
     border-color: var(--color-ok-line);

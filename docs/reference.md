@@ -865,9 +865,9 @@ List and detail. Side by side from `lg` up; below it the list fills the screen a
 - `detailLabel`: `string`. Accessible name of the detail area and of the sheet.
 - `placeholder?`: `ReactNode`. What the wide detail area shows while nothing is open.
 - `resizable?`: `boolean`, default false. Lets the list width be dragged, or changed with the arrow keys on the handle.
-- `defaultSize?`: `number`, default 28. The list's width in rem at narrow desktop widths. Until the person moves the divider the list grows with the screen, to 38% of the pane and no further than `maxSize`, so a wide screen is not mostly an empty detail area.
-- `minSize?`: `number`, default 16
-- `maxSize?`: `number`, default 48
+- `defaultSize?`: `number`, default 28. The list's width in rem at narrow desktop widths. Until the person moves the divider the list grows with the screen, to 38% of the pane and no further than 48rem (or `maxSize` if that is smaller), so a wide screen is not mostly an empty detail area.
+- `minSize?`: `number`, default 6. The narrowest the list can be dragged, in rem. Deliberately small: the person decides.
+- `maxSize?`: `number`, default 96. The widest the list can be dragged, in rem. It can never take the room the detail needs (6rem stays), whatever this says.
 - `onSizeChange?`: `(rem: number) => void`. Called with the list width in rem after each change.
 - `persistKey?`: `string`. Saves the list width in `localStorage` under this key when the divider is moved, restores it (within min and max) on the next visit, and a double-click on the divider resets it to `defaultSize` and forgets it.
 - `closeLabel?`: `string`, default "Close". Label of the sheet's close button.
