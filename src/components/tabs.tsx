@@ -65,7 +65,7 @@ export function Tabs({ tabs, value, onValueChange, label, activation = "automati
       [
         { transform: "scale(1, 1)", easing: "ease-out" },
         { transform: squash, offset: 0.25 },
-        { transform: squash, offset: 0.7, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+        { transform: squash, offset: 0.7, easing: "cubic-bezier(0.34, 1.3, 0.64, 1)" },
         { transform: "scale(1, 1)" },
       ],
       { duration: 420 },
@@ -76,7 +76,7 @@ export function Tabs({ tabs, value, onValueChange, label, activation = "automati
       <BaseTabs.List
         aria-label={label}
         activateOnFocus={activation === "automatic"}
-        className={cn("relative flex shrink-0 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", gutter && "px-1 md:px-3")}
+        className={cn("relative -mx-2 flex shrink-0 gap-1 overflow-x-auto px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", gutter && "px-3 md:px-5")}
       >
         {tabs.map((t) => (
           <BaseTabs.Tab
@@ -95,7 +95,7 @@ export function Tabs({ tabs, value, onValueChange, label, activation = "automati
         ))}
         <BaseTabs.Indicator
           ref={indicator}
-          className="absolute top-(--active-tab-top) left-(--active-tab-left) h-(--active-tab-height) w-(--active-tab-width) rounded border border-line bg-surface-raised transition-[left,width] duration-[360ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none"
+          className="absolute top-(--active-tab-top) left-(--active-tab-left) h-(--active-tab-height) w-(--active-tab-width) rounded border border-line bg-surface-raised transition-[left,width] duration-[360ms] ease-[cubic-bezier(0.34,1.3,0.64,1)] motion-reduce:transition-none"
         />
       </BaseTabs.List>
       {tabs.map((t) => (

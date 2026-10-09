@@ -485,6 +485,22 @@ function: `import { layoutRings } from "@teb-ooo/ui"`
 
 Concentric rings, the same picture for the same input: the centre in the middle, hop 1 evenly spaced on the first ring, hop 2 on the next ring ordered by the angle of its hop-1 neighbours (so lines rarely cross), and so on. The rings are ellipses that use the width, grow in height with the node count, and keep every label inside the box.
 
+### LineChart
+
+component: `import { LineChart } from "@teb-ooo/ui"`
+
+A line chart of one to four series over time: a legend, axis ticks, and a readout of every series' value at a point that follows the pointer or the Left, Right, Home and End keys (the plot takes focus; Escape clears the point). The lines use the ink tones with distinct dash patterns, so colour is never the only difference. A visually hidden summary (the range, the lowest, the highest and the latest value of each series) is the text alternative. It draws SVG itself and adds no dependency. For a single quantity against a scale use `Meter`.
+
+- `label`: `string`. What the chart shows; its accessible name.
+- `series`: `readonly ChartSeries[]`. One to four lines. They differ by dash pattern and shade as well as by name, never by colour alone.
+- `formatValue?`: `(value: number, series: ChartSeries) => string`, default the number. Turns a value into the text on the axis, the readout and the summary, for example `(v) => `${v} %``.
+- `domain?`: `readonly [number, number]`, default 0 to the largest value, rounded up to a round number. The value range of the y axis.
+- `formatTime?`: `(ms: number, spanMs: number) => string`, default clock time up to two days, else the date. Turns a time (epoch milliseconds) into an axis label; the second argument is the span shown in milliseconds.
+- `loading?`: `boolean`, default false. Shows a placeholder instead of the lines while the data loads.
+- `emptyText?`: `string`, default "No data". The text when there are no points.
+- `height?`: `number`, default 200. Height of the plot in pixels.
+- `className?`: `string`
+
 ### LinkButton
 
 component: `import { LinkButton } from "@teb-ooo/ui"`
@@ -990,6 +1006,8 @@ Saved filter views. It only shows them and asks; the app keeps the list and what
 - `AvatarSize`
 - `Breakpoint`
 - `ButtonIntent`
+- `ChartPoint`
+- `ChartSeries`
 - `ChipColor`
 - `ChipTone`: `warn` is the old spelling of `warning`, accepted until the next minor release.
 - `Column`

@@ -6,6 +6,12 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.94.0 (from 0.93.x)
+
+`Tabs`: the pill's bounce is no longer clipped at the ends of the row (the row has 8px of room each side, taken back with a negative margin so nothing moves; `gutter` still lines the first tab's text up with the page gutter) and overshoots less (ui-ct1g).
+
+New: `LineChart` (ah-2z3). Nothing to change.
+
 ## To ui 0.93.0 (from 0.92.x)
 
 `Tabs`: the pill's motion now squashes it (shorter and a little wider, more the further it travels) and springs it back to full size instead of leaning it. No change for apps.

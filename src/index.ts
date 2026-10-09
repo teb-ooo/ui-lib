@@ -105,6 +105,8 @@ export { Tabs } from "./components/tabs";
 export type { TabsProps, TabItem } from "./components/tabs";
 export { Accordion, Collapsible } from "./components/accordion";
 export type { AccordionProps, AccordionItem, CollapsibleProps } from "./components/accordion";
+export { LineChart } from "./components/line-chart";
+export type { LineChartProps, ChartSeries, ChartPoint } from "./components/line-chart";
 export { Meter } from "./components/meter";
 export type { MeterProps, MeterZone, MeterTone } from "./components/meter";
 export { Sheet } from "./components/sheet";
