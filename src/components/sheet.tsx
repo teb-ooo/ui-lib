@@ -75,7 +75,7 @@ export function Sheet({ open, defaultOpen, onOpenChange, trigger, title, descrip
             // phone: bottom sheet
             "inset-x-0 bottom-0 max-h-[85dvh] w-full rounded-b-none border-b-0",
             // from lg: a full-height side panel
-            "lg:inset-y-0 lg:bottom-auto lg:max-h-none lg:w-96 lg:rounded-none lg:border-y-0",
+            "lg:inset-y-0 lg:max-h-none lg:w-96 lg:rounded-none lg:border-y-0",
             side === "right" ? "lg:right-0 lg:left-auto lg:border-r-0" : "lg:left-0 lg:right-auto lg:border-l-0",
             className,
           )}

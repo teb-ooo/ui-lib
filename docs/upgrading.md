@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.105.1 (from 0.105.0)
+
+Fix: the `Sheet` side panel from `lg` is full height again (it was as tall as its content, so a long body never scrolled: `lg:bottom-auto` undid `lg:inset-y-0`). An app that worked around it with `lg:bottom-0!` can drop that (lyapunov).
+
 ## To ui 0.105.0 (from 0.104.x)
 
 New: `FrequencyInput` takes a `ref` with `edit()` to open its editor from a command, so no key event has to be faked (waves-x1d). Nothing to change.
