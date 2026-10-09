@@ -577,6 +577,25 @@ input.display-lg {
       0 20px 25px -5px light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.4)),
       0 8px 10px -6px light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.4));
   }
+  /*
+   * ColorPicker: the saturation and brightness square (the hue is `--hue`, set by the component) and the hue bar. These are
+   * drawn colours, not theme colours, so they stay the same in light and dark. The thumb is a white ring with a dark edge so it
+   * reads on any colour.
+   */
+  .color-square {
+    background:
+      linear-gradient(to top, #000000, transparent),
+      linear-gradient(to right, #ffffff, hsl(var(--hue) 100% 50%));
+  }
+  .color-hue {
+    background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+  }
+  .color-thumb {
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.55);
+  }
+
   .panel-inverse {
     border-radius: var(--radius);
   }

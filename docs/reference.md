@@ -158,6 +158,18 @@ One section that opens and closes: an `Accordion` with a single item.
 - `disabled?`: `boolean`
 - `className?`: `string`
 
+### ColorPicker
+
+component: `import { ColorPicker } from "@teb-ooo/ui"`
+
+A colour picker: a square for saturation (across) and brightness (up), a hue bar and a hex field, with the colour shown beside the field. It gives and takes `#rrggbb` (`hexToRgb` and `rgbToHex` convert to and from 0 to 255 RGB). Drag or tap the square and the bar, or focus them and use the arrow keys (Shift moves ten times as far); the hex field takes `#rgb` or `#rrggbb` and is applied on Enter or when it loses focus. It is 16rem wide at most and fits a 390px phone, and it works inside a `Popover`.
+
+- `value`: `string`. The colour as `#rrggbb` (a `#rgb` or a value without `#` is accepted too).
+- `onValueChange`: `(hex: string) => void`. Called with a lower-case `#rrggbb` as the colour changes: every pointer move of a drag, each arrow key, and a typed hex when it is valid.
+- `onValueCommit?`: `(hex: string) => void`. Called once when a change is finished: a drag ends, an arrow key is pressed, a typed hex is accepted.
+- `label`: `string`. Accessible name of the picker, for example "Stop colour".
+- `className?`: `string`
+
 ### Combobox
 
 component: `import { Combobox } from "@teb-ooo/ui"`
@@ -397,6 +409,12 @@ An ego network: one node in the middle and what it relates to, one or two hops o
 function: `import { handleSuggestionKey } from "@teb-ooo/ui"`
 
 The key handling a caret-anchored list needs, for the editor's key hook (a suggestion plugin's `onKeyDown`). Up and Down move and wrap, Enter and Tab choose, Escape closes. Returns whether it handled the key.
+
+### hexToRgb
+
+function: `import { hexToRgb } from "@teb-ooo/ui"`
+
+`#rgb`, `#rrggbb` or the same without the `#` (any case) to RGB; `null` when it is not a colour.
 
 ### hopsFrom
 
@@ -718,6 +736,12 @@ Also accepts the props of `Common`.
 - `onValueCommit?`: `(value: [number, number]) => void`
 - `minGap?`: `number`, default 0. Least distance between the two thumbs, in the same unit as the value.
 
+### rgbToHex
+
+function: `import { rgbToHex } from "@teb-ooo/ui"`
+
+RGB (each 0 to 255, rounded and clamped) to a lower-case `#rrggbb`.
+
 ### SearchInput
 
 component: `import { SearchInput } from "@teb-ooo/ui"`
@@ -762,6 +786,7 @@ Also accepts the props of `AdornmentProps`.
 - `label`: `string`. Accessible name.
 - `placeholder?`: `string`. Shown while nothing is chosen.
 - `disabled?`: `boolean`
+- `onHighlight?`: `(value: string | null) => void`. Called with the value of the option that is pointed at or reached with the keys while the list is open, and with `null` when no option is highlighted or the list closes: to preview a choice and put things back on `null`.
 - `className?`: `string`
 
 ### Sheet

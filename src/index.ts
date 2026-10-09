@@ -51,6 +51,8 @@ export { useMediaQuery, useMinWidth, BREAKPOINTS } from "./hooks/use-media-query
 export type { Breakpoint } from "./hooks/use-media-query";
 export { VirtualList } from "./components/virtual-list";
 export type { VirtualListProps, VirtualListHandle } from "./components/virtual-list";
+export { ColorPicker, hexToRgb, rgbToHex } from "./components/color-picker";
+export type { ColorPickerProps } from "./components/color-picker";
 export { DataTable } from "./components/data-table";
 export type { DataTableProps, Column, Sort } from "./components/data-table";
 export { FilterBar } from "./components/filter-bar";

@@ -1,6 +1,7 @@
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useHighlight } from "../lib/use-highlight";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
@@ -22,12 +23,18 @@ export interface SelectProps extends AdornmentProps {
   /** Shown while nothing is chosen. */
   placeholder?: string;
   disabled?: boolean;
+  /**
+   * Called with the value of the option that is pointed at or reached with the keys while the list is open, and with `null`
+   * when no option is highlighted or the list closes: to preview a choice and put things back on `null`.
+   */
+  onHighlight?: (value: string | null) => void;
   className?: string;
 }
 
 /** Choose one option from a short list. For long lists that need searching use `Combobox`. */
-export function Select({ options, value, onValueChange, label, placeholder, disabled, className, startAdornment, endAdornment }: SelectProps) {
+export function Select({ options, value, onValueChange, label, placeholder, disabled, onHighlight, className, startAdornment, endAdornment }: SelectProps) {
   const container = usePortalContainer();
+  const highlightRef = useHighlight(onHighlight);
   return (
     <BaseSelect.Root items={options} value={value} onValueChange={onValueChange} disabled={disabled}>
       <BaseSelect.Trigger aria-label={label} className={cn("input flex w-56 max-w-full cursor-pointer items-center justify-between gap-2 text-left data-[disabled]:cursor-not-allowed", className)}>
@@ -41,11 +48,12 @@ export function Select({ options, value, onValueChange, label, placeholder, disa
       <BaseSelect.Portal container={container}>
         <BaseSelect.Positioner sideOffset={4} alignItemWithTrigger={false} className="z-50 outline-none">
           <BaseSelect.Popup className="anim-fade panel-inverse panel-float min-w-[var(--anchor-width)] p-1 text-ink outline-none">
-            <BaseSelect.List className="max-h-[min(20rem,var(--available-height))] overflow-y-auto">
+            <BaseSelect.List ref={highlightRef} className="max-h-[min(20rem,var(--available-height))] overflow-y-auto">
               {options.map((o) => (
                 <BaseSelect.Item
                   key={o.value}
                   value={o.value}
+                  data-option-value={o.value}
                   className="flex h-[var(--control-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised"
                 >
                   <BaseSelect.ItemText className="min-w-0 flex-1 truncate">{o.label}</BaseSelect.ItemText>
