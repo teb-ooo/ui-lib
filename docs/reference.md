@@ -396,7 +396,7 @@ The hero control of a tuner: the frequency in kHz as a large readout with two de
 - `playbackMode?`: `boolean`, default false. Playing back a recording (rewinding): the readout takes the warning colour.
 - `step?`: `number`, default 1. What an arrow key steps by, in kHz (Shift: `fineStep`, PageUp and PageDown: ten steps).
 - `fineStep?`: `number`, default 0.01. Shift and an arrow key.
-- `submitLabel?`: `string`, default "Set frequency". Label of the button under the edit field.
+- `submitLabel?`: `string`, default "Set frequency". Label of the button under the edit field (the editor is drawn over the readout; nothing around it moves).
 - `knobTip?`: `string`, default "Hold shift for fine tuning". Tooltip of the knob.
 - `knobSide?`: `"start" | "end"`, default "end". Which side of the number the knob sits on: `start` puts it before the number, `end` after the unit.
 - `className?`: `string`

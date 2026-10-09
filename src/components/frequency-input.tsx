@@ -29,7 +29,7 @@ export interface FrequencyInputProps {
   step?: number;
   /** Shift and an arrow key. @default 0.01 */
   fineStep?: number;
-  /** Label of the button under the edit field. @default "Set frequency" */
+  /** Label of the button under the edit field (the editor is drawn over the readout; nothing around it moves). @default "Set frequency" */
   submitLabel?: string;
   /** Tooltip of the knob. @default "Hold shift for fine tuning" */
   knobTip?: string;
@@ -288,28 +288,15 @@ export function FrequencyInput({
   );
   const tone = playbackMode ? "text-warning" : "text-ink";
   return (
-    <div ref={root} aria-disabled={inert || undefined} className={cn("inline-flex flex-col gap-2", dimmed && "pointer-events-none opacity-35", disabled && !dimmed && "pointer-events-none opacity-50", className)}>
+    <div ref={root} aria-disabled={inert || undefined} className={cn("relative inline-flex", dimmed && "pointer-events-none opacity-35", disabled && !dimmed && "pointer-events-none opacity-50", className)}>
       <div className={cn("flex items-center gap-3", optimistic && "opacity-50")}>
         {knobSide === "start" ? knob : null}
-        {editing ? (
-          <input
-            ref={field}
-            aria-label={`${label} in kHz`}
-            inputMode="numeric"
-            autoComplete="off"
-            value={mask(edit.digits)}
-            onChange={() => undefined}
-            onKeyDown={onFieldKey}
-            onFocus={(e) => {
-              if (edit.fresh) e.currentTarget.setSelectionRange(0, e.currentTarget.value.length);
-            }}
-            aria-invalid={!valid || undefined}
-            className="input display-lg h-auto w-[9ch] px-2 text-center tabular-nums"
-          />
-        ) : (
+        {/* The readout never leaves its place or size: while editing it is only hidden, and the editor is drawn over it. */}
+        <div className="relative">
           <div
             role="spinbutton"
-            tabIndex={inert ? -1 : 0}
+            tabIndex={inert || editing ? -1 : 0}
+            aria-hidden={editing || undefined}
             aria-label={label}
             aria-valuenow={value}
             aria-valuemin={min}
@@ -320,28 +307,43 @@ export function FrequencyInput({
             className={cn(
               "display-lg cursor-text rounded px-2 tabular-nums outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ink-muted",
               tone,
+              editing && "invisible",
             )}
           >
             {formatKhz(value)}
           </div>
-        )}
+          {editing ? (
+            <div className="panel panel-inverse panel-float absolute -top-2 -inset-x-3 z-30 flex flex-col gap-1 px-3 pt-2 pb-2">
+              <input
+                ref={field}
+                aria-label={`${label} in kHz`}
+                inputMode="numeric"
+                autoComplete="off"
+                value={mask(edit.digits)}
+                onChange={() => undefined}
+                onKeyDown={onFieldKey}
+                onFocus={(e) => {
+                  if (edit.fresh) e.currentTarget.setSelectionRange(0, e.currentTarget.value.length);
+                }}
+                aria-invalid={!valid || undefined}
+                className="input display-lg h-auto w-full px-2 text-center tabular-nums"
+              />
+              <Button intent="solid" disabled={!valid} onClick={submit} className="w-full">
+                {submitLabel}
+              </Button>
+              {!valid ? (
+                <span role="status" className="text-ink-faint">
+                  {`${min} to ${max} kHz`}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
         <span aria-hidden="true" className={cn("text-ink-faint", editing && "invisible")}>
           kHz
         </span>
         {knobSide === "end" ? knob : null}
       </div>
-      {editing ? (
-        <div className="flex flex-col gap-1">
-          <Button intent="solid" disabled={!valid} onClick={submit}>
-            {submitLabel}
-          </Button>
-          {!valid ? (
-            <span role="status" className="text-ink-faint">
-              {`${min} to ${max} kHz`}
-            </span>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 }
