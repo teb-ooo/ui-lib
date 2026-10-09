@@ -1,5 +1,6 @@
 export { Button } from "./components/button";
 export type { ButtonProps, ButtonIntent } from "./components/button";
+export type { AdornmentProps } from "./components/adornment";
 export { Input } from "./components/input";
 export type { InputProps } from "./components/input";
 export { Field } from "./components/field";

@@ -455,9 +455,9 @@ Up to two initials: first letters of the first two words, or the first two lette
 
 component: `import { Input } from "@teb-ooo/ui"`
 
-Text input. Inside a `Field` it picks up the id, description and invalid state automatically.
+Text input. Inside a `Field` it picks up the id, description and invalid state automatically. With a `startAdornment` or `endAdornment` the border belongs to a box that holds the adornment and the input ("LO" before the number, "kHz" after).
 
-Also accepts the props of `Omit<BaseInput.Props, "className">`.
+Also accepts the props of `Omit<BaseInput.Props, "className">`, `AdornmentProps`.
 
 - `className?`: `string`
 
@@ -591,7 +591,10 @@ component: `import { NumberField } from "@teb-ooo/ui"`
 
 A number typed or stepped: ArrowUp and ArrowDown step (Shift is a large step, Alt a small one), Home and End jump to the limits, typing is parsed in the person's locale, and the minus and plus buttons make it work on a touch screen. Digits are tabular so the figure does not shift as it changes.
 
+Also accepts the props of `AdornmentProps`.
+
 - `label`: `ReactNode`. Visible name, tied to the input.
+- `hideLabel?`: `boolean`, default false. Keep the label for screen readers only: the box then says what it is by an adornment ("LO") instead.
 - `value`: `number | null`. The number, or `null` while the box is empty.
 - `onValueChange`: `(value: number | null) => void`. Called as the number changes: typing (once it parses), the arrow keys, the steppers.
 - `onValueCommit?`: `(value: number | null) => void`. Called once when the person finishes: Enter, leaving the box, or letting go of a stepper. The moment to send a change that is expensive to apply.
@@ -760,6 +763,8 @@ Also accepts the props of `Omit<HTMLAttributes<HTMLElement>, "className" | "titl
 component: `import { Select } from "@teb-ooo/ui"`
 
 Choose one option from a short list. For long lists that need searching use `Combobox`.
+
+Also accepts the props of `AdornmentProps`.
 
 - `options`: `Option[]`
 - `value`: `string | null`. The chosen value, or null for none.
@@ -980,6 +985,7 @@ Saved filter views. It only shows them and asks; the app keeps the list and what
 ### Types
 
 - `AccordionItem`
+- `AdornmentProps`: What the controls that take adornments share.
 - `AlertTone`: `warn` is the old spelling of `warning`, accepted until the next minor release.
 - `AvatarSize`
 - `Breakpoint`

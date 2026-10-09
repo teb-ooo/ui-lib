@@ -35,3 +35,9 @@ Multiple.storyMeta = { description: "Each chosen option is a chip with a remove 
 
 export const Disabled = () => <Combobox label="Assignee" options={people} value={null} onValueChange={() => undefined} disabled />;
 Disabled.storyMeta = { state: "disabled" } satisfies StoryMeta;
+
+export const WithAdornment = () => {
+  const [value, setValue] = useState<string | null>(null);
+  return <Combobox label="Assignee" startAdornment="TO" options={people} value={value} onValueChange={setValue} />;
+};
+WithAdornment.storyMeta = { description: "startAdornment (and endAdornment): muted text inside the border before the typing; for multiple, before the chips." } satisfies StoryMeta;

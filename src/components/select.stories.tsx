@@ -31,3 +31,9 @@ export const Chosen = () => {
 
 export const Disabled = () => <Select label="Status" options={options} value={null} onValueChange={() => undefined} disabled />;
 Disabled.storyMeta = { state: "disabled" } satisfies StoryMeta;
+
+export const WithAdornment = () => {
+  const [value, setValue] = useState<string | null>("open");
+  return <Select label="Status" startAdornment="IS" options={options} value={value} onValueChange={setValue} />;
+};
+WithAdornment.storyMeta = { description: "startAdornment (and endAdornment): muted text inside the border before the chosen value. The select's label still names it." } satisfies StoryMeta;

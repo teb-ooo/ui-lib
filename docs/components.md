@@ -24,6 +24,9 @@ The look of `Button` for anchors: `intent`, `icon`, `active` (`aria-current="pag
 ## Input
 Text input on Base UI `Input`; ref to the `<input>`. Inside a `Field` it takes id, description and invalid state from the field.
 
+## Adornments (`startAdornment`, `endAdornment`)
+`Input`, `NumberField`, `Select` and `Combobox` (single and multiple) take `startAdornment` and `endAdornment`: muted text or an icon inside the border, before or after what is typed or chosen ("LO" and "HI" in a passband, "$", "USD"). They are decoration: hidden from assistive technology, they take no pointer input of their own (pressing one focuses the control), and the control keeps its accessible name from its label, which `Field hideLabel` (or `NumberField hideLabel`) keeps for screen readers when the adornment replaces the visible one: `<NumberField label="Low edge" hideLabel startAdornment="LO" unit="Hz" .../>`. With an adornment the border belongs to a box that holds the adornments and the bare input; without one the control is exactly what it was. `NumberField`'s `unit` still sits at the end, inside, after the number.
+
 ## Field
 Label, control, description and error, wired for assistive tech (label association, `aria-describedby`, `aria-invalid`, error in `role="alert"`).
 - `label: ReactNode` (required), `error?: ReactNode` (sets invalid), `description?: ReactNode`, `children`: the control.

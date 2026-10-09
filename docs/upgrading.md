@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.90.0 (from 0.89.x)
+
+New: `startAdornment` and `endAdornment` on `Input`, `NumberField`, `Select` and `Combobox`, and `hideLabel` on `NumberField` (waves-21l). Nothing to change: a control without an adornment renders as before.
+
 ## To ui 0.89.2 (from 0.89.1)
 
 A `DataTable` column with `rotate` writes its header at 45 degrees (rising to the right from the column's centre), not vertically as 0.89.0 and 0.89.1 did; the header row is as tall as the longest label needs. Nothing to change in code.

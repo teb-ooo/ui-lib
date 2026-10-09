@@ -3,9 +3,11 @@ import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { usePortalContainer } from "../lib/theme-scope";
+import { Adornment } from "./adornment";
+import type { AdornmentProps } from "./adornment";
 import type { Option } from "./select";
 
-interface Common {
+interface Common extends AdornmentProps {
   options: Option[];
   /** Accessible name. */
   label: string;
@@ -33,7 +35,7 @@ const itemClass =
 
 /** Search-as-you-type list for long option lists such as assignees or labels; with `multiple`, the chosen options show as chips. */
 export function Combobox(props: ComboboxProps) {
-  const { options, label, placeholder, emptyLabel = "No matches", disabled, className } = props;
+  const { options, label, placeholder, emptyLabel = "No matches", disabled, className, startAdornment, endAdornment } = props;
   const container = usePortalContainer();
   const items = useMemo(() => BaseCombobox.createItems(options, { getValue: (o) => o.value, getLabel: (o) => o.label }), [options]);
   const byValue = useMemo(() => new Map(options.map((o) => [o.value, o])), [options]);
@@ -64,6 +66,7 @@ export function Combobox(props: ComboboxProps) {
       <BaseCombobox.Root items={items} multiple value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
         <BaseCombobox.InputGroup className={cn("input flex h-auto min-h-[var(--control-h)] w-72 max-w-full flex-wrap items-center gap-1 py-[calc((var(--control-h)-1.6em-2px)/2)]", className)}>
           <BaseCombobox.Chips className="flex w-full flex-wrap items-center gap-1">
+            {startAdornment !== undefined ? <Adornment>{startAdornment}</Adornment> : null}
             {props.value.map((v) => (
               <BaseCombobox.Chip key={v} aria-label={byValue.get(v)?.label ?? v} className="chip h-5 gap-1 px-1.5 outline-none focus-within:border-line-strong">
                 {byValue.get(v)?.label ?? v}
@@ -73,7 +76,30 @@ export function Combobox(props: ComboboxProps) {
               </BaseCombobox.Chip>
             ))}
             <BaseCombobox.Input aria-label={label} placeholder={props.value.length > 0 ? "" : (placeholder ?? label)} className="min-w-16 flex-1 bg-transparent outline-none" />
+            {endAdornment !== undefined ? <Adornment>{endAdornment}</Adornment> : null}
           </BaseCombobox.Chips>
+        </BaseCombobox.InputGroup>
+        {list}
+      </BaseCombobox.Root>
+    );
+  }
+
+  if (startAdornment !== undefined || endAdornment !== undefined) {
+    // With an adornment the border belongs to the group, which holds the adornments, the input and the two buttons.
+    return (
+      <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
+        <BaseCombobox.InputGroup className={cn("input flex w-56 max-w-full items-center gap-2 pr-0", className)}>
+          {startAdornment !== undefined ? <Adornment>{startAdornment}</Adornment> : null}
+          <BaseCombobox.Input aria-label={label} placeholder={placeholder ?? label} className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-inherit outline-none" />
+          {endAdornment !== undefined ? <Adornment>{endAdornment}</Adornment> : null}
+          <div className="flex h-full shrink-0 items-center">
+            <BaseCombobox.Clear aria-label="Clear" className="flex size-7 cursor-pointer items-center justify-center text-ink-faint hover:text-ink">
+              <X aria-hidden="true" className="size-3" />
+            </BaseCombobox.Clear>
+            <BaseCombobox.Trigger aria-label="Open list" className="flex size-7 cursor-pointer items-center justify-center text-ink-faint hover:text-ink">
+              <ChevronDown aria-hidden="true" className="size-3" />
+            </BaseCombobox.Trigger>
+          </div>
         </BaseCombobox.InputGroup>
         {list}
       </BaseCombobox.Root>

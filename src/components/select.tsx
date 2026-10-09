@@ -2,6 +2,8 @@ import { Select as BaseSelect } from "@base-ui/react/select";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "../lib/cn";
 import { usePortalContainer } from "../lib/theme-scope";
+import { Adornment } from "./adornment";
+import type { AdornmentProps } from "./adornment";
 
 export interface Option {
   value: string;
@@ -10,7 +12,7 @@ export interface Option {
   count?: number;
 }
 
-export interface SelectProps {
+export interface SelectProps extends AdornmentProps {
   options: Option[];
   /** The chosen value, or null for none. */
   value: string | null;
@@ -24,12 +26,14 @@ export interface SelectProps {
 }
 
 /** Choose one option from a short list. For long lists that need searching use `Combobox`. */
-export function Select({ options, value, onValueChange, label, placeholder, disabled, className }: SelectProps) {
+export function Select({ options, value, onValueChange, label, placeholder, disabled, className, startAdornment, endAdornment }: SelectProps) {
   const container = usePortalContainer();
   return (
     <BaseSelect.Root items={options} value={value} onValueChange={onValueChange} disabled={disabled}>
       <BaseSelect.Trigger aria-label={label} className={cn("input flex w-56 max-w-full cursor-pointer items-center justify-between gap-2 text-left data-[disabled]:cursor-not-allowed", className)}>
-        <BaseSelect.Value placeholder={placeholder ?? label} className="truncate data-[placeholder]:text-ink-faint" />
+        {startAdornment !== undefined ? <Adornment>{startAdornment}</Adornment> : null}
+        <BaseSelect.Value placeholder={placeholder ?? label} className="min-w-0 flex-1 truncate data-[placeholder]:text-ink-faint" />
+        {endAdornment !== undefined ? <Adornment>{endAdornment}</Adornment> : null}
         <BaseSelect.Icon className="text-ink-faint">
           <ChevronDown aria-hidden="true" className="size-3" />
         </BaseSelect.Icon>

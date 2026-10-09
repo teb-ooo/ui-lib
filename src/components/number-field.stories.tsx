@@ -36,3 +36,15 @@ NoSteppers.storyMeta = { description: "steppers=false for a compact box where th
 
 export const Disabled = () => <NumberField label="Squelch" value={20} onValueChange={() => undefined} disabled />;
 Disabled.storyMeta = { state: "disabled" } satisfies StoryMeta;
+
+export const PassbandAdornments = () => {
+  const [lo, setLo] = useState<number | null>(300);
+  const [hi, setHi] = useState<number | null>(2700);
+  return (
+    <div className="flex items-start gap-2">
+      <NumberField label="Low edge" hideLabel startAdornment="LO" unit="Hz" value={lo} onValueChange={setLo} min={0} max={5000} step={50} steppers={false} className="w-40" />
+      <NumberField label="High edge" hideLabel startAdornment="HI" unit="Hz" value={hi} onValueChange={setHi} min={0} max={5000} step={50} steppers={false} className="w-40" />
+    </div>
+  );
+};
+PassbandAdornments.storyMeta = { description: "A prefix inside the box instead of a label above it (startAdornment), with the unit after the number. hideLabel keeps the label for screen readers, so each field is still named." } satisfies StoryMeta;
