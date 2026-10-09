@@ -14,9 +14,16 @@ export default {
 
 export const Default = () => {
   const [value, setValue] = useState(740);
-  return <FrequencyInput value={value} onValueChange={setValue} />;
+  return (
+    <div className="pb-24 pl-3">
+      <FrequencyInput value={value} onValueChange={setValue} />
+    </div>
+  );
 };
-Default.storyMeta = { description: "Drag the knob, press the arrow keys on the number, or click the number to type." } satisfies StoryMeta;
+Default.storyMeta = {
+  description:
+    "Drag the knob, press the arrow keys on the number, or click the number to type: the editor is a frame drawn over the readout (the room under it here is only so the example's box does not clip it); nothing around the control moves.",
+} satisfies StoryMeta;
 
 export const Optimistic = () => <FrequencyInput value={10000} onValueChange={() => undefined} optimistic />;
 Optimistic.storyMeta = { description: "optimistic: a change that is not confirmed yet, at half opacity." } satisfies StoryMeta;
