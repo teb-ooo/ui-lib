@@ -570,9 +570,11 @@ input.display-lg {
     border-radius: var(--radius);
     background: var(--color-surface);
   }
-  /* Only floating surfaces (dialogs, tooltips) lift off the page; cards and lists that sit in the page are flat. */
+  /* Only floating surfaces (dialogs, tooltips) lift off the page; cards and lists that sit in the page are flat. The shadow is soft on a light page and deep on a dark one. */
   .panel-float {
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+    box-shadow:
+      0 20px 25px -5px light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.4)),
+      0 8px 10px -6px light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.4));
   }
   .panel-inverse {
     border-radius: var(--radius);
