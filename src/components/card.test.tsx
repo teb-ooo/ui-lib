@@ -74,3 +74,10 @@ describe("ToggleGroup required", () => {
     expect(value).toBe("table");
   });
 });
+
+describe("Card background", () => {
+  it("has no fill of its own: it shows the page behind it", () => {
+    render(<Card title="Plain" />);
+    expect(screen.getByRole("listitem").querySelector("[data-card]")?.className).toContain("bg-transparent");
+  });
+});

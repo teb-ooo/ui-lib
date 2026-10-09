@@ -26,7 +26,7 @@ export interface CardProps {
 }
 
 const face =
-  "panel flex h-full w-full min-w-0 flex-col gap-2 p-3 text-left text-ink outline-none";
+  "panel flex h-full w-full min-w-0 flex-col gap-2 bg-transparent p-3 text-left text-ink outline-none";
 const actionable =
   "cursor-pointer transition-colors duration-100 hover-invert focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:-outline-offset-1 focus-visible:outline-ink";
 
