@@ -12,6 +12,7 @@ import { PlatformBar } from "./platform-bar";
 import { ToastProvider } from "./toast";
 import { usePlatformCommands } from "./platform-commands";
 import { ShellContext } from "./shell-context";
+import { usePortalContainer } from "../lib/theme-scope";
 
 export interface ShellProps {
   /**
@@ -39,6 +40,7 @@ export interface ShellProps {
  * belong in the sidebar, the page and Cmd+K commands.
  */
 export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawerLabel = "Menu", closeLabel = "Close", className }: ShellProps) {
+  const portalContainer = usePortalContainer();
   const wide = useMinWidth("md");
   const hasSidebar = sidebar !== null && sidebar !== undefined && sidebar !== false;
   const [open, setOpen] = useState(false);
@@ -79,7 +81,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
       </div>
       {wide || !hasSidebar ? null : (
         <BaseDialog.Root open={open} onOpenChange={setOpen}>
-          <BaseDialog.Portal>
+          <BaseDialog.Portal container={portalContainer}>
             <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
             <BaseDialog.Popup className="anim-slide-left fixed inset-y-0 left-0 z-50 flex w-[min(20rem,85vw)] flex-col border-r border-line bg-ground text-ink outline-none">
               <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-2">

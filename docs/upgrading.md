@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.99.0 (from 0.98.x)
+
+No code change. `Sidebar`: the scroller is the sidebar's full width and the height between the header and the footer (the padding moved inside it), so its scrollbar sits on the sidebar's edge instead of 8px in (ui-yult). Every popup that was drawn outside a forced theme (`FeedbackPanel`, `Sheet`, `Shell`'s drawer, `SplitPane`'s sheet, the platform bar menu, `ViewMenu`, `SuggestionList`, the column menu of `DataTable`, the editor's popovers) is now drawn inside it like the other popups, so it reverses the right way round (ui-aajw).
+
 ## To ui 0.98.0 (from 0.97.x)
 
 `Tabs` is a bar now: the tab row is inside a band with 8px of padding and a rule under it (ui-1igi). An app that put its own padding or border around the tabs drops it. With `gutter` the bar's padding is the page gutter, so the first pill (not its text) sits on the gutter, 12px further left than before.

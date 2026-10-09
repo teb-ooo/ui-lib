@@ -76,23 +76,26 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "flex h-full min-h-0 flex-col gap-2 bg-ground p-2",
+        "flex h-full min-h-0 flex-col bg-ground",
         iconsOnly ? "w-12" : width === "fit" ? "w-fit min-w-40 max-w-64" : "w-64",
         inDrawer && "w-full",
         className,
       )}
     >
       {header ? (
-        <div
-          className={cn(
-            "flex min-h-[var(--control-h)] items-center px-2 text-ink",
-            iconsOnly && "justify-center px-0",
-          )}
-        >
-          {header}
+        <div className="shrink-0 px-2 pt-2">
+          <div
+            className={cn(
+              "flex min-h-[var(--control-h)] items-center px-2 text-ink",
+              iconsOnly && "justify-center px-0",
+            )}
+          >
+            {header}
+          </div>
         </div>
       ) : null}
-      <nav aria-label={label} className="min-h-0 flex-1 overflow-y-auto">
+      {/* The scroller is the sidebar's full width and the height between the header and the footer, so its scrollbar sits on the sidebar's own edge and the items scroll right up to the header and footer; the padding is inside it. */}
+      <nav aria-label={label} className="min-h-0 flex-1 overflow-y-auto p-2">
         <ul className="flex flex-col gap-0.5">
           {items.map((item, i) => {
             const content = (
@@ -157,11 +160,11 @@ export function Sidebar({
         </ul>
       </nav>
       {footer ? (
-        <div className={cn("px-2", iconsOnly && "px-0")}>{footer}</div>
+        <div className={cn("shrink-0 px-2 pb-2", iconsOnly && "px-0")}>{footer}</div>
       ) : null}
       {onCollapsedChange && !inDrawer ? (
         <div
-          className={cn("flex", iconsOnly ? "justify-center" : "justify-end")}
+          className={cn("flex shrink-0 px-2 pb-2", iconsOnly ? "justify-center" : "justify-end")}
         >
           <Button
             icon={

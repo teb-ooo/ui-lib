@@ -10,6 +10,7 @@ import type { SuggestionItem } from "@teb-ooo/ui";
 import { cn } from "../lib/cn";
 import { Draft, Mention, suggestExtension } from "./extensions";
 import type { SuggestionBridge, SuggestionState } from "./extensions";
+import { usePortalContainer } from "../lib/theme-scope";
 
 export type { JSONContent };
 
@@ -90,6 +91,7 @@ const closedList = <T,>(): ListState<T> => ({ open: false, items: [], index: 0, 
  * only while the editor is not focused.
  */
 export function RichTextEditor({ label, value, onChange, placeholder, readOnly = false, mentions, draft, validateHref = defaultValidate, variant = "page", onFocusEnd, toolbar = "reserved", selectionToolbar = true, className }: RichTextEditorProps) {
+  const portalContainer = usePortalContainer();
   const [slash, setSlash] = useState<ListState<SuggestionItem>>(closedList());
   const [ment, setMent] = useState<ListState<SuggestionItem>>(closedList());
   const [link, setLink] = useState<{ href: string; error: boolean } | null>(null);
@@ -306,7 +308,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
       />
       {selectionToolbar && !readOnly ? (
         <Popover.Root open={showSelection} modal={false}>
-          <Popover.Portal>
+          <Popover.Portal container={portalContainer}>
             <Popover.Positioner
               anchor={{ getBoundingClientRect: () => selectionRect() ?? new DOMRect() }}
               side="top"

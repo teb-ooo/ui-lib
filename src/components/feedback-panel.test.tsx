@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { FeedbackPanel } from "./feedback-panel";
+import { PortalContainerProvider } from "../lib/theme-scope";
 import { ToastProvider } from "./toast";
 import type { FeedbackController } from "./feedback-panel";
 
@@ -14,6 +15,20 @@ function controller(over: Partial<FeedbackController> = {}): FeedbackController 
 }
 
 describe("FeedbackPanel", () => {
+  it("is drawn inside the forced theme's container, so it is reversed the right way round", () => {
+    const frame = document.createElement("div");
+    frame.setAttribute("data-theme", "dark");
+    document.body.append(frame);
+    render(
+      <PortalContainerProvider container={frame}>
+        <FeedbackPanel feedback={controller()} />
+      </PortalContainerProvider>,
+    );
+    expect(frame.contains(screen.getByRole("dialog", { name: "Send feedback" }))).toBe(true);
+    frame.remove();
+  });
+
+
   it("renders nothing when feedback is not available, and nothing while closed or picking", () => {
     const { rerender } = render(<FeedbackPanel feedback={controller({ available: false })} />);
     expect(screen.queryByRole("dialog")).toBeNull();

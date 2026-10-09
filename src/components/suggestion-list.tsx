@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { Popover } from "@base-ui/react/popover";
 import { cn } from "../lib/cn";
+import { usePortalContainer } from "../lib/theme-scope";
 
 export interface SuggestionItem {
   id: string;
@@ -92,6 +93,7 @@ export function SuggestionList({
   emptyLabel = "No matches",
   className,
 }: SuggestionListProps) {
+  const portalContainer = usePortalContainer();
   const activeRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     activeRef.current?.scrollIntoView?.({ block: "nearest" });
@@ -101,7 +103,7 @@ export function SuggestionList({
 
   return (
     <Popover.Root open={open} onOpenChange={(next) => (next ? undefined : onClose?.())} modal={false}>
-      <Popover.Portal>
+      <Popover.Portal container={portalContainer}>
         <Popover.Positioner anchor={resolved} side="bottom" align="start" sideOffset={4} className="z-50 outline-none">
           <Popover.Popup
             initialFocus={false}

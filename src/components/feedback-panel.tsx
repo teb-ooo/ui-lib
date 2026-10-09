@@ -5,6 +5,7 @@ import { Kbd } from "./kbd";
 import { Button } from "./button";
 import { Textarea } from "./textarea";
 import { useOptionalToast } from "./toast";
+import { usePortalContainer } from "../lib/theme-scope";
 
 /** A page element the person picked, as `useFeedback()` from `@teb-ooo/web` reports it. */
 export interface FeedbackElement {
@@ -69,6 +70,7 @@ function agentLine(agent: string, status: string): string {
  * can be clicked.
  */
 export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
+  const portalContainer = usePortalContainer();
   const toast = useOptionalToast();
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   const announced = useRef<unknown>(null);
@@ -119,7 +121,7 @@ export function FeedbackPanel({ feedback: f }: FeedbackPanelProps) {
     <>
       {hint}
       <BasePopover.Root open={f.isOpen && !f.picking} onOpenChange={(open) => (open ? undefined : f.close())} modal={false}>
-        <BasePopover.Portal>
+        <BasePopover.Portal container={portalContainer}>
           <BasePopover.Positioner {...IGNORE} anchor={anchor} side={place.side} align="center" sideOffset={9} arrowPadding={8} collisionPadding={8} collisionAvoidance={{ side: "flip", align: "shift", fallbackAxisSide: "end" }} className="z-50 outline-none">
             <BasePopover.Popup
               {...IGNORE}

@@ -4,6 +4,7 @@ import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
+import { usePortalContainer } from "../lib/theme-scope";
 
 export interface SheetProps {
   open?: boolean;
@@ -39,6 +40,7 @@ const DISMISS_PX = 96;
  * a close button, optional description and footer, returns focus to its trigger and closes on Escape.
  */
 export function Sheet({ open, defaultOpen, onOpenChange, trigger, title, description, children, footer, modal = true, side = "right", closeLabel = "Close", className }: SheetProps) {
+  const portalContainer = usePortalContainer();
   const [drag, setDrag] = useState(0);
   const start = useRef<number | null>(null);
   const [internal, setInternal] = useState(defaultOpen ?? false);
@@ -63,7 +65,7 @@ export function Sheet({ open, defaultOpen, onOpenChange, trigger, title, descrip
   return (
     <BaseDialog.Root open={shown} onOpenChange={(o) => setOpen(o)} modal={modal} disablePointerDismissal={!modal}>
       {trigger ? <BaseDialog.Trigger render={trigger} /> : null}
-      <BaseDialog.Portal>
+      <BaseDialog.Portal container={portalContainer}>
         {modal ? <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" /> : null}
         <BaseDialog.Popup
           data-side={side}

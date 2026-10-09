@@ -5,6 +5,7 @@ import { Button } from "./button";
 import { Dialog } from "./dialog";
 import { Field } from "./field";
 import { Input } from "./input";
+import { usePortalContainer } from "../lib/theme-scope";
 
 export interface SavedView {
   id: string;
@@ -29,6 +30,7 @@ const item =
 
 /** Saved filter views. It only shows them and asks; the app keeps the list and what each view means. */
 export function ViewMenu({ views, activeId, onSelect, onSave, onDelete, defaultLabel = "All" }: ViewMenuProps) {
+  const portalContainer = usePortalContainer();
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const active = views.find((v) => v.id === activeId);
@@ -49,7 +51,7 @@ export function ViewMenu({ views, activeId, onSelect, onSave, onDelete, defaultL
     <>
       <Menu.Root>
         <Menu.Trigger render={<Button icon={<Bookmark aria-hidden="true" className="size-4" />}>{active?.name ?? "Views"}</Button>} />
-        <Menu.Portal>
+        <Menu.Portal container={portalContainer}>
           <Menu.Positioner align="end" sideOffset={4} className="z-50">
             <Menu.Popup className="anim-fade panel-inverse panel-float min-w-48 p-1 text-ink outline-none">
               {entry(null, defaultLabel)}

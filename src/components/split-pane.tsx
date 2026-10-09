@@ -6,6 +6,7 @@ import { useMinWidth } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
 import { readStored, removeStored, writeStored } from "../lib/storage";
 import { Button } from "./button";
+import { usePortalContainer } from "../lib/theme-scope";
 
 export interface SplitPaneProps {
   /** The list, on the left. */
@@ -66,6 +67,7 @@ export function SplitPane({
   closeLabel = "Close",
   className,
 }: SplitPaneProps) {
+  const portalContainer = usePortalContainer();
   const wide = useMinWidth("lg");
   const storageKey = persistKey ? `teb-ui:split-pane:${persistKey}` : null;
   const [size, setSize] = useState(() => {
@@ -101,7 +103,7 @@ export function SplitPane({
       <div className={cn("flex h-full min-h-0 flex-col", className)}>
         <div className="min-h-0 flex-1">{list}</div>
         <BaseDialog.Root open={detailOpen} onOpenChange={(open) => (open ? undefined : onDetailClose())}>
-          <BaseDialog.Portal>
+          <BaseDialog.Portal container={portalContainer}>
             <BaseDialog.Popup className="anim-fade fixed inset-0 z-50 flex flex-col bg-ground text-ink outline-none">
               <div className="flex items-center justify-between gap-4 border-b border-line px-4 py-2">
                 <BaseDialog.Title className="text-ink">{detailLabel}</BaseDialog.Title>

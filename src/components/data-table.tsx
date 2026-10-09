@@ -10,6 +10,7 @@ import { Button } from "./button";
 import { ErrorState } from "./query-state";
 import { Checkbox } from "./checkbox";
 import { Tooltip } from "./tooltip";
+import { usePortalContainer } from "../lib/theme-scope";
 
 export interface Column<T> {
   id: string;
@@ -264,11 +265,12 @@ function ColumnMenu<T>({
   onChange: (v: Record<string, boolean>) => void;
   hiddenByWidth: number;
 }) {
+  const portalContainer = usePortalContainer();
   const hideable = columns.filter((c) => c.hideable !== false);
   return (
     <Menu.Root>
       <Menu.Trigger render={<Button icon={<Columns3 aria-hidden="true" className="size-4" />} tip="Columns" className="border-transparent" />} />
-      <Menu.Portal>
+      <Menu.Portal container={portalContainer}>
         <Menu.Positioner align="end" sideOffset={4} className="z-50">
           <Menu.Popup className="anim-fade panel-inverse panel-float min-w-40 p-1 text-ink outline-none">
             {hideable.map((c) => (
