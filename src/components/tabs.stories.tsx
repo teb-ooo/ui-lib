@@ -6,7 +6,7 @@ export default {
   title: "Tabs",
   group: "Atoms",
   description:
-    "A row of tabs and one panel at a time. Left and Right (Home, End) move between tabs and, by default, show the panel at once; activation=manual waits for Enter or Space. The chosen tab is underlined; on a narrow screen the row scrolls sideways instead of wrapping. Use ToggleGroup to filter, not to switch panels.",
+    "A row of tabs and one panel at a time. Left and Right (Home, End) move between tabs and, by default, show the panel at once; activation=manual waits for Enter or Space. The chosen tab sits on a raised pill that zips (stretches and bounces) from tab to tab; on a narrow screen the row scrolls sideways instead of wrapping. Use ToggleGroup to filter, not to switch panels.",
   aliases: ["tab bar", "tabbed panels", "tab list", "segmented panels", "sections switcher", "panel switcher"],
   component: "Tabs",
   source: "src/components/tabs.tsx",

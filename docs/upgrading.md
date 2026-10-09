@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.91.0 (from 0.90.x)
+
+`Tabs` lost its bottom rule and underline: the chosen tab now sits on a raised pill that zips (stretches and bounces) from tab to tab (ui-wdjb). Nothing to change in props; an app that styled the rule (`border-b` on the tab list) or tested for the underline drops that. `gutter` still lines the first tab's text up.
+
 ## To ui 0.90.0 (from 0.89.x)
 
 New: `startAdornment` and `endAdornment` on `Input`, `NumberField`, `Select` and `Combobox`, and `hideLabel` on `NumberField` (waves-21l). Nothing to change: a control without an adornment renders as before.
