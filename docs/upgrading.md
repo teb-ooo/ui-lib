@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.95.0 (from 0.94.x)
+
+`Toast`: the stack is drawn inside the theme frame an app or the gallery forces (`PortalContainerProvider`), so a toast reverses the right way round when the chosen theme differs from the OS (ui-mrf1). Nothing to change. The gallery's "Palette" and "Color tokens" entries are one entry, "Color" (ui-mw1m).
+
 ## To ui 0.94.0 (from 0.93.x)
 
 `Tabs`: the pill's bounce is no longer clipped at the ends of the row (the row has 8px of room each side, taken back with a negative margin so nothing moves; `gutter` still lines the first tab's text up with the page gutter) and overshoots less (ui-ct1g).

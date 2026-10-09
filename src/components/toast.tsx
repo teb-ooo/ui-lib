@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Toast as BaseToast } from "@base-ui/react/toast";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
+import { usePortalContainer } from "../lib/theme-scope";
 import { Button } from "./button";
 
 /** `warn` is the old spelling of `warning`, accepted until the next minor release. */
@@ -103,10 +104,12 @@ function List() {
  * only calls `useToast()`.
  */
 export function ToastProvider({ children }: { children: ReactNode }) {
+  // In the forced theme of a gallery or a test frame the toasts are drawn inside it, so they reverse the right way round.
+  const container = usePortalContainer();
   return (
     <BaseToast.Provider limit={4}>
       <Bridge>{children}</Bridge>
-      <BaseToast.Portal>
+      <BaseToast.Portal container={container}>
         <BaseToast.Viewport className="toast-viewport pointer-events-none fixed inset-x-4 bottom-4 z-[60] sm:left-auto sm:w-96">
           <List />
         </BaseToast.Viewport>
