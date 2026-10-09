@@ -156,7 +156,7 @@ List and detail. Side by side from the `lg` breakpoint; below it the list fills 
 - Fill the height its parent gives it.
 
 ## DataTable
-Dense keyboard-driven table for many rows. The props table in the gallery is generated from the types.
+Dense keyboard-driven table for many rows. The props table in the gallery is generated from the types. A status column: a column's `tone: (row) => "ok" | "warning" | "danger" | "link" | "agent" | "muted" | undefined` paints the whole cell in the state colour (soft background and the state's ink, edge to edge, no border and no chip) and leaves the cell plain for `undefined`; the cell's content is the status text and `align` places it.
 - `columns: Column<T>[]` (`id`, `header`, `cell(row)`, `sortable?`, `width?`, `align?`, `hideBelow?: "sm" | "md" | "lg"` (hidden while the table itself is narrower than 24, 36 or 48rem, so a narrow pane drops columns by itself; the Columns menu says how many are hidden), `hideable?`), `rows`, `rowKey(row)`, `label`.
 - Sorting is controlled: `sort`, `onSortChange`; the app sorts. `columnVisibility` + `onColumnVisibilityChange` add a Columns menu (an icon button at the end of the header row); `persistKey` (a string) saves the column configuration in `localStorage` (key `teb-ui:data-table:<persistKey>`) and restores it on the next visit, and also adds the menu. A controlled `columnVisibility` wins over the saved one.
 - `activeKey` (matched by key, so it survives re-sorts) + `onActiveKeyChange`; `onRowClick` (click, or Enter on the active row); `selectedKeys` + `onSelectedKeysChange` add a checkbox column.

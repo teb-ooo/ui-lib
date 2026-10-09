@@ -49,6 +49,12 @@ export interface Column<T> {
   hideable?: boolean;
   /** Set false to keep this column's width fixed when the table is `resizable`. */
   resizable?: boolean;
+  /**
+   * A status column: the whole cell is painted in the state colour this returns for the row (a soft background and the
+   * state's ink, edge to edge, no border and no chip), or left plain when it returns `undefined`. The cell's content is the
+   * status text; `align` still places it. Use it for a column whose point is the state ("in progress", "failed").
+   */
+  tone?: (row: T) => "ok" | "warning" | "danger" | "link" | "agent" | "muted" | undefined;
 }
 
 export interface Sort {
@@ -244,6 +250,15 @@ const MIN_FR = "8rem";
 const NEAR_END_PX = 400;
 /** Table widths, in rem, at which `hideBelow` columns appear. */
 const COLUMN_WIDTHS: Record<Breakpoint, number> = { sm: 24, md: 36, lg: 48 };
+
+const statusCell = {
+  ok: "bg-ok-soft text-ok",
+  warning: "bg-warning-soft text-warning",
+  danger: "bg-danger-soft text-danger",
+  link: "bg-link-soft text-link",
+  agent: "bg-agent-soft text-agent",
+  muted: "bg-surface text-ink-faint",
+} as const;
 
 function trackOf(c: { width?: string }): string {
   const w = c.width ?? "1fr";
@@ -808,8 +823,8 @@ export function DataTable<T>({
                             </div>
                           ) : null}
                           {shown.map((c) => (
-                            <div key={c.id} role="gridcell" className={cn("min-w-0 px-2", !virtual && c.lines === 2 ? "line-clamp-2 break-words" : !virtual && c.lines === 3 ? "line-clamp-3 break-words" : "truncate", c.align === "end" && "text-right", c.align === "center" && "text-center")}>
-                              {c.cell(row)}
+                            <div key={c.id} role="gridcell" data-tone={c.tone?.(row)} className={cn("min-w-0 px-2", c.tone && "flex items-center self-stretch", c.tone && wraps && "-my-1", c.tone?.(row) !== undefined && statusCell[c.tone(row)!], c.tone && c.align === "end" && "justify-end", c.tone && c.align === "center" && "justify-center", !virtual && c.lines === 2 ? "line-clamp-2 break-words" : !virtual && c.lines === 3 ? "line-clamp-3 break-words" : "truncate", c.align === "end" && "text-right", c.align === "center" && "text-center")}>
+                              {c.tone ? <span className="min-w-0 truncate">{c.cell(row)}</span> : c.cell(row)}
                             </div>
                           ))}
                           {/* eslint-disable-next-line jsx-a11y/control-has-associated-label -- an empty cell that holds the row menu's place in the grid */}

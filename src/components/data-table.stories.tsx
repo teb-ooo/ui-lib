@@ -4,7 +4,6 @@ import { DataTable } from "./data-table";
 import { StatusMark } from "./status-mark";
 import type { MarkStatus } from "./status-mark";
 import type { Column, Sort } from "./data-table";
-import type { ChipTone } from "./chip";
 import type { StoryDefault, StoryMeta } from "../stories";
 
 export default {
@@ -27,7 +26,7 @@ interface Item {
 
 const statuses = ["open", "in progress", "closed"] as const;
 const owners = ["ada", "grace", "linus", "margaret"];
-const tone: Record<Item["status"], ChipTone> = { open: "default", "in progress": "link", closed: "muted" };
+const tone: Record<Item["status"], "link" | "muted" | undefined> = { open: undefined, "in progress": "link", closed: "muted" };
 
 function makeItems(n: number, offset = 0): Item[] {
   return Array.from({ length: n }, (_, i) => {
@@ -45,7 +44,7 @@ function makeItems(n: number, offset = 0): Item[] {
 const columns: Column<Item>[] = [
   { id: "id", header: "Id", cell: (r) => <span className="text-ink-muted">{r.id}</span>, sortable: true, width: "7rem" },
   { id: "title", header: "Title", cell: (r) => r.title, sortable: true, width: "3fr" },
-  { id: "status", header: "Status", cell: (r) => <Chip tone={tone[r.status]}>{r.status}</Chip>, sortable: true, width: "9rem", hideBelow: "sm" },
+  { id: "status", header: "Status", cell: (r) => r.status, tone: (r) => tone[r.status], sortable: true, width: "9rem", hideBelow: "sm" },
   { id: "owner", header: "Owner", cell: (r) => r.owner, sortable: true, width: "8rem", hideBelow: "md" },
   { id: "priority", header: "P", cell: (r) => `P${r.priority}`, sortable: true, width: "4rem", align: "end" },
 ];

@@ -41,13 +41,14 @@ export function useToast(): ToastApi {
   return api;
 }
 
-// An inverted toast has no border, so a tone is a thick edge on its left in the state colour (the tokens are the inverted set).
+// An inverted toast has no border, so a tone is a 4px bar down its left edge in the state colour (the tokens are the inverted
+// set). It is its own element: the panel's border colour would paint over a border utility.
 const tones: Record<ToastTone, string> = {
   default: "",
-  ok: "border-l-4 border-l-ok",
-  warning: "border-l-4 border-l-warning",
-  warn: "border-l-4 border-l-warning",
-  danger: "border-l-4 border-l-danger",
+  ok: "bg-ok",
+  warning: "bg-warning",
+  warn: "bg-warning",
+  danger: "bg-danger",
 };
 
 function Bridge({ children }: { children: ReactNode }) {
@@ -79,10 +80,10 @@ function List() {
           toast={toast}
           swipeDirection="right"
           className={cn(
-            "toast panel-inverse panel-float pointer-events-auto flex items-start gap-3 overflow-hidden p-3 text-ink",
-            tones[(toast.type as ToastTone | undefined) ?? "default"] ?? tones.default,
+            "toast panel-inverse panel-float pointer-events-auto flex items-center gap-3 overflow-hidden p-3 text-ink",
           )}
         >
+          {tones[(toast.type as ToastTone | undefined) ?? "default"] ? <span aria-hidden="true" className={cn("absolute inset-y-0 left-0 w-1", tones[(toast.type as ToastTone | undefined) ?? "default"])} /> : null}
           <BaseToast.Content className="toast-content flex min-w-0 flex-1 flex-col gap-1">
             <BaseToast.Title className="text-ink" />
             <BaseToast.Description className="text-ink-muted" />

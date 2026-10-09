@@ -470,3 +470,20 @@ describe("DataTable rotated columns (a matrix)", () => {
     expect(screen.getAllByRole("gridcell")[1]?.className).toContain("text-center");
   });
 });
+
+describe("DataTable status column", () => {
+  it("paints the whole cell in the state colour, with no chip, and leaves other cells plain", () => {
+    const cols: Column<Row>[] = [
+      { id: "name", header: "Name", cell: (r) => r.name },
+      { id: "state", header: "State", cell: (r) => (r.id === "a" ? "failed" : "fine"), tone: (r) => (r.id === "a" ? "danger" : undefined) },
+    ];
+    render(<DataTable {...base} columns={cols} />);
+    const failed = screen.getByText("failed").closest('[role="gridcell"]')!;
+    expect(failed.className).toContain("bg-danger-soft");
+    expect(failed.className).toContain("self-stretch");
+    expect(failed.className).not.toContain("border");
+    expect(failed.getAttribute("data-tone")).toBe("danger");
+    const fine = screen.getAllByText("fine")[0]!.closest('[role="gridcell"]')!;
+    expect(fine.className).not.toContain("bg-");
+  });
+});
