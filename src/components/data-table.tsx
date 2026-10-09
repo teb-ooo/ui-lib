@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useMemo } from "react";
 import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
 import { Menu } from "@base-ui/react/menu";
 import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, ChevronsUpDown, Columns3 } from "lucide-react";
 import { useMinWidth } from "../hooks/use-media-query";
 import type { Breakpoint } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
+import { useMeasuredHeights } from "../lib/use-measured-heights";
+import { buildOffsets, fixedRange, measuredRange, scrollTopFor } from "../lib/virtual-window";
 import { readStoredJson, writeStoredJson } from "../lib/storage";
 import { Button } from "./button";
 import { ErrorState } from "./query-state";
@@ -113,6 +115,12 @@ export interface DataTableProps<T> {
    * keep saving columns and widths without the menu.
    */
   columnMenu?: boolean;
+  /**
+   * Windowing: draw only the rows on screen. `true` always, `false` never, a number from that many rows on. Rows of one
+   * line are windowed on a fixed height; rows that wrap (`lines` 2 or 3 on a column) are measured as they are drawn.
+   * @default 100
+   */
+  virtualize?: boolean | number;
   /** The highlighted row, matched by key so it survives a re-sort or a refetch. It usually drives a detail pane. */
   activeKey?: string | null;
   onActiveKeyChange?: (key: string) => void;
@@ -333,6 +341,7 @@ export function DataTable<T>({
   persistKey,
   resizable = false,
   columnMenu,
+  virtualize,
   activeKey = null,
   onActiveKeyChange,
   onRowClick,
@@ -417,11 +426,23 @@ export function DataTable<T>({
   const shown = wanted.filter(fits);
   const hiddenByWidth = wanted.length - shown.length;
 
-  const virtual = !cards && rows.length > VIRTUALIZE_ABOVE;
-  const wraps = !virtual && shown.some((c) => (c.lines ?? 1) > 1);
-  const first = virtual ? Math.max(0, Math.floor(scrollTop / rowH) - OVERSCAN) : 0;
-  const last = virtual ? Math.min(rows.length, Math.ceil((scrollTop + viewport) / rowH) + OVERSCAN) : rows.length;
+  const threshold = virtualize === true ? 0 : virtualize === false ? Infinity : (virtualize ?? VIRTUALIZE_ABOVE);
+  const virtual = !cards && rows.length > threshold;
+  const wraps = shown.some((c) => (c.lines ?? 1) > 1);
+  // Windowed rows that wrap have no one height: they are measured as drawn, and `estimate` stands in until they are.
+  const measured = virtual && wraps;
+  const { heights, version, watch } = useMeasuredHeights(measured);
+  const offsets = useMemo(
+    () => (measured ? buildOffsets(rows.length, (i) => heights.get(rowKey(rows[i] as T)), rowH * 1.5) : null),
+    // `version` signals that a measured height changed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [measured, rows, rowKey, rowH, version],
+  );
+  const range = !virtual ? { first: 0, last: rows.length } : offsets ? measuredRange(offsets, scrollTop, viewport, OVERSCAN) : fixedRange(rows.length, rowH, scrollTop, viewport, OVERSCAN);
+  const { first, last } = range;
   const visibleRows = rows.slice(first, last);
+  const topOf = (i: number) => (offsets ? offsets[i]! : i * rowH);
+  const totalH = offsets ? offsets[rows.length]! : rows.length * rowH;
 
   const checkNearEnd = useCallback(() => {
     const el = scroller.current;
@@ -467,8 +488,8 @@ export function DataTable<T>({
     if (virtual) {
       const idx = rows.indexOf(row);
       const head = headerH || rowH;
-      if (idx * rowH < el.scrollTop) el.scrollTop = idx * rowH;
-      else if (head + (idx + 1) * rowH > el.scrollTop + el.clientHeight) el.scrollTop = head + (idx + 1) * rowH - el.clientHeight;
+      const h = offsets ? offsets[idx + 1]! - offsets[idx]! : rowH;
+      el.scrollTop = scrollTopFor(head + topOf(idx), h, el.scrollTop, el.clientHeight, "nearest", head);
     } else {
       document.getElementById(rowId(key))?.scrollIntoView?.({ block: "nearest" });
     }
@@ -784,8 +805,8 @@ export function DataTable<T>({
                 ) : null}
               </div>
               {stateBody ?? (
-                <div role="rowgroup" style={virtual ? { height: rows.length * rowH, position: "relative" } : undefined}>
-                  <div style={virtual ? { transform: `translateY(${first * rowH}px)` } : undefined}>
+                <div role="rowgroup" style={virtual ? { height: totalH, position: "relative" } : undefined}>
+                  <div style={virtual ? { transform: `translateY(${topOf(first)}px)` } : undefined}>
                     {visibleRows.map((row, i) => {
                       const key = rowKey(row);
                       return (
@@ -797,6 +818,8 @@ export function DataTable<T>({
                           aria-rowindex={first + i + 2}
                           aria-selected={key === activeKey}
                           style={rowStyle}
+                          data-key={measured ? key : undefined}
+                          ref={measured ? watch : undefined}
                           onClick={() => {
                             onActiveKeyChange?.(key);
                             onRowClick?.(row);
@@ -823,7 +846,7 @@ export function DataTable<T>({
                             </div>
                           ) : null}
                           {shown.map((c) => (
-                            <div key={c.id} role="gridcell" data-tone={c.tone?.(row)} className={cn("min-w-0 px-2", c.tone && "flex items-center self-stretch", c.tone && wraps && "-my-1", c.tone?.(row) !== undefined && statusCell[c.tone(row)!], c.tone && c.align === "end" && "justify-end", c.tone && c.align === "center" && "justify-center", !virtual && c.lines === 2 ? "line-clamp-2 break-words" : !virtual && c.lines === 3 ? "line-clamp-3 break-words" : "truncate", c.align === "end" && "text-right", c.align === "center" && "text-center")}>
+                            <div key={c.id} role="gridcell" data-tone={c.tone?.(row)} className={cn("min-w-0 px-2", c.tone && "flex items-center self-stretch", c.tone && wraps && "-my-1", c.tone?.(row) !== undefined && statusCell[c.tone(row)!], c.tone && c.align === "end" && "justify-end", c.tone && c.align === "center" && "justify-center", c.lines === 2 ? "line-clamp-2 break-words" : c.lines === 3 ? "line-clamp-3 break-words" : "truncate", c.align === "end" && "text-right", c.align === "center" && "text-center")}>
                               {c.tone ? <span className="min-w-0 truncate">{c.cell(row)}</span> : c.cell(row)}
                             </div>
                           ))}

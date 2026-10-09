@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.104.0 (from 0.103.x)
+
+New: `VirtualList` (a windowed list of any items, fixed or measured heights) and `DataTable` `virtualize` (`true`, `false` or a row count; default 100 as before) (ui-utzr). `DataTable` now also windows rows that wrap (`lines` 2 or 3), which it drew all of before: nothing to change, long wrapped tables just get cheaper. Rows of one line behave as before.
+
 ## To ui 0.103.0 (from 0.102.x)
 
 `Chip tone="muted"` has a background now (the raised surface, with the muted ink): without one it read as plain text, not a chip (ui-rm2j). That includes the unlocked chip of the lock toggle.

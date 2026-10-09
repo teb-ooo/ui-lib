@@ -213,6 +213,7 @@ A dense, keyboard-driven table for many rows: sticky header, sortable columns, c
 - `persistKey?`: `string`. Saves the column configuration in `localStorage` under this key (shared by every table with the same key) and restores it on the next visit. Without `columnVisibility` the table keeps the state itself. Storage that is unavailable or holds something unexpected is ignored.
 - `resizable?`: `boolean`, default false. Lets a column be resized by dragging the right edge of its header (or focusing the handle and pressing Left and Right; Home or a double-click resets). Widths are saved with `persistKey` when given, else kept in the table.
 - `columnMenu?`: `boolean`. Show the Columns menu. By default it shows when `onColumnVisibilityChange` or `persistKey` is given; pass false to keep saving columns and widths without the menu.
+- `virtualize?`: `boolean | number`, default 100. Windowing: draw only the rows on screen. `true` always, `false` never, a number from that many rows on. Rows of one line are windowed on a fixed height; rows that wrap (`lines` 2 or 3 on a column) are measured as they are drawn.
 - `activeKey?`: `string | null`. The highlighted row, matched by key so it survives a re-sort or a refetch. It usually drives a detail pane.
 - `onActiveKeyChange?`: `(key: string) => void`
 - `onRowClick?`: `(row: T) => void`. Called on a click, and on Enter for the active row.
@@ -1000,6 +1001,24 @@ Saved filter views. It only shows them and asks; the app keeps the list and what
 - `onDelete?`: `(id: string) => void`. Giving this adds "Delete view" for the active view.
 - `defaultLabel?`: `string`, default "All". Label of the default entry.
 
+### VirtualList
+
+component: `import { VirtualList } from "@teb-ooo/ui"`
+
+See `VirtualListInner`: a generic, forwarded-ref component.
+
+- `label`: `string`. What it is; the accessible name of the list.
+- `items`: `readonly T[]`
+- `itemKey`: `(item: T, index: number) => string`. A stable key for an item (an id), so rows keep their state and measured height when the list changes.
+- `renderItem`: `(item: T, index: number) => ReactNode`. Draws one item. The list wraps it in a `listitem`; draw only the content. It must not set its own outer margin.
+- `itemHeight?`: `number`. The height of every item in pixels, when they are all the same: it is then exact and nothing is measured. Leave it out for items of different heights (wrapped text, cards): each rendered item is measured and `estimatedItemHeight` stands in until it is.
+- `estimatedItemHeight?`: `number`, default 48. The height assumed for an item that has not been measured yet.
+- `overscan?`: `number`, default 6. How many items beyond the visible ones are drawn on each side.
+- `empty?`: `ReactNode`. Shown instead of the list when there are no items.
+- `onEndReached?`: `() => void`. Called when the scroll comes within `endThreshold` pixels of the end, for loading the next page. Once per length of the list.
+- `endThreshold?`: `number`, default 240
+- `className?`: `string`. Layout classes. The list fills its parent's height and scrolls inside it, so give it a height (`h-96`, `flex-1 min-h-0`).
+
 ### Types
 
 - `AccordionItem`
@@ -1053,6 +1072,7 @@ Saved filter views. It only shows them and asks; the app keeps the list and what
 - `ToastApi`
 - `ToastOptions`
 - `ToastTone`: `warn` is the old spelling of `warning`, accepted until the next minor release.
+- `VirtualListHandle`
 
 ## @teb-ooo/ui/cmdk
 

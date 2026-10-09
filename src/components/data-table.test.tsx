@@ -487,3 +487,26 @@ describe("DataTable status column", () => {
     expect(fine.className).not.toContain("bg-");
   });
 });
+
+describe("DataTable windowing", () => {
+  const many = Array.from({ length: 1000 }, (_, i) => ({ id: `r${i}`, name: `Row ${i}` }));
+  const wrapCols: Column<Row>[] = [{ id: "name", header: "Name", cell: (r) => r.name, lines: 2 }];
+
+  it("windows past 100 rows by default, always with virtualize, never with false", () => {
+    const { rerender } = render(<DataTable {...base} rows={many} />);
+    expect(screen.getAllByRole("row").length).toBeLessThan(200);
+    rerender(<DataTable {...base} rows={many.slice(0, 50)} />);
+    expect(screen.getAllByRole("row")).toHaveLength(51); // 50 rows and the header
+    rerender(<DataTable {...base} rows={many.slice(0, 50)} virtualize />);
+    expect(screen.getAllByRole("row").length).toBeLessThan(51);
+    rerender(<DataTable {...base} rows={many.slice(0, 500)} virtualize={false} />);
+    expect(screen.getAllByRole("row")).toHaveLength(501);
+    rerender(<DataTable {...base} rows={many.slice(0, 500)} virtualize={600} />);
+    expect(screen.getAllByRole("row")).toHaveLength(501);
+  });
+
+  it("windows rows that wrap too, measuring them as they are drawn", () => {
+    render(<DataTable {...base} columns={wrapCols} rows={many} />);
+    expect(screen.getAllByRole("row").length).toBeLessThan(200);
+  });
+});
