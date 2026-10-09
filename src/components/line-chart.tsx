@@ -39,7 +39,9 @@ export interface LineChartProps {
 const dashes = ["", "6 3", "2 3", "8 3 2 3"];
 const strokes = ["stroke-ink", "stroke-ink-muted", "stroke-ink", "stroke-ink-muted"];
 const fills = ["fill-ink", "fill-ink-muted", "fill-ink", "fill-ink-muted"];
-const margin = { top: 8, right: 8, bottom: 22, left: 48 };
+const margin = { top: 8, right: 8, bottom: 22 };
+/** The axis text is monospace: room for the longest value label (about 9px a character) and a gap. */
+const leftFor = (labels: readonly string[]) => Math.max(40, Math.max(...labels.map((l) => l.length)) * 9 + 14);
 
 const toMs = (t: ChartPoint["time"]) => (t instanceof Date ? t.getTime() : typeof t === "number" ? t : Date.parse(t));
 
@@ -125,12 +127,14 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
   const values = all.map((p) => p.v).filter((v): v is number => v !== null);
   const yMin = domain ? domain[0] : 0;
   const yMax = domain ? domain[1] : niceCeil(Math.max(...values, 0));
-  const plotW = Math.max(1, width - margin.left - margin.right);
+  const yTicks = [0, 1, 2, 3, 4].map((i) => yMin + ((yMax - yMin) * i) / 4);
+  const yLabels = yTicks.map((v) => (formatValue ? formatValue(v, series[0]!) : String(Math.round(v * 100) / 100)));
+  const left = leftFor(yLabels);
+  const plotW = Math.max(1, width - left - margin.right);
   const plotH = height - margin.top - margin.bottom;
-  const x = (t: number) => margin.left + (tMax === tMin ? plotW / 2 : ((t - tMin) / (tMax - tMin)) * plotW);
+  const x = (t: number) => left + (tMax === tMin ? plotW / 2 : ((t - tMin) / (tMax - tMin)) * plotW);
   const y = (v: number) => margin.top + plotH - ((Math.min(yMax, Math.max(yMin, v)) - yMin) / (yMax - yMin || 1)) * plotH;
 
-  const yTicks = [0, 1, 2, 3, 4].map((i) => yMin + ((yMax - yMin) * i) / 4);
   const nx = Math.max(2, Math.min(7, Math.floor(plotW / 90)));
   const xTicks = Array.from({ length: nx }, (_, i) => tMin + ((tMax - tMin) * i) / (nx - 1));
 
@@ -156,7 +160,7 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
   const move = (e: PointerEvent<SVGSVGElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     const px = ((e.clientX - r.left) / r.width) * width;
-    setCursor(Math.min(tMax, Math.max(tMin, tMin + ((px - margin.left) / plotW) * (tMax - tMin))));
+    setCursor(Math.min(tMax, Math.max(tMin, tMin + ((px - left) / plotW) * (tMax - tMin))));
   };
   const key = (e: KeyboardEvent<HTMLDivElement>) => {
     const i = at === null ? -1 : nearest(driver, at);
@@ -207,11 +211,11 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
           className="rounded outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ink"
         >
           <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" onPointerMove={move} onPointerLeave={() => setCursor(null)} className="block max-w-full touch-pan-y">
-            {yTicks.map((v) => (
+            {yTicks.map((v, i) => (
               <g key={v}>
-                <line x1={margin.left} x2={width - margin.right} y1={y(v)} y2={y(v)} className="stroke-line" strokeWidth="1" />
-                <text x={margin.left - 6} y={y(v)} textAnchor="end" dominantBaseline="middle" className="fill-ink-faint">
-                  {formatValue ? formatValue(v, series[0]!) : String(Math.round(v * 100) / 100)}
+                <line x1={left} x2={width - margin.right} y1={y(v)} y2={y(v)} className="stroke-line" strokeWidth="1" />
+                <text x={left - 6} y={y(v)} textAnchor="end" dominantBaseline="middle" className="fill-ink-faint">
+                  {yLabels[i]}
                 </text>
               </g>
             ))}

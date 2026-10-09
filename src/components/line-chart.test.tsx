@@ -39,4 +39,14 @@ describe("LineChart", () => {
     expect(screen.getByText("Loading")).toBeTruthy();
     expect(screen.getByRole("group", { name: "E" }).getAttribute("aria-busy")).toBe("true");
   });
+
+  it("leaves room on the left for the longest value label", () => {
+    const { container } = render(
+      <LineChart label="RAM" series={[{ label: "RAM", points: pts([200, 1500, 900]) }]} formatValue={(v) => `${v} MB`} />,
+    );
+    const labels = [...container.querySelectorAll("svg text")].filter((t) => t.textContent?.endsWith(" MB"));
+    expect(labels.some((t) => t.textContent === "2000 MB")).toBe(true);
+    // right-aligned at x: the text runs left from x, about 9px a character, so x must leave that much room
+    for (const t of labels) expect(Number(t.getAttribute("x"))).toBeGreaterThanOrEqual((t.textContent ?? "").length * 9);
+  });
 });
