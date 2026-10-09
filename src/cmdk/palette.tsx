@@ -17,6 +17,8 @@ interface View {
   commands: Command[];
   /** A form to step through in this view, instead of a list of commands. */
   form?: CommandForm;
+  /** The opening command's `onHighlight`: told which command of this view is highlighted. */
+  onHighlight?: (highlighted: Command | null) => void;
 }
 
 // Below 640px the top-placed panel becomes a full-height sheet. `max-sm:` variants are emitted after the
@@ -79,6 +81,18 @@ export function Palette() {
     if (el && typeof el.scrollIntoView === "function") el.scrollIntoView({ block: "nearest" });
   }, [activeIndex, id]);
 
+  // A view that opens from a command with `onHighlight` hears which of its commands is highlighted, and null when it is left.
+  const highlighted = !step && top?.onHighlight ? (model.rows[activeIndex]?.command ?? null) : null;
+  useEffect(() => {
+    top?.onHighlight?.(highlighted);
+    // The command object may be re-created on a new registration; the id is what says the highlight moved.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [top, highlighted?.id]);
+  useEffect(() => {
+    const view = top;
+    return () => view?.onHighlight?.(null);
+  }, [top]);
+
   const pushView = (view: View): void => {
     setStack((s) => [...s, view]);
     setQuery("");
@@ -99,7 +113,7 @@ export function Palette() {
         (o) => {
           if (!mounted.current) return;
           setPending(null);
-          if (o.kind === "view") pushView({ title: o.title, commands: o.commands });
+          if (o.kind === "view") pushView({ title: o.title, commands: o.commands, onHighlight: row.command.onHighlight });
           else if (o.kind === "form") pushView({ title: o.form.title, commands: [], form: o.form });
           else close();
         },
@@ -110,7 +124,7 @@ export function Palette() {
         },
       );
     } else if (out.kind === "view") {
-      pushView({ title: out.title, commands: out.commands });
+      pushView({ title: out.title, commands: out.commands, onHighlight: row.command.onHighlight });
     } else if (out.kind === "form") {
       pushView({ title: out.form.title, commands: [], form: out.form });
     } else {

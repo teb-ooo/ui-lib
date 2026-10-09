@@ -77,4 +77,12 @@ export interface Command {
   run?: (ctx: CommandContext) => CommandResult;
   /** Opens a nested view with a breadcrumb instead of running. */
   children?: readonly Command[] | (() => readonly Command[]);
+  /**
+   * For a command that opens a nested view (`children`, or a `run` that returns a list): called with the command that is
+   * highlighted in that view, each time the highlight moves (arrow keys or pointer), and with `null` when no command is
+   * highlighted (an empty list), when the view is left (Backspace, the breadcrumb, Escape) and when the palette closes.
+   * Use it to preview a choice, such as a colour preset, and undo the preview on `null`. It is also called with the first
+   * command as soon as the view opens. It runs while the person browses: do nothing slow or that cannot be undone.
+   */
+  onHighlight?: (highlighted: Command | null) => void;
 }

@@ -48,6 +48,8 @@ function ItemsPage() {
 
 `run` may return a promise (spinner, inline error on failure), a `Command[]` (opens a nested view) or `{ form }` (a `CommandForm`: the palette steps through its fields in its own input, then a review that submits; see the Palette form step entry in the gallery). `deps` (second argument) says when the list itself changed; `run` and `when` always see the latest render. `shortcut` is a chord (`mod+shift+n`) or a sequence (`g i`). `useCommandPalette()` returns `{ open, close, isOpen }`.
 
+**Previewing a choice.** A command that opens a nested view (`children`, or a `run` that returns a list) may have `onHighlight(command | null)`: it is called with the command highlighted in that view each time the highlight moves (arrow keys or pointer), with the first one as the view opens, and with `null` when the view is left (Backspace, the breadcrumb, Escape) or the palette closes. Preview a colour preset in it and undo the preview on `null`; do nothing slow or irreversible there, and do not watch the palette's DOM.
+
 Sign out, Profile and Send feedback are platform commands the `Shell` registers; `CommandProvider` has no `signOutPath` and there is no `useFeedbackCommand` (both removed in 0.70.0). `CommandTrigger` is for the gallery only: the bar has the trigger.
 
 **Search sources (0.27.0).** Registered commands are a fixed list, filtered in the browser. To make the palette search an app's own listing or search API (jump to an entry, an issue, a note), register a source where the data's screen lives:

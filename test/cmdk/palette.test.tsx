@@ -337,6 +337,47 @@ describe("nested views", () => {
   });
 });
 
+describe("onHighlight of a nested view", () => {
+  it("hears the highlighted command as the arrows move, the first one on open, and null when the view is left", async () => {
+    const user = userEvent.setup();
+    const seen: (string | null)[] = [];
+    const onHighlight = (c: Command | null) => void seen.push(c ? c.title : null);
+    await renderApp({ extra: <Registrar commands={[cmd("Preset...", { onHighlight, children: [cmd("Warm"), cmd("Cool"), cmd("Mono")] })]} /> });
+    await openPalette(user);
+    await user.keyboard("preset{Enter}");
+    await screen.findByRole("navigation", { name: "Breadcrumb" });
+    expect(seen.at(-1)).toBe("Warm");
+    await user.keyboard("{ArrowDown}");
+    expect(seen.at(-1)).toBe("Cool");
+    await user.keyboard("{ArrowDown}{ArrowUp}");
+    expect(seen.at(-1)).toBe("Cool");
+    // pointer: moving over an option highlights it
+    await user.hover(screen.getByRole("option", { name: /Mono/u }));
+    expect(seen.at(-1)).toBe("Mono");
+    // leaving the view (Backspace on an empty query) reports null
+    await user.keyboard("{Backspace}");
+    await waitFor(() => expect(seen.at(-1)).toBeNull());
+    // the root list is not reported to it
+    const count = seen.length;
+    await user.keyboard("{ArrowDown}");
+    expect(seen).toHaveLength(count);
+  });
+
+  it("reports null when the palette closes, and also works for a run that returns a list", async () => {
+    const user = userEvent.setup();
+    const seen: (string | null)[] = [];
+    const onHighlight = (c: Command | null) => void seen.push(c ? c.title : null);
+    await renderApp({ extra: <Registrar commands={[cmd("Pick...", { onHighlight, run: () => Promise.resolve([cmd("One"), cmd("Two")]) })]} /> });
+    await openPalette(user);
+    await user.keyboard("pick{Enter}");
+    await screen.findByRole("navigation", { name: "Breadcrumb" });
+    await waitFor(() => expect(seen.at(-1)).toBe("One"));
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(dialog()).toBeNull());
+    expect(seen.at(-1)).toBeNull();
+  });
+});
+
 describe("recents", () => {
   const key = "playground-command:recents:hello";
   const playground = { app_name: "hello" };
