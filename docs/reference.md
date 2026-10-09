@@ -373,35 +373,6 @@ Also accepts the props of `Omit<HTMLAttributes<HTMLDivElement>, "className">`.
 - `activeCount?`: `number`. How many filters are set; shown on the phone button so a hidden filter is not forgotten.
 - `className?`: `string`
 
-### formatKhz
-
-function: `import { formatKhz } from "@teb-ooo/ui"`
-
-`740` becomes `00740.00`: kHz with two decimals, zero-padded to eight characters.
-
-### FrequencyInput
-
-component: `import { FrequencyInput } from "@teb-ooo/ui"`
-
-The hero control of a tuner: the frequency in kHz as a large readout with two decimals, a click-to-type masked editor and a round tuning knob you drag sideways. The ref has `edit()` to open the editor from outside (a command). The readout is a spin button (arrow keys step it, Enter or Space opens the editor); the knob works with a mouse, a finger and the keyboard. A typed value is only used when it is valid (above `min`, at most `max`).
-
-- `value`: `number`. The frequency in kHz.
-- `onValueChange`: `(value: number) => void`. Called with every change as it happens: each pointer move of the knob, each arrow key, and when a typed value is set.
-- `onValueCommit?`: `(value: number) => void`. Called once when a change is finished: a typed value is set, a knob drag ends, an arrow key is pressed.
-- `min?`: `number`, default 0.01. Lowest valid frequency in kHz, exclusive of anything below it.
-- `max?`: `number`, default 30000. Highest valid frequency in kHz.
-- `label?`: `string`, default "Frequency". Accessible name.
-- `optimistic?`: `boolean`, default false. A change is waiting for confirmation: drawn at half opacity.
-- `dimmed?`: `boolean`, default false. Locked: drawn at 35% and not interactive.
-- `disabled?`: `boolean`, default false. Not available: not interactive and drawn at half opacity like any disabled control.
-- `playbackMode?`: `boolean`, default false. Playing back a recording (rewinding): the readout takes the warning colour.
-- `step?`: `number`, default 1. What an arrow key steps by, in kHz (Shift: `fineStep`, PageUp and PageDown: ten steps).
-- `fineStep?`: `number`, default 0.01. Shift and an arrow key.
-- `submitLabel?`: `string`, default "Set frequency". Label of the button under the edit field (the editor is drawn over the readout; nothing around it moves).
-- `knobTip?`: `string`, default "Hold shift for fine tuning". Tooltip of the knob.
-- `knobSide?`: `"start" | "end"`, default "end". Which side of the number the knob sits on: `start` puts it before the number, `end` after the unit.
-- `className?`: `string`
-
 ### Graph
 
 component: `import { Graph } from "@teb-ooo/ui"`
@@ -1040,7 +1011,6 @@ See `VirtualListInner`: a generic, forwarded-ref component.
 - `FeedbackController`: What the panel needs: the object `useFeedback()` from `@teb-ooo/web` returns. It is written out here so this package does not depend on that one; anything with this shape works.
 - `FeedbackElement`: A page element the person picked, as `useFeedback()` from `@teb-ooo/web` reports it.
 - `FilePickerHandle`
-- `FrequencyInputHandle`
 - `GraphEdge`
 - `GraphKind`
 - `GraphNode`

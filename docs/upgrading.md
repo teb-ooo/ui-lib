@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.107.0 (from 0.106.x)
+
+REMOVED: `FrequencyInput`, `formatKhz`, `FrequencyInputProps` and `FrequencyInputHandle` (ui-lkhr). waves, its only user, draws its own readout and knob. An app that imports any of them keeps the 0.106.x version of ui or builds its own.
+
 ## To ui 0.106.0 (from 0.105.x)
 
 New: `Command.onHighlight(command | null)` on a command that opens a nested view, to preview the highlighted choice (lyapunov). An app that watched the palette's DOM for `aria-selected` drops that. Nothing else to change.
