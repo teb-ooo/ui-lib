@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Button } from "./button";
 import { FrequencyInput } from "./frequency-input";
+import type { FrequencyInputHandle } from "./frequency-input";
 import type { StoryDefault, StoryMeta } from "../stories";
 
 export default {
@@ -33,3 +35,15 @@ Dimmed.storyMeta = { description: "dimmed: locked, at 35% and not interactive." 
 
 export const Rewinding = () => <FrequencyInput value={7074} onValueChange={() => undefined} playbackMode />;
 Rewinding.storyMeta = { description: "playbackMode: the readout takes the warning colour while a recording plays back." } satisfies StoryMeta;
+
+export const EditFromOutside = () => {
+  const ref = useRef<FrequencyInputHandle>(null);
+  const [value, setValue] = useState(7074);
+  return (
+    <div className="flex flex-col items-start gap-3 pb-24 pl-3">
+      <Button onClick={() => ref.current?.edit()}>Type a frequency</Button>
+      <FrequencyInput ref={ref} value={value} onValueChange={setValue} />
+    </div>
+  );
+};
+EditFromOutside.storyMeta = { description: "The ref's edit() opens the editor, for a command such as Type a frequency in Cmd+K; no key event is faked." } satisfies StoryMeta;

@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useState } from "react";
+import { createRef, useState } from "react";
 import { FrequencyInput, formatKhz } from "../index";
 import { typeInto } from "./frequency-input";
+import type { FrequencyInputHandle } from "./frequency-input";
 
 function Tuner({ start = 740, onCommit, ...rest }: { start?: number; onCommit?: (v: number) => void; min?: number; max?: number; dimmed?: boolean }) {
   const [v, setV] = useState(start);
@@ -221,5 +222,20 @@ describe("FrequencyInput", () => {
     expect(order()).toEqual(["spinbutton", "slider"]);
     rerender(<FrequencyInput value={740} onValueChange={() => undefined} knobSide="start" />);
     expect(order()).toEqual(["slider", "spinbutton"]);
+  });
+});
+
+describe("FrequencyInput ref", () => {
+  it("edit() opens the editor and focuses the field, without a key event, and does nothing when dimmed", () => {
+    const ref = createRef<FrequencyInputHandle>();
+    const { rerender } = render(<FrequencyInput ref={ref} value={740} onValueChange={() => undefined} />);
+    expect(screen.queryByRole("textbox", { name: "Frequency in kHz" })).toBeNull();
+    act(() => ref.current!.edit());
+    const field = screen.getByRole("textbox", { name: "Frequency in kHz" });
+    expect(document.activeElement).toBe(field);
+    rerender(<FrequencyInput ref={ref} value={740} onValueChange={() => undefined} dimmed />);
+    fireEvent.keyDown(field, { key: "Escape" });
+    act(() => ref.current!.edit());
+    expect(screen.queryByRole("textbox", { name: "Frequency in kHz" })).toBeNull();
   });
 });

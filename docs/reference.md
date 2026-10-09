@@ -383,7 +383,7 @@ function: `import { formatKhz } from "@teb-ooo/ui"`
 
 component: `import { FrequencyInput } from "@teb-ooo/ui"`
 
-The hero control of a tuner: the frequency in kHz as a large readout with two decimals, a click-to-type masked editor and a round tuning knob you drag sideways. The readout is a spin button (arrow keys step it, Enter or Space opens the editor); the knob works with a mouse, a finger and the keyboard. A typed value is only used when it is valid (above `min`, at most `max`).
+The hero control of a tuner: the frequency in kHz as a large readout with two decimals, a click-to-type masked editor and a round tuning knob you drag sideways. The ref has `edit()` to open the editor from outside (a command). The readout is a spin button (arrow keys step it, Enter or Space opens the editor); the knob works with a mouse, a finger and the keyboard. A typed value is only used when it is valid (above `min`, at most `max`).
 
 - `value`: `number`. The frequency in kHz.
 - `onValueChange`: `(value: number) => void`. Called with every change as it happens: each pointer move of the knob, each arrow key, and when a typed value is set.
@@ -1040,6 +1040,7 @@ See `VirtualListInner`: a generic, forwarded-ref component.
 - `FeedbackController`: What the panel needs: the object `useFeedback()` from `@teb-ooo/web` returns. It is written out here so this package does not depend on that one; anything with this shape works.
 - `FeedbackElement`: A page element the person picked, as `useFeedback()` from `@teb-ooo/web` reports it.
 - `FilePickerHandle`
+- `FrequencyInputHandle`
 - `GraphEdge`
 - `GraphKind`
 - `GraphNode`

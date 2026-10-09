@@ -1,8 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent } from "react";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
 import { Tooltip } from "./tooltip";
+
+export interface FrequencyInputHandle {
+  /** Opens the masked editor, as a click on the readout does (a Cmd+K command "Type a frequency"). Does nothing while the control is dimmed or disabled. */
+  edit: () => void;
+}
 
 export interface FrequencyInputProps {
   /** The frequency in kHz. */
@@ -111,10 +116,10 @@ export function typeInto(state: MaskState, key: string): MaskState {
 
 /**
  * The hero control of a tuner: the frequency in kHz as a large readout with two decimals, a click-to-type masked editor and a
- * round tuning knob you drag sideways. The readout is a spin button (arrow keys step it, Enter or Space opens the editor);
+ * round tuning knob you drag sideways. The ref has `edit()` to open the editor from outside (a command). The readout is a spin button (arrow keys step it, Enter or Space opens the editor);
  * the knob works with a mouse, a finger and the keyboard. A typed value is only used when it is valid (above `min`, at most `max`).
  */
-export function FrequencyInput({
+export const FrequencyInput = forwardRef<FrequencyInputHandle, FrequencyInputProps>(function FrequencyInput({
   value,
   onValueChange,
   onValueCommit,
@@ -131,7 +136,7 @@ export function FrequencyInput({
   knobTip = "Hold shift for fine tuning",
   knobSide = "end",
   className,
-}: FrequencyInputProps) {
+}, ref) {
   const [editing, setEditing] = useState(false);
   const [edit, setEdit] = useState({ digits: toDigits(value), pos: 0, fresh: true });
   const [angle, setAngle] = useState(0);
@@ -150,6 +155,7 @@ export function FrequencyInput({
     setEdit({ digits: toDigits(value), pos: 0, fresh: true });
     setEditing(true);
   };
+  useImperativeHandle(ref, () => ({ edit: open }));
   const cancel = () => setEditing(false);
   const submit = () => {
     if (!valid) return;
@@ -346,4 +352,4 @@ export function FrequencyInput({
       </div>
     </div>
   );
-}
+});

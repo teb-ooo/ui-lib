@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.105.0 (from 0.104.x)
+
+New: `FrequencyInput` takes a `ref` with `edit()` to open its editor from a command, so no key event has to be faked (waves-x1d). Nothing to change.
+
 ## To ui 0.104.0 (from 0.103.x)
 
 New: `VirtualList` (a windowed list of any items, fixed or measured heights) and `DataTable` `virtualize` (`true`, `false` or a row count; default 100 as before) (ui-utzr). `DataTable` now also windows rows that wrap (`lines` 2 or 3), which it drew all of before: nothing to change, long wrapped tables just get cheaper. Rows of one line behave as before.

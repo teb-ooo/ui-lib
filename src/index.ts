@@ -114,7 +114,7 @@ export type { MeterProps, MeterZone, MeterTone } from "./components/meter";
 export { Sheet } from "./components/sheet";
 export type { SheetProps } from "./components/sheet";
 export { FrequencyInput, formatKhz } from "./components/frequency-input";
-export type { FrequencyInputProps } from "./components/frequency-input";
+export type { FrequencyInputProps, FrequencyInputHandle } from "./components/frequency-input";
 
 export { PortalContainerProvider, usePortalContainer } from "./lib/theme-scope";
 export { ConfirmDialog } from "./components/confirm-dialog";
