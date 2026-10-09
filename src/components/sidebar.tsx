@@ -57,7 +57,7 @@ export interface SidebarProps {
 }
 
 const link =
-  "flex h-[var(--control-h)] items-center gap-2 rounded px-2 text-ink-muted no-underline outline-none hover:bg-surface hover:text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ink-muted";
+  "flex h-[var(--target-h)] items-center gap-2 rounded px-2 text-ink-muted no-underline outline-none hover:bg-surface hover:text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ink-muted";
 
 /** Left navigation: items with icon, label, badge and current-page state (reversed), collapsible to icons. The app supplies the items. */
 export function Sidebar({

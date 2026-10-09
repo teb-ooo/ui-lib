@@ -127,7 +127,7 @@ export function SuggestionList({
                     ref={i === activeIndex ? activeRef : undefined}
                     onMouseEnter={() => onActiveIndexChange?.(i)}
                     onClick={() => onSelect(item)}
-                    className="flex min-h-[var(--control-h)] cursor-pointer items-center justify-between gap-2 rounded px-2 data-[active]:bg-surface-raised"
+                    className="flex min-h-[var(--target-h)] cursor-pointer items-center justify-between gap-2 rounded px-2 data-[active]:bg-surface-raised"
                   >
                     <span className="truncate">{item.label}</span>
                     {item.hint ? <span className="shrink-0 text-ink-faint">{item.hint}</span> : null}

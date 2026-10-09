@@ -189,7 +189,7 @@ function AgentBubble({ working, details }: { working: boolean; details: AgentBar
 }
 
 const menuItem =
-  "flex min-h-[var(--control-h)] cursor-pointer items-center gap-2 rounded px-2 text-ink no-underline outline-none data-[highlighted]:bg-surface-raised";
+  "flex min-h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 text-ink no-underline outline-none data-[highlighted]:bg-surface-raised";
 
 /**
  * The platform's top bar, 2.25rem (36px) tall, one line, on every screen size. The only text is the app's name; everything
@@ -228,7 +228,7 @@ export function PlatformBar({
     onAgentOpenChange?.(agentWorking);
   }, [agentWorking, onAgentOpenChange]);
   return (
-    <header className="flex h-9 shrink-0 items-center gap-1 border-b border-line bg-ground px-1 text-ink">
+    <header className="flex h-9 max-sm:h-14 shrink-0 items-center gap-1 border-b border-line bg-ground px-1 text-ink">
       {onOpenMenu ? (
         <Icon tip={menuLabel} onClick={onOpenMenu}>
           <MenuIcon aria-hidden="true" className="size-4" />

@@ -37,7 +37,7 @@ export type ComboboxProps = SingleComboboxProps | MultiComboboxProps;
 
 const popup = "anim-fade panel-inverse panel-float z-50 max-h-[min(20rem,var(--available-height))] w-[var(--anchor-width)] min-w-56 overflow-y-auto p-1 text-ink outline-none";
 const itemClass =
-  "flex min-h-[var(--control-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised";
+  "flex min-h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised";
 
 /** Search-as-you-type list for long option lists such as assignees or labels; with `multiple`, the chosen options show as chips. */
 export function Combobox(props: ComboboxProps) {
@@ -71,7 +71,7 @@ export function Combobox(props: ComboboxProps) {
   if (props.multiple) {
     return (
       <BaseCombobox.Root items={items} multiple value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
-        <BaseCombobox.InputGroup className={cn("input flex h-auto min-h-[var(--control-h)] w-72 max-w-full flex-wrap items-center gap-1 py-[calc((var(--control-h)-1.6em-2px)/2)]", className)}>
+        <BaseCombobox.InputGroup className={cn("input flex h-auto min-h-[var(--target-h)] w-72 max-w-full flex-wrap items-center gap-1 py-[calc((var(--target-h)-1.6em-2px)/2)]", className)}>
           <BaseCombobox.Chips className="flex w-full flex-wrap items-center gap-1">
             {startAdornment !== undefined ? <Adornment>{startAdornment}</Adornment> : null}
             {props.value.map((v) => (

@@ -569,7 +569,7 @@ describe("mobile sheet", () => {
     await renderApp();
     const t = screen.getByRole("button", { name: "Open command palette" });
     expect(t.className).toContain("btn");
-    expect(t.className).toContain("max-sm:w-(--control-h)");
+    expect(t.className).toContain("max-sm:w-(--target-h)");
     expect(within(t).getByText("Search").className).toContain("max-sm:hidden");
   });
 });

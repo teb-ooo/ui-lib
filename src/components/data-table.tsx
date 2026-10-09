@@ -302,7 +302,7 @@ function ColumnMenu<T>({
                 checked={visibility[c.id] !== false}
                 onCheckedChange={(checked) => onChange({ ...visibility, [c.id]: checked })}
                 closeOnClick={false}
-                className="flex h-[var(--control-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised"
+                className="flex h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised"
               >
                 <span className="flex size-4 items-center justify-center">
                   <Menu.CheckboxItemIndicator>

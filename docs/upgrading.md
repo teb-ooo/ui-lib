@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.109.0 (from 0.108.x)
+
+At phone width (up to 40rem) what is pressed is 44px tall instead of 28px: `Button` and icon buttons, `Input`, `Select`, `Combobox`, `ToggleGroup`, menu and list items (`Menu`, `Select` options, `ViewMenu`, `SuggestionList`, the sidebar's links, the platform bar's menu items), `Switch` rows and the Cmd+K trigger (UI-wic; diplomacy). It is a new token, `--target-h` (28px on a desktop, 44px at phone width); `--control-h` (28px) stays for chips, avatars and table rows. The platform bar is 56px tall on a phone. A screen with a dense row of controls gets taller on a phone: check that it still fits at 390px, and wrap or move controls into a menu where it does not. A table is still 28px rows; below `cardsBelow` use cards on a phone.
+
 ## To ui 0.108.1 (from 0.108.0)
 
 Fix: `ColorPicker`'s hex field no longer lags the colour by a render (a selection made right after a change could be lost, so typing appended instead of replacing).

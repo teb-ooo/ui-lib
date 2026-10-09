@@ -26,7 +26,7 @@ export interface ViewMenuProps {
 }
 
 const item =
-  "flex h-[var(--control-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised";
+  "flex h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised";
 
 /** Saved filter views. It only shows them and asks; the app keeps the list and what each view means. */
 export function ViewMenu({ views, activeId, onSelect, onSave, onDelete, defaultLabel = "All" }: ViewMenuProps) {

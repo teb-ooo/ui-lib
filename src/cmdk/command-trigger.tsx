@@ -21,7 +21,7 @@ export function CommandTrigger({ className }: CommandTriggerProps) {
       aria-haspopup="dialog"
       aria-expanded={isOpen}
       onClick={open}
-      className={["max-sm:w-(--control-h) max-sm:justify-center max-sm:px-0", className].filter(Boolean).join(" ")}
+      className={["max-sm:w-(--target-h) max-sm:justify-center max-sm:px-0", className].filter(Boolean).join(" ")}
     >
       <span className="max-sm:hidden">Search</span>
       <Kbd shortcut="mod+k" className="max-sm:hidden" />

@@ -16,7 +16,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(function Switch
   const descriptionId = useId();
   return (
     <div className={cn("flex flex-col", className)}>
-      <label className="flex min-h-[var(--control-h)] cursor-pointer items-center gap-3 data-[disabled]:cursor-not-allowed" data-disabled={rest.disabled ? "" : undefined}>
+      <label className="flex min-h-[var(--target-h)] cursor-pointer items-center gap-3 data-[disabled]:cursor-not-allowed" data-disabled={rest.disabled ? "" : undefined}>
         <BaseSwitch.Root
           ref={ref}
           aria-describedby={description ? descriptionId : undefined}

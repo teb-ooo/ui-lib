@@ -54,7 +54,7 @@ export function Select({ options, value, onValueChange, label, placeholder, disa
                   key={o.value}
                   value={o.value}
                   data-option-value={o.value}
-                  className="flex h-[var(--control-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised"
+                  className="flex h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised"
                 >
                   <BaseSelect.ItemText className="min-w-0 flex-1 truncate">{o.label}</BaseSelect.ItemText>
                   {o.count !== undefined ? <span className="text-ink-faint">{o.count}</span> : null}
