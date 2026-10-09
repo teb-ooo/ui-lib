@@ -1,3 +1,4 @@
+import type { StaticDataRouteOption } from "@tanstack/react-router";
 import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
@@ -587,7 +588,7 @@ describe("testing the palette under jsdom", () => {
 
 describe("the empty palette's order and the route opt-out", () => {
   it("types staticData.palette (a compile-time check: this file fails tsc without the declaration)", () => {
-    const data: import("@tanstack/react-router").StaticDataRouteOption = { title: "Enter", palette: false };
+    const data: StaticDataRouteOption = { title: "Enter", palette: false };
     expect(data.palette).toBe(false);
   });
 
