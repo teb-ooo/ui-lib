@@ -917,7 +917,7 @@ Also accepts the props of `Omit<BaseSwitch.Root.Props, "className" | "children" 
 
 component: `import { Tabs } from "@teb-ooo/ui"`
 
-Tabs: a row of tabs and one panel at a time. Left and Right (and Home and End) move between tabs, the chosen tab sits on a raised pill that zips from tab to tab (it squashes while it moves, then springs back), and on a narrow screen the row scrolls sideways instead of wrapping. Use `ToggleGroup` to filter, not to switch panels.
+Tabs: a row of tabs and one panel at a time. Left and Right (and Home and End) move between tabs, the row is a padded bar with a rule under it, the chosen tab sits on a raised pill that zips from tab to tab (it squashes while it moves, then springs back), and on a narrow screen the row scrolls sideways instead of wrapping. Use `ToggleGroup` to filter, not to switch panels.
 
 - `tabs`: `readonly TabItem[]`
 - `value`: `string`. The chosen tab's `value`.
@@ -926,7 +926,7 @@ Tabs: a row of tabs and one panel at a time. Left and Right (and Home and End) m
 - `activation?`: `"automatic" | "manual"`, default "automatic". `automatic` shows a tab's panel as soon as the arrow keys reach it; `manual` waits for Enter or Space, for panels that are slow or costly to show.
 - `keepMounted?`: `boolean`, default false. Keep every panel mounted (hidden) so their state survives switching.
 - `fill?`: `boolean`, default false. The panels fill the height under the tab row and scroll inside it (a `flex` column), so a table or a form can fill the tabs' screen. Use it only when the tabs are the body of a `Page`: there must not be another scroller around them.
-- `gutter?`: `boolean`, default false. Line the first tab's text up with the page gutter (16px, 24px from `md`), for tabs that sit directly under a `PageHeader` or in a `PageBody` with `gutter`.
+- `gutter?`: `boolean`, default false. Line the bar's padding up with the page gutter (16px, 24px from `md`) instead of its own 8px, so the first tab's pill sits on the gutter: for tabs that sit directly under a `PageHeader` or in a `PageBody` with `gutter`.
 - `className?`: `string`. Layout classes for the whole component.
 
 ### Textarea
