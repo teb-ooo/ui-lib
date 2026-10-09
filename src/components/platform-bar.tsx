@@ -56,7 +56,7 @@ export interface PlatformBarProps {
 }
 
 const iconButton =
-  "inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-ink-muted outline-none transition-colors hover:bg-surface-raised hover:text-ink focus-visible:bg-surface-raised focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink-muted";
+  "relative inline-flex size-7 shrink-0 cursor-pointer before:absolute before:-inset-x-1 before:-inset-y-2 before:content-[''] sm:before:hidden items-center justify-center rounded border-0 bg-transparent p-0 text-ink-muted outline-none transition-colors hover:bg-surface-raised hover:text-ink focus-visible:bg-surface-raised focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink-muted";
 
 function Icon({ tip, shortcut, children, ...rest }: { tip: string; shortcut?: string; children: ReactNode } & Record<string, unknown>) {
   return (
@@ -228,7 +228,7 @@ export function PlatformBar({
     onAgentOpenChange?.(agentWorking);
   }, [agentWorking, onAgentOpenChange]);
   return (
-    <header className="flex h-9 max-sm:h-14 shrink-0 items-center gap-1 border-b border-line bg-ground px-1 text-ink">
+    <header className="flex h-9 shrink-0 items-center gap-1 border-b border-line bg-ground px-1 text-ink">
       {onOpenMenu ? (
         <Icon tip={menuLabel} onClick={onOpenMenu}>
           <MenuIcon aria-hidden="true" className="size-4" />
