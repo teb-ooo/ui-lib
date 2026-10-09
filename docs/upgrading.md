@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.108.1 (from 0.108.0)
+
+Fix: `ColorPicker`'s hex field no longer lags the colour by a render (a selection made right after a change could be lost, so typing appended instead of replacing).
+
 ## To ui 0.108.0 (from 0.107.x)
 
 New: `ColorPicker` (square, hue bar, hex field; `hexToRgb` and `rgbToHex`) and `onHighlight(value | null)` on `Select` and `Combobox` (lyapunov). Nothing to change.

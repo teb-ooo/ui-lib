@@ -40,12 +40,10 @@ export function ColorPicker({ value, onValueChange, onValueCommit, label, classN
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hex]);
 
-  const [text, setText] = useState(hex);
-  const [editing, setEditing] = useState(false);
-  useEffect(() => {
-    if (!editing) setText(hex);
-  }, [hex, editing]);
-  const typed = hexToRgb(text);
+  // What is being typed in the hex field; null while it just shows the colour. Showing `draft ?? hex` (not a copy kept in sync
+  // by an effect) means the field never lags the colour by a render, which would drop a selection made in between.
+  const [draft, setDraft] = useState<string | null>(null);
+  const typed = draft === null ? null : hexToRgb(draft);
 
   const apply = (next: Hsv, commit: boolean) => {
     setHsv(next);
@@ -108,18 +106,15 @@ export function ColorPicker({ value, onValueChange, onValueCommit, label, classN
   };
 
   const commitText = () => {
-    setEditing(false);
-    if (!typed) {
-      setText(hex);
-      return;
-    }
+    if (draft === null) return;
+    setDraft(null);
+    if (!typed) return;
     const out = rgbToHex(...typed);
     if (out !== hex) {
       setHsv(rgbToHsv(typed));
       onValueChange(out);
     }
     onValueCommit?.(out);
-    setText(out);
   };
 
   const pct = (n: number) => `${Math.round(n * 100)}%`;
@@ -166,14 +161,12 @@ export function ColorPicker({ value, onValueChange, onValueCommit, label, classN
         <span aria-hidden="true" className="size-[var(--control-h)] shrink-0 rounded border border-line" style={{ background: hex }} />
         <input
           aria-label="Hex colour"
-          aria-invalid={(editing && !typed) || undefined}
+          aria-invalid={(draft !== null && !typed) || undefined}
           spellCheck={false}
           autoComplete="off"
-          value={text}
-          onFocus={() => setEditing(true)}
+          value={draft ?? hex}
           onChange={(e) => {
-            setEditing(true);
-            setText(e.target.value);
+            setDraft(e.target.value);
             const c = hexToRgb(e.target.value);
             if (c) {
               setHsv(rgbToHsv(c));
