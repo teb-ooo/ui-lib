@@ -76,5 +76,6 @@ export const Pickable = () => {
 Pickable.storyMeta = { description: "onSelect gives the time of the nearest point on a click or tap, and on Enter or Space at the point the arrow keys reached; selected draws a fixed marker and a Selected line (the app keeps it in its own state)." } satisfies StoryMeta;
 
 export const Loading = () => <LineChart label="Host CPU" series={[]} loading className="w-full max-w-2xl" />;
+
 Loading.storyMeta = { state: "loading" } satisfies StoryMeta;
 export const Empty = () => <LineChart label="Host CPU" series={[{ label: "CPU", points: [] }]} emptyText="No samples yet" className="w-full max-w-2xl" />;

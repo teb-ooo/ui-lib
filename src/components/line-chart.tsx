@@ -111,10 +111,16 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
 
   const frame = cn("flex min-w-0 flex-col gap-2", className);
   if (loading) {
+    // Like the table's skeleton: it appears after 100ms, is still, and keeps the chart's height so nothing moves when the data comes.
     return (
       <div className={frame} aria-busy="true" aria-label={label} role="group">
-        <div className="flex items-center justify-center rounded border border-line text-ink-faint motion-safe:animate-pulse" style={{ height }}>
-          Loading
+        <div role="status" className="anim-delayed flex flex-col justify-between" style={{ height }}>
+          <span className="sr-only">Loading</span>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} aria-hidden="true" className="flex items-center border-b border-line" style={{ height: height / 5 }}>
+              {i === 2 ? <div className="h-2 w-1/3 rounded bg-surface-raised" /> : null}
+            </div>
+          ))}
         </div>
       </div>
     );

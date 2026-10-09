@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.101.0 (from 0.100.x)
+
+No code change. `LineChart` `loading` is drawn like the table's skeleton: still, after the 100ms delay, rules and one bar at the chart's height, with "Loading" for assistive technology (it pulsed in a bordered box before) (ui-wnup).
+
 ## To ui 0.100.0 (from 0.99.x)
 
 No code change. The shadow of floating surfaces (`panel-float`: popovers, dialogs, toasts, menus) is about a third as strong on a light page; dark is unchanged (ui-fb8h).

@@ -36,7 +36,7 @@ describe("LineChart", () => {
     const { rerender } = render(<LineChart label="E" series={[{ label: "A", points: [] }]} emptyText="No samples yet" />);
     expect(screen.getByText("No samples yet")).toBeTruthy();
     rerender(<LineChart label="E" series={[]} loading />);
-    expect(screen.getByText("Loading")).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toBe("Loading");
     expect(screen.getByRole("group", { name: "E" }).getAttribute("aria-busy")).toBe("true");
   });
 
