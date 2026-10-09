@@ -586,6 +586,11 @@ describe("testing the palette under jsdom", () => {
 });
 
 describe("the empty palette's order and the route opt-out", () => {
+  it("types staticData.palette (a compile-time check: this file fails tsc without the declaration)", () => {
+    const data: import("@tanstack/react-router").StaticDataRouteOption = { title: "Enter", palette: false };
+    expect(data.palette).toBe(false);
+  });
+
   it("leads with the app's own groups; Go to, General and Platform follow; a query keeps best-match order", async () => {
     const user = userEvent.setup();
     await renderApp({
