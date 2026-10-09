@@ -498,6 +498,8 @@ A line chart of one to four series over time: a legend, axis ticks, and a readou
 - `formatTime?`: `(ms: number, spanMs: number) => string`, default clock time up to two days, else the date. Turns a time (epoch milliseconds) into an axis label; the second argument is the span shown in milliseconds.
 - `loading?`: `boolean`, default false. Shows a placeholder instead of the lines while the data loads.
 - `emptyText?`: `string`, default "No data". The text when there are no points.
+- `onSelect?`: `(time: number) => void`. Makes the plot pickable: called with the time (epoch milliseconds) of the nearest point on a click or tap, and on Enter or Space at the point the arrow keys have reached. Without it the chart only reads out.
+- `selected?`: `string | number | Date | null`. The picked time: a fixed marker line is drawn there and a line "Selected <time>" is shown and read out. Keep it in your own state, set from `onSelect`.
 - `height?`: `number`, default 200. Height of the plot in pixels.
 - `className?`: `string`
 

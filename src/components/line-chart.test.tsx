@@ -49,4 +49,30 @@ describe("LineChart", () => {
     // right-aligned at x: the text runs left from x, about 9px a character, so x must leave that much room
     for (const t of labels) expect(Number(t.getAttribute("x"))).toBeGreaterThanOrEqual((t.textContent ?? "").length * 9);
   });
+
+  it("picks a point on a click and with Enter, and shows the selected time", () => {
+    const picks: number[] = [];
+    const series = [{ label: "CPU", points: pts([10, 50, 30]) }];
+    const { container, rerender } = render(<LineChart label="Host" series={series} onSelect={(t) => picks.push(t)} />);
+    const plot = screen.getByRole("application");
+    expect(plot.getAttribute("aria-label")).toContain("Enter picks one");
+    fireEvent.keyDown(plot, { key: "Enter" }); // no point reached yet: nothing is picked
+    expect(picks).toEqual([]);
+    fireEvent.keyDown(plot, { key: "End" });
+    fireEvent.keyDown(plot, { key: "Enter" });
+    fireEvent.keyDown(plot, { key: "ArrowLeft" });
+    fireEvent.keyDown(plot, { key: " " });
+    expect(picks).toEqual([Date.UTC(2026, 9, 9, 0, 2), Date.UTC(2026, 9, 9, 0, 1)]);
+    fireEvent.click(container.querySelector("svg.block")!, { clientX: 0 });
+    expect(picks).toHaveLength(3);
+    expect(document.body.textContent).not.toContain("Selected");
+    rerender(<LineChart label="Host" series={series} onSelect={() => undefined} selected={Date.UTC(2026, 9, 9, 0, 1)} />);
+    expect(document.body.textContent).toMatch(/Selected .*00:01|Selected .*12:01/);
+  });
+
+  it("does nothing on Enter or a click without onSelect", () => {
+    const { container } = render(<LineChart label="Host" series={[{ label: "CPU", points: pts([10, 50, 30]) }]} />);
+    expect(screen.getByRole("application").getAttribute("aria-label")).not.toContain("Enter");
+    fireEvent.click(container.querySelector("svg.block")!);
+  });
 });

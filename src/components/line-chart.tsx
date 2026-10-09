@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import type { KeyboardEvent, PointerEvent } from "react";
+import type { KeyboardEvent, MouseEvent, PointerEvent } from "react";
 import { cn } from "../lib/cn";
 
 export interface ChartPoint {
@@ -31,6 +31,13 @@ export interface LineChartProps {
   loading?: boolean;
   /** The text when there are no points. @default "No data" */
   emptyText?: string;
+  /**
+   * Makes the plot pickable: called with the time (epoch milliseconds) of the nearest point on a click or tap, and on Enter or
+   * Space at the point the arrow keys have reached. Without it the chart only reads out.
+   */
+  onSelect?: (time: number) => void;
+  /** The picked time: a fixed marker line is drawn there and a line "Selected <time>" is shown and read out. Keep it in your own state, set from `onSelect`. */
+  selected?: string | number | Date | null;
   /** Height of the plot in pixels. @default 200 */
   height?: number;
   className?: string;
@@ -80,7 +87,7 @@ function nearest(pts: Prepared["pts"], t: number): number {
  * (the range, the lowest, the highest and the latest value of each series) is the text alternative. It draws SVG itself and
  * adds no dependency. For a single quantity against a scale use `Meter`.
  */
-export function LineChart({ label, series, formatValue, domain, formatTime = defaultTime, loading = false, emptyText = "No data", height = 200, className }: LineChartProps) {
+export function LineChart({ label, series, formatValue, domain, formatTime = defaultTime, loading = false, emptyText = "No data", onSelect, selected, height = 200, className }: LineChartProps) {
   const id = useId();
   const box = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
@@ -162,6 +169,13 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
     const px = ((e.clientX - r.left) / r.width) * width;
     setCursor(Math.min(tMax, Math.max(tMin, tMin + ((px - left) / plotW) * (tMax - tMin))));
   };
+  const pick = (e: MouseEvent<SVGSVGElement>) => {
+    if (!onSelect) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const px = ((e.clientX - r.left) / r.width) * width;
+    const t = Math.min(tMax, Math.max(tMin, tMin + ((px - left) / plotW) * (tMax - tMin)));
+    onSelect(driver[nearest(driver, t)]!.t);
+  };
   const key = (e: KeyboardEvent<HTMLDivElement>) => {
     const i = at === null ? -1 : nearest(driver, at);
     let next: number | null = null;
@@ -169,7 +183,13 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
     else if (e.key === "ArrowLeft") next = Math.max(0, i < 0 ? driver.length - 1 : i - 1);
     else if (e.key === "Home") next = 0;
     else if (e.key === "End") next = driver.length - 1;
-    else if (e.key === "Escape") {
+    else if ((e.key === "Enter" || e.key === " ") && onSelect) {
+      if (at !== null) {
+        e.preventDefault();
+        onSelect(driver[i]!.t);
+      }
+      return;
+    } else if (e.key === "Escape") {
       setCursor(null);
       return;
     } else return;
@@ -177,6 +197,7 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
     setCursor(driver[next]!.t);
   };
 
+  const pickedMs = selected === null || selected === undefined ? null : toMs(selected);
   const summary = data
     .filter((d) => d.pts.some((p) => p.v !== null))
     .map(({ s, pts }) => {
@@ -204,13 +225,13 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
           tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex -- see above
           role="application"
           aria-roledescription="line chart"
-          aria-label={`${label}. Left and Right move between points.`}
+          aria-label={`${label}. Left and Right move between points.${onSelect ? " Enter picks one." : ""}`}
           aria-describedby={`${id}-sum`}
           onKeyDown={key}
           onBlur={() => setCursor(null)}
           className="rounded outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ink"
         >
-          <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" onPointerMove={move} onPointerLeave={() => setCursor(null)} className="block max-w-full touch-pan-y">
+          <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" onPointerMove={move} onClick={pick} onPointerLeave={() => setCursor(null)} className={cn("block max-w-full touch-pan-y", onSelect && "cursor-pointer")}>
             {yTicks.map((v, i) => (
               <g key={v}>
                 <line x1={left} x2={width - margin.right} y1={y(v)} y2={y(v)} className="stroke-line" strokeWidth="1" />
@@ -227,6 +248,9 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
             {paths.map((d, i) => (
               <path key={i} d={d} fill="none" strokeWidth="1.5" strokeLinejoin="round" strokeDasharray={dashes[i % 4] || undefined} className={strokes[i % 4]} />
             ))}
+            {pickedMs !== null && pickedMs >= tMin && pickedMs <= tMax ? (
+              <line x1={x(pickedMs)} x2={x(pickedMs)} y1={margin.top} y2={margin.top + plotH} className="stroke-ink" strokeWidth="2" />
+            ) : null}
             {at !== null ? <line x1={x(at)} x2={x(at)} y1={margin.top} y2={margin.top + plotH} className="stroke-ink-faint" strokeWidth="1" /> : null}
             {readout?.map((r, i) =>
               r && r.p.v !== null ? <circle key={r.s.label} cx={x(r.p.t)} cy={y(r.p.v)} r="3.5" className={cn(fills[i % 4], "stroke-surface")} strokeWidth="1.5" /> : null,
@@ -242,6 +266,7 @@ export function LineChart({ label, series, formatValue, domain, formatTime = def
           </>
         ) : null}
       </p>
+      {pickedMs !== null && Number.isFinite(pickedMs) ? <p className="text-ink">Selected {fullTime(pickedMs)}</p> : null}
       <p id={`${id}-sum`} className="sr-only">
         {fullTime(tMin)} to {fullTime(tMax)}. {summary}
       </p>
