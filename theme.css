@@ -600,7 +600,7 @@ input.display-lg {
   }
   .input[data-invalid],
   .input[aria-invalid="true"] {
-    border-color: var(--color-danger-line);
+    border-color: var(--color-danger);
   }
   .input:disabled,
   .input[data-disabled] {

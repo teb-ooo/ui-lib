@@ -320,6 +320,7 @@ Also accepts the props of `Omit<BaseField.Root.Props, "className" | "invalid" | 
 - `label`: `ReactNode`. Label associated with the control.
 - `hideLabel?`: `boolean`. Keep the label for screen readers but do not draw it (a field in a filter bar, where the control says what it is).
 - `error?`: `ReactNode`. Error message. When set the field is invalid and the control is described by it.
+- `reserveError?`: `boolean`, default false. Keeps one line free under the control for the error, so the fields below do not move when it appears.
 - `description?`: `ReactNode`. Helper text, also announced with the control.
 - `children`: `ReactNode`. The control: an `Input` or any Base UI control.
 - `className?`: `string`
@@ -799,6 +800,7 @@ Also accepts the props of `AdornmentProps`.
 - `value`: `string | null`. The chosen value, or null for none.
 - `onValueChange`: `(value: string | null) => void`
 - `label`: `string`. Accessible name.
+- `emptyLabel?`: `string`, default "No options". Shown in the open list when there are no options.
 - `placeholder?`: `string`. Shown while nothing is chosen.
 - `disabled?`: `boolean`
 - `onHighlight?`: `(value: string | null) => void`. Called with the value of the option that is pointed at or reached with the keys while the list is open, and with `null` when no option is highlighted or the list closes: to preview a choice and put things back on `null`.

@@ -6,6 +6,14 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.125.0 (from 0.124.x)
+
+From the platform's interface review of bd; nothing to change, and two things to opt into:
+
+- `Field reserveError` keeps one line free under the control for its error, so the fields below do not move when it appears (default off).
+- `Select emptyLabel` ("No options" by default): an open `Select` with no options shows that row instead of an empty sliver.
+- Changed look: the invalid border of a field is the full danger colour; a sortable `DataTable` header puts its sort icon after the label, so the labels line up with the cell text; `Select` and `Combobox` lists open aligned to the start of their field; the platform bar's account menu keeps 16px from the screen edge.
+
 ## To ui 0.124.1 (from 0.124.0)
 
 A panel with another in front of it now rises 2rem per level (it was 0.5rem), so its title and close button peek out above the front panel instead of the whole panel being covered. Nothing to change.

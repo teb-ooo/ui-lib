@@ -10,6 +10,8 @@ export interface FieldProps extends Omit<BaseField.Root.Props, "className" | "in
   hideLabel?: boolean;
   /** Error message. When set the field is invalid and the control is described by it. */
   error?: ReactNode;
+  /** Keeps one line free under the control for the error, so the fields below do not move when it appears. @default false */
+  reserveError?: boolean;
   /** Helper text, also announced with the control. */
   description?: ReactNode;
   /** The control: an `Input` or any Base UI control. */
@@ -19,7 +21,7 @@ export interface FieldProps extends Omit<BaseField.Root.Props, "className" | "in
 
 /** Label, control, description and error wired for assistive tech: label association, `aria-describedby`, `aria-invalid`, and the error announced as an alert. */
 export const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
-  { label, hideLabel = false, error, description, children, className, ...rest },
+  { label, hideLabel = false, error, reserveError = false, description, children, className, ...rest },
   ref,
 ) {
   const hasError = error !== undefined && error !== null && error !== false && error !== "";
@@ -30,9 +32,17 @@ export const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
       {description ? (
         <BaseField.Description className="text-ink-faint">{description}</BaseField.Description>
       ) : null}
-      <BaseField.Error match={hasError} className="text-danger" role="alert">
-        {error}
-      </BaseField.Error>
+      {reserveError ? (
+        <div className="min-h-[1.6em]">
+          <BaseField.Error match={hasError} className="text-danger" role="alert">
+            {error}
+          </BaseField.Error>
+        </div>
+      ) : (
+        <BaseField.Error match={hasError} className="text-danger" role="alert">
+          {error}
+        </BaseField.Error>
+      )}
     </BaseField.Root>
   );
 });

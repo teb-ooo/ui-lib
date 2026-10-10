@@ -43,7 +43,7 @@ The page for when it has truly gone wrong and there is nothing to show: a 500, a
 
 ## Field
 Label, control, description and error, wired for assistive tech (label association, `aria-describedby`, `aria-invalid`, error in `role="alert"`).
-- `label: ReactNode` (required), `error?: ReactNode` (sets invalid), `description?: ReactNode`, `children`: the control.
+- `label: ReactNode` (required), `error?: ReactNode` (sets invalid), `reserveError?: boolean` (keep one line free for the error so the fields below do not move when it appears; use it in a form that validates on submit), `description?: ReactNode`, `children`: the control.
 
 ## className on components
 Every component takes `className` for layout utilities only (width, margin, flex). It is appended to the component's own classes, not merged: `cn` joins strings and the package has no class-merging library, so when your class sets the same property as the component's own (a width on `Select`, `Combobox` or `SearchInput`, whose default is `w-56`, `w-72` or `min-w-48`), both apply and the stylesheet order decides. Override with Tailwind's important suffix: `className="w-32!"`. A property the component does not set (margin, `flex-none`) needs no suffix.

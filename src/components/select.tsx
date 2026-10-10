@@ -31,6 +31,8 @@ export interface SelectProps extends AdornmentProps {
   onValueChange: (value: string | null) => void;
   /** Accessible name. */
   label: string;
+  /** Shown in the open list when there are no options. @default "No options" */
+  emptyLabel?: string;
   /** Shown while nothing is chosen. */
   placeholder?: string;
   disabled?: boolean;
@@ -52,7 +54,7 @@ export function OptionAdornment({ children }: { children: ReactNode }) {
 }
 
 /** Choose one option from a short list. For long lists that need searching use `Combobox`. */
-export function Select({ options, value, onValueChange, label, placeholder, disabled, onHighlight, className, startAdornment, endAdornment }: SelectProps) {
+export function Select({ options, value, onValueChange, label, placeholder, emptyLabel = "No options", disabled, onHighlight, className, startAdornment, endAdornment }: SelectProps) {
   const container = usePortalContainer();
   const panel = usePanel();
   const phone = panel.phone;
@@ -72,9 +74,10 @@ export function Select({ options, value, onValueChange, label, placeholder, disa
       </BaseSelect.Trigger>
       <BaseSelect.Portal container={container}>
         {panel.backdropClass ? <BaseSelect.Backdrop className={panel.backdropClass} /> : null}
-        <BaseSelect.Positioner sideOffset={4} alignItemWithTrigger={false} style={panel.style} className="z-50 outline-none">
+        <BaseSelect.Positioner sideOffset={4} align="start" alignItemWithTrigger={false} style={panel.style} className="z-50 outline-none">
           <BaseSelect.Popup className={panel.popupClass("anim-fade panel-inverse panel-float min-w-[var(--anchor-width)] p-1 text-ink outline-none")}>
             {panel.handle}
+            {options.length === 0 ? <p className="px-2 py-1 text-ink-faint">{emptyLabel}</p> : null}
             <BaseSelect.List ref={highlightRef} className={phone ? "" : "max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain"}>
               {options.map((o) => (
                 <BaseSelect.Item

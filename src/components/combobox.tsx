@@ -55,7 +55,7 @@ export function Combobox(props: ComboboxProps) {
   const list = (
     <BaseCombobox.Portal container={container}>
       {panel.backdropClass ? <BaseCombobox.Backdrop className={panel.backdropClass} /> : null}
-      <BaseCombobox.Positioner sideOffset={4} style={panel.style} className="z-50 outline-none">
+      <BaseCombobox.Positioner sideOffset={4} align="start" style={panel.style} className="z-50 outline-none">
         <BaseCombobox.Popup ref={highlightRef} className={panel.popupClass(popup, "max-h-[45dvh] px-1")}>
           {panel.handle}
           <BaseCombobox.Empty className="px-2 py-1 text-ink-faint empty:hidden">{emptyLabel}</BaseCombobox.Empty>

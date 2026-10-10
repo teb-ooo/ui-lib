@@ -782,17 +782,15 @@ export function DataTable<T>({
                         <Button
                           className="-mx-2 border-transparent uppercase"
                           onClick={() => cycleSort(c)}
-                          icon={
-                            dir === "asc" ? (
-                              <ArrowUp aria-hidden="true" className="size-3" />
-                            ) : dir === "desc" ? (
-                              <ArrowDown aria-hidden="true" className="size-3" />
-                            ) : (
-                              <ChevronsUpDown aria-hidden="true" className="size-3" />
-                            )
-                          }
                         >
                           {c.header}
+                          {dir === "asc" ? (
+                            <ArrowUp aria-hidden="true" className="size-3" />
+                          ) : dir === "desc" ? (
+                            <ArrowDown aria-hidden="true" className="size-3" />
+                          ) : (
+                            <ChevronsUpDown aria-hidden="true" className="size-3" />
+                          )}
                         </Button>
                       ) : (
                         <span className="truncate">{c.header}</span>
