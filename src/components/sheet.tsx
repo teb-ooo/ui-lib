@@ -95,7 +95,7 @@ export function Sheet({ open, defaultOpen, onOpenChange, trigger, title, descrip
             <BaseDialog.Close render={<Button icon={<X aria-hidden="true" className="size-4" />} aria-label={closeLabel} className="border-transparent" />} />
           </div>
           {description ? <BaseDialog.Description className="px-4 pb-2 text-ink-muted">{description}</BaseDialog.Description> : null}
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">{children}</div>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
           {footer ? <div className="flex shrink-0 justify-end gap-2 border-t border-line px-4 py-3">{footer}</div> : null}
         </BaseDialog.Popup>
       </BaseDialog.Portal>

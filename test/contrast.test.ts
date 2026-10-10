@@ -53,6 +53,14 @@ describe.each([
     expect(contrast(p["ink-muted"], p["surface-raised"])).toBeGreaterThanOrEqual(AA_TEXT);
     expect(contrast(p["ink"], p["surface-raised"])).toBeGreaterThanOrEqual(AA_TEXT);
   });
+  it("the focus ring (pink) reaches 3:1 against ground and surface, and against pure black and white (a popup or a reversed control)", () => {
+    expect(contrast(p.focus, "#ffffff")).toBeGreaterThanOrEqual(3);
+    expect(contrast(p.focus, "#000000")).toBeGreaterThanOrEqual(3);
+    for (const bg of ["ground", "surface"] as const) {
+      expect(contrast(p.focus, p[bg]), `focus on ${bg}`).toBeGreaterThanOrEqual(3);
+    }
+    expect(contrast(p.focus, p["surface-raised"])).toBeGreaterThanOrEqual(2.5); // a ring on the raised grey is rare and is also the field's own edge
+  });
   it("hover text colours also read on ground", () => {
     for (const s of ["danger", "warning", "ok", "link", "agent"] as const) {
       expect(contrast(p[`${s}-hover`], p.ground), `${s}-hover`).toBeGreaterThanOrEqual(AA_TEXT);

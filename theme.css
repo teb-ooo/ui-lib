@@ -40,6 +40,17 @@
  *
  * Ground is pure black or pure white, and stays literal. Colour appears only as state.
  */
+/*
+ * Every keyboard focus is a 2px pink ring (--color-focus: one pink in both schemes, because the ring sits against the page, a
+ * popup and a reversed control alike, and pink-500 reads on white and on black), whatever the control and whatever its own classes: this rule is not in
+ * a layer, so it wins over every utility and component rule. The width and colour are fixed here; an element's own outline-offset
+ * (inset in a scroller, outside elsewhere) still applies. A focused field also reverses (REVERSAL below): the fill says it is
+ * active, the ring says where the keyboard is.
+ */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+}
+
 @theme static {
   /* Offer one gray: the tinted ramps are removed, the pure one stays. */
   --color-slate-*: initial;
@@ -153,6 +164,7 @@
   --color-agent-hover: var(--color-agent-300);
   --color-agent-soft: var(--color-agent-950);
   --color-agent-line: var(--color-agent-900);
+  --color-focus: var(--color-pink-500);
 }
 
 /* The dark set again, reachable by attribute so a gallery can force it, even inside a light page, and by the `always-dark`
@@ -188,6 +200,7 @@
   --color-agent-hover: var(--color-agent-300);
   --color-agent-soft: var(--color-agent-950);
   --color-agent-line: var(--color-agent-900);
+  --color-focus: var(--color-pink-500);
 }
 
 @media (prefers-color-scheme: light) {
@@ -221,6 +234,7 @@
     --color-agent-hover: var(--color-agent-800);
     --color-agent-soft: var(--color-agent-50);
     --color-agent-line: var(--color-agent-200);
+    --color-focus: var(--color-pink-500);
   }
 }
 
@@ -254,6 +268,7 @@
   --color-agent-hover: var(--color-agent-800);
   --color-agent-soft: var(--color-agent-50);
   --color-agent-line: var(--color-agent-200);
+  --color-focus: var(--color-pink-500);
 }
 
 
@@ -287,8 +302,8 @@
   --radius: 0.25rem;
 }
 
-/* Phone width: what is pressed is 44px tall (Apple's minimum; WCAG 2.5.5 asks 44px too). */
-@media (max-width: 40rem) {
+/* A phone, or any device whose main pointer is a finger (a tablet, a touch laptop): what is pressed is 44px tall (Apple's minimum; WCAG 2.5.5 asks 44px too). */
+@media (max-width: 40rem), (pointer: coarse) {
   :root {
     --target-h: 2.75rem;
   }
@@ -1173,6 +1188,7 @@ input.display-lg {
     --color-agent-hover: light-dark(var(--color-agent-300), var(--color-agent-800));
     --color-agent-soft: light-dark(var(--color-agent-950), var(--color-agent-50));
     --color-agent-line: light-dark(var(--color-agent-900), var(--color-agent-200));
+    --color-focus: var(--color-pink-500);
     border-color: var(--color-ground);
     background: var(--color-ground);
     color: var(--color-ink);
@@ -1221,6 +1237,7 @@ input.display-lg {
     --color-agent-hover: light-dark(var(--color-agent-800), var(--color-agent-300));
     --color-agent-soft: light-dark(var(--color-agent-50), var(--color-agent-950));
     --color-agent-line: light-dark(var(--color-agent-200), var(--color-agent-900));
+    --color-focus: var(--color-pink-500);
     border-color: var(--color-ground);
     background: var(--color-ground);
     color: var(--color-ink);
@@ -1276,6 +1293,7 @@ input.display-lg {
     --color-agent-hover: light-dark(var(--color-agent-300), var(--color-agent-800));
     --color-agent-soft: light-dark(var(--color-agent-950), var(--color-agent-50));
     --color-agent-line: light-dark(var(--color-agent-900), var(--color-agent-200));
+    --color-focus: var(--color-pink-500);
     border-color: var(--color-ground);
     background: var(--color-ground);
     color: var(--color-ink);
@@ -1338,6 +1356,7 @@ input.display-lg {
     --color-agent-hover: light-dark(var(--color-agent-800), var(--color-agent-300));
     --color-agent-soft: light-dark(var(--color-agent-50), var(--color-agent-950));
     --color-agent-line: light-dark(var(--color-agent-200), var(--color-agent-900));
+    --color-focus: var(--color-pink-500);
     border-color: var(--color-ground);
     background: var(--color-ground);
     color: var(--color-ink);
@@ -1407,6 +1426,7 @@ input.display-lg {
     --color-agent-hover: light-dark(var(--color-agent-300), var(--color-agent-800));
     --color-agent-soft: light-dark(var(--color-agent-950), var(--color-agent-50));
     --color-agent-line: light-dark(var(--color-agent-900), var(--color-agent-200));
+    --color-focus: var(--color-pink-500);
     border-color: var(--color-ground);
     background: var(--color-ground);
     color: var(--color-ink);
@@ -1483,6 +1503,7 @@ input.display-lg {
     --color-agent-hover: light-dark(var(--color-agent-800), var(--color-agent-300));
     --color-agent-soft: light-dark(var(--color-agent-50), var(--color-agent-950));
     --color-agent-line: light-dark(var(--color-agent-200), var(--color-agent-900));
+    --color-focus: var(--color-pink-500);
     border-color: var(--color-ground);
     background: var(--color-ground);
     color: var(--color-ink);

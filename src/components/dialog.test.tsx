@@ -96,3 +96,36 @@ describe("Dialog placement", () => {
     await waitFor(() => expect(screen.getByLabelText("Search")).toHaveFocus());
   });
 });
+
+describe("Dialog initial focus", () => {
+  it("starts on the first field of the content, not on the close button", async () => {
+    render(
+      <Dialog open onOpenChange={() => undefined} title="Rename" footer={<button type="button">Save</button>}>
+        <label>
+          Name
+          <input defaultValue="x" />
+        </label>
+      </Dialog>,
+    );
+    const field = await screen.findByRole("textbox", { name: "Name" });
+    await waitFor(() => expect(document.activeElement).toBe(field));
+  });
+
+  it("an initialFocus of the app still wins, and a dialog with no control in its content keeps the default (a control of the dialog has focus)", async () => {
+    const second = createRef<HTMLInputElement>();
+    const first = render(
+      <Dialog open onOpenChange={() => undefined} title="Two" initialFocus={second}>
+        <input aria-label="first" />
+        <input ref={second} aria-label="second" />
+      </Dialog>,
+    );
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "second" })));
+    first.unmount();
+    render(
+      <Dialog open onOpenChange={() => undefined} title="Plain" description="Just text.">
+        <p>No controls here.</p>
+      </Dialog>,
+    );
+    await waitFor(() => expect(document.activeElement).not.toBe(document.body));
+  });
+});

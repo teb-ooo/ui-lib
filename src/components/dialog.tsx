@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { ReactElement, ReactNode, RefObject } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
@@ -51,6 +52,8 @@ const placements: Record<DialogPlacement, string> = {
   right: "anim-slide-right panel panel-float right-0 top-0 h-dvh w-full max-w-xl overflow-y-auto rounded-none border-y-0 border-r-0",
 };
 
+const CONTROLS = 'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [contenteditable="true"], [role="combobox"]:not([disabled]), button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])';
+
 /**
  * A panel over the page for one decision or a short task: inverted, with a shaded header (the title, centred), a body
  * and a shaded footer for the actions. Focus is trapped while it is open and Escape closes it. Use `ConfirmDialog` for a
@@ -73,6 +76,10 @@ export function Dialog({
   className,
 }: DialogProps) {
   const container = usePortalContainer();
+  const body = useRef<HTMLDivElement>(null);
+  // Focus starts on the first control of the content (the first field of a form), not on the close button above it; with no
+  // control in the content, on the default (the first tabbable). `initialFocus` overrides it.
+  const firstControl = () => body.current?.querySelector<HTMLElement>(CONTROLS) ?? true;
   // A dialog is inverted (white on a dark page, black on a light one) and drawn as three bands: a shaded header with the
   // title and close button, the content, and a shaded footer for the actions. A bare dialog (the palette) is only a surface.
   const invert = inverted || !bare;
@@ -83,7 +90,7 @@ export function Dialog({
         <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
         <BaseDialog.Popup
           data-placement={placement}
-          {...(initialFocus !== undefined ? { initialFocus } : {})}
+          initialFocus={initialFocus ?? firstControl}
           className={cn(
             "fixed z-50 text-ink outline-none",
             invert ? placements[placement].replace("panel ", "panel-inverse ") : placements[placement],
@@ -106,7 +113,7 @@ export function Dialog({
                 />
               </div>
               {description || children ? (
-                <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
+                <div ref={body} className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-4 py-4">
                   {description ? <BaseDialog.Description className="text-ink-muted">{description}</BaseDialog.Description> : null}
                   {children}
                 </div>

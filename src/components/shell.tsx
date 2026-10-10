@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
@@ -28,6 +28,8 @@ export interface ShellProps {
   drawerLabel?: string;
   /** Label of the drawer's close button. @default "Close" */
   closeLabel?: string;
+  /** Label of the skip link, the first Tab stop: it jumps past the platform bar and the sidebar to the content. @default "Skip to content" */
+  skipLabel?: string;
   className?: string;
 }
 
@@ -39,7 +41,8 @@ export interface ShellProps {
  * feedback panel, so mount it inside `CommandProvider` (and the router and query client). App navigation and actions
  * belong in the sidebar, the page and Cmd+K commands.
  */
-export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawerLabel = "Menu", closeLabel = "Close", className }: ShellProps) {
+export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawerLabel = "Menu", closeLabel = "Close", skipLabel = "Skip to content", className }: ShellProps) {
+  const mainRef = useRef<HTMLElement>(null);
   const portalContainer = usePortalContainer();
   const wide = useMinWidth("md");
   const hasSidebar = sidebar !== null && sidebar !== undefined && sidebar !== false;
@@ -57,6 +60,17 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
   return (
     <ToastProvider>
     <div className={cn("flex h-dvh w-full flex-col overflow-hidden bg-ground text-ink", className)}>
+      {/* The first Tab stop: invisible until it has focus. It moves focus to the content without changing the address. */}
+      <a
+        href="#shell-main"
+        onClick={(e) => {
+          e.preventDefault();
+          mainRef.current?.focus();
+        }}
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[70] focus:rounded focus:border focus:border-line-strong focus:bg-ground focus:px-3 focus:py-1 focus:text-ink focus:outline-none"
+      >
+        {skipLabel}
+      </a>
       <PlatformBar
         appName={playground.appName || "app"}
         env={playground.env}
@@ -77,7 +91,9 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
       <FeedbackPanel feedback={feedback} />
       <div className="flex min-h-0 flex-1">
         {wide && hasSidebar ? <aside className="shrink-0 border-r border-line">{sidebar}</aside> : null}
-        <main className="min-h-0 min-w-0 flex-1 overflow-auto">{children}</main>
+        <main ref={mainRef} id="shell-main" tabIndex={-1} className="min-h-0 min-w-0 flex-1 overflow-auto overscroll-contain pb-[env(safe-area-inset-bottom)] outline-none">
+          {children}
+        </main>
       </div>
       {wide || !hasSidebar ? null : (
         <BaseDialog.Root open={open} onOpenChange={setOpen}>

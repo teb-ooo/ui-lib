@@ -411,3 +411,17 @@ describe("Switch to staging / production", () => {
     expect(when(find(true))).toBe(false); // the test page is neither staging nor production
   });
 });
+
+describe("Shell skip link", () => {
+  it("is the first Tab stop, invisible until focused, and moves focus to the content without changing the address", async () => {
+    mount(member);
+    const link = await screen.findByRole("link", { name: "Skip to content" });
+    expect(link.className).toContain("sr-only");
+    const first = [...document.querySelectorAll<HTMLElement>("a[href], button, [tabindex]:not([tabindex='-1'])")][0];
+    expect(first).toBe(link);
+    const before = window.location.href;
+    await userEvent.click(link);
+    expect(document.activeElement).toBe(document.getElementById("shell-main"));
+    expect(window.location.href).toBe(before);
+  });
+});

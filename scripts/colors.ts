@@ -13,6 +13,7 @@ export type TokenName =
   | "ink"
   | "ink-muted"
   | "ink-faint"
+  | "focus"
   | State
   | `${State}-${"hover" | "soft" | "line"}`;
 export type Palette = Record<TokenName, string>;
@@ -27,6 +28,7 @@ export const COLOR_TOKENS: readonly TokenName[] = [
   "ink",
   "ink-muted",
   "ink-faint",
+  "focus",
   ...STATES.flatMap((s): TokenName[] => [s, `${s}-hover`, `${s}-soft`, `${s}-line`]),
 ];
 export type Theme = "dark" | "light";

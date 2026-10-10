@@ -111,7 +111,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <BaseToast.Provider limit={4}>
       <Bridge>{children}</Bridge>
       <BaseToast.Portal container={container}>
-        <BaseToast.Viewport className="toast-viewport pointer-events-none fixed inset-x-4 bottom-4 z-[60] sm:left-auto sm:w-96">
+        <BaseToast.Viewport className="toast-viewport pointer-events-none fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-[60] sm:left-auto sm:w-96">
           <List />
         </BaseToast.Viewport>
       </BaseToast.Portal>

@@ -832,6 +832,7 @@ The closed platform shell: the platform's top bar (`PlatformBar`, built in), the
 - `menuLabel?`: `string`, default "Open menu". Label of the phone menu icon.
 - `drawerLabel?`: `string`, default "Menu". Accessible name of the phone drawer.
 - `closeLabel?`: `string`, default "Close". Label of the drawer's close button.
+- `skipLabel?`: `string`, default "Skip to content". Label of the skip link, the first Tab stop: it jumps past the platform bar and the sidebar to the content.
 - `className?`: `string`
 
 ### Sidebar

@@ -95,7 +95,7 @@ export function Sidebar({
         </div>
       ) : null}
       {/* The scroller is the sidebar's full width and the height between the header and the footer, so its scrollbar sits on the sidebar's own edge and the items scroll right up to the header and footer; the padding is inside it. */}
-      <nav aria-label={label} className="min-h-0 flex-1 overflow-y-auto p-2">
+      <nav aria-label={label} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
         <ul className="flex flex-col gap-0.5">
           {items.map((item, i) => {
             const content = (

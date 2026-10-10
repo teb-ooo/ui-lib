@@ -70,7 +70,7 @@ export function Select({ options, value, onValueChange, label, placeholder, disa
       <BaseSelect.Portal container={container}>
         <BaseSelect.Positioner sideOffset={4} alignItemWithTrigger={false} className="z-50 outline-none">
           <BaseSelect.Popup className="anim-fade panel-inverse panel-float min-w-[var(--anchor-width)] p-1 text-ink outline-none">
-            <BaseSelect.List ref={highlightRef} className="max-h-[min(20rem,var(--available-height))] overflow-y-auto">
+            <BaseSelect.List ref={highlightRef} className="max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain">
               {options.map((o) => (
                 <BaseSelect.Item
                   key={o.value}
