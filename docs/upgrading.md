@@ -8,7 +8,7 @@ The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), bec
 
 ## To ui 0.114.0 (from 0.113.x)
 
-`FatalPage` is less loud and less cluttered: its word is small and its letters are shuffled (it was the huge centre of the picture), and the colour-channel split is gone, so the picture is only red and black. The gallery's `FatalPage` and `EntrancePage` examples each have a fullscreen preview. Nothing to change.
+`FatalPage` is a different picture (the glitch look is gone): the enter page's swingset and stars, ruined in red on black (a rope snaps, the frame collapses, a storm of stars is thrown outward). Its word is small and its letters are shuffled. The gallery's `FatalPage` and `EntrancePage` examples each have a fullscreen preview. Nothing to change.
 
 ## To ui 0.113.0 (from 0.112.x)
 

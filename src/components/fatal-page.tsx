@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
-import { COLLAPSE, CYCLE, corruptText, momentAt, rng, shuffleWord, wave } from "../lib/ruin";
+import { rng, shuffleWord } from "../lib/ruin";
+import { CYCLE, RuinedSwing } from "../lib/ruin-swing";
+import type { V3 } from "../lib/ruin-swing";
 
 export interface FatalPageProps {
-  /** The word. It is drawn small in the picture, its letters shuffled and breaking up, and is the page's heading for assistive technology. @default "BAD" */
+  /** The word. It is drawn small, its letters shuffled, in the dark, and is the page's heading for assistive technology. @default "BAD" */
   title?: string;
   /** One or two plain sentences: what happened and what the person can do. Always readable, never part of the picture. */
   message?: ReactNode;
@@ -20,145 +22,199 @@ export interface FatalPageProps {
   className?: string;
 }
 
-const PIXELS = 70_000;
+const STARS = 6500;
+const AZIMUTH = 0.8;
+const PITCH = 0.5;
+const CENTER_Y = 1.5;
+// The colours are names (no colour functions in the package); brightness is the canvas's alpha.
+const STAR_COLORS = ["red", "crimson", "firebrick", "tomato", "darkred"] as const;
+const LEVELS = [0.3, 0.5, 0.75, 1] as const;
+
+interface Star {
+  r: number;
+  th: number;
+  y: number;
+  w: number;
+  off: V3;
+  vel: V3;
+  group: number;
+}
 
 /**
- * The page for when it has truly gone wrong and there is nothing to show: a 500, a crash, an expired invitation. A full-screen
- * picture of something failing, in red and black: static, torn scanlines, waveforms that stop being waves, blocks of
- * corruption, and a small word that is shuffled and breaking up. It builds toward a collapse, falls, and starts again worse.
- * Under it the message and the one way out stay perfectly legible, and the picture is hidden from assistive technology.
+ * The page for when it has truly gone wrong and there is nothing to show: a 500, a crash, an expired invitation. The enter
+ * page's swingset and its cloud of stars, ruined: in the dark the swing is thrashed by gusts, a rope snaps, the frame comes
+ * apart piece by piece and falls, sparks burst, and a storm of red stars is thrown outward and wheels on; then it fades to
+ * black and begins again, angrier. The word is small and its letters are wrong. Under it the message and the one way out stay
+ * perfectly legible, and the picture is hidden from assistive technology.
  *
- * It is loud on purpose, so use it rarely, for failures and not for a page that is merely empty (use `NotFound` or `EmptyState`).
- * A person who asks for reduced motion gets one still frame, nothing moves, and nothing flashes: the picture never switches a
- * large part of the screen between light and dark more than a few times a second. The drawing pauses while the tab is hidden and
- * is only decoration, so a browser without canvas simply shows the dark page with the text.
+ * It is loud on purpose, so use it rarely, for failures and not for a page that is merely empty (use `NotFound` or
+ * `EmptyState`). A person who asks for reduced motion gets one still frame of the wreck. The picture fades in and out through
+ * black and never flashes a large area between light and dark, pauses while the tab is hidden, draws with the 2D canvas (no
+ * WebGL) and is only decoration, so a browser without canvas shows the dark page with the text.
  */
 export function FatalPage({ title = "BAD", message, detail, action, fullscreen = true, className }: FatalPageProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
+  const word = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const el = canvas.current;
-    const ctx = el?.getContext?.("2d", { willReadFrequently: true }) ?? null;
+    const ctx = el?.getContext?.("2d") ?? null;
     if (!el || !ctx) return;
     const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    const scene = document.createElement("canvas");
-    const sctx = scene.getContext("2d", { willReadFrequently: true });
-    if (!sctx) return;
-
-    const mono = getComputedStyle(el).getPropertyValue("--font-mono").trim() || "monospace";
-    let W = 0;
-    let H = 0;
-    let frame = 0;
-    let raf = 0;
-    let last = 0;
-    let tAt = 0;
     const random = rng(Math.floor(Math.random() * 1e9));
-    let shown = "";
-    const at = { x: 0, y: 0 };
-    let shownUntil = 0;
+    const wordEl = word.current;
 
+    let W = 1;
+    let H = 1;
+    let dpr = 1;
     const size = () => {
       const r = el.getBoundingClientRect();
-      const aspect = Math.max(0.3, Math.min(3, (r.width || 16) / (r.height || 9)));
-      W = Math.max(64, Math.round(Math.sqrt(PIXELS * aspect)));
-      H = Math.max(36, Math.round(PIXELS / W));
-      el.width = scene.width = W;
-      el.height = scene.height = H;
+      dpr = Math.min(window.devicePixelRatio || 1, 2, 1800 / Math.max(1, r.width));
+      W = Math.max(2, Math.round(r.width * dpr));
+      H = Math.max(2, Math.round(r.height * dpr));
+      el.width = W;
+      el.height = H;
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, W, H);
     };
 
-    const draw = (t: number) => {
-      const m = momentAt(t);
-      const c = m.chaos;
-      const fall = m.collapse * m.collapse;
-      // --- the scene: black, waveforms, the word, blocks ---
-      sctx.fillStyle = "black";
-      sctx.fillRect(0, 0, W, H);
-      sctx.lineWidth = Math.max(1, H / 140);
-      for (let k = 0; k < 3; k += 1) {
-        sctx.beginPath();
-        sctx.strokeStyle = k === 0 ? "tomato" : k === 1 ? "red" : "darkred";
-        const mid = H * (0.28 + k * 0.22) + fall * H * 0.4 * (k + 1);
-        const amp = H * 0.11 * (1 - fall * 0.7);
-        for (let i = 0; i <= 120; i += 1) {
-          const x = i / 120;
-          const y = mid + wave(x, t, c, random, k) * amp;
-          if (i === 0) sctx.moveTo(0, y);
-          else sctx.lineTo(x * W, y);
-        }
-        sctx.stroke();
-      }
-      // The word is small and wrong: its letters re-shuffled and breaking up, turning up somewhere new a few times a second.
-      if (t >= shownUntil) {
-        shown = corruptText(shuffleWord(title, random), c * 0.8, random);
-        at.x = W * (0.12 + random() * 0.76);
-        at.y = H * (0.14 + random() * 0.66);
-        shownUntil = t + 0.1 + random() * 0.3;
-      }
-      const fs = Math.max(8, H * (0.07 + c * 0.02));
-      sctx.font = `bold ${fs}px ${mono}`;
-      sctx.textAlign = "center";
-      sctx.textBaseline = "middle";
-      const jx = (random() - 0.5) * W * 0.02 * c;
-      const jy = (random() - 0.5) * H * 0.02 * c + fall * H * 0.4;
-      sctx.fillStyle = "red";
-      sctx.fillText(shown, at.x + jx, at.y + jy);
-      // a hot flash of it now and then, kept to red hues and to a few frames in a cycle so it never strobes
-      if (c > 0.8 && random() < 0.12) {
-        sctx.fillStyle = "salmon";
-        sctx.fillText(shown, at.x + jx, at.y + jy);
-      }
-      // blocks of corruption
-      const blocks = Math.floor(c * c * 14);
-      for (let b = 0; b < blocks; b += 1) {
-        const bw = random() * W * 0.3 * c + 3;
-        const bh = random() * H * 0.04 + 1;
-        sctx.fillStyle = random() < 0.5 ? "red" : random() < 0.5 ? "black" : "darkred";
-        sctx.fillRect(random() * W, random() * H, bw, bh);
-      }
+    // The stars: a thick low cloud round the swingset that thins with height and distance, wheeling the way the enter page's does.
+    const stars: Star[] = [];
+    for (let i = 0; i < STARS; i += 1) {
+      const r = 0.6 + 9 * Math.sqrt(random());
+      const y = Math.min(9, -Math.log(1 - random() * 0.999) * 1.9);
+      const w = (0.12 + random() * 0.5) * (1 + 1.5 * Math.exp(-r * 0.25)) * Math.cos(y * 0.35) * (random() < 0.5 ? 1 : 0.7);
+      stars.push({ r, th: random() * Math.PI * 2, y, w, off: [0, 0, 0], vel: [0, 0, 0], group: Math.floor(random() * STAR_COLORS.length) * LEVELS.length + Math.floor(random() * random() * LEVELS.length) });
+    }
+    const prevX = new Float32Array(STARS);
+    const prevY = new Float32Array(STARS);
+    const groups: number[][] = Array.from({ length: STAR_COLORS.length * LEVELS.length }, () => []);
+    stars.forEach((s, i) => groups[s.group]!.push(i));
 
-      // --- the damage: tearing, a roll, static, scanlines, darkness ---
-      const src = sctx.getImageData(0, 0, W, H);
-      const out = ctx.createImageData(W, H);
-      const rowShift = new Int16Array(H);
-      const bands = Math.floor(2 + c * 9);
-      for (let b = 0; b < bands; b += 1) {
-        const y0 = Math.floor(random() * H);
-        const h = 1 + Math.floor(random() * H * 0.08 * (0.3 + c));
-        const dx = Math.round((random() - 0.5) * W * 0.5 * c);
-        for (let y = y0; y < Math.min(H, y0 + h); y += 1) rowShift[y] = dx;
+    let cycle = 0;
+    let swing = new RuinedSwing(random() * 1e9, 0);
+    // the camera: fixed, looking down at the swingset from the side, as the enter page does
+    const rx = Math.cos(AZIMUTH);
+    const rz = -Math.sin(AZIMUTH);
+    const cx = Math.sin(AZIMUTH) * Math.cos(PITCH);
+    const cy = Math.sin(PITCH);
+    const cz = Math.cos(AZIMUTH) * Math.cos(PITCH);
+    // up = c x right
+    const ux = cy * rz;
+    const uy = cz * rx - cx * rz;
+    const uz = -cy * rx;
+    let scale = 1;
+    let ox = 0;
+    let oy = 0;
+    let shakeX = 0;
+    let shakeY = 0;
+    const px = new Float32Array(2);
+    const project = (x: number, y: number, z: number) => {
+      const dy = y - CENTER_Y;
+      px[0] = ox + shakeX + (x * rx + z * rz) * scale;
+      px[1] = oy + shakeY - (x * ux + dy * uy + z * uz) * scale;
+    };
+
+    const push = (at: V3, mag: number) => {
+      for (const s of stars) {
+        const x = s.r * Math.cos(s.th) + s.off[0] - at[0];
+        const y = s.y + s.off[1] - at[1];
+        const z = s.r * Math.sin(s.th) + s.off[2] - at[2];
+        const d = Math.hypot(x, y, z) + 0.4;
+        const f = mag / (d * d) * (0.6 + random());
+        s.vel[0] += (x / d) * f;
+        s.vel[1] += (y / d) * f + f * 0.3;
+        s.vel[2] += (z / d) * f;
       }
-      const roll = fall > 0 ? Math.floor(fall * H * 0.9) : random() < c * 0.06 ? Math.floor(random() * H * 0.2) : 0;
-      const noiseAmt = 0.1 + c * 0.42 + fall * 0.2;
-      const cx = W / 2;
-      const cy = H / 2;
-      for (let y = 0; y < H; y += 1) {
-        const sy = (y + roll) % H;
-        const sh = rowShift[sy] ?? 0;
-        const dark = y % 3 === 0 ? 0.55 : 1;
-        for (let x = 0; x < W; x += 1) {
-          const xs = Math.min(W - 1, Math.max(0, x + sh));
-          const row = sy * W;
-          let r = src.data[(row + xs) * 4] ?? 0;
-          let g = src.data[(row + xs) * 4 + 1] ?? 0;
-          let b = src.data[(row + xs) * 4 + 2] ?? 0;
-          // static: red-heavy grain
-          const n = random();
-          const grain = n * 255 * noiseAmt * (n > 0.97 ? 1.6 : 1);
-          r += grain * 0.95;
-          g += grain * 0.18;
-          b += grain * 0.12;
-          // vignette: the edges go to black
-          const dx = (x - cx) / cx;
-          const dy = (y - cy) / cy;
-          const v = Math.max(0.12, 1 - (dx * dx + dy * dy) * (0.55 + c * 0.35));
-          const i = (y * W + x) * 4;
-          out.data[i] = Math.min(255, r * v * dark);
-          out.data[i + 1] = Math.min(255, g * v * dark);
-          out.data[i + 2] = Math.min(255, b * v * dark);
-          out.data[i + 3] = 255;
+    };
+
+    const stepWorld = (dt: number) => {
+      swing.step(dt);
+      const c = swing.chaos();
+      for (const e of swing.take()) push(e.at, e.kind === "snap" ? 30 : e.kind === "fall" ? 14 : 8);
+      for (const s of stars) {
+        s.th += s.w * dt * (1 + 2.5 * c);
+        // turbulence: a random walk in velocity that grows with the chaos, and a pull back to the cloud
+        for (let k = 0; k < 3; k += 1) {
+          s.vel[k] = s.vel[k]! * (1 - 0.6 * dt) + (random() - 0.5) * c * c * 9 * dt - s.off[k]! * 0.35 * dt;
+          s.off[k] = s.off[k]! + s.vel[k]! * dt;
+        }
+        // in the end they fall
+        if (swing.t > 6.2) s.vel[1] = s.vel[1]! - 2.2 * dt;
+        if (s.y + s.off[1]! < 0.02) {
+          s.off[1] = 0.02 - s.y;
+          s.vel[1] = Math.abs(s.vel[1]!) * 0.3;
         }
       }
-      ctx.putImageData(out, 0, 0);
+    };
+
+    const draw = (fade: boolean) => {
+      const c = swing.chaos();
+      ctx.globalAlpha = fade ? 0.5 - c * 0.24 : 1; // the more it rages, the longer the trails
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, W, H);
+      scale = Math.min(H / 4.9, W / 7);
+      ox = W / 2;
+      oy = H * 0.52;
+      if (!still) {
+        const shake = c * c * dpr * (swing.t > 5 ? 9 : 4);
+        shakeX = (random() - 0.5) * shake;
+        shakeY = (random() - 0.5) * shake;
+      }
+      // stars
+      groups.forEach((list, g) => {
+        const color = STAR_COLORS[Math.floor(g / LEVELS.length)]!;
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = Math.min(1, LEVELS[g % LEVELS.length]! * (0.8 + 0.4 * c));
+        ctx.lineWidth = Math.max(1, dpr * (1 + (g % LEVELS.length === 3 ? 1 : 0)));
+        ctx.beginPath();
+        for (const i of list) {
+          const s = stars[i]!;
+          project(s.r * Math.cos(s.th) + s.off[0], s.y + s.off[1], s.r * Math.sin(s.th) + s.off[2]);
+          const x = px[0]!;
+          const y = px[1]!;
+          const dx = x - (prevX[i] ?? x);
+          const dy = y - (prevY[i] ?? y);
+          prevX[i] = x;
+          prevY[i] = y;
+          const moved = Math.hypot(dx, dy);
+          if (moved > dpr * 1.5 && moved < W * 0.3) {
+            // fast: a streak along where it has just been, longer the harder it is thrown
+            ctx.moveTo(x - dx * (1 + c), y - dy * (1 + c));
+            ctx.lineTo(x, y);
+          } else {
+            const d = Math.max(1, dpr * (1 + (g % LEVELS.length === 3 ? 1 : 0)));
+            ctx.rect(x, y, d, d);
+          }
+        }
+        ctx.fill();
+        ctx.stroke();
+      });
+      // the swingset
+      ctx.globalAlpha = 1;
+      ctx.lineCap = "round";
+      for (const l of swing.lines()) {
+        project(...l.a);
+        const ax = px[0]!;
+        const ay = px[1]!;
+        project(...l.b);
+        ctx.strokeStyle = l.kind === "frame" ? "red" : l.kind === "rope" ? "tomato" : "salmon";
+        ctx.lineWidth = Math.max(1, dpr * (l.kind === "frame" ? 2.4 : 1.6));
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(px[0]!, px[1]!);
+        ctx.stroke();
+      }
+      // sparks
+      for (const sp of swing.sparks) {
+        project(...sp.p);
+        ctx.fillStyle = sp.hot > 0.6 ? "salmon" : "tomato";
+        ctx.globalAlpha = Math.min(1, sp.life * 1.5);
+        const d = Math.max(1, dpr * (1 + sp.hot * 1.5));
+        ctx.fillRect(px[0]!, px[1]!, d, d);
+      }
+      ctx.globalAlpha = 1;
     };
 
     size();
@@ -166,19 +222,52 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
     ro?.observe(el);
 
     if (still) {
-      draw(CYCLE - COLLAPSE - 0.5);
+      // one frame: the wreck, a little after the frame has come down
+      for (let i = 0; i < 60 * 9.2; i += 1) stepWorld(1 / 60);
+      draw(false);
+      if (wordEl) wordEl.textContent = shuffleWord(title, random);
       return () => ro?.disconnect();
     }
-    // About 24 pictures a second: slow enough that the static does not strobe, fast enough to feel violent.
-    const step = 1000 / 24;
+
+    let raf = 0;
+    let last = 0;
+    let acc = 0;
+    let shownUntil = 0;
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
-      if (document.hidden || now - last < step) return;
+      if (document.hidden) {
+        last = 0;
+        return;
+      }
+      const dt = last === 0 ? 0 : Math.min(0.05, (now - last) / 1000);
       last = now;
-      tAt += step / 1000;
-      frame += 1;
-      draw(tAt);
-      el.dataset.frame = String(frame);
+      acc += dt;
+      while (acc >= 1 / 60) {
+        stepWorld(1 / 60);
+        acc -= 1 / 60;
+      }
+      if (swing.t > CYCLE) {
+        // fade through black into the next one, worse
+        cycle += 1;
+        swing = new RuinedSwing(random() * 1e9, Math.min(1, cycle * 0.25));
+        for (const s of stars) {
+          s.off = [0, 0, 0];
+          s.vel = [0, 0, 0];
+        }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, W, H);
+      }
+      draw(true);
+      // The picture comes out of black and goes back into it: nothing flashes.
+      const t = swing.t;
+      el.style.opacity = String(Math.max(0, Math.min(1, t / 1.2, (CYCLE - t) / 1.5)));
+      if (wordEl && swing.t >= shownUntil) {
+        wordEl.textContent = shuffleWord(title, random);
+        wordEl.style.opacity = String(0.25 + random() * 0.6);
+        wordEl.style.transform = `translate(${(random() - 0.5) * 6}px, ${(random() - 0.5) * 6}px)`;
+        shownUntil = swing.t + 0.12 + random() * 0.35;
+      }
     };
     raf = requestAnimationFrame(loop);
     return () => {
@@ -188,11 +277,10 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
   }, [title]);
 
   return (
-    <div
-      role="alert"
-      className={cn("relative isolate overflow-hidden always-dark bg-black text-white", fullscreen ? "fixed inset-0 z-50 h-dvh w-full" : "h-full min-h-72 w-full", className)}
-    >
-      <canvas ref={canvas} aria-hidden="true" className="absolute inset-0 -z-10 size-full object-cover [image-rendering:pixelated]" />
+    <div role="alert" className={cn("relative isolate overflow-hidden always-dark bg-black text-white", fullscreen ? "fixed inset-0 z-50 h-dvh w-full" : "h-full min-h-72 w-full", className)}>
+      <canvas ref={canvas} aria-hidden="true" className="absolute inset-0 -z-20 size-full" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_45%,transparent_30%,black_100%)]" />
+      <span ref={word} aria-hidden="true" className="pointer-events-none absolute bottom-[26%] left-[7%] text-danger select-none" />
       <h1 className="sr-only">{title}</h1>
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 bg-gradient-to-t from-black via-black/80 to-transparent px-4 pt-16 pb-8 text-center">
         {message ? <p className="max-w-xl text-white">{message}</p> : null}
