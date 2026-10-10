@@ -144,7 +144,7 @@ export function usePanelsAbove(isOpen: boolean): number {
 /** The style that sets a panel back when `above` panels are in front of it. */
 export function panelDepthStyle(above: number): CSSProperties | undefined {
   if (above === 0) return undefined;
-  return { transform: `translateY(-${above * 0.5}rem) scale(${1 - above * 0.04})`, transformOrigin: "50% 100%", transition: "transform 180ms var(--ease-out)" };
+  return { transform: `translateY(-${above * 2}rem) scale(${1 - above * 0.03})`, transformOrigin: "50% 100%", transition: "transform 180ms var(--ease-out)" };
 }
 
 /** A panel's children with the handle above them. */

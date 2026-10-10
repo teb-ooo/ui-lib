@@ -81,4 +81,4 @@ export const Stacked = () => {
     </>
   );
 };
-Stacked.storyMeta = { description: "Panels stack like toasts: open the select or the delete confirmation on a phone and the drawer sits behind it, a little smaller and higher." } satisfies StoryMeta;
+Stacked.storyMeta = { description: "Panels stack like toasts: open the select or the delete confirmation on a phone and the drawer sits behind it, a little smaller, with its title peeking above." } satisfies StoryMeta;

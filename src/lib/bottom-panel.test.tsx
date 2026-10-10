@@ -75,7 +75,7 @@ describe("bottom panels", () => {
     );
     await user.click(await screen.findByRole("button", { name: "Second" }));
     const first = screen.getAllByRole("dialog", { hidden: true })[0] as HTMLElement;
-    await waitFor(() => expect(first.style.transform).toContain("scale(0.96)"));
+    await waitFor(() => expect(first.style.transform).toContain("scale(0.97)"));
     expect(screen.getByRole("dialog", { name: "Second panel" }).style.transform).not.toContain("scale");
   });
 });
@@ -93,7 +93,7 @@ describe("stacking with anchored popups", () => {
     expect(sheet.style.transform).toBe("none");
     await user.click(screen.getByRole("combobox", { name: "Pick" }));
     await screen.findByRole("listbox");
-    await waitFor(() => expect(sheet.style.transform).toContain("scale(0.96)"));
+    await waitFor(() => expect(sheet.style.transform).toContain("scale(0.97)"));
     await user.keyboard("{Escape}");
     await waitFor(() => expect(sheet.style.transform).toBe("none"));
   });
