@@ -20,6 +20,7 @@ export interface AgentBarDetails {
   receivedAt?: number;
 }
 import { Tooltip } from "./tooltip";
+import { usePanel } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 
 export interface PlatformBarProps {
@@ -218,6 +219,7 @@ export function PlatformBar({
   menuLabel = "Open menu",
 }: PlatformBarProps) {
   const portalContainer = usePortalContainer();
+  const panel = usePanel();
   // Connected is the expected state and shows nothing; the dot appears only when live updates are reconnecting or degraded.
   // `off` (a hidden tab, a test browser, a stream that is switched off) is not a fault either.
   const dot = live === "reconnecting" || live === "degraded" ? live : null;
@@ -297,8 +299,10 @@ export function PlatformBar({
             </Menu.Trigger>
           </Tooltip>
           <Menu.Portal container={portalContainer}>
-            <Menu.Positioner align="end" sideOffset={4} className="z-50">
-              <Menu.Popup className={cn("anim-fade panel-inverse panel-float min-w-48 p-1 text-ink outline-none")}>
+            {panel.backdrop}
+            <Menu.Positioner align="end" sideOffset={4} style={panel.style} className="z-50">
+              <Menu.Popup className={panel.popupClass("anim-fade panel-inverse panel-float min-w-48 p-1 text-ink outline-none")}>
+                {panel.handle}
                 <div className="px-2 py-1 text-ink-muted">{user.email ?? user.name}</div>
                 <Menu.Separator className="my-1 h-px bg-line" />
                 {profileHref ? (

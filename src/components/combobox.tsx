@@ -4,6 +4,7 @@ import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useOptionTip } from "../lib/use-option-tip";
+import { PANEL_POPUP, PanelBackdrop, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
@@ -47,13 +48,17 @@ export function Combobox(props: ComboboxProps) {
   const tips = useMemo(() => new Map(props.options.filter((o) => o.tip !== undefined).map((o) => [o.value, o.tip as ReactNode])), [props.options]);
   const { ref: highlightRef, tip, describedBy } = useOptionTip(tips, onHighlight);
   const container = usePortalContainer();
+  const phone = usePhone();
+  const panelStyle = usePanelStyle();
   const items = useMemo(() => BaseCombobox.createItems(options, { getValue: (o) => o.value, getLabel: (o) => o.label }), [options]);
   const byValue = useMemo(() => new Map(options.map((o) => [o.value, o])), [options]);
 
   const list = (
     <BaseCombobox.Portal container={container}>
-      <BaseCombobox.Positioner sideOffset={4} className="z-50 outline-none">
-        <BaseCombobox.Popup ref={highlightRef} className={popup}>
+      {phone ? <PanelBackdrop /> : null}
+      <BaseCombobox.Positioner sideOffset={4} style={panelStyle} className="z-50 outline-none">
+        <BaseCombobox.Popup ref={highlightRef} className={phone ? cn(PANEL_POPUP, "max-h-[45dvh] px-1") : popup}>
+          {phone ? <PanelHandle /> : null}
           <BaseCombobox.Empty className="px-2 py-1 text-ink-faint empty:hidden">{emptyLabel}</BaseCombobox.Empty>
           <BaseCombobox.List>
             {(o: Option) => (

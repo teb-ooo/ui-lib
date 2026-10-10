@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useOptionTip } from "../lib/use-option-tip";
+import { PANEL_POPUP, PanelBackdrop, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
@@ -53,6 +54,8 @@ export function OptionAdornment({ children }: { children: ReactNode }) {
 /** Choose one option from a short list. For long lists that need searching use `Combobox`. */
 export function Select({ options, value, onValueChange, label, placeholder, disabled, onHighlight, className, startAdornment, endAdornment }: SelectProps) {
   const container = usePortalContainer();
+  const phone = usePhone();
+  const panelStyle = usePanelStyle();
   const tips = useMemo(() => new Map(options.filter((o) => o.tip !== undefined).map((o) => [o.value, o.tip as ReactNode])), [options]);
   const { ref: highlightRef, tip, describedBy } = useOptionTip(tips, onHighlight);
   const chosen = options.find((o) => o.value === value);
@@ -68,9 +71,11 @@ export function Select({ options, value, onValueChange, label, placeholder, disa
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal container={container}>
-        <BaseSelect.Positioner sideOffset={4} alignItemWithTrigger={false} className="z-50 outline-none">
-          <BaseSelect.Popup className="anim-fade panel-inverse panel-float min-w-[var(--anchor-width)] p-1 text-ink outline-none">
-            <BaseSelect.List ref={highlightRef} className="max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain">
+        {phone ? <PanelBackdrop /> : null}
+        <BaseSelect.Positioner sideOffset={4} alignItemWithTrigger={false} style={panelStyle} className="z-50 outline-none">
+          <BaseSelect.Popup className={phone ? cn(PANEL_POPUP, "px-1") : "anim-fade panel-inverse panel-float min-w-[var(--anchor-width)] p-1 text-ink outline-none"}>
+            {phone ? <PanelHandle /> : null}
+            <BaseSelect.List ref={highlightRef} className={phone ? "" : "max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain"}>
               {options.map((o) => (
                 <BaseSelect.Item
                   key={o.value}

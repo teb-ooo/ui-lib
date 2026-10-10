@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Button, Sheet } from "../index";
+import { setViewportWidth } from "../../test/cmdk/viewport";
 
 describe("Sheet", () => {
   it("opens from its trigger as a named dialog with a title, description and footer, and returns focus on Escape", async () => {
@@ -56,6 +57,7 @@ describe("Sheet", () => {
   });
 
   it("drags down past the threshold to close, and springs back when dragged less", async () => {
+    setViewportWidth(390);
     render(
       <Sheet defaultOpen title="Drag">
         <p>Body</p>

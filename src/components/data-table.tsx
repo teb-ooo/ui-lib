@@ -12,6 +12,7 @@ import { Button } from "./button";
 import { ErrorState } from "./query-state";
 import { Checkbox } from "./checkbox";
 import { Tooltip } from "./tooltip";
+import { usePanel } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 
 export interface Column<T> {
@@ -290,12 +291,15 @@ function ColumnMenu<T>({
 }) {
   const portalContainer = usePortalContainer();
   const hideable = columns.filter((c) => c.hideable !== false);
+  const panel = usePanel();
   return (
     <Menu.Root>
       <Menu.Trigger render={<Button icon={<Columns3 aria-hidden="true" className="size-4" />} tip="Columns" className="border-transparent" />} />
       <Menu.Portal container={portalContainer}>
-        <Menu.Positioner align="end" sideOffset={4} className="z-50">
-          <Menu.Popup className="anim-fade panel-inverse panel-float min-w-40 p-1 text-ink outline-none">
+        {panel.backdrop}
+        <Menu.Positioner align="end" sideOffset={4} style={panel.style} className="z-50">
+          <Menu.Popup className={panel.popupClass("anim-fade panel-inverse panel-float min-w-40 p-1 text-ink outline-none")}>
+            {panel.handle}
             {hideable.map((c) => (
               <Menu.CheckboxItem
                 key={c.id}

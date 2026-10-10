@@ -806,7 +806,7 @@ Also accepts the props of `AdornmentProps`.
 
 component: `import { Sheet } from "@teb-ooo/ui"`
 
-A panel that holds controls without leaving the page: on a phone a bottom sheet with a drag handle (drag it down to close), from the lg breakpoint a side panel. Modal by default; `modal={false}` keeps the page usable beside it. It has a title, a close button, optional description and footer, returns focus to its trigger and closes on Escape.
+A panel that holds controls without leaving the page: on a phone a reversed bottom panel with a drag handle (drag it down to close), above a phone a side panel. Modal by default; `modal={false}` keeps the page usable beside it. It has a title, a close button, optional description and footer, returns focus to its trigger and closes on Escape.
 
 - `open?`: `boolean`
 - `defaultOpen?`: `boolean`
@@ -817,7 +817,7 @@ A panel that holds controls without leaving the page: on a phone a bottom sheet 
 - `children`: `ReactNode`
 - `footer?`: `ReactNode`. Actions row at the bottom, typically `Button`s.
 - `modal?`: `boolean`, default true. `true` dims the page, blocks it and traps focus (a form that must be finished). `false` leaves the page usable beside it, with no backdrop: a control panel next to a live view. A non-modal sheet closes on Escape or its close button, not on a click outside.
-- `side?`: `"left" | "right"`, default "right". From the lg breakpoint the sheet is a panel on this side; below it, it is always a bottom sheet.
+- `side?`: `"left" | "right"`, default "right". Above a phone the sheet is a panel on this side; on a phone it is a reversed bottom panel.
 - `closeLabel?`: `string`, default "Close". Label of the close button.
 - `className?`: `string`. Layout classes for the panel (its width from lg, for example `lg:w-[28rem]`).
 

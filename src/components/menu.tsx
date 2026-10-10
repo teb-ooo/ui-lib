@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from "react";
 import { Menu as BaseMenu } from "@base-ui/react/menu";
 import { Check } from "lucide-react";
 import { cn } from "../lib/cn";
+import { PANEL_POPUP, PanelBackdrop, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Kbd } from "./kbd";
 import { renderIconProp } from "../lib/render-icon";
@@ -68,12 +69,16 @@ const row = "flex min-h-[var(--target-h)] cursor-pointer items-center gap-2 roun
  */
 export function Menu({ trigger, items, side = "bottom", align = "start", className }: MenuProps) {
   const container = usePortalContainer();
+  const phone = usePhone();
+  const panelStyle = usePanelStyle();
   return (
     <BaseMenu.Root>
       <BaseMenu.Trigger render={trigger} />
       <BaseMenu.Portal container={container}>
-        <BaseMenu.Positioner side={side} align={align} sideOffset={4} collisionPadding={8} className="z-50 outline-none">
-          <BaseMenu.Popup className={cn("anim-fade panel-inverse panel-float min-w-48 p-1 text-ink outline-none", className)}>
+        {phone ? <PanelBackdrop /> : null}
+        <BaseMenu.Positioner side={side} align={align} sideOffset={4} collisionPadding={8} style={panelStyle} className="z-50 outline-none">
+          <BaseMenu.Popup className={phone ? cn(PANEL_POPUP, "px-1") : cn("anim-fade panel-inverse panel-float min-w-48 p-1 text-ink outline-none", className)}>
+            {phone ? <PanelHandle /> : null}
             {items.map((entry) => {
               if (entry.type === "separator") return <BaseMenu.Separator key={entry.id} className="my-1 h-px bg-line" />;
               if (entry.type === "heading")

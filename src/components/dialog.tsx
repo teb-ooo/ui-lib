@@ -1,8 +1,9 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { ReactElement, ReactNode, RefObject } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
+import { PanelHandle, panelDepthStyle, usePanelDrag, usePanelStyle, usePanelsAbove, usePhone } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Button } from "./button";
 
@@ -77,6 +78,17 @@ export function Dialog({
 }: DialogProps) {
   const container = usePortalContainer();
   const body = useRef<HTMLDivElement>(null);
+  // On a phone a dialog is a reversed panel from the bottom, stacked like toasts; the palette (bare) keeps its own place.
+  const asPanel = usePhone() && !bare;
+  const panelStyle = usePanelStyle();
+  const [internal, setInternal] = useState(defaultOpen ?? false);
+  const shown = open ?? internal;
+  const setOpen = (next: boolean, ...details: unknown[]) => {
+    if (open === undefined) setInternal(next);
+    (onOpenChange as ((open: boolean, ...rest: unknown[]) => void) | undefined)?.(next, ...details);
+  };
+  const above = usePanelsAbove(asPanel && shown);
+  const drag = usePanelDrag(() => setOpen(false));
   // Focus starts on the first control of the content (the first field of a form), not on the close button above it; with no
   // control in the content, on the default (the first tabbable). `initialFocus` overrides it.
   const firstControl = () => body.current?.querySelector<HTMLElement>(CONTROLS) ?? true;
@@ -84,20 +96,26 @@ export function Dialog({
   // title and close button, the content, and a shaded footer for the actions. A bare dialog (the palette) is only a surface.
   const invert = inverted || !bare;
   return (
-    <BaseDialog.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
+    <BaseDialog.Root open={shown} onOpenChange={setOpen}>
       {trigger ? <BaseDialog.Trigger render={trigger} /> : null}
       <BaseDialog.Portal container={container}>
         <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
         <BaseDialog.Popup
           data-placement={placement}
           initialFocus={initialFocus ?? firstControl}
-          className={cn(
-            "fixed z-50 text-ink outline-none",
-            invert ? placements[placement].replace("panel ", "panel-inverse ") : placements[placement],
-            bare ? "overflow-hidden" : "flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden",
-            className,
-          )}
+          style={asPanel ? { ...panelStyle, left: 0, right: 0, ...(drag.style ?? panelDepthStyle(above)) } : undefined}
+          className={
+            asPanel
+              ? "anim-panel panel-inverse panel-float fixed z-50 flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-b-none border-b-0 pb-[env(safe-area-inset-bottom)] text-ink outline-none"
+              : cn(
+                  "fixed z-50 text-ink outline-none",
+                  invert ? placements[placement].replace("panel ", "panel-inverse ") : placements[placement],
+                  bare ? "overflow-hidden" : "flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden",
+                  className,
+                )
+          }
         >
+          {asPanel ? <PanelHandle {...drag.handle} /> : null}
           {bare ? (
             <>
               <BaseDialog.Title className="sr-only">{title}</BaseDialog.Title>

@@ -6,6 +6,15 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.123.0 (from 0.122.x)
+
+Bottom panels on a phone (owner decision): `Select`, `Combobox`, `Menu`, `Popover`, `Dialog`, `ConfirmDialog`, `Sheet`, the platform bar's account menu and the DataTable column menu open as one reversed panel that slides up from the bottom (full width, grab handle, dimmed page, safe-area and keyboard aware) below 40rem, and keep their anchored or centred look above it. Panels opened from panels stack like toasts. The command palette, tooltips, the editor toolbar and the suggestion list are unchanged. What apps must do: nothing, except
+
+- `Sheet` is a side panel from 40rem now (it was from 64rem), so a `Sheet`'s `className` with an `lg:` prefix (`lg:w-[28rem]`) becomes `w-[28rem]`;
+- a `Dialog`'s `className` (a width) applies above a phone only; on a phone it is the panel;
+- an app's own unit tests need no `matchMedia`: without it nothing is a phone;
+- do not draw your own bottom sheets or overlays; ask `ui` for a missing part.
+
 ## To ui 0.122.1 (from 0.122.0)
 
 `Shell` contains what is drawn inside it (`contain: paint`): a `position: fixed` element inside the page, such as a slider's hidden input, used to make the document itself scroll, a second scrollbar beside the content's. Nothing to change.
