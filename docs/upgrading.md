@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.120.0 (from 0.119.x)
+
+The theme sets `touch-action: manipulation` on `html` (no double-tap zoom). Set the viewport tag in `web/index.html` to `width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover` (the owner's decision; the app template will carry it). iOS Safari keeps pinch zoom regardless.
+
 ## To ui 0.119.0 (from 0.118.x)
 
 `Checkbox`: where a finger taps (a phone width or `pointer: coarse`) it has an invisible 44px target around its 16px box, so a row's select checkbox is easy to hit; the look does not change (bd). Nothing to change.

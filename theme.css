@@ -313,6 +313,8 @@
   html {
     background: var(--color-ground);
     color: var(--color-ink);
+    /* No double-tap zoom; panning and pinching are left to the viewport tag (see docs/best-practices.md, Phones). */
+    touch-action: manipulation;
   }
   /* No exceptions: form controls and code included. */
   html,

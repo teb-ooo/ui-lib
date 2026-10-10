@@ -25,3 +25,10 @@ describe("mobile rules", () => {
     }
   });
 });
+
+describe("zoom", () => {
+  it("the theme turns off double-tap zoom on the page", () => {
+    const css = read("theme.css");
+    expect(css).toMatch(/html\s*{[^}]*touch-action:\s*manipulation/);
+  });
+});
