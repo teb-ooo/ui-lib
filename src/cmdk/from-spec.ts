@@ -307,6 +307,7 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
       group: tag.group,
       ...(tag.hint ? { hint: tag.hint } : {}),
       ...(tag.keywords ? { keywords: tag.keywords } : {}),
+      ...(method === "delete" ? { destructive: true } : {}),
       ...(tag.when === undefined ? { minChars: 2 } : {}),
       run: async () => {
         const act = async (more: Record<string, string | number | boolean>) => {

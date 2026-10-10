@@ -69,6 +69,11 @@ export interface Command {
   icon?: CommandIcon;
   /** Quiet text after the title: the kind of thing it opens, such as an entry's type ("City"). */
   hint?: string;
+  /**
+   * The command destroys something (a delete). On the empty palette it is listed after the commands that do not, and is never
+   * the preselected row, so Enter on a fresh palette cannot delete. A typed query ranks it by match as any other.
+   */
+  destructive?: boolean;
   /** Hide the command until the query has at least this many characters (a command that fits no screen in particular, so it does not crowd the empty palette). @default 0 */
   minChars?: number;
   /** Hide the command while this is false. Evaluated each time the palette renders or a shortcut is pressed. */

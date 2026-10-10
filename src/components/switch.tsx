@@ -22,7 +22,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(function Switch
           aria-describedby={description ? descriptionId : undefined}
           className={cn(
             "inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded border border-line-strong bg-surface p-0.5 outline-none transition-colors duration-150",
-            "focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-ink-muted",
+            "focus-visible:outline focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-ink-muted",
             "data-[checked]:border-ok-line data-[checked]:bg-ok-soft data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
           )}
           {...rest}

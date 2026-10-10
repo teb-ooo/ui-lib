@@ -267,7 +267,7 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
   }, []);
 
   return (
-    <div role="alert" className={cn("relative isolate overflow-hidden always-dark bg-black text-white", fullscreen ? "fixed inset-0 z-50 h-dvh w-full" : "h-full min-h-72 w-full", className)}>
+    <div role="alert" className={cn("isolate overflow-hidden always-dark bg-black text-white", fullscreen ? "fixed inset-0 z-50 h-dvh w-full" : "relative h-full min-h-72 w-full", className)}>
       <canvas ref={canvas} aria-hidden="true" className="absolute inset-0 -z-20 size-full" />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_45%,transparent_30%,black_100%)]" />
       <h1 className="sr-only">{title}</h1>

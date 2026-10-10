@@ -619,3 +619,33 @@ describe("the empty palette's order and the route opt-out", () => {
     void user;
   });
 });
+
+describe("destructive commands and untitled routes", () => {
+  it("a destructive command is listed after the others and is never the preselected row of the empty palette", async () => {
+    const user = userEvent.setup();
+    await renderApp({
+      extra: <Registrar commands={[{ ...cmd("Delete note"), group: "Note", destructive: true }, { ...cmd("Rename note"), group: "Note" }, { ...cmd("Delete everything"), group: "Danger", destructive: true }]} />,
+    });
+    await openPalette(user);
+    const rows = optionTitles();
+    expect(rows[0]).toContain("Rename note");
+    expect(rows.findIndex((t) => t.includes("Delete note"))).toBeGreaterThan(rows.findIndex((t) => t.includes("Rename note")));
+    expect(screen.getAllByRole("option")[0]!.getAttribute("aria-selected")).toBe("true");
+    // a typed query ranks by match: someone who types "delete" gets it first
+    await user.keyboard("delete note");
+    expect(optionTitles()[0]).toContain("Delete note");
+  });
+
+  it("a route with no title is not offered under Go to; one with a title is", async () => {
+    const { navigationCommands } = await import("../../src/cmdk/builtins");
+    const router = {
+      routesByPath: {
+        "/games": { options: { staticData: { title: "Games" } } },
+        "/enter": { options: {} },
+        "/blank": { options: { staticData: { title: "" } } },
+      },
+      navigate: () => undefined,
+    } as never;
+    expect(navigationCommands(router).map((c) => c.title)).toEqual(["Games"]);
+  });
+});

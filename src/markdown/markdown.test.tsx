@@ -66,7 +66,7 @@ describe("Markdown", () => {
   it("onToggleTask makes the tasks tickable and reports the index in render order, not counting code", () => {
     const onToggle = vi.fn();
     render(<Markdown onToggleTask={onToggle}>{"- [x] one\n- [ ] two\n\n```\n- [ ] not a task\n```\n\n- [ ] three"}</Markdown>);
-    const boxes = screen.getAllByRole("checkbox", { name: "Task done" });
+    const boxes = ["one", "two", "three"].map((name) => screen.getByRole("checkbox", { name }));
     expect(boxes.length).toBe(3);
     fireEvent.click(boxes[1]!);
     expect(onToggle).toHaveBeenLastCalledWith(1, true);
@@ -74,6 +74,13 @@ describe("Markdown", () => {
     expect(onToggle).toHaveBeenLastCalledWith(2, true);
     fireEvent.click(boxes[0]!);
     expect(onToggle).toHaveBeenLastCalledWith(0, false);
+  });
+
+  it("each task checkbox is named after its own words, with formatting and without nested lists", () => {
+    render(<Markdown onToggleTask={() => undefined}>{"- [ ] Buy **fresh** milk\n  - [ ] oat\n- [x] [Call](https://x.test) mum"}</Markdown>);
+    expect(screen.getByRole("checkbox", { name: "Buy fresh milk" })).toBeTruthy();
+    expect(screen.getByRole("checkbox", { name: "oat" })).toBeTruthy();
+    expect(screen.getByRole("checkbox", { name: "Call mum" })).toBeTruthy();
   });
 
   it("without onToggleTask the checkboxes are read-only", () => {

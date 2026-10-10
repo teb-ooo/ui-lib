@@ -80,8 +80,11 @@ export function buildPaletteModel({ query, commands, recents, root, external = [
   // The empty palette leads with what the app offers here (its own groups, the current page's commands); the generic groups
   // (every route, General, Platform) follow. A query keeps the order of the best match.
   if (q === "" && root) {
+    // A destructive command comes after the others in its section, and a section of nothing else comes last, so the first row is never one.
+    for (const sec of sections) sec.rows.sort((a, b) => Number(a.command.destructive === true) - Number(b.command.destructive === true));
+    const onlyDestructive = (sec: PaletteSection) => sec.rows.every((r) => r.command.destructive === true);
     const rank = (g: string): number => (g === "Recent" ? -1 : TAIL.indexOf(g) + 1);
-    sections.sort((a, b) => rank(a.group) - rank(b.group));
+    sections.sort((a, b) => Number(onlyDestructive(a)) - Number(onlyDestructive(b)) || rank(a.group) - rank(b.group));
     let n = 0;
     for (const s of sections) for (const r of s.rows) r.index = n++;
   }

@@ -510,3 +510,19 @@ describe("DataTable windowing", () => {
     expect(screen.getAllByRole("row").length).toBeLessThan(200);
   });
 });
+
+describe("DataTable states keep the grid's structure", () => {
+  it("the empty and the error messages are a row with a cell, so the grid holds only rows (an axe requirement)", () => {
+    const { rerender } = render(<DataTable {...base} rows={[]} empty="Nothing yet" />);
+    const grid = screen.getByRole("grid");
+    const cell = screen.getByText("Nothing yet").closest('[role="gridcell"]');
+    expect(cell).toBeTruthy();
+    expect(cell!.closest('[role="row"]')).toBeTruthy();
+    // every direct child of the grid is a row group or a row
+    // (a role="presentation" wrapper is transparent to assistive technology: look through it)
+    const owned = (el: Element): Element[] => [...el.children].flatMap((c) => (c.getAttribute("role") === "presentation" ? owned(c) : [c]));
+    for (const child of owned(grid)) expect(["rowgroup", "row"]).toContain(child.getAttribute("role"));
+    rerender(<DataTable {...base} rows={[]} error="It broke" />);
+    expect(screen.getByText("It broke").closest('[role="row"]')).toBeTruthy();
+  });
+});

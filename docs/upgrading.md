@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.117.0 (from 0.116.x)
+
+Cmd+K: a route with no `staticData.title` is no longer listed under "Go to" (it showed its raw path, such as `/enter`): give a route a title to list it, or `palette: false` to say it is never listed. New `Command.destructive`: such a command is listed after the others and is never the preselected row of the empty palette (every API action tagged on a DELETE is marked by itself). `DataTable`: the empty and the error messages are a row with a cell, so the grid holds only rows (the axe critical on an empty list, ui-d0jl). `Markdown`: each task checkbox is named after its task's own words ("Buy milk"), not "Task done" (the name is "Task done" only for an empty task). Fix: `Checkbox`, `Switch` and `ColorPicker` now show their keyboard focus ring (it computed to `outline: none`: the ring lacked `outline-solid`; a source test now guards every control). Inline code in `Prose` has half the horizontal padding, so it leaves less of a gap before a full stop. Headings in `Prose` stay one size by design (h1 is upper-case with a rule, h2 has a dotted rule). (notes)
+
 ## To ui 0.116.0 (from 0.115.x)
 
 `FatalPage`: the small shuffled word is gone from the picture; `title` is only the heading for assistive technology. The picture has no text; the message, the detail and the action are the only visible words.

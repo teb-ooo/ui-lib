@@ -16,7 +16,7 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(function Ch
       ref={ref}
       className={cn(
         "inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded border border-line-strong bg-surface text-ink outline-none transition-colors duration-100",
-        "hover-invert focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-ink-muted",
+        "hover-invert focus-visible:outline focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-ink-muted",
         "data-[checked]:bg-surface-raised data-[indeterminate]:bg-surface-raised data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
         className,
       )}

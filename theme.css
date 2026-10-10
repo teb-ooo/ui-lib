@@ -1004,7 +1004,7 @@ input.display-lg {
   .prose code {
     border-radius: var(--radius);
     background: var(--color-surface);
-    padding: 0.0625rem 0.25rem;
+    padding: 0.0625rem 0.125rem;
   }
   .prose pre {
     overflow-x: auto;

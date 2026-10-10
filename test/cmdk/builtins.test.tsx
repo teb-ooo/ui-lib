@@ -21,15 +21,15 @@ async function openPalette(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("navigation", () => {
-  it("lists a Go to entry per route without required params, titled from staticData or the path", async () => {
+  it("lists a Go to entry per titled route without required params; a route with no title is left out", async () => {
     const user = userEvent.setup();
     await renderApp();
     await openPalette(user);
     const rows = screen.getAllByRole("option").filter((o) => o.textContent && ["Home", "Items", "/settings", "Agent"].some((t) => o.textContent?.includes(t)));
-    expect(rows.length).toBeGreaterThanOrEqual(3);
+    expect(rows.length).toBeGreaterThanOrEqual(2);
     expect(has("Home")).toBe(true);
     expect(has("Items")).toBe(true);
-    expect(has("/settings")).toBe(true); // no staticData.title: falls back to the path
+    expect(has("/settings")).toBe(false); // no staticData.title: its path is not a name, so it is not offered
     expect(has("Item detail")).toBe(false); // required param
     expect(screen.getByText("Go to")).toBeInTheDocument();
     // Routes whose first segment starts with "_" are private and never offered under "Go to".

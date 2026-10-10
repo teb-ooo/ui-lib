@@ -14,7 +14,7 @@ export function isNavigableRoute(path: string): boolean {
   return !first.startsWith("_");
 }
 
-/** One "Go to" command per navigable route of the app's router. */
+/** One "Go to" command per navigable route of the app's router that has a title. */
 export function navigationCommands(router: AnyRouter | undefined): Command[] {
   if (!router) return [];
   const byPath = router.routesByPath as Record<string, { options?: { staticData?: { title?: string; palette?: boolean } } } | undefined>;
@@ -22,6 +22,8 @@ export function navigationCommands(router: AnyRouter | undefined): Command[] {
     .filter(isNavigableRoute)
     // A route opts out with `staticData: { palette: false }`: a public page, or one the app lists itself.
     .filter((path) => byPath[path]?.options?.staticData?.palette !== false)
+    // A route with no title has no name a person would know (its path is not one): it is not offered. Give the route a title to list it.
+    .filter((path) => (byPath[path]?.options?.staticData?.title ?? "") !== "")
     .sort((a, b) => a.localeCompare(b))
     .map((path): Command => {
       const title = byPath[path]?.options?.staticData?.title;

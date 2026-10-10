@@ -1,5 +1,4 @@
 import { Button } from "./button";
-import { EntrancePage } from "../entrance";
 import { FatalPage } from "./fatal-page";
 import type { StoryDefault, StoryMeta } from "../stories";
 
@@ -24,17 +23,6 @@ export const Default = () => (
   </div>
 );
 Default.storyMeta = { description: "The error page, as an app shows it, at the full width and nearly the full height of the window. In an app it is the whole window (fullscreen, the default); give it its own route and render it from the error boundary." } satisfies StoryMeta;
-
-export const EnterPageMock = () => (
-  <div className="h-[88dvh] min-h-96 w-full overflow-hidden rounded border border-line bg-ground">
-    <EntrancePage title="Sign in" contained>
-      <Button intent="solid" className="bg-ground">
-        Enter
-      </Button>
-    </EntrancePage>
-  </div>
-);
-EnterPageMock.storyMeta = { description: "The enter page (the sign-in and invitation page), at the same size, for comparing the two." } satisfies StoryMeta;
 
 export const ExpiredInvitation = () => (
   <div className="h-96 w-full">

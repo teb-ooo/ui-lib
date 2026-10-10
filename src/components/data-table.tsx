@@ -628,8 +628,18 @@ export function DataTable<T>({
   const selectedCount = selectable ? allKeys.filter((k) => selectedKeys.has(k)).length : 0;
 
   const body = (): ReactNode => {
+    // The grid's children must be rows: an error or an empty message is one row with one cell across the table.
+    const asRow = (content: ReactNode): ReactNode => (
+      <div role="rowgroup">
+        <div role="row">
+          <div role="gridcell" aria-colspan={Math.max(1, shown.length + (selectable ? 1 : 0))}>
+            {content}
+          </div>
+        </div>
+      </div>
+    );
     if (error)
-      return <ErrorState message={error} onRetry={onRetry} retryLabel={retryLabel} />;
+      return asRow(<ErrorState message={error} onRetry={onRetry} retryLabel={retryLabel} />);
     if (rows.length === 0 && loading) {
       return Array.from({ length: 8 }, (_, i) => (
         <div key={i} aria-hidden="true" className="anim-delayed flex h-[var(--control-h)] items-center border-b border-line px-2">
@@ -640,7 +650,7 @@ export function DataTable<T>({
     // Text gets the table's own padding; an EmptyState brings its own, so it is only lined up with the first column.
     if (rows.length === 0) {
       const text = typeof empty === "string" || typeof empty === "number";
-      return <div className={text ? "px-2 py-4 text-ink-muted" : "[&>[role=status]]:px-2"}>{empty}</div>;
+      return asRow(<div className={text ? "px-2 py-4 text-ink-muted" : "[&>[role=status]]:px-2"}>{empty}</div>);
     }
     return null;
   };

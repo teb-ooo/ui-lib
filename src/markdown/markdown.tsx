@@ -78,6 +78,17 @@ function remarkWikiLinks(hrefFor: (title: string) => string) {
   return () => (tree: Node) => walk(tree);
 }
 
+/** The words of a list item without its nested lists: the name of its task checkbox. */
+function taskText(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(taskText).join("");
+  if (isValidElement(node)) {
+    if (node.type === "ul" || node.type === "ol" || node.type === "input") return "";
+    return taskText((node.props as { children?: ReactNode }).children);
+  }
+  return "";
+}
+
 const external = (href: string) => /^(https?:|mailto:)/i.test(href);
 
 /**
@@ -99,7 +110,8 @@ export function Markdown({ children, wikiLink, renderLink, onToggleTask, images 
             const swapped = Children.map(kids, (child) => {
               if (isValidElement(child) && child.type === "input") {
                 const checked = Boolean((child.props as { checked?: boolean }).checked);
-                return <Checkbox aria-label="Task done" checked={checked} onCheckedChange={(next) => onToggleTask(index, next === true)} />;
+                const words = taskText(kids).replace(/\s+/g, " ").trim();
+                return <Checkbox aria-label={words === "" ? "Task done" : words.length > 120 ? `${words.slice(0, 119)}…` : words} checked={checked} onCheckedChange={(next) => onToggleTask(index, next === true)} />;
               }
               return child;
             });

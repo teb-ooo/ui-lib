@@ -135,7 +135,7 @@ export function ColorPicker({ value, onValueChange, onValueCommit, label, classN
         onPointerCancel={up}
         onKeyDown={squareKey}
         style={{ "--hue": `${hsv.h}deg` } as React.CSSProperties}
-        className="color-square relative h-40 w-full cursor-crosshair touch-none rounded outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+        className="color-square relative h-40 w-full cursor-crosshair touch-none rounded outline-none focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
       >
         <span aria-hidden="true" className="color-thumb pointer-events-none absolute size-4 -translate-x-1/2 -translate-y-1/2" style={{ left: pct(hsv.s), top: pct(1 - hsv.v) }} />
       </div>
@@ -153,7 +153,7 @@ export function ColorPicker({ value, onValueChange, onValueCommit, label, classN
         onPointerUp={up}
         onPointerCancel={up}
         onKeyDown={barKey}
-        className="color-hue relative h-4 w-full cursor-pointer touch-none rounded outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+        className="color-hue relative h-4 w-full cursor-pointer touch-none rounded outline-none focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
       >
         <span aria-hidden="true" className="color-thumb pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2" style={{ left: `${(hsv.h / 360) * 100}%` }} />
       </div>
