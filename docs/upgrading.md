@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.112.0 (from 0.111.x)
+
+New: `Option.adornment` on `Select` and `Combobox` (a swatch or gradient at the row's left edge, and at the start of the closed select for the chosen option). Fix: a `Popover` whose trigger is a plain element (a `div` with `role="slider"`) no longer logs Base UI's "nativeButton" error; `nativeButton` is worked out from the trigger, or set it (lyapunov). Nothing to change.
+
 ## To ui 0.111.0 (from 0.110.x)
 
 New: `Option.tip` on `Select` and `Combobox` (a sentence beside the highlighted option, no delay). Changed: a tooltip is at most 20rem wide (and never wider than the viewport minus a gutter) and its text wraps, where a long tip used to run on in one line (lyapunov). Nothing to change.

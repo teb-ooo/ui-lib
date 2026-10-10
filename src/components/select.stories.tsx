@@ -54,3 +54,22 @@ export const WithTips = () => {
   );
 };
 WithTips.storyMeta = { description: "An option's tip is a sentence beside the highlighted option in the open list: no delay, also as the arrow keys move; an option with none shows none. It wraps at 20rem. Combobox takes the same." } satisfies StoryMeta;
+
+export const WithOptionAdornments = () => {
+  const [value, setValue] = useState<string | null>("ember");
+  const swatch = (from: string, to: string) => <span className="w-24" style={{ background: `linear-gradient(to right, var(--color-${from}), var(--color-${to}))` }} />;
+  return (
+    <Select
+      label="Colour preset"
+      value={value}
+      onValueChange={setValue}
+      options={[
+        { value: "ember", label: "Ember", adornment: swatch("danger-500", "warning-300") },
+        { value: "lagoon", label: "Lagoon", adornment: swatch("link-700", "ok-300") },
+        { value: "plain", label: "Plain" },
+      ]}
+      className="w-72"
+    />
+  );
+};
+WithOptionAdornments.storyMeta = { description: "An option's adornment is drawn at the left edge of its row, edge to edge, and at the start of the closed select for the chosen option. Give it its own width; it is decoration, so the label says what it is. Combobox takes the same." } satisfies StoryMeta;

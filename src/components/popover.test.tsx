@@ -85,3 +85,15 @@ describe("Popover modes", () => {
     expect(b).toBeTruthy();
   });
 });
+
+describe("Popover trigger that is not a button", () => {
+  it("a focusable div trigger raises no Base UI nativeButton warning, and still opens on click", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const user = userEvent.setup();
+    render(<Popover trigger={<div role="slider" tabIndex={0} aria-label="Stop" aria-valuenow={0} />} title="Colour">Panel</Popover>);
+    await user.click(screen.getByRole("slider", { name: "Stop" }));
+    expect(await screen.findByText("Panel")).toBeTruthy();
+    expect(err.mock.calls.some((c) => String(c[0]).includes("nativeButton"))).toBe(false);
+    err.mockRestore();
+  });
+});

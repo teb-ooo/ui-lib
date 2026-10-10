@@ -7,6 +7,7 @@ import { useOptionTip } from "../lib/use-option-tip";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
+import { OptionAdornment } from "./select";
 import type { Option } from "./select";
 
 interface Common extends AdornmentProps {
@@ -57,6 +58,7 @@ export function Combobox(props: ComboboxProps) {
           <BaseCombobox.List>
             {(o: Option) => (
               <BaseCombobox.Item key={o.value} value={o.value} data-option-value={o.value} aria-describedby={describedBy(o.value)} className={itemClass}>
+                {o.adornment !== undefined ? <OptionAdornment>{o.adornment}</OptionAdornment> : null}
                 <span className="min-w-0 flex-1 truncate">{o.label}</span>
                 {o.count !== undefined ? <span className="text-ink-faint">{o.count}</span> : null}
                 <BaseCombobox.ItemIndicator className="shrink-0">
@@ -94,12 +96,14 @@ export function Combobox(props: ComboboxProps) {
     );
   }
 
-  if (startAdornment !== undefined || endAdornment !== undefined) {
+  // The chosen option's adornment shows at the start of the closed field, like a start adornment.
+  const start = startAdornment ?? (props.value !== null ? byValue.get(props.value)?.adornment : undefined);
+  if (start !== undefined || endAdornment !== undefined) {
     // With an adornment the border belongs to the group, which holds the adornments, the input and the two buttons.
     return (
       <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
         <BaseCombobox.InputGroup className={cn("input flex w-56 max-w-full items-center gap-2 pr-0", className)}>
-          {startAdornment !== undefined ? <Adornment>{startAdornment}</Adornment> : null}
+          {start !== undefined ? <Adornment>{start}</Adornment> : null}
           <BaseCombobox.Input aria-label={label} placeholder={placeholder ?? label} className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-inherit outline-none" />
           {endAdornment !== undefined ? <Adornment>{endAdornment}</Adornment> : null}
           <div className="flex h-full shrink-0 items-center">

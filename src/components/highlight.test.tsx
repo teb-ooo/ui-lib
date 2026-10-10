@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Combobox } from "./combobox";
 import { Select } from "./select";
@@ -81,5 +81,35 @@ describe("Option tip", () => {
     expect(seen.at(-1)).toBe("c");
     await user.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull());
+  });
+});
+
+describe("Option adornment", () => {
+  const swatches = [
+    { value: "a", label: "Ember", adornment: <span data-testid="sw-a" className="w-16" /> },
+    { value: "b", label: "Plain" },
+  ];
+  it("Select: drawn at the left edge of the row in the list, hidden from assistive technology, and at the start of the closed select for the chosen option", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<Select label="Preset" options={swatches} value={null} onValueChange={() => undefined} />);
+    await user.click(screen.getByRole("combobox", { name: "Preset" }));
+    const option = await screen.findByRole("option", { name: "Ember" });
+    const swatch = within(option).getByTestId("sw-a");
+    expect(swatch.parentElement?.getAttribute("aria-hidden")).toBe("true");
+    expect(within(screen.getByRole("option", { name: "Plain" })).queryByTestId("sw-a")).toBeNull();
+    await user.keyboard("{Escape}");
+    expect(within(screen.getByRole("combobox", { name: "Preset" })).queryByTestId("sw-a")).toBeNull();
+    rerender(<Select label="Preset" options={swatches} value="a" onValueChange={() => undefined} />);
+    expect(within(screen.getByRole("combobox", { name: "Preset" })).getByTestId("sw-a")).toBeTruthy();
+  });
+
+  it("Combobox: in the list, and at the start of the field for the chosen option", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<Combobox label="Preset" options={swatches} value={null} onValueChange={() => undefined} />);
+    await user.click(screen.getByRole("combobox", { name: "Preset" }));
+    expect(within(await screen.findByRole("option", { name: "Ember" })).getByTestId("sw-a")).toBeTruthy();
+    await user.keyboard("{Escape}");
+    rerender(<Combobox label="Preset" options={swatches} value="a" onValueChange={() => undefined} />);
+    expect(screen.getAllByTestId("sw-a").length).toBeGreaterThan(0);
   });
 });

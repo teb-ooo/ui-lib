@@ -13,6 +13,12 @@ type Align = "start" | "center" | "end";
 interface Shared {
   /** The element that opens it: a `Button`, `LinkButton` or any focusable element. */
   trigger: ReactElement<Record<string, unknown>>;
+  /**
+   * Whether the trigger renders a native `<button>`. Leave it out: it is false for a plain element such as a `div` with
+   * `role="slider"` (any focusable element may be the trigger) and true otherwise. Say it only when a component you pass
+   * renders something else than its name suggests.
+   */
+  nativeButton?: boolean;
   /** Which side of the trigger it opens on. @default "bottom" ("top" for a tip) */
   side?: Side;
   /** @default "center" */
@@ -132,6 +138,7 @@ export function Popover(props: PopoverProps) {
     >
       <BasePopover.Trigger
         render={trigger}
+        nativeButton={p.nativeButton ?? !(typeof trigger.type === "string" && trigger.type !== "button")}
         {...(hover ? { openOnHover: true, delay: card.delay ?? 300, closeDelay: card.closeDelay ?? 150 } : {})}
       />
       <BasePopover.Portal container={container}>
