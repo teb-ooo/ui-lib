@@ -155,8 +155,10 @@
   --color-agent-line: var(--color-agent-900);
 }
 
-/* The dark set again, reachable by attribute so a gallery can force it, even inside a light page. */
-[data-theme="dark"] {
+/* The dark set again, reachable by attribute so a gallery can force it, even inside a light page, and by the `always-dark`
+   class for a surface that is dark whatever the app's theme (`FatalPage`). */
+[data-theme="dark"],
+.always-dark {
   color-scheme: dark;
   --color-ground: #000000;
   --color-surface: var(--color-gray-900);

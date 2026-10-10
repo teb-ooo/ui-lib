@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.113.0 (from 0.112.x)
+
+New: `FatalPage`, a full-screen picture of failure (red static, tearing, a breaking word) with a message and one action over it, for a 500, a crash or an expired invitation. Nothing to change.
+
 ## To ui 0.112.2 (from 0.112.1)
 
 Fix: an option's tip follows the list until it has settled (it could stay at the place measured while the list was still opening, beside the wrong spot on a phone).

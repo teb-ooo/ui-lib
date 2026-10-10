@@ -49,6 +49,8 @@ export { SplitPane } from "./components/split-pane";
 export type { SplitPaneProps } from "./components/split-pane";
 export { useMediaQuery, useMinWidth, BREAKPOINTS } from "./hooks/use-media-query";
 export type { Breakpoint } from "./hooks/use-media-query";
+export { FatalPage } from "./components/fatal-page";
+export type { FatalPageProps } from "./components/fatal-page";
 export { VirtualList } from "./components/virtual-list";
 export type { VirtualListProps, VirtualListHandle } from "./components/virtual-list";
 export { ColorPicker, hexToRgb, rgbToHex } from "./components/color-picker";
