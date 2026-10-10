@@ -227,9 +227,9 @@ describe.skipIf(!IS_UI_PACKAGE)("theme.css (ui package only)", () => {
     expect(/prefers-color-scheme: light\)[\s\S]*?--color-ground:\s*#ffffff;/i.test(css), "light under the OS query").toBe(true);
   });
 
-  it("declares exactly two type size tokens: body and display", () => {
+  it("declares two type size tokens, body and display, plus the touch-only field size", () => {
     const sizes = [...css.matchAll(/^\s*--text-([a-z0-9]+):\s*[\d.]+rem;/gm)].map((m) => m[1]);
-    expect(sizes.sort()).toEqual(["body", "display"]);
+    expect(sizes.sort()).toEqual(["body", "display", "field"]);
     expect(css).toMatch(/--text-body:\s*0\.875rem;/);
     expect(css).toMatch(/--text-body--line-height:\s*1\.6;/);
     expect(css).toMatch(/--text-display:\s*2rem;/);
@@ -239,7 +239,13 @@ describe.skipIf(!IS_UI_PACKAGE)("theme.css (ui package only)", () => {
   it("only ever applies those two sizes (or inherits)", () => {
     const uses = [...css.matchAll(/font-size:\s*([^;]+);/g)].map((m) => (m[1] ?? "").trim());
     expect(uses.length).toBeGreaterThan(0);
-    for (const u of uses) expect(["var(--text-body)", "var(--text-display)", "inherit"], u).toContain(u);
+    for (const u of uses) expect(["var(--text-body)", "var(--text-display)", "var(--text-field)", "inherit"], u).toContain(u);
+  });
+
+  it("allows a third size only on touch: --text-field is 16px under (pointer: coarse), text-entry controls only", () => {
+    const outside = css.replace(/@media \(pointer: coarse\) \{[\s\S]*?\n  \}\n/, "");
+    expect(outside).not.toContain("--text-field");
+    expect(css).toMatch(/@media \(pointer: coarse\) \{\s*:root \{\s*--text-field: 1rem;/);
   });
 
   it("has one control height, one radius", () => {

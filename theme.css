@@ -334,6 +334,20 @@
     font-size: var(--text-body);
     line-height: var(--text-body--line-height);
   }
+  /* The one touch-only exception to the two sizes: iOS Safari zooms the page when a text field under 16px is focused
+     and does not zoom back, so where a finger is the pointer a text-entry control is 16px. Desktop
+     keeps --text-body. Buttons, checkboxes and the like do not trigger the zoom and keep the body size. */
+  @media (pointer: coarse) {
+    :root {
+      --text-field: 1rem;
+    }
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="reset"], [type="file"], [type="color"], [type="image"], [type="hidden"]),
+    textarea,
+    select,
+    [contenteditable="true"] {
+      font-size: var(--text-field);
+    }
+  }
   ::placeholder {
     color: var(--color-ink-faint);
     opacity: 1;
