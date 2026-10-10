@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Menu } from "@base-ui/react/menu";
 import { Bookmark, Check } from "lucide-react";
 import { Button } from "./button";
-import { Dialog } from "./dialog";
+import { Modal } from "./modal";
 import { Field } from "./field";
 import { Input } from "./input";
 import { usePortalContainer } from "../lib/theme-scope";
@@ -73,7 +73,7 @@ export function ViewMenu({ views, activeId, onSelect, onSave, onDelete, defaultL
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
-      <Dialog
+      <Modal
         open={saving}
         onOpenChange={setSaving}
         title="Save current view"
@@ -86,7 +86,7 @@ export function ViewMenu({ views, activeId, onSelect, onSave, onDelete, defaultL
         <Field label="Name">
           <Input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} autoComplete="off" />
         </Field>
-      </Dialog>
+      </Modal>
     </>
   );
 }

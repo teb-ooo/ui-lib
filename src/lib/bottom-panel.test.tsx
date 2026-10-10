@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Button, ConfirmDialog, Dialog, Menu, Popover, Select, Sheet } from "../index";
+import { Button, ConfirmDialog, Menu, Modal, Popover, Select } from "../index";
 import { setViewportWidth } from "../../test/cmdk/viewport";
 
 const options = [{ value: "a", label: "Alpha" }, { value: "b", label: "Beta" }];
@@ -43,9 +43,9 @@ describe("bottom panels", () => {
   it("a dialog and a confirm dialog are panels on a phone, with a handle", async () => {
     setViewportWidth(390);
     render(
-      <Dialog defaultOpen title="Edit">
+      <Modal defaultOpen title="Edit">
         <p>Body</p>
-      </Dialog>,
+      </Modal>,
     );
     const dialog = await screen.findByRole("dialog");
     expect(dialog.className).toContain("anim-panel");
@@ -55,9 +55,9 @@ describe("bottom panels", () => {
 
   it("a dialog is centred on a wide screen", async () => {
     render(
-      <Dialog defaultOpen title="Edit">
+      <Modal defaultOpen title="Edit">
         <p>Body</p>
-      </Dialog>,
+      </Modal>,
     );
     expect((await screen.findByRole("dialog")).className).not.toContain("anim-panel");
   });
@@ -66,12 +66,12 @@ describe("bottom panels", () => {
     setViewportWidth(390);
     const user = userEvent.setup();
     render(
-      <Sheet defaultOpen title="First">
-        <Dialog trigger={<Button>Second</Button>} title="Second panel">
+      <Modal variant="drawer" defaultOpen title="First">
+        <Modal trigger={<Button>Second</Button>} title="Second panel">
           <p>Body</p>
-        </Dialog>
+        </Modal>
         <ConfirmDialog open={false} onOpenChange={() => undefined} title="x" onConfirm={() => undefined} />
-      </Sheet>,
+      </Modal>,
     );
     await user.click(await screen.findByRole("button", { name: "Second" }));
     const first = screen.getAllByRole("dialog", { hidden: true })[0] as HTMLElement;
@@ -85,9 +85,9 @@ describe("stacking with anchored popups", () => {
     setViewportWidth(390);
     const user = userEvent.setup();
     render(
-      <Sheet defaultOpen title="First">
+      <Modal variant="drawer" defaultOpen title="First">
         <Select label="Pick" options={options} value={null} onValueChange={() => undefined} />
-      </Sheet>,
+      </Modal>,
     );
     const sheet = await screen.findByRole("dialog");
     expect(sheet.style.transform).toBe("none");

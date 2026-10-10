@@ -21,7 +21,7 @@ Sections you open and close, one header each: Enter or Space toggles, Up and Dow
 
 component: `import { Alert } from "@teb-ooo/ui"`
 
-A message that stays on the page: a source that keeps dropping, saved data that is not backed up, a failed save, a confirmation that needs an answer. It is announced when it appears (`role="alert"` for `danger`, `status` for the rest). Use `Toast` for something that goes away by itself, `Field`'s error for one input, `Dialog` for a decision that blocks the page.
+A message that stays on the page: a source that keeps dropping, saved data that is not backed up, a failed save, a confirmation that needs an answer. It is announced when it appears (`role="alert"` for `danger`, `status` for the rest). Use `Toast` for something that goes away by itself, `Field`'s error for one input, `Modal` for a decision that blocks the page.
 
 - `tone?`: `AlertTone`, default "info". What kind of message it is. Colour is state: `ok` worked, `warning` needs care, `danger` failed, `info` is neutral.
 - `title?`: `ReactNode`. A short heading in the base size, before the text.
@@ -254,27 +254,6 @@ Wrap an app's own loading UI (a "Loading" line, a skeleton, a spinner) in `Delay
 Also accepts the props of `Omit<HTMLAttributes<HTMLDivElement>, "className">`.
 
 - `className?`: `string`
-
-### Dialog
-
-component: `import { Dialog } from "@teb-ooo/ui"`
-
-A panel over the page for one decision or a short task: inverted, with a shaded header (the title, centred), a body and a shaded footer for the actions. Focus is trapped while it is open and Escape closes it. Use `ConfirmDialog` for a yes or no, `Sheet` for a side panel, `Popover` for something anchored to a control.
-
-- `open?`: `boolean`
-- `defaultOpen?`: `boolean`
-- `onOpenChange?`: `(open: boolean) => void`
-- `trigger?`: `ReactElement<Record<string, unknown>>`. Element that opens the dialog, typically a `Button`. Omit for a controlled dialog.
-- `title`: `ReactNode`. Accessible name of the dialog.
-- `description?`: `ReactNode`
-- `footer?`: `ReactNode`. Actions row, typically `Button`s.
-- `children?`: `ReactNode`
-- `placement?`: `DialogPlacement`, default "center". `center` is a small centred panel. `top` is a wider panel near the top of the viewport (15vh), the shape a command palette or a search box wants. `right` is a full-height drawer docked to the right edge (full width on a phone) that slides in, for a side panel such as a revision history or an inspector.
-- `bare?`: `boolean`, default false. Bare mode: no padding, no header, no close control. `children` fill the panel edge to edge and the title is announced but not drawn. For content that draws its own chrome, such as a command palette.
-- `inverted?`: `boolean`, default false. Inverted surface (white on a dark page, black on a light one, no border), as `Popover` is. A non-bare dialog is always inverted; a bare one (the palette) is inverted only when this is set.
-- `initialFocus?`: `boolean | RefObject<HTMLElement | null>`. Element to focus on open (a ref), or `false` to leave focus alone. Default: the first focusable element.
-- `closeLabel?`: `string`, default "Close". Label for the close control, for localisation.
-- `className?`: `string`. Extra layout classes for the panel.
 
 ### Diff
 
@@ -582,6 +561,29 @@ A read-only measurement against a scale: a level, a signal strength, a quota. No
 - `orientation?`: `"horizontal" | "vertical"`, default "horizontal". `vertical` fills from the bottom: give it a height with `className`.
 - `className?`: `string`
 
+### Modal
+
+component: `import { Modal } from "@teb-ooo/ui"`
+
+The one thing drawn over the page that needs an answer or holds a task: a centred `dialog`, a docked `drawer` or a `top` panel above a phone, and on a phone always a reversed bottom panel with a grab handle (drag it down to close). It has a title, a close button, an optional description and footer, traps focus, returns it to the trigger and closes on Escape. A modal opened from a modal (or from a `Select`, `Menu` or `Popover` panel) stacks in front of it. Use `ConfirmDialog` for a yes or no and `Popover` for details anchored to a control.
+
+- `open?`: `boolean`
+- `defaultOpen?`: `boolean`
+- `onOpenChange?`: `(open: boolean) => void`
+- `trigger?`: `ReactElement<Record<string, unknown>>`. Element that opens it, typically a `Button`. Omit for a controlled modal.
+- `title`: `ReactNode`. Accessible name; drawn as the heading.
+- `description?`: `ReactNode`
+- `footer?`: `ReactNode`. Actions row at the bottom, typically `Button`s.
+- `children?`: `ReactNode`
+- `variant?`: `ModalVariant`, default "dialog". What it is above a phone: `dialog` (centred, inverted), `drawer` (docked to `side`, 24rem wide) or `top` (wide, near the top). On a phone every variant but a `bare` one is the same reversed bottom panel.
+- `side?`: `"left" | "right"`, default "right". The side a `drawer` is docked to above a phone.
+- `modal?`: `boolean`, default true. `true` dims the page, blocks it and traps focus. `false` leaves the page usable beside it, with no backdrop (a control panel next to a live view); it closes on Escape or its close button, not on a click outside.
+- `bare?`: `boolean`, default false. No padding, no header, no close control: `children` fill the panel edge to edge and the title is announced but not drawn, for content that draws its own chrome (a command palette). A bare modal is never a bottom panel.
+- `inverted?`: `boolean`, default false. Inverted surface for a bare modal; any other is inverted already (a drawer is the page's own colours above a phone).
+- `initialFocus?`: `boolean | RefObject<HTMLElement | null>`. Element to focus on open (a ref), or `false` to leave focus alone. Default: the first control of the content, else the first tabbable.
+- `closeLabel?`: `string`, default "Close". Label of the close button.
+- `className?`: `string`. Layout classes for the panel above a phone (its width).
+
 ### NotAllowed
 
 component: `import { NotAllowed } from "@teb-ooo/ui"`
@@ -704,7 +706,7 @@ The platform's top bar, 2.25rem (36px) tall, one line, on every screen size. The
 
 component: `import { Popover } from "@teb-ooo/ui"`
 
-One anchored panel in three modes, chosen by `openOn` and by what it holds: - `openOn="click"` (default): a popover for details that need interaction. - `openOn="hover"` with `children`: a hover card, the same panel opened by hovering as well as by click and Enter. - `openOn="hover"` with `tip`: a tooltip, one line of text that is never interactive. The types keep the combinations that cannot work out of reach: a tip has no children and no close button, a panel that holds controls is always reachable from the keyboard. Use `Dialog` for something that needs an answer.
+One anchored panel in three modes, chosen by `openOn` and by what it holds: - `openOn="click"` (default): a popover for details that need interaction. - `openOn="hover"` with `children`: a hover card, the same panel opened by hovering as well as by click and Enter. - `openOn="hover"` with `tip`: a tooltip, one line of text that is never interactive. The types keep the combinations that cannot work out of reach: a tip has no children and no close button, a panel that holds controls is always reachable from the keyboard. Use `Modal` for something that needs an answer.
 
 ### PortalContainerProvider
 
@@ -801,26 +803,6 @@ Also accepts the props of `AdornmentProps`.
 - `disabled?`: `boolean`
 - `onHighlight?`: `(value: string | null) => void`. Called with the value of the option that is pointed at or reached with the keys while the list is open, and with `null` when no option is highlighted or the list closes: to preview a choice and put things back on `null`.
 - `className?`: `string`
-
-### Sheet
-
-component: `import { Sheet } from "@teb-ooo/ui"`
-
-A panel that holds controls without leaving the page: on a phone a reversed bottom panel with a drag handle (drag it down to close), above a phone a side panel. Modal by default; `modal={false}` keeps the page usable beside it. It has a title, a close button, optional description and footer, returns focus to its trigger and closes on Escape.
-
-- `open?`: `boolean`
-- `defaultOpen?`: `boolean`
-- `onOpenChange?`: `(open: boolean) => void`
-- `trigger?`: `ReactElement<Record<string, unknown>>`. An element that opens it, typically a `Button`; omit for a controlled sheet.
-- `title`: `ReactNode`. Accessible name; drawn as the heading.
-- `description?`: `ReactNode`
-- `children`: `ReactNode`
-- `footer?`: `ReactNode`. Actions row at the bottom, typically `Button`s.
-- `modal?`: `boolean`, default true. `true` dims the page, blocks it and traps focus (a form that must be finished). `false` leaves the page usable beside it, with no backdrop: a control panel next to a live view. A non-modal sheet closes on Escape or its close button, not on a click outside.
-- `side?`: `"left" | "right"`, default "right". Above a phone the sheet is a panel on this side; on a phone it is a reversed bottom panel.
-- `initialFocus?`: `boolean | RefObject<HTMLElement | null>`. Element to focus on open (a ref), or `false` to leave focus alone. Default: the first control of the content, else the first tabbable.
-- `closeLabel?`: `string`, default "Close". Label of the close button.
-- `className?`: `string`. Layout classes for the panel (its width from lg, for example `lg:w-[28rem]`).
 
 ### Shell
 
@@ -1045,7 +1027,6 @@ See `VirtualListInner`: a generic, forwarded-ref component.
 - `Column`
 - `CommandHost`: What `CommandProvider` (from `@teb-ooo/ui/cmdk`) hands to the page frame: open the palette and register commands. It exists so `Shell` can show the palette trigger and register the platform commands without importing the palette. Internal: an app never provides or reads it.
 - `ContainerWidth`
-- `DialogPlacement`
 - `DiffToken`
 - `DiffTokenKind`
 - `FeedbackController`: What the panel needs: the object `useFeedback()` from `@teb-ooo/web` returns. It is written out here so this package does not depend on that one; anything with this shape works.
@@ -1066,6 +1047,7 @@ See `VirtualListInner`: a generic, forwarded-ref component.
 - `MenuSeparator`
 - `MeterTone`
 - `MeterZone`
+- `ModalVariant`: `dialog` is a small centred panel for one decision or a short task; `drawer` is a full-height panel docked to a side; `top` is a wider panel near the top (the shape of a command palette).
 - `MultiComboboxProps`
 - `MultiToggleGroupProps`
 - `Option`

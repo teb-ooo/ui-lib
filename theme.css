@@ -728,12 +728,12 @@ input.display-lg {
   .anim-fade[data-side="right"][data-ending-style] {
     transform: translateX(-4px) scale(0.97);
   }
-  .anim-fade[data-placement="center"][data-starting-style],
-  .anim-fade[data-placement="center"][data-ending-style] {
+  .anim-fade[data-variant="dialog"][data-starting-style],
+  .anim-fade[data-variant="dialog"][data-ending-style] {
     transform: translateY(6px) scale(0.98);
   }
-  .anim-fade[data-placement="top"][data-starting-style],
-  .anim-fade[data-placement="top"][data-ending-style] {
+  .anim-fade[data-variant="top"][data-starting-style],
+  .anim-fade[data-variant="top"][data-ending-style] {
     transform: translateY(-6px) scale(0.98);
   }
   /* Panels that slide in from an edge. */
@@ -932,8 +932,8 @@ input.display-lg {
     .anim-fade[data-ending-style],
     .anim-fade[data-side][data-starting-style],
     .anim-fade[data-side][data-ending-style],
-    .anim-fade[data-placement][data-starting-style],
-    .anim-fade[data-placement][data-ending-style],
+    .anim-fade[data-variant][data-starting-style],
+    .anim-fade[data-variant][data-ending-style],
     .anim-slide-right[data-starting-style],
     .anim-slide-right[data-ending-style],
     .anim-slide-left[data-starting-style],

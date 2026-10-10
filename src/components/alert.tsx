@@ -32,7 +32,7 @@ const tones: Record<Exclude<AlertTone, "warn">, { box: string; icon: string; Ico
 /**
  * A message that stays on the page: a source that keeps dropping, saved data that is not backed up, a failed save, a
  * confirmation that needs an answer. It is announced when it appears (`role="alert"` for `danger`, `status` for the
- * rest). Use `Toast` for something that goes away by itself, `Field`'s error for one input, `Dialog` for a decision that
+ * rest). Use `Toast` for something that goes away by itself, `Field`'s error for one input, `Modal` for a decision that
  * blocks the page.
  */
 export function Alert({ tone = "info", title, children, action, onDismiss, dismissLabel = "Dismiss", className }: AlertProps) {

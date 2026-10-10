@@ -526,7 +526,7 @@ describe("mobile sheet", () => {
     await renderApp({ extra: <Registrar commands={[cmd("One")]} /> });
     await openPalette(user);
     const d = screen.getByRole("dialog");
-    expect(d).toHaveAttribute("data-placement", "top");
+    expect(d).toHaveAttribute("data-variant", "top");
     expect(d.className).toContain("panel");
     expect(d.className).toContain("max-sm:h-(--command-vv-height,100dvh)");
     expect(d.className).toContain("max-sm:w-screen");

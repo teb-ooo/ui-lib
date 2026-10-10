@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Button } from "./button";
-import { Dialog } from "./dialog";
+import { Modal } from "./modal";
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -39,7 +39,7 @@ export function ConfirmDialog({ open, onOpenChange, title, description, confirmL
     }
   };
   return (
-    <Dialog
+    <Modal
       open={open}
       onOpenChange={(o) => {
         if (!busy) onOpenChange(o);

@@ -5,19 +5,19 @@ import { Button } from "./button";
 import { Input } from "./input";
 import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
-import { Dialog } from "./dialog";
+import { Modal } from "./modal";
 import { SplitPane } from "./split-pane";
 
-describe("Dialog", () => {
+describe("Modal", () => {
   it("dims the page when it opens inside another dialog (a phone's detail view)", () => {
     setViewportWidth(390);
     render(
       <SplitPane
         list={<p>list</p>}
         detail={
-          <Dialog open title="Delete this note?">
+          <Modal open title="Delete this note?">
             <p>sure</p>
-          </Dialog>
+          </Modal>
         }
         detailOpen
         detailLabel="Note"
@@ -28,23 +28,23 @@ describe("Dialog", () => {
   });
 });
 
-describe("Dialog placement right", () => {
+describe("Modal drawer", () => {
   it("opens as a drawer docked to the right", async () => {
-    render(<Dialog placement="right" defaultOpen title="Revisions" />);
+    render(<Modal variant="drawer" defaultOpen title="Revisions" />);
     const popup = await screen.findByRole("dialog", { name: "Revisions" });
-    expect(popup).toHaveAttribute("data-placement", "right");
+    expect(popup).toHaveAttribute("data-variant", "drawer");
     expect(popup.className).toContain("right-0");
-    expect(popup.className).toContain("anim-slide-right");
+    expect(popup.className).toContain("anim-sheet");
   });
 });
 
-describe("Dialog", () => {
+describe("Modal", () => {
   it("opens from its trigger, is named, moves focus in, closes on Escape and restores focus", async () => {
     const user = userEvent.setup();
     render(
-      <Dialog trigger={<Button>Open</Button>} title="Remove passkey" description="This cannot be undone." footer={<Button intent="danger">Remove</Button>}>
+      <Modal trigger={<Button>Open</Button>} title="Remove passkey" description="This cannot be undone." footer={<Button intent="danger">Remove</Button>}>
         <Input aria-label="Confirm" />
-      </Dialog>,
+      </Modal>,
     );
     const trigger = screen.getByRole("button", { name: "Open" });
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -59,53 +59,53 @@ describe("Dialog", () => {
   it("closes with the close control and reports onOpenChange", async () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
-    render(<Dialog defaultOpen onOpenChange={onOpenChange} title="Hello" />);
+    render(<Modal defaultOpen onOpenChange={onOpenChange} title="Hello" />);
     await screen.findByRole("dialog");
     await user.click(screen.getByRole("button", { name: "Close" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(onOpenChange).toHaveBeenCalledWith(false, expect.anything());
   });
   it("is controlled by `open`", async () => {
-    const { rerender } = render(<Dialog open={false} title="T" />);
+    const { rerender } = render(<Modal open={false} title="T" />);
     expect(screen.queryByRole("dialog")).toBeNull();
-    rerender(<Dialog open title="T" />);
+    rerender(<Modal open title="T" />);
     expect(await screen.findByRole("dialog", { name: "T" })).toBeInTheDocument();
   });
 });
 
-describe("Dialog placement", () => {
+describe("Modal variants", () => {
   it("centre is the default", async () => {
-    render(<Dialog defaultOpen title="T" />);
-    expect((await screen.findByRole("dialog")).getAttribute("data-placement")).toBe("center");
+    render(<Modal defaultOpen title="T" />);
+    expect((await screen.findByRole("dialog")).getAttribute("data-variant")).toBe("dialog");
   });
   it("top places the panel near the top", async () => {
-    render(<Dialog defaultOpen placement="top" title="T" />);
+    render(<Modal defaultOpen variant="top" title="T" />);
     const d = await screen.findByRole("dialog");
-    expect(d).toHaveAttribute("data-placement", "top");
+    expect(d).toHaveAttribute("data-variant", "top");
     expect(d.className).toContain("top-[15vh]");
     expect(d.className).toContain("max-w-lg");
   });
   it("bare has no close control and keeps the accessible name", async () => {
-    render(<Dialog defaultOpen bare title="Palette"><input aria-label="Search" /></Dialog>);
+    render(<Modal defaultOpen bare title="Palette"><input aria-label="Search" /></Modal>);
     expect(await screen.findByRole("dialog", { name: "Palette" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Close" })).toBeNull();
   });
   it("can focus a chosen element on open", async () => {
     const ref = createRef<HTMLInputElement>();
-    render(<Dialog defaultOpen bare title="P" initialFocus={ref}><input ref={ref} aria-label="Search" /></Dialog>);
+    render(<Modal defaultOpen bare title="P" initialFocus={ref}><input ref={ref} aria-label="Search" /></Modal>);
     await waitFor(() => expect(screen.getByLabelText("Search")).toHaveFocus());
   });
 });
 
-describe("Dialog initial focus", () => {
+describe("Modal initial focus", () => {
   it("starts on the first field of the content, not on the close button", async () => {
     render(
-      <Dialog open onOpenChange={() => undefined} title="Rename" footer={<button type="button">Save</button>}>
+      <Modal open onOpenChange={() => undefined} title="Rename" footer={<button type="button">Save</button>}>
         <label>
           Name
           <input defaultValue="x" />
         </label>
-      </Dialog>,
+      </Modal>,
     );
     const field = await screen.findByRole("textbox", { name: "Name" });
     await waitFor(() => expect(document.activeElement).toBe(field));
@@ -114,17 +114,17 @@ describe("Dialog initial focus", () => {
   it("an initialFocus of the app still wins, and a dialog with no control in its content keeps the default (a control of the dialog has focus)", async () => {
     const second = createRef<HTMLInputElement>();
     const first = render(
-      <Dialog open onOpenChange={() => undefined} title="Two" initialFocus={second}>
+      <Modal open onOpenChange={() => undefined} title="Two" initialFocus={second}>
         <input aria-label="first" />
         <input ref={second} aria-label="second" />
-      </Dialog>,
+      </Modal>,
     );
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "second" })));
     first.unmount();
     render(
-      <Dialog open onOpenChange={() => undefined} title="Plain" description="Just text.">
+      <Modal open onOpenChange={() => undefined} title="Plain" description="Just text.">
         <p>No controls here.</p>
-      </Dialog>,
+      </Modal>,
     );
     await waitFor(() => expect(document.activeElement).not.toBe(document.body));
   });

@@ -118,7 +118,7 @@ function Tip({ tip, trigger, side = "top", align = "center", delay = 400 }: TipP
  * - `openOn="hover"` with `children`: a hover card, the same panel opened by hovering as well as by click and Enter.
  * - `openOn="hover"` with `tip`: a tooltip, one line of text that is never interactive.
  * The types keep the combinations that cannot work out of reach: a tip has no children and no close button, a panel that
- * holds controls is always reachable from the keyboard. Use `Dialog` for something that needs an answer.
+ * holds controls is always reachable from the keyboard. Use `Modal` for something that needs an answer.
  */
 export function Popover(props: PopoverProps) {
   const container = usePortalContainer();

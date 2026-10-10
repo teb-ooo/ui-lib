@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { Button } from "./button";
 import { Combobox } from "./combobox";
-import { Dialog } from "./dialog";
+import { Modal } from "./modal";
 import { Select } from "./select";
 import { PortalContainerProvider } from "../lib/theme-scope";
 
@@ -20,7 +20,7 @@ function Picked() {
 
 describe("dialogs, selects and comboboxes after the inversion", () => {
   it("a dialog is an inverted panel with a shaded header, a content area and a shaded footer", async () => {
-    render(<Dialog defaultOpen title="Remove passkey" description="You will lose it." footer={<Button>Remove</Button>}>body</Dialog>);
+    render(<Modal defaultOpen title="Remove passkey" description="You will lose it." footer={<Button>Remove</Button>}>body</Modal>);
     const dialog = await screen.findByRole("dialog");
     expect(dialog.className).toContain("panel-inverse");
     const title = screen.getByText("Remove passkey");

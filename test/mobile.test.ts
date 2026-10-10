@@ -17,10 +17,10 @@ describe("mobile rules", () => {
     expect(c).toContain("size-4");
   });
   it("surfaces at the bottom edge leave room for the home indicator (zero unless the page sets viewport-fit=cover)", () => {
-    for (const f of ["src/components/toast.tsx", "src/components/sheet.tsx", "src/components/shell.tsx"]) expect(read(f), f).toContain("env(safe-area-inset-bottom)");
+    for (const f of ["src/components/toast.tsx", "src/components/modal.tsx", "src/components/shell.tsx"]) expect(read(f), f).toContain("env(safe-area-inset-bottom)");
   });
   it("modal and drawer scrollers do not chain their scroll to the page behind them", () => {
-    for (const f of ["src/components/dialog.tsx", "src/components/sheet.tsx", "src/components/sidebar.tsx", "src/components/select.tsx", "src/components/combobox.tsx", "src/components/shell.tsx"]) {
+    for (const f of ["src/components/modal.tsx", "src/components/sidebar.tsx", "src/components/select.tsx", "src/components/combobox.tsx", "src/components/shell.tsx"]) {
       expect(read(f), f).toContain("overscroll-contain");
     }
   });

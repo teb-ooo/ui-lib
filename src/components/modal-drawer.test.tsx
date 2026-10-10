@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Button, Sheet } from "../index";
+import { Button, Modal } from "../index";
 import { setViewportWidth } from "../../test/cmdk/viewport";
 
-describe("Sheet", () => {
+describe("Modal drawer", () => {
   it("opens from its trigger as a named dialog with a title, description and footer, and returns focus on Escape", async () => {
     render(
-      <Sheet trigger={<Button>Open</Button>} title="Filters" description="Choose." footer={<Button>Apply</Button>}>
+      <Modal variant="drawer" trigger={<Button>Open</Button>} title="Filters" description="Choose." footer={<Button>Apply</Button>}>
         <p>Body</p>
-      </Sheet>,
+      </Modal>,
     );
     const trigger = screen.getByRole("button", { name: "Open" });
     await userEvent.click(trigger);
@@ -24,9 +24,9 @@ describe("Sheet", () => {
   it("closes with its close button, and reports the change", async () => {
     const onOpenChange = vi.fn();
     render(
-      <Sheet defaultOpen title="Panel" onOpenChange={onOpenChange} closeLabel="Dismiss">
+      <Modal variant="drawer" defaultOpen title="Panel" onOpenChange={onOpenChange} closeLabel="Dismiss">
         <p>Body</p>
-      </Sheet>,
+      </Modal>,
     );
     await userEvent.click(await screen.findByRole("button", { name: "Dismiss" }));
     expect(onOpenChange.mock.calls.at(-1)?.[0]).toBe(false);
@@ -35,9 +35,9 @@ describe("Sheet", () => {
 
   it("is modal by default (a backdrop) and non-modal with modal={false} (none, and a click outside does not close it)", async () => {
     const { unmount } = render(
-      <Sheet defaultOpen title="A">
+      <Modal variant="drawer" defaultOpen title="A">
         <p>Body</p>
-      </Sheet>,
+      </Modal>,
     );
     await screen.findByRole("dialog");
     expect(document.querySelector(".anim-backdrop")).not.toBeNull();
@@ -45,9 +45,9 @@ describe("Sheet", () => {
     render(
       <div>
         <button type="button">Page button</button>
-        <Sheet defaultOpen modal={false} title="B">
+        <Modal variant="drawer" defaultOpen modal={false} title="B">
           <p>Body</p>
-        </Sheet>
+        </Modal>
       </div>,
     );
     await screen.findByRole("dialog");
@@ -59,9 +59,9 @@ describe("Sheet", () => {
   it("drags down past the threshold to close, and springs back when dragged less", async () => {
     setViewportWidth(390);
     render(
-      <Sheet defaultOpen title="Drag">
+      <Modal variant="drawer" defaultOpen title="Drag">
         <p>Body</p>
-      </Sheet>,
+      </Modal>,
     );
     const dialog = await screen.findByRole("dialog");
     const handle = dialog.querySelector("[aria-hidden=true].cursor-grab") as HTMLElement;

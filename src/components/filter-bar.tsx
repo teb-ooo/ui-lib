@@ -4,7 +4,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { useMinWidth } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
-import { Sheet } from "./sheet";
+import { Modal } from "./modal";
 
 export interface FilterBarProps extends Omit<HTMLAttributes<HTMLDivElement>, "className"> {
   /** Controls on the right (a result count, a view menu). They wrap under the rest on a phone. */
@@ -44,7 +44,8 @@ export const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(function Fil
     <div ref={ref} role="group" className={cn("flex flex-wrap items-center gap-2", className)} {...rest}>
       {primary}
       {collapsed ? (
-        <Sheet
+        <Modal
+          variant="drawer"
           open={open}
           onOpenChange={setOpen}
           title={filtersLabel}
@@ -60,7 +61,7 @@ export const FilterBar = forwardRef<HTMLDivElement, FilterBarProps>(function Fil
             {endInSheet ? <div className="flex flex-wrap items-center gap-2">{end}</div> : null}
             {children}
           </div>
-        </Sheet>
+        </Modal>
       ) : (
         children
       )}

@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import type { KeyboardEvent } from "react";
-import { Dialog } from "@teb-ooo/ui";
+import { Modal } from "@teb-ooo/ui";
 import { useInternals } from "./context";
 import { errorMessage } from "./execute";
 import { useMediaQuery } from "../hooks/use-media-query";
@@ -182,13 +182,13 @@ export function Palette() {
   };
 
   return (
-    <Dialog
+    <Modal
       open
       onOpenChange={(open) => {
         if (!open) close();
       }}
       title="Command palette"
-      placement="top"
+      variant="top"
       bare
       inverted
       initialFocus={inputRef}
@@ -219,6 +219,6 @@ export function Palette() {
         inputRef={inputRef}
         onClose={close}
       />
-    </Dialog>
+    </Modal>
   );
 }

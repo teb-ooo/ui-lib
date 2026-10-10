@@ -6,6 +6,17 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.124.0 (from 0.123.x): `Dialog` and `Sheet` are one `Modal` (breaking)
+
+`Dialog` and `Sheet` are removed; `Modal` replaces both (owner decision: one component, variants above a phone, one bottom panel on a phone). Change:
+
+- `<Dialog ...>` becomes `<Modal ...>`; `placement="center"` (the default) is `variant="dialog"`, `placement="top"` is `variant="top"`, `placement="right"` is `variant="drawer"` (docked right, 24rem wide instead of `max-w-xl`); `bare`, `inverted`, `initialFocus`, `closeLabel`, `trigger`, `open`, `defaultOpen`, `onOpenChange`, `title`, `description`, `footer`, `className` are unchanged.
+- `<Sheet ...>` becomes `<Modal variant="drawer" ...>`; `modal`, `side`, `closeLabel`, `className` are unchanged (a `lg:w-[28rem]` className becomes `w-[28rem]`).
+- Types: `DialogProps`, `DialogPlacement`, `SheetProps` become `ModalProps`, `ModalVariant`.
+- The popup's `data-placement` attribute is now `data-variant` (`dialog`, `drawer`, `top`); tests that read it change.
+- On a phone a `Modal` is always the reversed bottom panel (the old centred dialog and the right drawer included).
+- `ConfirmDialog` is unchanged.
+
 ## To ui 0.123.2 (from 0.123.1)
 
 On a phone every panel now steps back when another opens over it, not only a `Dialog` or `Sheet`: a `Select`, `Combobox`, `Menu` or `Popover` panel opened from a sheet puts the sheet behind it. A `Dialog` on a phone is drawn by `Sheet` itself (one bottom panel), so it has the sheet's look (title at the left) and `Sheet` takes `initialFocus`. Nothing to change.
