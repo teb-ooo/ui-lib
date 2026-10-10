@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.119.0 (from 0.118.x)
+
+`Checkbox`: where a finger taps (a phone width or `pointer: coarse`) it has an invisible 44px target around its 16px box, so a row's select checkbox is easy to hit; the look does not change (bd). Nothing to change.
+
 ## To ui 0.118.0 (from 0.117.x)
 
 `Dialog`: focus starts on the first control of the content (the first field of a form; with no control, on the default), not on the close button above it; `initialFocus` still overrides it (`ConfirmDialog` keeps focus on Cancel). `Shell`: a "Skip to content" link is the first Tab stop (invisible until focused; `skipLabel` renames it): it moves focus to the content without changing the address. New token `--color-focus` (pink-500 in both schemes) and one global rule: every `:focus-visible` is a 2px solid pink ring, on every control and whatever its own classes (it is outside any layer, so it wins; an element's own `outline-offset` still applies, inset in a scroller). A focused field still reverses; the ring says where the keyboard is. Phones (mobile-web work, trialled with bd): `--target-h` is 44px for a phone width **or** a finger as the main pointer (`pointer: coarse`: tablets, touch laptops), not width alone; `Toast`, `Sheet` and `Shell` leave room for the home indicator with `env(safe-area-inset-bottom)` (zero unless the page's viewport meta has `viewport-fit=cover`: add it to `index.html` to use it); `Dialog`, `Sheet`, the sidebar, `Select`, `Combobox` and the `Shell` content use `overscroll-behavior: contain` so a scroll does not leak to the page behind. An app that styled its own focus ring will see pink instead; use `outline-offset` for placement only. Nothing else to change (rb).
