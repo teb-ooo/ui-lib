@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COLLAPSE, CYCLE, corruptText, momentAt, rng, wave } from "./ruin";
+import { COLLAPSE, CYCLE, corruptText, momentAt, rng, shuffleWord, wave } from "./ruin";
 
 describe("ruin", () => {
   it("a seeded random source repeats", () => {
@@ -34,5 +34,14 @@ describe("ruin", () => {
       const v = wave(i / 500, i / 50, i / 500, r, i % 3);
       expect(Math.abs(v)).toBeLessThanOrEqual(1);
     }
+  });
+
+  it("shuffleWord keeps the letters and the spaces, and puts them in a new order", () => {
+    const out = shuffleWord("EXPIRED INVITE", rng(5));
+    expect([...out].sort().join("")).toBe([..."EXPIRED INVITE"].sort().join(""));
+    expect(out[7]).toBe(" ");
+    expect(out).not.toBe("EXPIRED INVITE");
+    expect(shuffleWord("BAD", rng(1))).toHaveLength(3);
+    expect(shuffleWord("", rng(1))).toBe("");
   });
 });

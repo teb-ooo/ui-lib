@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
-import { COLLAPSE, CYCLE, corruptText, momentAt, rng, wave } from "../lib/ruin";
+import { COLLAPSE, CYCLE, corruptText, momentAt, rng, shuffleWord, wave } from "../lib/ruin";
 
 export interface FatalPageProps {
-  /** The word. It is drawn huge in the picture and is the page's heading for assistive technology. @default "BAD" */
+  /** The word. It is drawn small in the picture, its letters shuffled and breaking up, and is the page's heading for assistive technology. @default "BAD" */
   title?: string;
   /** One or two plain sentences: what happened and what the person can do. Always readable, never part of the picture. */
   message?: ReactNode;
@@ -24,8 +24,8 @@ const PIXELS = 70_000;
 
 /**
  * The page for when it has truly gone wrong and there is nothing to show: a 500, a crash, an expired invitation. A full-screen
- * picture of something failing, in red and black: static, torn scanlines, colour channels splitting apart, waveforms that stop
- * being waves, blocks of corruption, and a huge word that breaks up. It builds toward a collapse, falls, and starts again worse.
+ * picture of something failing, in red and black: static, torn scanlines, waveforms that stop being waves, blocks of
+ * corruption, and a small word that is shuffled and breaking up. It builds toward a collapse, falls, and starts again worse.
  * Under it the message and the one way out stay perfectly legible, and the picture is hidden from assistive technology.
  *
  * It is loud on purpose, so use it rarely, for failures and not for a page that is merely empty (use `NotFound` or `EmptyState`).
@@ -54,6 +54,7 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
     let tAt = 0;
     const random = rng(Math.floor(Math.random() * 1e9));
     let shown = "";
+    const at = { x: 0, y: 0 };
     let shownUntil = 0;
 
     const size = () => {
@@ -86,27 +87,26 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
         }
         sctx.stroke();
       }
-      // the word, breaking up; it is re-rolled a few times a second, not every frame
+      // The word is small and wrong: its letters re-shuffled and breaking up, turning up somewhere new a few times a second.
       if (t >= shownUntil) {
-        shown = corruptText(title, c, random);
-        shownUntil = t + 0.12 + random() * 0.25;
+        shown = corruptText(shuffleWord(title, random), c * 0.8, random);
+        at.x = W * (0.12 + random() * 0.76);
+        at.y = H * (0.14 + random() * 0.66);
+        shownUntil = t + 0.1 + random() * 0.3;
       }
-      const fs = Math.min(H * 0.62, (W * 1.5) / Math.max(2, title.length));
+      const fs = Math.max(8, H * (0.07 + c * 0.02));
       sctx.font = `bold ${fs}px ${mono}`;
       sctx.textAlign = "center";
       sctx.textBaseline = "middle";
-      const jx = (random() - 0.5) * W * 0.06 * c;
-      const jy = (random() - 0.5) * H * 0.06 * c + fall * H * 0.5;
-      sctx.fillStyle = "darkred";
-      sctx.fillText(shown, W / 2 + jx - W * 0.012 * (1 + c), H / 2 + jy);
+      const jx = (random() - 0.5) * W * 0.02 * c;
+      const jy = (random() - 0.5) * H * 0.02 * c + fall * H * 0.4;
       sctx.fillStyle = "red";
-      sctx.fillText(shown, W / 2 + jx + W * 0.008, H / 2 + jy - H * 0.004);
-      // a hot flash of the word now and then, kept to red hues and to a few frames in a cycle so it never strobes
-      sctx.fillStyle = c > 0.8 && random() < 0.12 ? "salmon" : "black";
-      sctx.fillText(shown, W / 2 + jx, H / 2 + jy);
-      sctx.strokeStyle = "red";
-      sctx.lineWidth = Math.max(1, H / 90);
-      sctx.strokeText(shown, W / 2 + jx, H / 2 + jy);
+      sctx.fillText(shown, at.x + jx, at.y + jy);
+      // a hot flash of it now and then, kept to red hues and to a few frames in a cycle so it never strobes
+      if (c > 0.8 && random() < 0.12) {
+        sctx.fillStyle = "salmon";
+        sctx.fillText(shown, at.x + jx, at.y + jy);
+      }
       // blocks of corruption
       const blocks = Math.floor(c * c * 14);
       for (let b = 0; b < blocks; b += 1) {
@@ -116,7 +116,7 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
         sctx.fillRect(random() * W, random() * H, bw, bh);
       }
 
-      // --- the damage: tearing, a roll, channel split, static, scanlines, darkness ---
+      // --- the damage: tearing, a roll, static, scanlines, darkness ---
       const src = sctx.getImageData(0, 0, W, H);
       const out = ctx.createImageData(W, H);
       const rowShift = new Int16Array(H);
@@ -128,7 +128,6 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
         for (let y = y0; y < Math.min(H, y0 + h); y += 1) rowShift[y] = dx;
       }
       const roll = fall > 0 ? Math.floor(fall * H * 0.9) : random() < c * 0.06 ? Math.floor(random() * H * 0.2) : 0;
-      const split = Math.round(1 + c * W * 0.025);
       const noiseAmt = 0.1 + c * 0.42 + fall * 0.2;
       const cx = W / 2;
       const cy = H / 2;
@@ -137,13 +136,11 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
         const sh = rowShift[sy] ?? 0;
         const dark = y % 3 === 0 ? 0.55 : 1;
         for (let x = 0; x < W; x += 1) {
-          const xr = Math.min(W - 1, Math.max(0, x + sh + split));
-          const xg = Math.min(W - 1, Math.max(0, x + sh));
-          const xb = xg;
+          const xs = Math.min(W - 1, Math.max(0, x + sh));
           const row = sy * W;
-          let r = src.data[(row + xr) * 4] ?? 0;
-          let g = src.data[(row + xg) * 4 + 1] ?? 0;
-          let b = src.data[(row + xb) * 4 + 2] ?? 0;
+          let r = src.data[(row + xs) * 4] ?? 0;
+          let g = src.data[(row + xs) * 4 + 1] ?? 0;
+          let b = src.data[(row + xs) * 4 + 2] ?? 0;
           // static: red-heavy grain
           const n = random();
           const grain = n * 255 * noiseAmt * (n > 0.97 ? 1.6 : 1);

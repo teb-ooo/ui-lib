@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@teb-ooo/ui";
 import { EntrancePage } from "./index";
 import type { StoryDefault, StoryMeta } from "../stories";
@@ -40,3 +40,31 @@ export const WithProblem = () => (
   </div>
 );
 WithProblem.storyMeta = { description: "When something went wrong, one line under the button (the app's own words)." } satisfies StoryMeta;
+
+export const Fullscreen = () => {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>Preview fullscreen</Button>
+      {open ? (
+        <div className="fixed inset-0 z-50 bg-ground">
+          <EntrancePage title="Sign in">
+            <Button intent="solid" className="bg-ground">
+              Enter
+            </Button>
+          </EntrancePage>
+          <Button className="absolute top-3 right-3" onClick={() => setOpen(false)}>
+            Close preview (Esc)
+          </Button>
+        </div>
+      ) : null}
+    </>
+  );
+};
+Fullscreen.storyMeta = { description: "Opens the page over the whole window, as an app shows it (the scene takes the page's touch gestures, so it fills one screen). Escape or the button closes it." } satisfies StoryMeta;

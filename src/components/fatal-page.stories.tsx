@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Button } from "./button";
 import { FatalPage } from "./fatal-page";
 import type { StoryDefault, StoryMeta } from "../stories";
@@ -6,7 +7,7 @@ export default {
   title: "FatalPage",
   group: "Molecules",
   description:
-    "The page for when it has truly gone wrong and there is nothing to show: a 500, a crash, an expired invitation. A full-screen picture of something failing in red and black: static, torn scanlines, colour channels splitting, waveforms that stop being waves, corruption blocks and a huge word that breaks up, building to a collapse and starting again worse. The message and the one way out stay legible under it. Loud on purpose: use it rarely, and not for an empty page (use NotFound or EmptyState). Reduced motion gets one still frame; it never strobes.",
+    "The page for when it has truly gone wrong and there is nothing to show: a 500, a crash, an expired invitation. A full-screen picture of something failing in red and black: static, torn scanlines, waveforms that stop being waves, corruption blocks, and a small word with its letters shuffled and breaking up, building to a collapse and starting again worse. The message and the one way out stay legible under it. Loud on purpose: use it rarely, and not for an empty page (use NotFound or EmptyState). Reduced motion gets one still frame; it never strobes.",
   aliases: ["error page", "500", "crash page", "fail whale", "fatal error", "expired invitation", "glitch", "static", "noise", "something went wrong", "failure screen"],
   component: "FatalPage",
   source: "src/components/fatal-page.tsx",
@@ -29,4 +30,28 @@ export const ExpiredInvitation = () => (
     <FatalPage title="EXPIRED" fullscreen={false} message="This invitation is no longer valid. Ask whoever sent it for a new one." action={<Button>Back to sign in</Button>} />
   </div>
 );
-ExpiredInvitation.storyMeta = { description: "The word is yours: title is drawn in the picture and is the heading for assistive technology." } satisfies StoryMeta;
+ExpiredInvitation.storyMeta = { description: "The word is yours: it is drawn small, its letters shuffled and breaking up, and is the heading for assistive technology." } satisfies StoryMeta;
+
+export const Fullscreen = () => {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>Preview fullscreen</Button>
+      {open ? (
+        <FatalPage
+          title="FATAL"
+          message="This is what a person sees when the app has really failed. Press Escape or the button to close the preview."
+          detail="request 01a1251c-7e44 · 500"
+          action={<Button intent="solid" onClick={() => setOpen(false)}>Close preview</Button>}
+        />
+      ) : null}
+    </>
+  );
+};
+Fullscreen.storyMeta = { description: "Opens the real thing over the whole window, as an app shows it. Escape or the button closes it." } satisfies StoryMeta;

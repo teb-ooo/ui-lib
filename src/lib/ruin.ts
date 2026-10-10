@@ -73,3 +73,18 @@ export function wave(x: number, t: number, chaos: number, random: () => number, 
   // it clips, like something overdriven
   return Math.max(-1, Math.min(1, v * (1 + chaos)));
 }
+
+/** The word with its letters in a new order (a Fisher-Yates shuffle): it is the same letters, wrongly arranged. Spaces stay put. */
+export function shuffleWord(text: string, random: () => number): string {
+  const chars = [...text];
+  const at = chars.map((c, i) => (c === " " ? -1 : i)).filter((i) => i >= 0);
+  const letters = at.map((i) => chars[i]!);
+  for (let i = letters.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [letters[i], letters[j]] = [letters[j]!, letters[i]!];
+  }
+  at.forEach((pos, k) => {
+    chars[pos] = letters[k]!;
+  });
+  return chars.join("");
+}
