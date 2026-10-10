@@ -40,7 +40,8 @@ Put the `FilterBar` once above the `SplitPane`, full width, so it never depends 
 - Filters: `FilterBar primary={<SearchInput .../>}` so the bar is one row and the filters open behind a Filters button. On a desktop the children follow the primary controls in the same row; on a phone `end` (a count, a view menu) moves into the Filters sheet (`collapsedEnd="row"` keeps it in the bar), and there is no Filters button when there are no filters. Controls in a filter bar say what they are by their own label: `Field hideLabel` keeps the label for screen readers without drawing it.
 - Bulk actions: `DataTable` cards get checkboxes when `selectedKeys` is set. Keep the bulk bar to one row: icon buttons plus a "More actions" `Menu`.
 - Action rows: the two or three main actions inline, the rest in a `Menu`.
-- Zoom: leave the viewport tag as the template has it (`width=device-width, initial-scale=1`); zoom stays allowed (owner decision). The theme sets `touch-action: manipulation` on `html` (no double-tap zoom; pinch zoom is untouched).
+- Zoom: the viewport tag is `width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover` (owner decision). Never `user-scalable=no`: pinch zoom stays available where the browser allows it (iOS Safari ignores `maximum-scale` for pinch; Android Chrome honours it). `viewport-fit=cover` is what gives the safe-area padding of Toast, Sheet and Shell a value. The theme sets `touch-action: manipulation` on `html` (no double-tap zoom).
+- One scroll surface: on a 390px phone a screen scrolls in one place, plus a scrollable `Tabs` bar. Give every `DataTable` `hideBelow` on the columns that do not fit (or `cardsBelow`), and wrap code instead of scrolling it, so a swipe never lands in a nested region.
 - Test at 390 px: nothing scrolls sideways, every action is reachable.
 
 ## 8. Use the component, not a look-alike
