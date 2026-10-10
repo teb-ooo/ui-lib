@@ -71,6 +71,9 @@ export const PANEL_POPUP =
 /** The classes of the dimmed page behind a panel; draw it with the popup's own `Backdrop` part, which is there only while it is open. */
 export const PANEL_BACKDROP = "anim-backdrop fixed inset-0 z-50 bg-black/50";
 
+/** What a person can type in or press: the first of these in the content of a panel gets the focus when it opens. */
+export const CONTROLS = 'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [contenteditable="true"], [role="combobox"]:not([disabled]), button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])';
+
 const DISMISS_PX = 96;
 
 /**
@@ -155,16 +158,24 @@ export function PanelBody({ children }: { children: ReactNode }) {
 }
 
 /**
- * Everything a Base UI popup needs to be a bottom panel on a phone, in one call: `style` for the positioner, `backdrop` and
- * `handle` to render, and `popupClass(desktop)` for the popup (the panel classes on a phone, `desktop` elsewhere).
+ * Everything a Base UI popup needs to be a bottom panel on a phone, in one call: `style` for the positioner, `backdropClass`
+ * for its `Backdrop` part, `handle` to render, and `popupClass(desktop)` for the popup (the panel classes on a phone,
+ * `desktop` elsewhere). It also puts the panel in the stack: pass `onOpenChange` to the popup's root (with the app's own
+ * handler, if any, and its controlled `open`) and every panel under this one steps back.
  */
-export function usePanel() {
+export function usePanel(controlledOpen?: boolean, initiallyOpen = false) {
   const phone = usePhone();
-  const style = usePanelStyle();
+  const base = usePanelStyle();
+  const [internal, setInternal] = useState(initiallyOpen);
+  const shown = controlledOpen ?? internal;
+  const above = usePanelsAbove(phone && shown);
   return {
     phone,
-    style,
-    /** `<panel.Backdrop />` inside the portal: the popup's Backdrop part on a phone, nothing elsewhere. */
+    style: base ? { ...base, ...panelDepthStyle(above) } : undefined,
+    onOpenChange: (next: boolean, own?: (open: boolean, ...rest: never[]) => void, ...details: never[]) => {
+      setInternal(next);
+      own?.(next, ...details);
+    },
     backdropClass: phone ? PANEL_BACKDROP : null,
     handle: phone ? <PanelHandle /> : null,
     popupClass: (desktop: string, phoneExtra = "px-1") => (phone ? cn(PANEL_POPUP, phoneExtra) : desktop),

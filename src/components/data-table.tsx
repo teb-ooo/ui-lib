@@ -293,7 +293,7 @@ function ColumnMenu<T>({
   const hideable = columns.filter((c) => c.hideable !== false);
   const panel = usePanel();
   return (
-    <Menu.Root>
+    <Menu.Root onOpenChange={(o) => panel.onOpenChange(o)}>
       <Menu.Trigger render={<Button icon={<Columns3 aria-hidden="true" className="size-4" />} tip="Columns" className="border-transparent" />} />
       <Menu.Portal container={portalContainer}>
         {panel.backdropClass ? <Menu.Backdrop className={panel.backdropClass} /> : null}

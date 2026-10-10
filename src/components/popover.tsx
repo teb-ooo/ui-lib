@@ -4,7 +4,7 @@ import { Popover as BasePopover } from "@base-ui/react/popover";
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
-import { PANEL_BACKDROP, PANEL_POPUP, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
+import { usePanel } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Button } from "./button";
 
@@ -122,8 +122,8 @@ function Tip({ tip, trigger, side = "top", align = "center", delay = 400 }: TipP
  */
 export function Popover(props: PopoverProps) {
   const container = usePortalContainer();
-  const phone = usePhone();
-  const panelStyle = usePanelStyle();
+  const sheet = usePanel((props as { open?: boolean }).open, (props as { defaultOpen?: boolean }).defaultOpen);
+  const phone = sheet.phone;
   if (props.openOn === "hover" && props.tip !== undefined) return <Tip {...props} />;
   const p = props as ClickPopoverProps | HoverCardProps;
   const { trigger, title, children, side = "bottom", align = "center", className } = p;
@@ -136,7 +136,7 @@ export function Popover(props: PopoverProps) {
     <BasePopover.Root
       open={p.open}
       defaultOpen={p.defaultOpen}
-      onOpenChange={p.onOpenChange ? (o) => p.onOpenChange?.(o) : undefined}
+      onOpenChange={(o) => sheet.onOpenChange(o, p.onOpenChange)}
       modal={hover ? false : (click.modal ?? false)}
     >
       <BasePopover.Trigger
@@ -145,10 +145,10 @@ export function Popover(props: PopoverProps) {
         {...(hover ? { openOnHover: true, delay: card.delay ?? 300, closeDelay: card.closeDelay ?? 150 } : {})}
       />
       <BasePopover.Portal container={container}>
-        {phone ? <BasePopover.Backdrop className={PANEL_BACKDROP} /> : null}
-        <BasePopover.Positioner side={side} align={align} sideOffset={OFFSET} arrowPadding={ARROW_PADDING} collisionPadding={8} style={panelStyle} className="z-50 outline-none">
-          <BasePopover.Popup aria-label={title} className={phone ? cn(PANEL_POPUP, "flex flex-col gap-2 px-3") : cn(panel, "flex w-72 max-w-[calc(100vw-1rem)] flex-col gap-2 p-3", className)}>
-            {phone ? <PanelHandle /> : null}
+        {sheet.backdropClass ? <BasePopover.Backdrop className={sheet.backdropClass} /> : null}
+        <BasePopover.Positioner side={side} align={align} sideOffset={OFFSET} arrowPadding={ARROW_PADDING} collisionPadding={8} style={sheet.style} className="z-50 outline-none">
+          <BasePopover.Popup aria-label={title} className={sheet.popupClass(cn(panel, "flex w-72 max-w-[calc(100vw-1rem)] flex-col gap-2 p-3", className), "flex flex-col gap-2 px-3")}>
+            {sheet.handle}
             {showTitle || showClose ? (
               <div className="flex items-start justify-between gap-3">
                 {showTitle ? <BasePopover.Title className="text-ink">{title}</BasePopover.Title> : <span />}

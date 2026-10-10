@@ -818,6 +818,7 @@ A panel that holds controls without leaving the page: on a phone a reversed bott
 - `footer?`: `ReactNode`. Actions row at the bottom, typically `Button`s.
 - `modal?`: `boolean`, default true. `true` dims the page, blocks it and traps focus (a form that must be finished). `false` leaves the page usable beside it, with no backdrop: a control panel next to a live view. A non-modal sheet closes on Escape or its close button, not on a click outside.
 - `side?`: `"left" | "right"`, default "right". Above a phone the sheet is a panel on this side; on a phone it is a reversed bottom panel.
+- `initialFocus?`: `boolean | RefObject<HTMLElement | null>`. Element to focus on open (a ref), or `false` to leave focus alone. Default: the first control of the content, else the first tabbable.
 - `closeLabel?`: `string`, default "Close". Label of the close button.
 - `className?`: `string`. Layout classes for the panel (its width from lg, for example `lg:w-[28rem]`).
 

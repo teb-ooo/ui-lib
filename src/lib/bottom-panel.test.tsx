@@ -80,6 +80,25 @@ describe("bottom panels", () => {
   });
 });
 
+describe("stacking with anchored popups", () => {
+  it("a select opened inside a sheet puts the sheet behind it, and it comes back when the select closes", async () => {
+    setViewportWidth(390);
+    const user = userEvent.setup();
+    render(
+      <Sheet defaultOpen title="First">
+        <Select label="Pick" options={options} value={null} onValueChange={() => undefined} />
+      </Sheet>,
+    );
+    const sheet = await screen.findByRole("dialog");
+    expect(sheet.style.transform).toBe("none");
+    await user.click(screen.getByRole("combobox", { name: "Pick" }));
+    await screen.findByRole("listbox");
+    await waitFor(() => expect(sheet.style.transform).toContain("scale(0.96)"));
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(sheet.style.transform).toBe("none"));
+  });
+});
+
 describe("an environment without matchMedia", () => {
   it("draws the anchored popups, so an app's own jsdom tests keep working", async () => {
     // @ts-expect-error: a test environment without matchMedia

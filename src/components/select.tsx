@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useOptionTip } from "../lib/use-option-tip";
-import { PANEL_BACKDROP, PANEL_POPUP, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
+import { usePanel } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
@@ -54,13 +54,13 @@ export function OptionAdornment({ children }: { children: ReactNode }) {
 /** Choose one option from a short list. For long lists that need searching use `Combobox`. */
 export function Select({ options, value, onValueChange, label, placeholder, disabled, onHighlight, className, startAdornment, endAdornment }: SelectProps) {
   const container = usePortalContainer();
-  const phone = usePhone();
-  const panelStyle = usePanelStyle();
+  const panel = usePanel();
+  const phone = panel.phone;
   const tips = useMemo(() => new Map(options.filter((o) => o.tip !== undefined).map((o) => [o.value, o.tip as ReactNode])), [options]);
   const { ref: highlightRef, tip, describedBy } = useOptionTip(tips, onHighlight);
   const chosen = options.find((o) => o.value === value);
   return (
-    <BaseSelect.Root items={options} value={value} onValueChange={onValueChange} disabled={disabled}>
+    <BaseSelect.Root items={options} value={value} onValueChange={onValueChange} onOpenChange={(o) => panel.onOpenChange(o)} disabled={disabled}>
       <BaseSelect.Trigger aria-label={label} className={cn("input flex w-56 max-w-full cursor-pointer items-center justify-between gap-2 text-left data-[disabled]:cursor-not-allowed", className)}>
         {startAdornment !== undefined ? <Adornment>{startAdornment}</Adornment> : null}
         {chosen?.adornment !== undefined ? <OptionAdornment>{chosen.adornment}</OptionAdornment> : null}
@@ -71,10 +71,10 @@ export function Select({ options, value, onValueChange, label, placeholder, disa
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal container={container}>
-        {phone ? <BaseSelect.Backdrop className={PANEL_BACKDROP} /> : null}
-        <BaseSelect.Positioner sideOffset={4} alignItemWithTrigger={false} style={panelStyle} className="z-50 outline-none">
-          <BaseSelect.Popup className={phone ? cn(PANEL_POPUP, "px-1") : "anim-fade panel-inverse panel-float min-w-[var(--anchor-width)] p-1 text-ink outline-none"}>
-            {phone ? <PanelHandle /> : null}
+        {panel.backdropClass ? <BaseSelect.Backdrop className={panel.backdropClass} /> : null}
+        <BaseSelect.Positioner sideOffset={4} alignItemWithTrigger={false} style={panel.style} className="z-50 outline-none">
+          <BaseSelect.Popup className={panel.popupClass("anim-fade panel-inverse panel-float min-w-[var(--anchor-width)] p-1 text-ink outline-none")}>
+            {panel.handle}
             <BaseSelect.List ref={highlightRef} className={phone ? "" : "max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain"}>
               {options.map((o) => (
                 <BaseSelect.Item

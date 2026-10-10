@@ -292,7 +292,7 @@ export function PlatformBar({
           </a>
         </Tooltip>
       ) : (
-        <Menu.Root>
+        <Menu.Root onOpenChange={(o) => panel.onOpenChange(o)}>
           <Tooltip tip="Account" side="bottom">
             <Menu.Trigger aria-label="Account" className={iconButton}>
               <User aria-hidden="true" className="size-4" />

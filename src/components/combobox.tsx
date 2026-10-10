@@ -4,7 +4,7 @@ import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useOptionTip } from "../lib/use-option-tip";
-import { PANEL_BACKDROP, PANEL_POPUP, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
+import { usePanel } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
@@ -48,17 +48,16 @@ export function Combobox(props: ComboboxProps) {
   const tips = useMemo(() => new Map(props.options.filter((o) => o.tip !== undefined).map((o) => [o.value, o.tip as ReactNode])), [props.options]);
   const { ref: highlightRef, tip, describedBy } = useOptionTip(tips, onHighlight);
   const container = usePortalContainer();
-  const phone = usePhone();
-  const panelStyle = usePanelStyle();
+  const panel = usePanel();
   const items = useMemo(() => BaseCombobox.createItems(options, { getValue: (o) => o.value, getLabel: (o) => o.label }), [options]);
   const byValue = useMemo(() => new Map(options.map((o) => [o.value, o])), [options]);
 
   const list = (
     <BaseCombobox.Portal container={container}>
-      {phone ? <BaseCombobox.Backdrop className={PANEL_BACKDROP} /> : null}
-      <BaseCombobox.Positioner sideOffset={4} style={panelStyle} className="z-50 outline-none">
-        <BaseCombobox.Popup ref={highlightRef} className={phone ? cn(PANEL_POPUP, "max-h-[45dvh] px-1") : popup}>
-          {phone ? <PanelHandle /> : null}
+      {panel.backdropClass ? <BaseCombobox.Backdrop className={panel.backdropClass} /> : null}
+      <BaseCombobox.Positioner sideOffset={4} style={panel.style} className="z-50 outline-none">
+        <BaseCombobox.Popup ref={highlightRef} className={panel.popupClass(popup, "max-h-[45dvh] px-1")}>
+          {panel.handle}
           <BaseCombobox.Empty className="px-2 py-1 text-ink-faint empty:hidden">{emptyLabel}</BaseCombobox.Empty>
           <BaseCombobox.List>
             {(o: Option) => (
@@ -80,7 +79,7 @@ export function Combobox(props: ComboboxProps) {
 
   if (props.multiple) {
     return (
-      <BaseCombobox.Root items={items} multiple value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
+      <BaseCombobox.Root items={items} multiple value={props.value} onValueChange={props.onValueChange} onOpenChange={(o) => panel.onOpenChange(o)} disabled={disabled}>
         <BaseCombobox.InputGroup className={cn("input flex h-auto min-h-[var(--target-h)] w-72 max-w-full flex-wrap items-center gap-1 py-[calc((var(--target-h)-1.6em-2px)/2)]", className)}>
           <BaseCombobox.Chips className="flex w-full flex-wrap items-center gap-1">
             {startAdornment !== undefined ? <Adornment>{startAdornment}</Adornment> : null}
@@ -106,7 +105,7 @@ export function Combobox(props: ComboboxProps) {
   if (start !== undefined || endAdornment !== undefined) {
     // With an adornment the border belongs to the group, which holds the adornments, the input and the two buttons.
     return (
-      <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
+      <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} onOpenChange={(o) => panel.onOpenChange(o)} disabled={disabled}>
         <BaseCombobox.InputGroup className={cn("input flex w-56 max-w-full items-center gap-2 pr-0", className)}>
           {start !== undefined ? <Adornment>{start}</Adornment> : null}
           <BaseCombobox.Input aria-label={label} placeholder={placeholder ?? label} className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-inherit outline-none" />
@@ -126,7 +125,7 @@ export function Combobox(props: ComboboxProps) {
   }
 
   return (
-    <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} disabled={disabled}>
+    <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} onOpenChange={(o) => panel.onOpenChange(o)} disabled={disabled}>
       <BaseCombobox.InputGroup className={cn("relative w-56 max-w-full", className)}>
         <BaseCombobox.Input aria-label={label} placeholder={placeholder ?? label} className="input pr-[3.25rem]" />
         <div className="absolute top-0 right-0 flex h-full items-center">

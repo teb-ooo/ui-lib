@@ -1,10 +1,10 @@
-import { useState } from "react";
-import type { ReactElement, ReactNode } from "react";
+import { useRef, useState } from "react";
+import type { ReactElement, ReactNode, RefObject } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Button } from "./button";
-import { PanelHandle, panelDepthStyle, usePanelDrag, usePanelStyle, usePanelsAbove, usePhone } from "../lib/bottom-panel";
+import { CONTROLS, PanelHandle, panelDepthStyle, usePanelDrag, usePanelStyle, usePanelsAbove, usePhone } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 
 export interface SheetProps {
@@ -27,6 +27,8 @@ export interface SheetProps {
   modal?: boolean;
   /** Above a phone the sheet is a panel on this side; on a phone it is a reversed bottom panel. @default "right" */
   side?: "left" | "right";
+  /** Element to focus on open (a ref), or `false` to leave focus alone. Default: the first control of the content, else the first tabbable. */
+  initialFocus?: boolean | RefObject<HTMLElement | null>;
   /** Label of the close button. @default "Close" */
   closeLabel?: string;
   /** Layout classes for the panel (its width from lg, for example `lg:w-[28rem]`). */
@@ -38,7 +40,9 @@ export interface SheetProps {
  * above a phone a side panel. Modal by default; `modal={false}` keeps the page usable beside it. It has a title,
  * a close button, optional description and footer, returns focus to its trigger and closes on Escape.
  */
-export function Sheet({ open, defaultOpen, onOpenChange, trigger, title, description, children, footer, modal = true, side = "right", closeLabel = "Close", className }: SheetProps) {
+export function Sheet({ open, defaultOpen, onOpenChange, trigger, title, description, children, footer, modal = true, side = "right", initialFocus, closeLabel = "Close", className }: SheetProps) {
+  const body = useRef<HTMLDivElement>(null);
+  const firstControl = () => body.current?.querySelector<HTMLElement>(CONTROLS) ?? true;
   const portalContainer = usePortalContainer();
   const phone = usePhone();
   const panelStyle = usePanelStyle();
@@ -57,6 +61,7 @@ export function Sheet({ open, defaultOpen, onOpenChange, trigger, title, descrip
         {modal ? <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" /> : null}
         <BaseDialog.Popup
           data-side={side}
+          initialFocus={initialFocus ?? firstControl}
           style={phone ? { ...panelStyle, left: 0, right: 0, ...(drag.style ?? panelDepthStyle(above)) } : undefined}
           className={
             phone
@@ -72,7 +77,7 @@ export function Sheet({ open, defaultOpen, onOpenChange, trigger, title, descrip
             <BaseDialog.Close render={<Button icon={<X aria-hidden="true" className="size-4" />} aria-label={closeLabel} className="border-transparent" />} />
           </div>
           {description ? <BaseDialog.Description className="px-4 pb-2 text-ink-muted">{description}</BaseDialog.Description> : null}
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
+          <div ref={body} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
           {footer ? <div className="flex shrink-0 justify-end gap-2 border-t border-line px-4 py-3">{footer}</div> : null}
         </BaseDialog.Popup>
       </BaseDialog.Portal>

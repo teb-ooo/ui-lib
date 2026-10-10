@@ -1,11 +1,12 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import type { ReactElement, ReactNode, RefObject } from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
-import { PanelHandle, panelDepthStyle, usePanelDrag, usePanelStyle, usePanelsAbove, usePhone } from "../lib/bottom-panel";
+import { CONTROLS, usePhone } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Button } from "./button";
+import { Sheet } from "./sheet";
 
 export type DialogPlacement = "center" | "top" | "right";
 
@@ -53,8 +54,6 @@ const placements: Record<DialogPlacement, string> = {
   right: "anim-slide-right panel panel-float right-0 top-0 h-dvh w-full max-w-xl overflow-y-auto rounded-none border-y-0 border-r-0",
 };
 
-const CONTROLS = 'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [contenteditable="true"], [role="combobox"]:not([disabled]), button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])';
-
 /**
  * A panel over the page for one decision or a short task: inverted, with a shaded header (the title, centred), a body
  * and a shaded footer for the actions. Focus is trapped while it is open and Escape closes it. Use `ConfirmDialog` for a
@@ -78,44 +77,47 @@ export function Dialog({
 }: DialogProps) {
   const container = usePortalContainer();
   const body = useRef<HTMLDivElement>(null);
-  // On a phone a dialog is a reversed panel from the bottom, stacked like toasts; the palette (bare) keeps its own place.
-  const asPanel = usePhone() && !bare;
-  const panelStyle = usePanelStyle();
-  const [internal, setInternal] = useState(defaultOpen ?? false);
-  const shown = open ?? internal;
-  const setOpen = (next: boolean, ...details: unknown[]) => {
-    if (open === undefined) setInternal(next);
-    (onOpenChange as ((open: boolean, ...rest: unknown[]) => void) | undefined)?.(next, ...details);
-  };
-  const above = usePanelsAbove(asPanel && shown);
-  const drag = usePanelDrag(() => setOpen(false));
+  const phone = usePhone();
   // Focus starts on the first control of the content (the first field of a form), not on the close button above it; with no
   // control in the content, on the default (the first tabbable). `initialFocus` overrides it.
   const firstControl = () => body.current?.querySelector<HTMLElement>(CONTROLS) ?? true;
   // A dialog is inverted (white on a dark page, black on a light one) and drawn as three bands: a shaded header with the
   // title and close button, the content, and a shaded footer for the actions. A bare dialog (the palette) is only a surface.
   const invert = inverted || !bare;
+  // On a phone a dialog is a Sheet: the one bottom panel, reversed, draggable and stacked with every other. The palette (bare)
+  // keeps its own place.
+  if (phone && !bare) {
+    return (
+      <Sheet
+        {...(open !== undefined ? { open } : {})}
+        {...(defaultOpen !== undefined ? { defaultOpen } : {})}
+        {...(onOpenChange ? { onOpenChange } : {})}
+        {...(trigger ? { trigger } : {})}
+        title={title}
+        {...(description ? { description } : {})}
+        {...(footer ? { footer } : {})}
+        {...(initialFocus !== undefined ? { initialFocus } : {})}
+        closeLabel={closeLabel}
+      >
+        {children}
+      </Sheet>
+    );
+  }
   return (
-    <BaseDialog.Root open={shown} onOpenChange={setOpen}>
+    <BaseDialog.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
       {trigger ? <BaseDialog.Trigger render={trigger} /> : null}
       <BaseDialog.Portal container={container}>
         <BaseDialog.Backdrop forceRender className="anim-backdrop fixed inset-0 z-50 bg-black/50" />
         <BaseDialog.Popup
           data-placement={placement}
           initialFocus={initialFocus ?? firstControl}
-          style={asPanel ? { ...panelStyle, left: 0, right: 0, ...(drag.style ?? panelDepthStyle(above)) } : undefined}
-          className={
-            asPanel
-              ? "anim-panel panel-inverse panel-float fixed z-50 flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-b-none border-b-0 pb-[env(safe-area-inset-bottom)] text-ink outline-none"
-              : cn(
-                  "fixed z-50 text-ink outline-none",
-                  invert ? placements[placement].replace("panel ", "panel-inverse ") : placements[placement],
-                  bare ? "overflow-hidden" : "flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden",
-                  className,
-                )
-          }
+          className={cn(
+            "fixed z-50 text-ink outline-none",
+            invert ? placements[placement].replace("panel ", "panel-inverse ") : placements[placement],
+            bare ? "overflow-hidden" : "flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden",
+            className,
+          )}
         >
-          {asPanel ? <PanelHandle {...drag.handle} /> : null}
           {bare ? (
             <>
               <BaseDialog.Title className="sr-only">{title}</BaseDialog.Title>
