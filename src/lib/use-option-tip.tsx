@@ -22,6 +22,7 @@ export function useOptionTip(tips: ReadonlyMap<string, ReactNode>, onHighlight: 
   const [placed, setPlaced] = useState<Placed | null>(null);
   const node = useRef<HTMLElement | null>(null);
   const current = useRef<string | null>(null);
+  const loop = useRef(0);
 
   const place = useCallback(() => {
     const el = node.current;
@@ -50,12 +51,16 @@ export function useOptionTip(tips: ReadonlyMap<string, ReactNode>, onHighlight: 
     current.current = v;
     setValue(v);
     onHighlight?.(v);
-    // The list may still be moving into place (its positioner, a scroll to the option): measure on the next frame, and again
-    // the one after, never before, so the tip is not drawn at a stale position first.
-    requestAnimationFrame(() => {
+    // The list may still be moving into place (its positioner settles over a few frames, and a scroll brings the option into
+    // view): measure from the next frame on, for the next 20 frames, never before, so the tip ends where the option is.
+    const run = ++loop.current;
+    let n = 0;
+    const tick = () => {
+      if (run !== loop.current) return;
       place();
-      requestAnimationFrame(place);
-    });
+      if (++n < 20) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   });
   const hold = useCallback(
     (el: HTMLElement | null) => {
