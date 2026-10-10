@@ -771,6 +771,18 @@ input.display-lg {
       transform: translateX(-100%);
     }
   }
+  /* A bottom panel on a phone: always up from the bottom edge, at any width. */
+  .anim-panel {
+    transition: transform 180ms var(--ease-out);
+  }
+  .anim-panel[data-ending-style] {
+    transition-duration: 140ms;
+    transition-timing-function: var(--ease-in);
+  }
+  .anim-panel[data-starting-style],
+  .anim-panel[data-ending-style] {
+    transform: translateY(100%);
+  }
   .anim-backdrop {
     transition: opacity var(--motion-in) var(--ease-out);
     /* A backdrop that mounts already open (the palette) has no transition to run: fade it in. */

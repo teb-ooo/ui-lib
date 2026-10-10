@@ -32,3 +32,9 @@ describe("zoom", () => {
     expect(css).toMatch(/html\s*{[^}]*touch-action:\s*manipulation/);
   });
 });
+
+describe("the shell", () => {
+  it("contains what is drawn inside it, so a fixed element in the page cannot make the document scroll", () => {
+    expect(read("src/components/shell.tsx")).toMatch(/h-dvh[^"]*contain-paint/);
+  });
+});

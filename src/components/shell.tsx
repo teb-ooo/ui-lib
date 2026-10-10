@@ -59,7 +59,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
   const profile = platformLinks().find((l) => l.id === "platform:profile");
   return (
     <ToastProvider>
-    <div className={cn("flex h-dvh w-full flex-col overflow-hidden bg-ground text-ink", className)}>
+    <div className={cn("flex h-dvh w-full flex-col overflow-hidden contain-paint bg-ground text-ink", className)}>
       {/* The first Tab stop: invisible until it has focus. It moves focus to the content without changing the address. */}
       <a
         href="#shell-main"

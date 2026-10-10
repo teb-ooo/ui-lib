@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.122.1 (from 0.122.0)
+
+`Shell` contains what is drawn inside it (`contain: paint`): a `position: fixed` element inside the page, such as a slider's hidden input, used to make the document itself scroll, a second scrollbar beside the content's. Nothing to change.
+
 ## To ui 0.122.0 (from 0.121.x)
 
 On touch (`pointer: coarse`) text-entry controls (Input, Textarea, Select, Combobox and search fields, editable regions) are 16px, so iOS Safari no longer zooms into a focused field; desktop stays 14px. This is the one exception to the two type sizes (`--text-field`, defined only under `pointer: coarse`). Nothing to change; do not add `maximum-scale` or `user-scalable=no` to the viewport tag (any 0.120/0.121 advice to do so is withdrawn), and do not set font sizes on fields.
