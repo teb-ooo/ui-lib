@@ -1,8 +1,9 @@
 import { useMemo } from "react";
+import type { ReactNode } from "react";
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, X } from "lucide-react";
 import { cn } from "../lib/cn";
-import { useHighlight } from "../lib/use-highlight";
+import { useOptionTip } from "../lib/use-option-tip";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
@@ -42,7 +43,8 @@ const itemClass =
 /** Search-as-you-type list for long option lists such as assignees or labels; with `multiple`, the chosen options show as chips. */
 export function Combobox(props: ComboboxProps) {
   const { options, label, placeholder, emptyLabel = "No matches", disabled, onHighlight, className, startAdornment, endAdornment } = props;
-  const highlightRef = useHighlight(onHighlight);
+  const tips = useMemo(() => new Map(props.options.filter((o) => o.tip !== undefined).map((o) => [o.value, o.tip as ReactNode])), [props.options]);
+  const { ref: highlightRef, tip, describedBy } = useOptionTip(tips, onHighlight);
   const container = usePortalContainer();
   const items = useMemo(() => BaseCombobox.createItems(options, { getValue: (o) => o.value, getLabel: (o) => o.label }), [options]);
   const byValue = useMemo(() => new Map(options.map((o) => [o.value, o])), [options]);
@@ -54,7 +56,7 @@ export function Combobox(props: ComboboxProps) {
           <BaseCombobox.Empty className="px-2 py-1 text-ink-faint empty:hidden">{emptyLabel}</BaseCombobox.Empty>
           <BaseCombobox.List>
             {(o: Option) => (
-              <BaseCombobox.Item key={o.value} value={o.value} data-option-value={o.value} className={itemClass}>
+              <BaseCombobox.Item key={o.value} value={o.value} data-option-value={o.value} aria-describedby={describedBy(o.value)} className={itemClass}>
                 <span className="min-w-0 flex-1 truncate">{o.label}</span>
                 {o.count !== undefined ? <span className="text-ink-faint">{o.count}</span> : null}
                 <BaseCombobox.ItemIndicator className="shrink-0">
@@ -65,6 +67,7 @@ export function Combobox(props: ComboboxProps) {
           </BaseCombobox.List>
         </BaseCombobox.Popup>
       </BaseCombobox.Positioner>
+      {tip}
     </BaseCombobox.Portal>
   );
 

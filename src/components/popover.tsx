@@ -94,7 +94,7 @@ function Tip({ tip, trigger, side = "top", align = "center", delay = 400 }: TipP
         <BaseTooltip.Trigger delay={delay} render={described} />
         <BaseTooltip.Portal container={container}>
           <BaseTooltip.Positioner side={side} align={align} sideOffset={OFFSET} arrowPadding={ARROW_PADDING} className="z-50">
-            <BaseTooltip.Popup id={id} role="tooltip" className={cn(panel, "px-2")}>
+            <BaseTooltip.Popup id={id} role="tooltip" className={cn(panel, "max-w-[min(20rem,calc(100vw-1rem))] px-2 break-words")}>
               {tip}
               <BaseTooltip.Arrow className="popover-arrow" />
             </BaseTooltip.Popup>

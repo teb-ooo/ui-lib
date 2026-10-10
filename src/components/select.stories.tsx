@@ -37,3 +37,20 @@ export const WithAdornment = () => {
   return <Select label="Status" startAdornment="IS" options={options} value={value} onValueChange={setValue} />;
 };
 WithAdornment.storyMeta = { description: "startAdornment (and endAdornment): muted text inside the border before the chosen value. The select's label still names it." } satisfies StoryMeta;
+
+export const WithTips = () => {
+  const [value, setValue] = useState<string | null>(null);
+  return (
+    <Select
+      label="Map"
+      value={value}
+      onValueChange={setValue}
+      options={[
+        { value: "plain", label: "Plain", tip: "A flat open field: nothing to hide behind, so every shot is seen." },
+        { value: "hills", label: "Hills", tip: "Rolling ground with a few ridges. Good cover on the slopes; slower to cross." },
+        { value: "none", label: "Empty" },
+      ]}
+    />
+  );
+};
+WithTips.storyMeta = { description: "An option's tip is a sentence beside the highlighted option in the open list: no delay, also as the arrow keys move; an option with none shows none. It wraps at 20rem. Combobox takes the same." } satisfies StoryMeta;

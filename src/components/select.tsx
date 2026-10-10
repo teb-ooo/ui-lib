@@ -1,7 +1,9 @@
 import { Select as BaseSelect } from "@base-ui/react/select";
+import type { ReactNode } from "react";
+import { useMemo } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "../lib/cn";
-import { useHighlight } from "../lib/use-highlight";
+import { useOptionTip } from "../lib/use-option-tip";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
@@ -11,6 +13,8 @@ export interface Option {
   label: string;
   /** Shown after the label, for example how many rows match. */
   count?: number;
+  /** A sentence about the option, shown beside it while it is highlighted in the open list (no delay, also as the arrow keys move). Wraps at 20rem. */
+  tip?: ReactNode;
 }
 
 export interface SelectProps extends AdornmentProps {
@@ -34,7 +38,8 @@ export interface SelectProps extends AdornmentProps {
 /** Choose one option from a short list. For long lists that need searching use `Combobox`. */
 export function Select({ options, value, onValueChange, label, placeholder, disabled, onHighlight, className, startAdornment, endAdornment }: SelectProps) {
   const container = usePortalContainer();
-  const highlightRef = useHighlight(onHighlight);
+  const tips = useMemo(() => new Map(options.filter((o) => o.tip !== undefined).map((o) => [o.value, o.tip as ReactNode])), [options]);
+  const { ref: highlightRef, tip, describedBy } = useOptionTip(tips, onHighlight);
   return (
     <BaseSelect.Root items={options} value={value} onValueChange={onValueChange} disabled={disabled}>
       <BaseSelect.Trigger aria-label={label} className={cn("input flex w-56 max-w-full cursor-pointer items-center justify-between gap-2 text-left data-[disabled]:cursor-not-allowed", className)}>
@@ -54,6 +59,7 @@ export function Select({ options, value, onValueChange, label, placeholder, disa
                   key={o.value}
                   value={o.value}
                   data-option-value={o.value}
+                  aria-describedby={describedBy(o.value)}
                   className="flex h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised"
                 >
                   <BaseSelect.ItemText className="min-w-0 flex-1 truncate">{o.label}</BaseSelect.ItemText>
@@ -66,6 +72,7 @@ export function Select({ options, value, onValueChange, label, placeholder, disa
             </BaseSelect.List>
           </BaseSelect.Popup>
         </BaseSelect.Positioner>
+        {tip}
       </BaseSelect.Portal>
     </BaseSelect.Root>
   );

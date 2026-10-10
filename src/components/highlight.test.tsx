@@ -44,3 +44,42 @@ describe("onHighlight", () => {
     await waitFor(() => expect(seen.at(-1)).toBeNull());
   });
 });
+
+describe("Option tip", () => {
+  const tipped = [
+    { value: "a", label: "Alpha", tip: "The first map: a flat plain." },
+    { value: "b", label: "Beta" },
+    { value: "c", label: "Gamma", tip: "The third: all hills." },
+  ];
+
+  it("Select: the highlighted option's tip shows at once, follows the arrow keys, describes the option, and goes when the list closes", async () => {
+    const user = userEvent.setup();
+    render(<Select label="Map" options={tipped} value={null} onValueChange={() => undefined} />);
+    await user.click(screen.getByRole("combobox", { name: "Map" }));
+    await screen.findByRole("option", { name: "Alpha" });
+    expect(screen.queryByRole("tooltip")).toBeNull();
+    await user.hover(screen.getByRole("option", { name: "Gamma" }));
+    expect((await screen.findByRole("tooltip")).textContent).toBe("The third: all hills.");
+    expect(screen.getByRole("option", { name: "Gamma" }).getAttribute("aria-describedby")).toBe(screen.getByRole("tooltip").id);
+    // an option without a tip shows none
+    await user.hover(screen.getByRole("option", { name: "Beta" }));
+    await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull());
+    await user.hover(screen.getByRole("option", { name: "Alpha" }));
+    expect((await screen.findByRole("tooltip")).textContent).toBe("The first map: a flat plain.");
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull());
+  });
+
+  it("Combobox: the same, and the user's onHighlight still fires", async () => {
+    const user = userEvent.setup();
+    const seen: (string | null)[] = [];
+    render(<Combobox label="Map" options={tipped} value={null} onValueChange={() => undefined} onHighlight={(v) => seen.push(v)} />);
+    await user.click(screen.getByRole("combobox", { name: "Map" }));
+    await screen.findByRole("option", { name: "Alpha" });
+    await user.hover(screen.getByRole("option", { name: "Gamma" }));
+    expect((await screen.findByRole("tooltip")).textContent).toBe("The third: all hills.");
+    expect(seen.at(-1)).toBe("c");
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull());
+  });
+});

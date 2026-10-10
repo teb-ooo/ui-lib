@@ -37,3 +37,8 @@ HoverCard.storyMeta = { description: "openOn=hover with children: opens on hover
 
 export const Tip = () => <Popover openOn="hover" tip="Saves the draft" trigger={<Button>Save</Button>} />;
 Tip.storyMeta = { description: "openOn=hover with tip: one line, never interactive. Tooltip is this mode under its own name." } satisfies StoryMeta;
+
+export const LongTip = () => (
+  <Popover openOn="hover" trigger={<Button>Hover or focus</Button>} tip="A tip can be a sentence or two: it wraps at 20rem, never wider than the screen, and reads as a small paragraph instead of one long line running off the edge." />
+);
+LongTip.storyMeta = { description: "A long tip wraps at 20rem (never wider than the viewport minus a gutter)." } satisfies StoryMeta;
