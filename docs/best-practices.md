@@ -40,7 +40,7 @@ Put the `FilterBar` once above the `SplitPane`, full width, so it never depends 
 - Filters: `FilterBar primary={<SearchInput .../>}` so the bar is one row and the filters open behind a Filters button. On a desktop the children follow the primary controls in the same row; on a phone `end` (a count, a view menu) moves into the Filters sheet (`collapsedEnd="row"` keeps it in the bar), and there is no Filters button when there are no filters. Controls in a filter bar say what they are by their own label: `Field hideLabel` keeps the label for screen readers without drawing it.
 - Bulk actions: `DataTable` cards get checkboxes when `selectedKeys` is set. Keep the bulk bar to one row: icon buttons plus a "More actions" `Menu`.
 - Action rows: the two or three main actions inline, the rest in a `Menu`.
-- Zoom: the viewport tag in `web/index.html` is `width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover` (owner decision: turn off as much zooming as the browser allows, including the zoom iOS does when a field is focused). iOS Safari ignores it for pinch zoom on purpose; Android Chrome honours it. The theme also sets `touch-action: manipulation` on `html` (no double-tap zoom).
+- Zoom: leave the viewport tag as the template has it (`width=device-width, initial-scale=1`); zoom stays allowed (owner decision). The theme sets `touch-action: manipulation` on `html` (no double-tap zoom; pinch zoom is untouched).
 - Test at 390 px: nothing scrolls sideways, every action is reachable.
 
 ## 8. Use the component, not a look-alike
