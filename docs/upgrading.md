@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.116.0 (from 0.115.x)
+
+`FatalPage`: the small shuffled word is gone from the picture; `title` is only the heading for assistive technology. The picture has no text; the message, the detail and the action are the only visible words.
+
 ## To ui 0.114.0 (from 0.113.x)
 
 `FatalPage` is a different picture (the glitch look is gone): the enter page's swingset and stars, ruined in red on black (a rope snaps, the frame collapses, a storm of stars is thrown outward). Its word is small and its letters are shuffled. The gallery's `FatalPage` and `EntrancePage` examples each have a fullscreen preview. Nothing to change.

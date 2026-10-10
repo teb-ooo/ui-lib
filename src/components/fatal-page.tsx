@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
-import { rng, shuffleWord } from "../lib/ruin";
+import { rng } from "../lib/ruin";
 import { CYCLE, RuinedSwing } from "../lib/ruin-swing";
 import type { V3 } from "../lib/ruin-swing";
 
 export interface FatalPageProps {
-  /** The word. It is drawn small, its letters shuffled, in the dark, and is the page's heading for assistive technology. @default "BAD" */
+  /** The page's heading for assistive technology (nothing is written in the picture). @default "BAD" */
   title?: string;
   /** One or two plain sentences: what happened and what the person can do. Always readable, never part of the picture. */
   message?: ReactNode;
@@ -44,7 +44,7 @@ interface Star {
  * The page for when it has truly gone wrong and there is nothing to show: a 500, a crash, an expired invitation. The enter
  * page's swingset and its cloud of stars, ruined: in the dark the swing is thrashed by gusts, a rope snaps, the frame comes
  * apart piece by piece and falls, sparks burst, and a storm of red stars is thrown outward and wheels on; then it fades to
- * black and begins again, angrier. The word is small and its letters are wrong. Under it the message and the one way out stay
+ * black and begins again, angrier. Under it the message and the one way out stay
  * perfectly legible, and the picture is hidden from assistive technology.
  *
  * It is loud on purpose, so use it rarely, for failures and not for a page that is merely empty (use `NotFound` or
@@ -54,7 +54,6 @@ interface Star {
  */
 export function FatalPage({ title = "BAD", message, detail, action, fullscreen = true, className }: FatalPageProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const word = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const el = canvas.current;
@@ -62,7 +61,6 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
     if (!el || !ctx) return;
     const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     const random = rng(Math.floor(Math.random() * 1e9));
-    const wordEl = word.current;
 
     let W = 1;
     let H = 1;
@@ -225,14 +223,12 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
       // one frame: the wreck, a little after the frame has come down
       for (let i = 0; i < 60 * 9.2; i += 1) stepWorld(1 / 60);
       draw(false);
-      if (wordEl) wordEl.textContent = shuffleWord(title, random);
       return () => ro?.disconnect();
     }
 
     let raf = 0;
     let last = 0;
     let acc = 0;
-    let shownUntil = 0;
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
       if (document.hidden) {
@@ -262,25 +258,18 @@ export function FatalPage({ title = "BAD", message, detail, action, fullscreen =
       // The picture comes out of black and goes back into it: nothing flashes.
       const t = swing.t;
       el.style.opacity = String(Math.max(0, Math.min(1, t / 1.2, (CYCLE - t) / 1.5)));
-      if (wordEl && swing.t >= shownUntil) {
-        wordEl.textContent = shuffleWord(title, random);
-        wordEl.style.opacity = String(0.25 + random() * 0.6);
-        wordEl.style.transform = `translate(${(random() - 0.5) * 6}px, ${(random() - 0.5) * 6}px)`;
-        shownUntil = swing.t + 0.12 + random() * 0.35;
-      }
     };
     raf = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(raf);
       ro?.disconnect();
     };
-  }, [title]);
+  }, []);
 
   return (
     <div role="alert" className={cn("relative isolate overflow-hidden always-dark bg-black text-white", fullscreen ? "fixed inset-0 z-50 h-dvh w-full" : "h-full min-h-72 w-full", className)}>
       <canvas ref={canvas} aria-hidden="true" className="absolute inset-0 -z-20 size-full" />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_45%,transparent_30%,black_100%)]" />
-      <span ref={word} aria-hidden="true" className="pointer-events-none absolute bottom-[26%] left-[7%] text-danger select-none" />
       <h1 className="sr-only">{title}</h1>
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 bg-gradient-to-t from-black via-black/80 to-transparent px-4 pt-16 pb-8 text-center">
         {message ? <p className="max-w-xl text-white">{message}</p> : null}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rng, shuffleWord } from "./ruin";
+import { rng } from "./ruin";
 import { BEAM_Y, COLLAPSE_AT, RuinedSwing, SNAP_AT } from "./ruin-swing";
 
 describe("ruin", () => {
@@ -8,14 +8,6 @@ describe("ruin", () => {
     const b = rng(7);
     expect([a(), a(), a()]).toEqual([b(), b(), b()]);
     expect(rng(8)()).not.toBe(rng(7)());
-  });
-
-  it("shuffleWord keeps the letters and the spaces, and puts them in a new order", () => {
-    const out = shuffleWord("EXPIRED INVITE", rng(5));
-    expect([...out].sort().join("")).toBe([..."EXPIRED INVITE"].sort().join(""));
-    expect(out[7]).toBe(" ");
-    expect(out).not.toBe("EXPIRED INVITE");
-    expect(shuffleWord("", rng(1))).toBe("");
   });
 });
 
