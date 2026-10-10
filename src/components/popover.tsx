@@ -4,7 +4,7 @@ import { Popover as BasePopover } from "@base-ui/react/popover";
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
-import { PANEL_POPUP, PanelBackdrop, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
+import { PANEL_BACKDROP, PANEL_POPUP, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Button } from "./button";
 
@@ -145,7 +145,7 @@ export function Popover(props: PopoverProps) {
         {...(hover ? { openOnHover: true, delay: card.delay ?? 300, closeDelay: card.closeDelay ?? 150 } : {})}
       />
       <BasePopover.Portal container={container}>
-        {phone ? <PanelBackdrop /> : null}
+        {phone ? <BasePopover.Backdrop className={PANEL_BACKDROP} /> : null}
         <BasePopover.Positioner side={side} align={align} sideOffset={OFFSET} arrowPadding={ARROW_PADDING} collisionPadding={8} style={panelStyle} className="z-50 outline-none">
           <BasePopover.Popup aria-label={title} className={phone ? cn(PANEL_POPUP, "flex flex-col gap-2 px-3") : cn(panel, "flex w-72 max-w-[calc(100vw-1rem)] flex-col gap-2 p-3", className)}>
             {phone ? <PanelHandle /> : null}

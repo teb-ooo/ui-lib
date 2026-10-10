@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.123.1 (from 0.123.0)
+
+Fix: on a phone the dimmed page behind a `Select`, `Menu`, `Popover` or `Combobox` panel could stay in the page after it closed and block taps; it is now the popup's own `Backdrop` part, present only while open. Nothing to change.
+
 ## To ui 0.123.0 (from 0.122.x)
 
 Bottom panels on a phone (owner decision): `Select`, `Combobox`, `Menu`, `Popover`, `Dialog`, `ConfirmDialog`, `Sheet`, the platform bar's account menu and the DataTable column menu open as one reversed panel that slides up from the bottom (full width, grab handle, dimmed page, safe-area and keyboard aware) below 40rem, and keep their anchored or centred look above it. Panels opened from panels stack like toasts. The command palette, tooltips, the editor toolbar and the suggestion list are unchanged. What apps must do: nothing, except

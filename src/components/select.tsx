@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useOptionTip } from "../lib/use-option-tip";
-import { PANEL_POPUP, PanelBackdrop, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
+import { PANEL_BACKDROP, PANEL_POPUP, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
@@ -71,7 +71,7 @@ export function Select({ options, value, onValueChange, label, placeholder, disa
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal container={container}>
-        {phone ? <PanelBackdrop /> : null}
+        {phone ? <BaseSelect.Backdrop className={PANEL_BACKDROP} /> : null}
         <BaseSelect.Positioner sideOffset={4} alignItemWithTrigger={false} style={panelStyle} className="z-50 outline-none">
           <BaseSelect.Popup className={phone ? cn(PANEL_POPUP, "px-1") : "anim-fade panel-inverse panel-float min-w-[var(--anchor-width)] p-1 text-ink outline-none"}>
             {phone ? <PanelHandle /> : null}

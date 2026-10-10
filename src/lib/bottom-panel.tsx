@@ -68,10 +68,8 @@ export function usePanelStyle(): CSSProperties | undefined {
 export const PANEL_POPUP =
   "anim-panel panel-inverse panel-float w-full max-h-[85dvh] overflow-y-auto overscroll-contain rounded-b-none border-b-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] text-ink outline-none";
 
-/** The dimmed page behind a panel. */
-export function PanelBackdrop({ className }: { className?: string }) {
-  return <div aria-hidden="true" className={cn("anim-backdrop fixed inset-0 z-50 bg-black/50", className)} />;
-}
+/** The classes of the dimmed page behind a panel; draw it with the popup's own `Backdrop` part, which is there only while it is open. */
+export const PANEL_BACKDROP = "anim-backdrop fixed inset-0 z-50 bg-black/50";
 
 const DISMISS_PX = 96;
 
@@ -166,7 +164,8 @@ export function usePanel() {
   return {
     phone,
     style,
-    backdrop: phone ? <PanelBackdrop /> : null,
+    /** `<panel.Backdrop />` inside the portal: the popup's Backdrop part on a phone, nothing elsewhere. */
+    backdropClass: phone ? PANEL_BACKDROP : null,
     handle: phone ? <PanelHandle /> : null,
     popupClass: (desktop: string, phoneExtra = "px-1") => (phone ? cn(PANEL_POPUP, phoneExtra) : desktop),
   };

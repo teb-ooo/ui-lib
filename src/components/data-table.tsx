@@ -296,7 +296,7 @@ function ColumnMenu<T>({
     <Menu.Root>
       <Menu.Trigger render={<Button icon={<Columns3 aria-hidden="true" className="size-4" />} tip="Columns" className="border-transparent" />} />
       <Menu.Portal container={portalContainer}>
-        {panel.backdrop}
+        {panel.backdropClass ? <Menu.Backdrop className={panel.backdropClass} /> : null}
         <Menu.Positioner align="end" sideOffset={4} style={panel.style} className="z-50">
           <Menu.Popup className={panel.popupClass("anim-fade panel-inverse panel-float min-w-40 p-1 text-ink outline-none")}>
             {panel.handle}

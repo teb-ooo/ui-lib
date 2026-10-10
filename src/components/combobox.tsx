@@ -4,7 +4,7 @@ import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useOptionTip } from "../lib/use-option-tip";
-import { PANEL_POPUP, PanelBackdrop, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
+import { PANEL_BACKDROP, PANEL_POPUP, PanelHandle, usePanelStyle, usePhone } from "../lib/bottom-panel";
 import { usePortalContainer } from "../lib/theme-scope";
 import { Adornment } from "./adornment";
 import type { AdornmentProps } from "./adornment";
@@ -55,7 +55,7 @@ export function Combobox(props: ComboboxProps) {
 
   const list = (
     <BaseCombobox.Portal container={container}>
-      {phone ? <PanelBackdrop /> : null}
+      {phone ? <BaseCombobox.Backdrop className={PANEL_BACKDROP} /> : null}
       <BaseCombobox.Positioner sideOffset={4} style={panelStyle} className="z-50 outline-none">
         <BaseCombobox.Popup ref={highlightRef} className={phone ? cn(PANEL_POPUP, "max-h-[45dvh] px-1") : popup}>
           {phone ? <PanelHandle /> : null}
