@@ -50,9 +50,12 @@ export function useOptionTip(tips: ReadonlyMap<string, ReactNode>, onHighlight: 
     current.current = v;
     setValue(v);
     onHighlight?.(v);
-    // the list may still be scrolling the option into view: place now and again next frame
-    place();
-    requestAnimationFrame(place);
+    // The list may still be moving into place (its positioner, a scroll to the option): measure on the next frame, and again
+    // the one after, never before, so the tip is not drawn at a stale position first.
+    requestAnimationFrame(() => {
+      place();
+      requestAnimationFrame(place);
+    });
   });
   const hold = useCallback(
     (el: HTMLElement | null) => {
