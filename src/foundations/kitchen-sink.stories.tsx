@@ -92,7 +92,7 @@ const memberColumns: Column<Member>[] = [
     ),
   },
   { id: "email", header: "Email", hideBelow: "md", cell: (m) => m.email },
-  { id: "role", header: "Role", width: "7rem", cell: (m) => m.role },
+  { id: "role", header: "Role", width: "7rem", hideBelow: "sm", cell: (m) => m.role },
   {
     id: "status",
     header: "Status",
@@ -389,7 +389,7 @@ function ConsoleScreen() {
                 columns={[
                   { id: "name", header: "Service", cell: (s: Service) => s.name },
                   { id: "region", header: "Region", width: "6rem", hideBelow: "sm", cell: (s: Service) => s.region },
-                  { id: "latency", header: "Latency", width: "7rem", align: "end", cell: (s: Service) => (s.latency ? `${s.latency} ms` : "n/a") },
+                  { id: "latency", header: "Latency", width: "7rem", hideBelow: "sm", align: "end", cell: (s: Service) => (s.latency ? `${s.latency} ms` : "n/a") },
                   { id: "state", header: "State", width: "7rem", cell: (s: Service) => (s.state === "ok" ? "healthy" : s.state === "fail" ? "down" : s.state === "info" ? "slow" : "idle"), tone: (s: Service) => (s.state === "ok" ? "ok" : s.state === "fail" ? "danger" : s.state === "info" ? "warning" : "muted") },
                   { id: "mark", header: "Check", width: "5rem", align: "center", hideBelow: "sm", cell: (s: Service) => <StatusMark status={s.state} label={`${s.name}: ${s.state}`} /> },
                 ]}
