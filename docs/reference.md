@@ -232,6 +232,9 @@ A dense, keyboard-driven table for many rows: sticky header, sortable columns, c
 - `onRowClick?`: `(row: T) => void`. Called on a click, and on Enter for the active row.
 - `selectedKeys?`: `ReadonlySet<string>`. Giving this adds a checkbox column.
 - `onSelectedKeysChange?`: `(keys: ReadonlySet<string>) => void`
+- `selectionActions?`: `ReactNode`. The app's actions on the selected rows (buttons, a menu). While `selectedKeys` is not empty they show in a strip under the table, above the pager, with how many rows are selected and a Clear button; the table's own area shrinks to make room, so no row is covered and none moves. The app owns what the actions do.
+- `selectionLabel?`: `(count: number) => ReactNode`, default "N selected". The text for the count in the selection strip.
+- `clearSelectionLabel?`: `string`, default "Clear selection". Label of the strip's button that empties the selection.
 - `loading?`: `boolean`. Skeleton rows while there are none, otherwise a "Loading" line at the end.
 - `empty?`: `ReactNode`. Shown when there are no rows and nothing is loading.
 - `error?`: `ReactNode`. Replaces the body.

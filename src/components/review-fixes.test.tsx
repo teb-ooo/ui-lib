@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -44,5 +44,19 @@ describe("interface review fixes", () => {
     expect(container.firstElementChild?.className).toContain("max-w-[70ch]");
     rerender(<Prose>text</Prose>);
     expect(container.firstElementChild?.className).not.toContain("max-w-");
+  });
+
+  it("DataTable shows the app's selection actions in a strip under the table only while rows are ticked, with a count and Clear", async () => {
+    const onChange = vi.fn();
+    const rows = [{ a: "x" }, { a: "y" }];
+    const cols = [{ id: "a", header: "Name", cell: (r: { a: string }) => r.a }];
+    const { rerender } = render(<DataTable label="T" columns={cols} rows={rows} rowKey={(r) => r.a} selectedKeys={new Set()} onSelectedKeysChange={onChange} selectionActions={<button type="button">Close issues</button>} />);
+    expect(screen.queryByRole("region", { name: "Selection actions" })).toBeNull();
+    rerender(<DataTable label="T" columns={cols} rows={rows} rowKey={(r) => r.a} selectedKeys={new Set(["x", "y"])} onSelectedKeysChange={onChange} selectionActions={<button type="button">Close issues</button>} />);
+    const strip = screen.getByRole("region", { name: "Selection actions" });
+    expect(strip).toHaveTextContent("2 selected");
+    expect(within(strip).getByRole("button", { name: "Close issues" })).toBeTruthy();
+    await userEvent.click(within(strip).getByRole("button", { name: "Clear selection" }));
+    expect(onChange).toHaveBeenLastCalledWith(new Set());
   });
 });

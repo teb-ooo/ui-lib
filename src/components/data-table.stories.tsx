@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Button } from "./button";
 import { Chip } from "./chip";
 import { DataTable } from "./data-table";
 import { StatusMark } from "./status-mark";
@@ -70,8 +71,10 @@ function Demo({
   selectable = false,
   menu = false,
   cards = false,
+  actions = false,
 }: {
   count?: number;
+  actions?: boolean;
   selectable?: boolean;
   menu?: boolean;
   cards?: boolean;
@@ -93,7 +96,17 @@ function Demo({
         onSortChange={setSort}
         activeKey={active}
         onActiveKeyChange={setActive}
-        {...(selectable ? { selectedKeys: selected, onSelectedKeysChange: setSelected } : {})}
+        {...(selectable || actions ? { selectedKeys: selected, onSelectedKeysChange: setSelected } : {})}
+        {...(actions
+          ? {
+              selectionActions: (
+                <>
+                  <Button>Close</Button>
+                  <Button intent="danger">Delete</Button>
+                </>
+              ),
+            }
+          : {})}
         {...(menu ? { columnVisibility: visibility, onColumnVisibilityChange: setVisibility } : {})}
         {...(cards ? { renderCard: card } : {})}
       />
@@ -110,6 +123,12 @@ export const Selectable = () => <Demo selectable />;
 Selectable.storyMeta = {
   description:
     "A checkbox column with select all. Shift+click a second checkbox to select the range; Space toggles the active row, Shift+Space and Shift+Up/Down extend the selection.",
+} satisfies StoryMeta;
+
+export const SelectionActions = () => <Demo actions />;
+SelectionActions.storyMeta = {
+  description:
+    "selectionActions: the app's buttons for the selected rows. Tick a row and a strip with the count, the actions and Clear appears under the table, above the pager; the table's area shrinks to make room, so no row is covered or moved.",
 } satisfies StoryMeta;
 
 export const ColumnMenu = () => <Demo menu />;

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useMemo } from "react";
 import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
 import { Menu } from "@base-ui/react/menu";
-import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, ChevronsUpDown, Columns3 } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, ChevronsUpDown, Columns3, X } from "lucide-react";
 import { useMinWidth } from "../hooks/use-media-query";
 import type { Breakpoint } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
@@ -130,6 +130,16 @@ export interface DataTableProps<T> {
   /** Giving this adds a checkbox column. */
   selectedKeys?: ReadonlySet<string>;
   onSelectedKeysChange?: (keys: ReadonlySet<string>) => void;
+  /**
+   * The app's actions on the selected rows (buttons, a menu). While `selectedKeys` is not empty they show in a strip under the
+   * table, above the pager, with how many rows are selected and a Clear button; the table's own area shrinks to make room, so no
+   * row is covered and none moves. The app owns what the actions do.
+   */
+  selectionActions?: ReactNode;
+  /** The text for the count in the selection strip. @default "N selected" */
+  selectionLabel?: (count: number) => ReactNode;
+  /** Label of the strip's button that empties the selection. @default "Clear selection" */
+  clearSelectionLabel?: string;
   /** Skeleton rows while there are none, otherwise a "Loading" line at the end. */
   loading?: boolean;
   /** Shown when there are no rows and nothing is loading. */
@@ -350,6 +360,9 @@ export function DataTable<T>({
   onActiveKeyChange,
   onRowClick,
   selectedKeys,
+  selectionActions,
+  selectionLabel = (n) => `${n} selected`,
+  clearSelectionLabel = "Clear selection",
   onSelectedKeysChange,
   loading = false,
   empty,
@@ -874,6 +887,25 @@ export function DataTable<T>({
           )}
           {rows.length > 0 && loading ? <div className="anim-delayed p-2 text-ink-faint">Loading</div> : null}
         </div>
+        {selectable && selectionActions !== undefined && selectedKeys.size > 0 ? (
+          <div
+            role="region"
+            aria-label="Selection actions"
+            className={cn("flex shrink-0 flex-wrap items-center gap-2 border-t border-line bg-surface py-1", bleed ? "px-4 md:px-6" : "px-2")}
+          >
+            <span aria-live="polite" className="text-ink">
+              {selectionLabel(selectedKeys.size)}
+            </span>
+            <div className="flex flex-wrap items-center gap-2">{selectionActions}</div>
+            <Button
+              icon={<X aria-hidden="true" className="size-4" />}
+              tip={clearSelectionLabel}
+              aria-label={clearSelectionLabel}
+              onClick={() => onSelectedKeysChange(new Set())}
+              className="ml-auto border-transparent"
+            />
+          </div>
+        ) : null}
         {pagination ? (
           <div
             role="navigation"
