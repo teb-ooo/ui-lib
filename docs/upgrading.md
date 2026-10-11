@@ -6,6 +6,14 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.131.0 (from 0.130.x)
+
+Phone controls are the desktop's height (owner decision): `--target-h` is 28px at every width (it was 44px at phone width or with a finger as the main pointer), and the 44px minimum rows of the Cmd+K palette are gone. The variable stays: controls read it, so a different height is one change. A checkbox's invisible 44px tap area stays. Layouts that counted on 44px controls on a phone get shorter ones. Nothing to change.
+
+## To ui 0.130.0 (from 0.129.x)
+
+New, from an app's review: `Card` takes `render` (a router `Link`, as `LinkButton` does) so a card can be a real link without a page reload; `Prose measure` caps the line length at 70 characters (opt in). Nothing to change.
+
 ## To ui 0.129.3 (from 0.129.2)
 
 Removed `--radius-plane` (0.129.1): there is one radius again, and the page pushed aside by the phone menu uses it. Nothing to change.

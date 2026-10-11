@@ -533,7 +533,6 @@ describe("mobile sheet", () => {
     expect(d.className).not.toContain("!");
     const row = screen.getAllByRole("option")[0];
     expect(row?.className).toContain("min-h-(--control-h)");
-    expect(row?.className).toContain("max-sm:min-h-11");
   });
 
   it("tracks the visual viewport only while the sheet layout applies, so the keyboard does not cover results", async () => {

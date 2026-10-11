@@ -60,7 +60,7 @@ export interface MenuProps {
   className?: string;
 }
 
-const row = "flex min-h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 text-ink outline-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[highlighted]:bg-surface-raised max-sm:min-h-11";
+const row = "flex min-h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 text-ink outline-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[highlighted]:bg-surface-raised";
 
 /**
  * A list of actions anchored to a trigger; the trigger's own name (its text or aria-label) is the menu's name. Arrow keys move, Enter or Space chooses, a letter jumps to a row, Escape closes

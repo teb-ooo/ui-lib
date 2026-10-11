@@ -48,7 +48,7 @@ export function Accordion({ items, value, defaultValue, onValueChange, multiple 
           <BaseAccordion.Header className="m-0 flex items-center gap-2">
             <BaseAccordion.Trigger
               className={cn(
-                "flex min-h-[var(--control-h)] min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent px-1 text-left text-ink uppercase outline-none max-sm:min-h-11",
+                "flex min-h-[var(--control-h)] min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent px-1 text-left text-ink uppercase outline-none",
                 "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
                 "focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-solid focus-visible:outline-ink-muted",
                 "[&[data-panel-open]>svg]:rotate-90",

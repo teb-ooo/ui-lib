@@ -1,5 +1,5 @@
 import { forwardRef, useRef } from "react";
-import type { HTMLAttributes, KeyboardEvent, ReactNode } from "react";
+import type { AnchorHTMLAttributes, HTMLAttributes, KeyboardEvent, ReactElement, ReactNode } from "react";
 import { cn } from "../lib/cn";
 import { moveFocusInGrid } from "../lib/grid-keys";
 
@@ -16,6 +16,12 @@ export interface CardProps {
   marker?: ReactNode;
   /** Makes the whole card a link. */
   href?: string;
+  /**
+   * Draws the link with your router's link component, as `LinkButton` does: `render={(props) => <Link to="/worlds/1" {...props} />}`.
+   * `props` carries `href` (when given), the card's classes, `data-card`, `aria-*` and `children`; the card is then a real link
+   * that navigates without a reload.
+   */
+  render?: (props: AnchorHTMLAttributes<HTMLAnchorElement> & { ref?: React.Ref<HTMLAnchorElement>; "data-card": string }) => ReactElement;
   /** Makes the whole card a button. Without `href` or `onClick` the card is plain content. */
   onClick?: () => void;
   /** Marks the card as the current item (`aria-current`). */
@@ -35,7 +41,7 @@ const actionable =
  * text, chips and status only, never another control. Put several in a `CardGrid`.
  */
 export const Card = forwardRef<HTMLElement, CardProps>(function Card(
-  { title, description, meta, footer, marker, href, onClick, active, className, ...rest },
+  { title, description, meta, footer, marker, href, render, onClick, active, className, ...rest },
   ref,
 ) {
   const body = (
@@ -54,11 +60,13 @@ export const Card = forwardRef<HTMLElement, CardProps>(function Card(
     "data-card": "",
     ...(active ? { "aria-current": "true" as const } : {}),
     ...(ariaLabel !== undefined ? { "aria-label": ariaLabel } : {}),
-    className: cn(face, (href !== undefined || onClick !== undefined) && actionable, active && "bg-surface-raised", className),
+    className: cn(face, (href !== undefined || render !== undefined || onClick !== undefined) && actionable, active && "bg-surface-raised", className),
   };
   return (
     <div role="listitem" className="min-w-0">
-      {href !== undefined ? (
+      {render ? (
+        render({ ref: ref as React.Ref<HTMLAnchorElement>, ...(href !== undefined ? { href } : {}), ...common, ...(onClick ? { onClick } : {}), children: body })
+      ) : href !== undefined ? (
         <a ref={ref as React.Ref<HTMLAnchorElement>} href={href} {...common} onClick={onClick}>
           {body}
         </a>

@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { DataTable, Field, Input, Select } from "../index";
+import { Card, DataTable, Field, Input, Prose, Select } from "../index";
 
 describe("interface review fixes", () => {
   it("a Field can keep a line free for its error so the fields below do not move", () => {
@@ -29,5 +29,20 @@ describe("interface review fixes", () => {
   it("an invalid field draws its border in the full danger colour", () => {
     const css = readFileSync(join(import.meta.dirname, "..", "..", "theme.css"), "utf8");
     expect(css).toMatch(/\.input\[aria-invalid="true"\]\s*\{\s*border-color:\s*var\(--color-danger\);/);
+  });
+
+  it("a Card can be drawn by the router's link, so it is a real link that does not reload", () => {
+    render(<Card title="Aldor" description="A world" render={(props) => <a {...props} href="/worlds/1" data-router="yes">{props.children}</a>} />);
+    const link = screen.getByRole("link", { name: /Aldor/ });
+    expect(link).toHaveAttribute("href", "/worlds/1");
+    expect(link).toHaveAttribute("data-router", "yes");
+    expect(link).toHaveAttribute("data-card");
+  });
+
+  it("Prose can cap its line length near 70 characters, and does not by default", () => {
+    const { container, rerender } = render(<Prose measure>text</Prose>);
+    expect(container.firstElementChild?.className).toContain("max-w-[70ch]");
+    rerender(<Prose>text</Prose>);
+    expect(container.firstElementChild?.className).not.toContain("max-w-");
   });
 });

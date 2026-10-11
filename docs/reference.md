@@ -91,6 +91,7 @@ A summary of one thing (an app, a project, a person) as a tile. The whole card i
 - `footer?`: `ReactNode`. A quiet line at the bottom (last activity, an owner), separated by a rule.
 - `marker?`: `ReactNode`. A marker at the top right that asks for attention (a "Needs you" chip).
 - `href?`: `string`. Makes the whole card a link.
+- `render?`: `(props: AnchorHTMLAttributes<HTMLAnchorElement> & { ref?: React.Ref<HTMLAnchorElement>; "data-card": string }) => ReactElement`. Draws the link with your router's link component, as `LinkButton` does: `render={(props) => <Link to="/worlds/1" {...props} />}`. `props` carries `href` (when given), the card's classes, `data-card`, `aria-*` and `children`; the card is then a real link that navigates without a reload.
 - `onClick?`: `() => void`. Makes the whole card a button. Without `href` or `onClick` the card is plain content.
 - `active?`: `boolean`. Marks the card as the current item (`aria-current`).
 - `"aria-label"?`: `string`. Accessible name when the title alone is not enough.
@@ -744,6 +745,7 @@ The look of rich text: wrap rendered HTML (a markdown render, an editor's conten
 
 Also accepts the props of `Omit<HTMLAttributes<HTMLDivElement>, "className">`.
 
+- `measure?`: `boolean`, default false. Caps the line length at 70 characters (`70ch`) so long text stays readable on a wide screen.
 - `className?`: `string`
 
 ### QueryState

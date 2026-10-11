@@ -88,7 +88,7 @@ function Row({ row, props }: { row: PaletteRow; props: PaletteViewProps }) {
         if (!active) props.onActiveChange(row.index);
       }}
       className={[
-        "flex min-h-(--control-h) cursor-pointer items-center gap-3 px-3 text-ink-muted max-sm:min-h-11",
+        "flex min-h-(--control-h) cursor-pointer items-center gap-3 px-3 text-ink-muted",
         active ? "bg-surface-raised text-ink" : "",
       ].join(" ")}
     >
@@ -160,7 +160,7 @@ export function PaletteView(props: PaletteViewProps) {
           placeholder={props.placeholder}
           onChange={(e) => props.onQueryChange(e.target.value)}
           onKeyDown={props.onKeyDown}
-          className="border-0 bg-transparent px-0 text-ink focus:bg-transparent focus-visible:outline-none max-sm:min-h-11"
+          className="border-0 bg-transparent px-0 text-ink focus:bg-transparent focus-visible:outline-none"
         />
         {props.onClose ? (
           <Button className="sm:hidden" icon={<X aria-hidden="true" className="size-4" />} aria-label="Close command palette" onClick={props.onClose} />

@@ -86,7 +86,7 @@ export function Tabs({ tabs, value, onValueChange, label, activation = "automati
             value={t.value}
             disabled={t.disabled}
             className={cn(
-              "relative z-10 flex h-[var(--control-h)] shrink-0 cursor-pointer items-center gap-2 rounded border-0 bg-transparent px-3 whitespace-nowrap text-ink-muted outline-none max-sm:h-11",
+              "relative z-10 flex h-[var(--control-h)] shrink-0 cursor-pointer items-center gap-2 rounded border-0 bg-transparent px-3 whitespace-nowrap text-ink-muted outline-none",
               "transition-colors duration-100 hover:text-ink data-[active]:text-ink data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
               "focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-solid focus-visible:outline-ink-muted",
             )}
