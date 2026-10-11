@@ -245,6 +245,27 @@ A dense, keyboard-driven table for many rows: sticky header, sortable columns, c
 - `fit?`: `boolean`, default false. The table is only as tall as its header and rows (at least the header and two rows), shrinks to the space its parent leaves and then scrolls inside itself. Without it the table fills the height of its parent. In a parent that scrolls it is simply as tall as its rows.
 - `className?`: `string`
 
+### DateField
+
+component: `import { DateField } from "@teb-ooo/ui"`
+
+A date, typed or picked: the box shows it in the person's locale and takes `YYYY-MM-DD` while it is edited; the button beside it opens a calendar.
+
+- `label`: `ReactNode`. Visible name, tied to the input.
+- `hideLabel?`: `boolean`, default false. Keep the label for screen readers only.
+- `value`: `string | null`. The date as `YYYY-MM-DD` (a calendar date: no time, no timezone), or `null` while the field is empty.
+- `onValueChange`: `(value: string | null) => void`. Called with the new date, or `null` when the field is cleared: a day picked in the calendar, a typed date once it is valid, Today, Clear.
+- `min?`: `string`. The earliest and latest date that can be chosen, as `YYYY-MM-DD`.
+- `max?`: `string`
+- `placeholder?`: `string`, default "YYYY-MM-DD". Shown while the field is empty.
+- `description?`: `ReactNode`
+- `error?`: `ReactNode`
+- `disabled?`: `boolean`
+- `chooseLabel?`: `string`, default "Choose date". Label of the button that opens the calendar.
+- `todayLabel?`: `string`, default "Today". Label of the calendar's Today button.
+- `clearLabel?`: `string`, default "Clear". Label of the calendar's Clear button.
+- `className?`: `string`. Layout classes (the width).
+
 ### Delayed
 
 component: `import { Delayed } from "@teb-ooo/ui"`

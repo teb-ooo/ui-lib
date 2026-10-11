@@ -5,6 +5,8 @@ export { Input } from "./components/input";
 export type { InputProps } from "./components/input";
 export { Field } from "./components/field";
 export type { FieldProps } from "./components/field";
+export { DateField } from "./components/date-field";
+export type { DateFieldProps } from "./components/date-field";
 export { Modal } from "./components/modal";
 export type { ModalProps, ModalVariant } from "./components/modal";
 export { Avatar, initialsOf } from "./components/avatar";
