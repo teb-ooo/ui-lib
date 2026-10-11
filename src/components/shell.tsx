@@ -90,6 +90,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
       onKeyDown={(e) => {
         if (open && e.key === "Escape") closeMenu();
       }}
+      style={{ ["--shell-nav-w" as string]: "min(20rem, 85vw)" }}
       className={cn("relative h-dvh w-full overflow-hidden contain-paint bg-ground text-ink", className)}
     >
       {/* The phone menu lies under the page; the page slides aside to show it. */}
@@ -108,7 +109,6 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
           "relative flex h-full w-full flex-col overflow-hidden bg-ground transition-[translate] duration-200 ease-out motion-reduce:transition-none",
           menu && open && "panel-float rounded-l translate-x-[var(--shell-nav-w)]",
         )}
-        style={{ ["--shell-nav-w" as string]: "min(20rem, 85vw)" }}
       >
         <div inert={menu && open} className="flex min-h-0 flex-1 flex-col">
           {/* The first Tab stop: invisible until it has focus. It moves focus to the content without changing the address. */}

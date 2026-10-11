@@ -455,6 +455,8 @@ describe("Shell phone menu width", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
     const root = screen.getByRole("navigation", { name: "Main" }).parentElement as HTMLElement;
     expect(root.className).toContain("w-full");
+    // the menu's width variable is declared on an ancestor of both the menu and the page
+    expect(screen.getByRole("complementary", { name: "Menu" }).closest('[style*="--shell-nav-w"]')).not.toBeNull();
     expect(root.className).not.toMatch(/\bw-(fit|64|12)\b/);
   });
 });
