@@ -833,11 +833,11 @@ component: `import { Shell } from "@teb-ooo/ui"`
 
 The closed platform shell: the platform's top bar (`PlatformBar`, built in), the sidebar and the content, the full viewport height. The content scrolls; the sidebar stays. There is no header prop, no slot and nothing an app can put in the bar: the app name, the live dot, the environment mark, the palette trigger, Send feedback (owner only) and the person menu come from the platform. The shell also registers the platform commands in the palette and owns the feedback panel, so mount it inside `CommandProvider` (and the router and query client). App navigation and actions belong in the sidebar, the page and Cmd+K commands.
 
-- `sidebar?`: `ReactNode`. Usually a `Sidebar`. From the md breakpoint it is a column on the left; below it, a drawer opened from the bar's menu icon. Leave it out (or `null`) for an app with no sidebar: there is then no column, no menu icon and no drawer, and the page takes the full width at every breakpoint.
+- `sidebar?`: `ReactNode`. Usually a `Sidebar`. From the md breakpoint it is a column on the left; below it, opened from the bar's menu icon, it is revealed under the page, which slides aside (it is not a modal: Escape, a tap or a drag on the page closes it). Leave it out (or `null`) for an app with no sidebar: there is then no column, no menu icon and no drawer, and the page takes the full width at every breakpoint.
 - `children`: `ReactNode`
 - `menuLabel?`: `string`, default "Open menu". Label of the phone menu icon.
-- `drawerLabel?`: `string`, default "Menu". Accessible name of the phone drawer.
-- `closeLabel?`: `string`, default "Close". Label of the drawer's close button.
+- `drawerLabel?`: `string`, default "Menu". Accessible name of the phone menu.
+- `closeLabel?`: `string`, default "Close". Label of the button that closes the menu: the dimmed content pushed aside.
 - `skipLabel?`: `string`, default "Skip to content". Label of the skip link, the first Tab stop: it jumps past the platform bar and the sidebar to the content.
 - `className?`: `string`
 

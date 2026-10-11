@@ -208,16 +208,27 @@ describe("Shell", () => {
     expect(screen.getByRole("menuitem", { name: "Sign out" })).toHaveProperty("href", expect.stringContaining("/auth/logout"));
   });
 
-  it("on a phone the bar carries the menu icon that opens the sidebar as a drawer", () => {
+  it("on a phone the bar carries the menu icon that slides the page aside to reveal the sidebar under it", async () => {
     setViewportWidth(390);
     mount(null);
     expect(screen.getByText("Content")).toBeTruthy();
     expect(screen.queryByRole("navigation")).toBeNull();
     expect(screen.getByRole("banner").textContent).toBe("tracker");
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
-    expect(screen.getByRole("dialog", { name: "Menu" })).toBeTruthy();
+    // not a modal: no dialog, the menu is a region under the page, and the page is inert while it is out
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("complementary", { name: "Menu" })).toBeTruthy();
     expect(screen.getByRole("navigation", { name: "Main" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Expand sidebar" })).toBeNull();
+    expect(screen.getByText("Content").closest("[inert]")).not.toBeNull();
+    // a tap on the pushed-aside page closes it
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.getByText("Content").closest("[inert]")).toBeNull();
+    // and so does Escape
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    fireEvent.keyDown(screen.getByRole("navigation", { name: "Main" }), { key: "Escape" });
+    expect(screen.getByText("Content").closest("[inert]")).toBeNull();
+    await waitFor(() => expect(screen.queryByRole("navigation")).toBeNull());
   });
 
   it("without a sidebar there is no column, no menu icon and no drawer, at any width", async () => {
