@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { LOGOUT_PATH, platformLinks, playground, useAgentStatus, useFeedback, useHasLiveStream, useLiveStatus, useUser } from "@teb-ooo/web";
@@ -45,6 +45,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
   const navRef = useRef<HTMLElement>(null);
   const dragStart = useRef<number | null>(null);
   const tintHost = usePortalContainer();
+  const [navWidth, setNavWidth] = useState<number | null>(null);
   const wide = useMinWidth("md");
   const hasSidebar = sidebar !== null && sidebar !== undefined && sidebar !== false;
   const [open, setOpen] = useState(false);
@@ -67,6 +68,10 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
     (opener.current as HTMLElement | null)?.focus?.();
     return () => window.clearTimeout(t);
   }, [open, rendered]);
+  // The menu is as wide as its content (the longest label), not a fixed column; the page slides aside by exactly that.
+  useLayoutEffect(() => {
+    if (rendered && navRef.current) setNavWidth(navRef.current.offsetWidth);
+  }, [rendered]);
   useEffect(() => {
     if (wide) {
       setOpen(false);
@@ -90,8 +95,9 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
       onKeyDown={(e) => {
         if (open && e.key === "Escape") closeMenu();
       }}
-      style={{ ["--shell-nav-w" as string]: "min(20rem, 85vw)" }}
-      className={cn("relative h-dvh w-full overflow-hidden contain-paint bg-ground text-ink", className)}
+      style={{ ["--shell-nav-w" as string]: navWidth ? `${navWidth}px` : "min(14rem, 85vw)" }}
+      // behind the pushed-aside page is the menu's colour, so its rounded corners show the menu continuing under them
+      className={cn("relative h-dvh w-full overflow-hidden contain-paint text-ink", menu && rendered ? "bg-ink" : "bg-ground", className)}
     >
       {/* The phone menu lies under the page; the page slides aside to show it. */}
       {menu && rendered ? (
@@ -99,7 +105,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
           ref={navRef}
           aria-label={drawerLabel}
           inert={!open}
-          className="panel-inverse absolute inset-y-0 left-0 w-[var(--shell-nav-w)] overflow-hidden rounded-none border-0 pt-[env(safe-area-inset-top)] text-ink"
+          className="panel-inverse absolute inset-y-0 left-0 w-max min-w-48 max-w-[85vw] overflow-hidden rounded-none border-0 pt-[env(safe-area-inset-top)] text-ink"
         >
           <ShellContext.Provider value={{ inDrawer: true, closeDrawer: closeMenu }}>{sidebar}</ShellContext.Provider>
         </aside>
@@ -107,7 +113,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
       <div
         className={cn(
           "relative flex h-full w-full flex-col overflow-hidden bg-ground transition-[translate] duration-200 ease-out motion-reduce:transition-none",
-          menu && open && "panel-float rounded-l translate-x-[var(--shell-nav-w)]",
+          menu && open && "panel-float rounded-plane translate-x-[var(--shell-nav-w)]",
         )}
       >
         <div inert={menu && open} className="flex min-h-0 flex-1 flex-col">
@@ -172,7 +178,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
       */}
       {typeof document === "undefined"
         ? null
-        : createPortal(<div aria-hidden="true" data-edge-tint className={cn("pointer-events-none fixed inset-x-0 bottom-0 h-[max(env(safe-area-inset-bottom),1px)]", menu && open ? "bg-ink" : "bg-ground")} />, tintHost ?? document.body)}
+        : createPortal(<div aria-hidden="true" data-edge-tint style={{ ["--shell-nav-w" as string]: navWidth ? `${navWidth}px` : "min(14rem, 85vw)" }} className={cn("pointer-events-none fixed inset-x-0 bottom-0 h-[max(env(safe-area-inset-bottom),1px)]", menu && open ? "bg-[linear-gradient(to_right,var(--color-ink)_var(--shell-nav-w),var(--color-ground)_0)]" : "bg-ground")} />, tintHost ?? document.body)}
     </div>
     </ToastProvider>
   );

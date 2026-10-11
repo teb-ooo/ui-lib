@@ -300,6 +300,8 @@
   --target-h: 1.75rem;
   --radius-*: initial;
   --radius: 0.25rem;
+  /* The one exception to the single radius (owner decision): the page pushed aside by the phone menu has the rounded corners of a card. Only that plane uses it. */
+  --radius-plane: 1.5rem;
 }
 
 /* A phone, or any device whose main pointer is a finger (a tablet, a touch laptop): what is pressed is 44px tall (Apple's minimum; WCAG 2.5.5 asks 44px too). */
