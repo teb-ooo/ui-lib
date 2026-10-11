@@ -6,13 +6,17 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.129.3 (from 0.129.2)
+
+Removed `--radius-plane` (0.129.1): there is one radius again, and the page pushed aside by the phone menu uses it. Nothing to change.
+
 ## To ui 0.129.2 (from 0.129.1)
 
 Removed the always-present fixed strip of the page colour at the bottom edge (0.128.1): it was a workaround for iOS Safari keeping a closed panel's colour behind its bottom toolbar, and it overlaid the page's rounded bottom corners. If a closed panel's colour stays behind the toolbar on iOS, tell `ui`. Nothing to change.
 
 ## To ui 0.129.1 (from 0.129.0)
 
-The phone menu is as wide as its content (at least 12rem, at most 85% of the screen), and the page pushed aside by it has rounded corners (`--radius-plane`, 1.5rem: the one exception to the single radius, used only there); behind them the menu continues. The fixed edge-tint strip added in 0.128.1 is removed again (it was a hack and covered the page's rounded bottom corners). Nothing to change.
+The phone menu is as wide as its content (at least 12rem, at most 85% of the screen), and the page pushed aside by it has the same corner radius as everything else; behind the corners the menu continues. The fixed edge-tint strip added in 0.128.1 is removed again (it was a hack and covered the page's rounded bottom corners). Nothing to change.
 
 ## To ui 0.129.0 (from 0.128.x)
 

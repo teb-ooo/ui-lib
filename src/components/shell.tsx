@@ -110,7 +110,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
       <div
         className={cn(
           "relative flex h-full w-full flex-col overflow-hidden bg-ground transition-[translate] duration-200 ease-out motion-reduce:transition-none",
-          menu && open && "panel-float rounded-plane translate-x-[var(--shell-nav-w)]",
+          menu && open && "panel-float rounded translate-x-[var(--shell-nav-w)]",
         )}
       >
         <div inert={menu && open} className="flex min-h-0 flex-1 flex-col">
