@@ -88,6 +88,9 @@ Cmd+K commands generated from the API definition: decision 0004. An operation in
 
 ## ConfirmDialog Asks before something that cannot easily be undone: `open`, `onOpenChange`, `title` (the question, "Delete this note?"), `description?`, `confirmLabel?` (a verb; "Confirm"), `cancelLabel?`, `danger?` (a red confirm button) and `onConfirm` (a promise keeps the button spinning and both buttons waiting; the dialog closes when it settles). Focus starts on Cancel. Use it instead of `window.confirm` and instead of building the two-button footer again; `PaletteFromApi` uses it by default for a tagged action's confirm. `Dialog` puts initial focus on the first control of its content (a form's first field), not on the close button; pass `initialFocus` (a ref) to choose.
 
+## Slider fine tuning
+`Slider` and `RangeSlider` take `fineTuning` (default true): on a touch screen (a finger or a pen; never a mouse or the keyboard) dragging a thumb and sliding the finger up or down away from the track slows it in steps, like the iOS scrubber: full speed within 56px of the track, then half, a quarter and a tenth of the sideways travel at 56, 112 and 168px; a note beside the value names the speed while it is in use, and the thumb follows the finger's sideways travel at that speed, so a value can be set exactly. A tap on the track still jumps there. `fineTuning={false}` turns it off.
+
 ## Meter
 A read-only measurement against a scale: `label`, `value`, `min?` (0), `max?` (100), `zones?: {from, tone: "ok" | "warning" | "danger"}[]` (the bar takes the tone of the last zone at or below the value: colour is state; none means neutral), `format?`, `showValue?` (true), `orientation?` (`vertical` fills from the bottom: give it a height), `className?`. `role="meter"` with value, minimum, maximum and spoken text. Not a progress bar and not an input (use `Slider`).
 

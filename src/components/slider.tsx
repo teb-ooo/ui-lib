@@ -2,6 +2,7 @@ import { useId } from "react";
 import type { ReactNode } from "react";
 import { Slider as BaseSlider } from "@base-ui/react/slider";
 import { cn } from "../lib/cn";
+import { fineName, useFineDrag } from "../lib/fine-drag";
 
 interface Common {
   /** Visible name; also the accessible name of the thumb (a range names its thumbs "<label> minimum" and "<label> maximum"). */
@@ -20,6 +21,12 @@ interface Common {
   /** Hide the value next to the label (when the app draws its own readout). @default false */
   hideValue?: boolean;
   disabled?: boolean;
+  /**
+   * Slide-away fine tuning for a finger or a pen (not a mouse): while a thumb is dragged, moving the finger up or down away from
+   * the track slows it, in steps (half, a quarter, a tenth of the sideways travel), like the iOS scrubber, so a value can be set
+   * exactly; a small note names the speed while it is in use. @default true
+   */
+  fineTuning?: boolean;
   className?: string;
 }
 
@@ -48,7 +55,7 @@ const thumb = cn(
   "data-[disabled]:cursor-not-allowed data-[disabled]:border-line-strong data-[disabled]:opacity-50",
 );
 
-function Header({ label, readout, hideValue, labelId }: { label: string; readout: string; hideValue: boolean | undefined; labelId: string }) {
+function Header({ label, readout, hideValue, labelId, speed }: { label: string; readout: string; hideValue: boolean | undefined; labelId: string; speed?: number | null }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
       <span id={labelId} className="text-ink-muted uppercase">
@@ -56,6 +63,7 @@ function Header({ label, readout, hideValue, labelId }: { label: string; readout
       </span>
       {hideValue ? null : (
         <output aria-hidden="true" className="tabular-nums text-ink">
+          {speed !== null && speed !== undefined && speed < 1 ? <span className="mr-2 text-ink-faint">{fineName(speed)}</span> : null}
           {readout}
         </output>
       )}
@@ -72,13 +80,22 @@ function body({ unit, format }: Pick<Common, "unit" | "format">) {
  * Chooses one number on a scale by dragging a thumb or with the keyboard (arrows, Home, End, PageUp, PageDown).
  * The thumb has a 28px touch target. The value is shown next to the label and spoken with its unit.
  */
-export function Slider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, unit, format, description, hideValue, disabled, className }: SliderProps) {
+export function Slider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, unit, format, description, hideValue, disabled, fineTuning = true, className }: SliderProps) {
   const text = body({ unit, format });
+  const fine = useFineDrag({
+    enabled: fineTuning && !disabled,
+    min,
+    max,
+    step,
+    values: () => [value],
+    onChange: (v) => onValueChange(v[0] ?? value),
+    ...(onValueCommit ? { onCommit: (v: number[]) => onValueCommit(v[0] ?? value) } : {}),
+  });
   const labelId = useId();
   const descriptionId = useId();
   return (
     <div className={cn("flex flex-col gap-1", className)}>
-      <Header label={label} readout={text(value)} hideValue={hideValue} labelId={labelId} />
+      <Header label={label} readout={text(value)} hideValue={hideValue} labelId={labelId} speed={fine.factor} />
       <BaseSlider.Root
         value={value}
         min={min}
@@ -91,10 +108,10 @@ export function Slider({ value, onValueChange, onValueCommit, label, min = 0, ma
         aria-labelledby={labelId}
         aria-describedby={description ? descriptionId : undefined}
       >
-        <BaseSlider.Control className="flex h-7 w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
+        <BaseSlider.Control ref={fine.ref} onPointerDownCapture={fine.onPointerDownCapture} className="flex h-7 w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
           <BaseSlider.Track className={track}>
             <BaseSlider.Indicator className={indicator} />
-            <BaseSlider.Thumb className={thumb} getAriaLabel={() => label} getAriaValueText={(_f, v) => text(v)} />
+            <BaseSlider.Thumb data-fine-thumb={0} className={thumb} getAriaLabel={() => label} getAriaValueText={(_f, v) => text(v)} />
           </BaseSlider.Track>
         </BaseSlider.Control>
       </BaseSlider.Root>
@@ -108,14 +125,24 @@ export function Slider({ value, onValueChange, onValueCommit, label, min = 0, ma
 }
 
 /** Two thumbs on one scale: a low and a high value, such as a passband or a floor and ceiling. They cannot cross, and keep `minGap` apart. */
-export function RangeSlider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, minGap = 0, unit, format, description, hideValue, disabled, className }: RangeSliderProps) {
+export function RangeSlider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, minGap = 0, unit, format, description, hideValue, disabled, fineTuning = true, className }: RangeSliderProps) {
   const text = body({ unit, format });
+  const fine = useFineDrag({
+    enabled: fineTuning && !disabled,
+    min,
+    max,
+    step,
+    gap: minGap,
+    values: () => [value[0], value[1]],
+    onChange: (v) => onValueChange([v[0] ?? value[0], v[1] ?? value[1]]),
+    ...(onValueCommit ? { onCommit: (v: number[]) => onValueCommit([v[0] ?? value[0], v[1] ?? value[1]]) } : {}),
+  });
   const labelId = useId();
   const descriptionId = useId();
   const names = [`${label} minimum`, `${label} maximum`] as const;
   return (
     <div className={cn("flex flex-col gap-1", className)}>
-      <Header label={label} readout={`${text(value[0])} to ${text(value[1])}`} hideValue={hideValue} labelId={labelId} />
+      <Header label={label} readout={`${text(value[0])} to ${text(value[1])}`} hideValue={hideValue} labelId={labelId} speed={fine.factor} />
       <BaseSlider.Root
         value={[value[0], value[1]]}
         min={min}
@@ -130,11 +157,11 @@ export function RangeSlider({ value, onValueChange, onValueCommit, label, min = 
         aria-labelledby={labelId}
         aria-describedby={description ? descriptionId : undefined}
       >
-        <BaseSlider.Control className="flex h-7 w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
+        <BaseSlider.Control ref={fine.ref} onPointerDownCapture={fine.onPointerDownCapture} className="flex h-7 w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
           <BaseSlider.Track className={track}>
             <BaseSlider.Indicator className={indicator} />
             {[0, 1].map((i) => (
-              <BaseSlider.Thumb key={i} index={i} className={thumb} getAriaLabel={() => names[i] ?? label} getAriaValueText={(_f, v) => text(v)} />
+              <BaseSlider.Thumb key={i} index={i} data-fine-thumb={i} className={thumb} getAriaLabel={() => names[i] ?? label} getAriaValueText={(_f, v) => text(v)} />
             ))}
           </BaseSlider.Track>
         </BaseSlider.Control>
