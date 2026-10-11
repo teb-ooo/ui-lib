@@ -723,7 +723,7 @@ export function DataTable<T>({
                     indeterminate={selectedCount > 0 && selectedCount < rows.length}
                     onCheckedChange={selectAll}
                   />
-                  <span className="text-ink-muted">{selectedCount > 0 ? `${selectedCount} selected` : "Select all"}</span>
+                  <span className="text-ink-muted">{selectedCount > 0 && selectionActions === undefined ? `${selectedCount} selected` : "Select all"}</span>
                 </div>
               ) : null}
               {stateBody ??
