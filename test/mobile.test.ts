@@ -12,10 +12,10 @@ describe("mobile rules", () => {
     expect(css).toMatch(/--target-h:\s*1\.75rem;/);
     expect(css.match(/--target-h:/g)).toHaveLength(1);
   });
-  it("a checkbox has an invisible 44px target where a finger taps, and keeps its 16px look", () => {
+  it("a checkbox has an invisible target the size of --target-h, and keeps its 16px look", () => {
     const c = read("src/components/checkbox.tsx");
-    expect(c).toContain("before:-inset-3.5");
-    expect(c).toContain("pointer-coarse:before:block");
+    expect(c).toContain("before:size-[var(--target-h)]");
+    expect(c).not.toContain("before:-inset-3.5");
     expect(c).toContain("size-4");
   });
   it("surfaces at the bottom edge leave room for the home indicator (zero unless the page sets viewport-fit=cover)", () => {

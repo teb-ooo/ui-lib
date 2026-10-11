@@ -16,8 +16,8 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(function Ch
       ref={ref}
       className={cn(
         "relative inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded border border-line-strong bg-surface text-ink outline-none transition-colors duration-100",
-        // Where a finger taps, the target is 44px (WCAG 2.5.5) while the box keeps its 16px look: an invisible area around it.
-        "before:absolute before:-inset-3.5 before:hidden before:content-[''] max-sm:before:block pointer-coarse:before:block",
+        // The box keeps its 16px look; the target around it is the control height (--target-h), an invisible area, like every other control.
+        "before:absolute before:top-1/2 before:left-1/2 before:size-[var(--target-h)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']",
         "hover-invert focus-visible:outline focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-ink-muted",
         "data-[checked]:bg-surface-raised data-[indeterminate]:bg-surface-raised data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
         className,
