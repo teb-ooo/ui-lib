@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { LOGOUT_PATH, platformLinks, playground, useAgentStatus, useFeedback, useHasLiveStream, useLiveStatus, useUser } from "@teb-ooo/web";
 import { useMinWidth } from "../hooks/use-media-query";
 import { cn } from "../lib/cn";
+import { usePortalContainer } from "../lib/theme-scope";
 import { useCommandHost } from "./command-host";
 import { FeedbackPanel } from "./feedback-panel";
 import { PlatformBar } from "./platform-bar";
@@ -42,6 +44,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
   const opener = useRef<Element | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const dragStart = useRef<number | null>(null);
+  const tintHost = usePortalContainer();
   const wide = useMinWidth("md");
   const hasSidebar = sidebar !== null && sidebar !== undefined && sidebar !== false;
   const [open, setOpen] = useState(false);
@@ -162,6 +165,14 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
           />
         ) : null}
       </div>
+      {/*
+        iOS Safari paints the strip behind its bottom toolbar from the fixed element at the bottom edge, and keeps the colour of
+        the last one (a closed panel's white) when it goes. This one never goes: it is the page's own colour, pinned to the
+        viewport (so it is a portal: the shell contains its own fixed children), as tall as the home-indicator inset.
+      */}
+      {typeof document === "undefined"
+        ? null
+        : createPortal(<div aria-hidden="true" data-edge-tint className="pointer-events-none fixed inset-x-0 bottom-0 h-[max(env(safe-area-inset-bottom),1px)] bg-ground" />, tintHost ?? document.body)}
     </div>
     </ToastProvider>
   );

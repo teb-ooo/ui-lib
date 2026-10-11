@@ -436,3 +436,25 @@ describe("Shell skip link", () => {
     expect(window.location.href).toBe(before);
   });
 });
+
+describe("Shell edge tint", () => {
+  it("keeps a fixed strip of the page colour at the bottom edge, so iOS never keeps a closed panel's colour behind its toolbar", () => {
+    setViewportWidth(390);
+    mount(null);
+    const strip = document.querySelector("[data-edge-tint]");
+    expect(strip).not.toBeNull();
+    expect(strip?.className).toContain("fixed");
+    expect(strip?.className).toContain("bg-ground");
+  });
+});
+
+describe("Shell phone menu width", () => {
+  it("fills the menu's width whatever the sidebar's own width option is", () => {
+    setViewportWidth(390);
+    mount(null);
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    const root = screen.getByRole("navigation", { name: "Main" }).parentElement as HTMLElement;
+    expect(root.className).toContain("w-full");
+    expect(root.className).not.toMatch(/\bw-(fit|64|12)\b/);
+  });
+});

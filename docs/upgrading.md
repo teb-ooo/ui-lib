@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.128.1 (from 0.128.0)
+
+Fix: the sidebar in the phone menu now fills the menu's width (a `width="fit"` sidebar was left a narrow column inside it). New: the Shell keeps a fixed strip of the page colour at the bottom edge, so iOS Safari does not keep a closed panel's white behind its bottom toolbar. Nothing to change.
+
 ## To ui 0.128.0 (from 0.127.x)
 
 `Shell`'s phone menu is no longer a modal drawer: the bar's menu icon slides the whole page aside and reveals the sidebar underneath it (owner decision; like the Claude app). There is no dialog and no backdrop any more: the menu is a `complementary` region named by `drawerLabel`, the pushed-aside page is a button named by `closeLabel`, and a tap, a drag to the left, Escape or a chosen link closes it. Tests that looked for `role="dialog"` after "Open menu" look for `role="complementary"` (or the `navigation` inside it) instead. Nothing else to change.

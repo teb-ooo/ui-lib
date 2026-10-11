@@ -77,8 +77,8 @@ export function Sidebar({
     <div
       className={cn(
         "flex h-full min-h-0 flex-col bg-ground",
-        iconsOnly ? "w-12" : width === "fit" ? "w-fit min-w-40 max-w-64" : "w-64",
-        inDrawer && "w-full",
+        // one width class only (the package does not merge classes): the drawer under the page fills the menu's width
+        inDrawer ? "w-full" : iconsOnly ? "w-12" : width === "fit" ? "w-fit min-w-40 max-w-64" : "w-64",
         className,
       )}
     >
