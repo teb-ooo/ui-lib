@@ -870,6 +870,7 @@ Also accepts the props of `Common`.
 - `value`: `number`
 - `onValueChange`: `(value: number) => void`
 - `onValueCommit?`: `(value: number) => void`. Called once when the person lets go or finishes a key press: the moment to send a change that is expensive to apply.
+- `nudge?`: `boolean`, default false. A minus and a plus button at the ends of the track that move the value by one `step` (hold to repeat). A `Slider` only.
 
 ### SplitPane
 

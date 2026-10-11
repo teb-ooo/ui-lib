@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
 import type { PointerEvent } from "react";
 
-/** Distance from the track, in px, at which each slower speed begins: full speed on the track, then half, a quarter and a tenth. */
+/** Distance from the track centre, in px, at which each slower speed begins: full speed on the track, then half, a quarter and a tenth. */
 export const FINE_STEPS = [
   { from: 0, factor: 1 },
-  { from: 56, factor: 0.5 },
-  { from: 112, factor: 0.25 },
-  { from: 168, factor: 0.1 },
+  { from: 48, factor: 0.5 },
+  { from: 96, factor: 0.25 },
+  { from: 144, factor: 0.1 },
 ] as const;
 
 /** The speed for a finger `distance` px above or below the track. */
@@ -16,9 +16,9 @@ export function fineFactor(distance: number): number {
   return factor;
 }
 
-/** A speed as text: "full speed", "half speed", "quarter speed", "fine". */
+/** A speed as text: "Full speed", "Fine 1/2", "Fine 1/4", "Fine 1/10". */
 export function fineName(factor: number): string {
-  return factor >= 1 ? "full speed" : factor >= 0.5 ? "half speed" : factor >= 0.25 ? "quarter speed" : "fine";
+  return factor >= 1 ? "Full speed" : factor >= 0.5 ? "Fine 1/2" : factor >= 0.25 ? "Fine 1/4" : "Fine 1/10";
 }
 
 interface Options {

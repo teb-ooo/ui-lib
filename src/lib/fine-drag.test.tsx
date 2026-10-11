@@ -8,11 +8,13 @@ describe("slide-away speeds", () => {
   it("is full speed on the track and slower the further away, up or down", () => {
     expect(fineFactor(0)).toBe(1);
     expect(fineFactor(40)).toBe(1);
+    expect(fineFactor(47)).toBe(1);
     expect(fineFactor(60)).toBe(0.5);
-    expect(fineFactor(-120)).toBe(0.25);
+    expect(fineFactor(-100)).toBe(0.25);
+    expect(fineFactor(150)).toBe(0.1);
     expect(fineFactor(300)).toBe(0.1);
-    expect(fineName(0.5)).toBe("half speed");
-    expect(fineName(0.1)).toBe("fine");
+    expect(fineName(0.5)).toBe("Fine 1/2");
+    expect(fineName(0.1)).toBe("Fine 1/10");
   });
 });
 
@@ -31,9 +33,9 @@ function pointer(el: Element, type: "pointerDown" | "pointerMove" | "pointerUp",
   fireEvent[type](el, { pointerId: 1, pointerType, clientX: x, clientY: y, button: 0 });
 }
 
-function Harness({ onCommit, fineTuning }: { onCommit?: (v: number) => void; fineTuning?: boolean }) {
+function Harness({ onCommit, fineDrag }: { onCommit?: (v: number) => void; fineDrag?: boolean }) {
   const [v, setV] = useState(50);
-  return <Slider label="Gain" value={v} onValueChange={setV} {...(onCommit ? { onValueCommit: onCommit } : {})} {...(fineTuning === false ? { fineTuning } : {})} />;
+  return <Slider label="Gain" value={v} onValueChange={setV} {...(onCommit ? { onValueCommit: onCommit } : {})} {...(fineDrag === false ? { fineDrag } : {})} />;
 }
 
 describe("Slider fine tuning", () => {
@@ -45,16 +47,16 @@ describe("Slider fine tuning", () => {
     pointer(thumb, "pointerDown", 100, 114);
     pointer(thumb, "pointerMove", 140, 114); // +40px of 200 = +20 at full speed
     expect(container.querySelector("output")?.textContent).toBe("70");
-    pointer(thumb, "pointerMove", 180, 234); // 120px away: a quarter speed: +40px is +5
+    pointer(thumb, "pointerMove", 180, 234); // 120px away (96 to 144): a quarter speed: +40px is +5
     expect(container.querySelector("output")?.textContent).toContain("75");
-    expect(container.querySelector("output")?.textContent).toContain("quarter speed");
+    expect(container.querySelector("output")?.textContent).toContain("Fine 1/4");
     pointer(thumb, "pointerUp", 180, 234);
     expect(onCommit).toHaveBeenLastCalledWith(75);
     expect(container.querySelector("output")?.textContent).toBe("75");
   });
 
   it("does not take a mouse drag, and can be turned off", () => {
-    const { container } = render(<Harness fineTuning={false} />);
+    const { container } = render(<Harness fineDrag={false} />);
     control(container);
     const thumb = container.querySelector("[data-fine-thumb]")!;
     pointer(thumb, "pointerDown", 100, 114);
@@ -76,5 +78,34 @@ describe("Slider fine tuning", () => {
     pointer(thumbs[0]!, "pointerDown", 40, 114);
     pointer(thumbs[0]!, "pointerMove", 190, 114); // would pass the high thumb
     expect(onChange).toHaveBeenLastCalledWith([30, 40]);
+  });
+});
+
+describe("Slider nudge buttons", () => {
+  it("minus and plus step by one step, and keep stepping while held", () => {
+    vi.useFakeTimers();
+    const onChange = vi.fn();
+    function Nudged() {
+      const [v, setV] = useState(50);
+      return <Slider label="Gain" value={v} onValueChange={(x) => { setV(x); onChange(x); }} nudge step={2} />;
+    }
+    const { getByRole } = render(<Nudged />);
+    fireEvent.pointerDown(getByRole("button", { name: "Increase Gain" }), { button: 0 });
+    expect(onChange).toHaveBeenLastCalledWith(52);
+    vi.advanceTimersByTime(400 + 70 * 3);
+    expect(onChange.mock.calls.length).toBeGreaterThanOrEqual(4);
+    fireEvent.pointerUp(getByRole("button", { name: "Increase Gain" }));
+    const n = onChange.mock.calls.length;
+    vi.advanceTimersByTime(1000);
+    expect(onChange.mock.calls.length).toBe(n);
+    fireEvent.pointerDown(getByRole("button", { name: "Decrease Gain" }), { button: 0 });
+    fireEvent.pointerUp(getByRole("button", { name: "Decrease Gain" }));
+    expect(onChange.mock.calls.at(-1)?.[0]).toBeLessThan(onChange.mock.calls.at(-2)?.[0] ?? 999);
+    vi.useRealTimers();
+  });
+
+  it("is absent unless asked for", () => {
+    const { queryByRole } = render(<Slider label="Gain" value={5} onValueChange={() => undefined} />);
+    expect(queryByRole("button", { name: "Increase Gain" })).toBeNull();
   });
 });

@@ -6,9 +6,13 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.133.0 (from 0.132.x)
+
+`Slider` and `RangeSlider`: the 0.132.0 prop `fineTuning` is renamed `fineDrag` (an app's request); the slow-down steps are now 48, 96 and 144px from the track's centre, the label reads "Fine 1/2", "Fine 1/4", "Fine 1/10", and `Slider nudge` adds minus and plus buttons (hold to repeat). Rename `fineTuning` if you set it.
+
 ## To ui 0.132.0 (from 0.131.x)
 
-`Slider` and `RangeSlider`: slide-away fine tuning for a finger or pen, like the iOS scrubber (on by default; `fineTuning={false}` turns it off). Dragging a thumb and moving the finger up or down away from the track slows the thumb to half, a quarter and a tenth of the sideways travel. Mouse and keyboard are unchanged. Nothing to change.
+`Slider` and `RangeSlider`: slide-away fine tuning for a finger or pen, like the iOS scrubber (on by default; `fineDrag={false}` turns it off). Dragging a thumb and moving the finger up or down away from the track (48, 96 and 144px from its centre) slows the thumb to half, a quarter and a tenth of the sideways travel, and "Fine 1/4" shows in the label row. `nudge` adds minus and plus buttons that step by one `step`, repeating while held (off by default). Mouse and keyboard are unchanged. Nothing to change.
 
 ## To ui 0.131.0 (from 0.130.x)
 

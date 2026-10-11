@@ -1,7 +1,9 @@
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 import type { ReactNode } from "react";
 import { Slider as BaseSlider } from "@base-ui/react/slider";
+import { Minus, Plus } from "lucide-react";
 import { cn } from "../lib/cn";
+import { Button } from "./button";
 import { fineName, useFineDrag } from "../lib/fine-drag";
 
 interface Common {
@@ -23,10 +25,10 @@ interface Common {
   disabled?: boolean;
   /**
    * Slide-away fine tuning for a finger or a pen (not a mouse): while a thumb is dragged, moving the finger up or down away from
-   * the track slows it, in steps (half, a quarter, a tenth of the sideways travel), like the iOS scrubber, so a value can be set
-   * exactly; a small note names the speed while it is in use. @default true
+   * the track slows it, in steps (half, a quarter, a tenth of the sideways travel: 48, 96 and 144px from the track's centre), like
+   * the iOS scrubber, so a value can be set exactly; "Fine 1/4" and the like shows in the label row while it is in use. @default true
    */
-  fineTuning?: boolean;
+  fineDrag?: boolean;
   className?: string;
 }
 
@@ -35,6 +37,8 @@ export interface SliderProps extends Common {
   onValueChange: (value: number) => void;
   /** Called once when the person lets go or finishes a key press: the moment to send a change that is expensive to apply. */
   onValueCommit?: (value: number) => void;
+  /** A minus and a plus button at the ends of the track that move the value by one `step` (hold to repeat). A `Slider` only. @default false */
+  nudge?: boolean;
 }
 
 export interface RangeSliderProps extends Common {
@@ -71,6 +75,45 @@ function Header({ label, readout, hideValue, labelId, speed }: { label: string; 
   );
 }
 
+/** A minus or plus button that steps once on press and keeps stepping while it is held. */
+function NudgeButton({ dir, label, disabled, nudge, commit }: { dir: 1 | -1; label: string; disabled: boolean | undefined; nudge: (dir: 1 | -1) => void; commit: () => void }) {
+  const timer = useRef<number | undefined>(undefined);
+  const stop = () => {
+    if (timer.current === undefined) return;
+    window.clearTimeout(timer.current);
+    window.clearInterval(timer.current);
+    timer.current = undefined;
+    commit();
+  };
+  const start = () => {
+    nudge(dir);
+    timer.current = window.setTimeout(() => {
+      timer.current = window.setInterval(() => nudge(dir), 70);
+    }, 400);
+  };
+  return (
+    <Button
+      icon={dir < 0 ? <Minus aria-hidden="true" className="size-4" /> : <Plus aria-hidden="true" className="size-4" />}
+      aria-label={label}
+      disabled={disabled}
+      onPointerDown={(e) => {
+        if (e.button === 0) start();
+      }}
+      onPointerUp={stop}
+      onPointerLeave={stop}
+      onPointerCancel={stop}
+      onKeyDown={(e) => {
+        if ((e.key === "Enter" || e.key === " ") && !e.repeat) {
+          e.preventDefault();
+          nudge(dir);
+          commit();
+        }
+      }}
+      className="shrink-0 border-transparent"
+    />
+  );
+}
+
 function body({ unit, format }: Pick<Common, "unit" | "format">) {
   const text = (v: number) => `${format ? format(v) : String(v)}${unit ? ` ${unit}` : ""}`;
   return text;
@@ -80,10 +123,10 @@ function body({ unit, format }: Pick<Common, "unit" | "format">) {
  * Chooses one number on a scale by dragging a thumb or with the keyboard (arrows, Home, End, PageUp, PageDown).
  * The thumb has a 28px touch target. The value is shown next to the label and spoken with its unit.
  */
-export function Slider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, unit, format, description, hideValue, disabled, fineTuning = true, className }: SliderProps) {
+export function Slider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, unit, format, description, hideValue, disabled, fineDrag = true, nudge = false, className }: SliderProps) {
   const text = body({ unit, format });
   const fine = useFineDrag({
-    enabled: fineTuning && !disabled,
+    enabled: fineDrag && !disabled,
     min,
     max,
     step,
@@ -91,6 +134,18 @@ export function Slider({ value, onValueChange, onValueCommit, label, min = 0, ma
     onChange: (v) => onValueChange(v[0] ?? value),
     ...(onValueCommit ? { onCommit: (v: number[]) => onValueCommit(v[0] ?? value) } : {}),
   });
+  // The nudge buttons read the value as it is now, also while they repeat.
+  const latest = useRef(value);
+  useEffect(() => {
+    latest.current = value;
+  });
+  const nudgeBy = (dir: 1 | -1) => {
+    const next = Math.min(max, Math.max(min, latest.current + dir * step));
+    if (next !== latest.current) {
+      latest.current = next;
+      onValueChange(next);
+    }
+  };
   const labelId = useId();
   const descriptionId = useId();
   return (
@@ -108,12 +163,18 @@ export function Slider({ value, onValueChange, onValueCommit, label, min = 0, ma
         aria-labelledby={labelId}
         aria-describedby={description ? descriptionId : undefined}
       >
-        <BaseSlider.Control ref={fine.ref} onPointerDownCapture={fine.onPointerDownCapture} className="flex h-7 w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
-          <BaseSlider.Track className={track}>
-            <BaseSlider.Indicator className={indicator} />
-            <BaseSlider.Thumb data-fine-thumb={0} className={thumb} getAriaLabel={() => label} getAriaValueText={(_f, v) => text(v)} />
-          </BaseSlider.Track>
-        </BaseSlider.Control>
+        <div className="flex items-center gap-2">
+          {nudge ? <NudgeButton dir={-1} label={`Decrease ${label}`} disabled={disabled} nudge={nudgeBy} commit={() => onValueCommit?.(latest.current)} /> : null}
+          <div className="min-w-0 flex-1">
+            <BaseSlider.Control ref={fine.ref} onPointerDownCapture={fine.onPointerDownCapture} className="flex h-7 w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
+              <BaseSlider.Track className={track}>
+                <BaseSlider.Indicator className={indicator} />
+                <BaseSlider.Thumb data-fine-thumb={0} className={thumb} getAriaLabel={() => label} getAriaValueText={(_f, v) => text(v)} />
+              </BaseSlider.Track>
+            </BaseSlider.Control>
+          </div>
+          {nudge ? <NudgeButton dir={1} label={`Increase ${label}`} disabled={disabled} nudge={nudgeBy} commit={() => onValueCommit?.(latest.current)} /> : null}
+        </div>
       </BaseSlider.Root>
       {description ? (
         <span id={descriptionId} className="text-ink-faint">
@@ -125,10 +186,10 @@ export function Slider({ value, onValueChange, onValueCommit, label, min = 0, ma
 }
 
 /** Two thumbs on one scale: a low and a high value, such as a passband or a floor and ceiling. They cannot cross, and keep `minGap` apart. */
-export function RangeSlider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, minGap = 0, unit, format, description, hideValue, disabled, fineTuning = true, className }: RangeSliderProps) {
+export function RangeSlider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, minGap = 0, unit, format, description, hideValue, disabled, fineDrag = true, className }: RangeSliderProps) {
   const text = body({ unit, format });
   const fine = useFineDrag({
-    enabled: fineTuning && !disabled,
+    enabled: fineDrag && !disabled,
     min,
     max,
     step,
