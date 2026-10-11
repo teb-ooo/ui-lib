@@ -15,9 +15,8 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(function Ch
     <BaseCheckbox.Root
       ref={ref}
       className={cn(
-        "relative inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded border border-line-strong bg-surface text-ink outline-none transition-colors duration-100",
-        // The box keeps its 16px look; the target around it is the control height (--target-h), an invisible area, like every other control.
-        "before:absolute before:top-1/2 before:left-1/2 before:size-[var(--target-h)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']",
+        "relative inline-flex size-[var(--target-h)] shrink-0 cursor-pointer items-center justify-center rounded border border-line-strong bg-surface text-ink outline-none transition-colors duration-100",
+        // The box is the control height (--target-h) square, like every other control.
         "hover-invert focus-visible:outline focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-ink-muted",
         "data-[checked]:bg-surface-raised data-[indeterminate]:bg-surface-raised data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
         className,
@@ -25,7 +24,7 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(function Ch
       {...rest}
     >
       <BaseCheckbox.Indicator keepMounted={false} className="anim-pop flex">
-        {rest.indeterminate ? <Minus aria-hidden="true" className="size-3" /> : <Check aria-hidden="true" className="size-3" />}
+        {rest.indeterminate ? <Minus aria-hidden="true" className="size-4" /> : <Check aria-hidden="true" className="size-4" />}
       </BaseCheckbox.Indicator>
     </BaseCheckbox.Root>
   );

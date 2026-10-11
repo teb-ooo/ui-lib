@@ -21,20 +21,19 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(function Switch
           ref={ref}
           aria-describedby={description ? descriptionId : undefined}
           className={cn(
-            "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded border border-line-strong bg-surface p-0.5 outline-none transition-colors duration-150",
-            // The switch keeps its look; the target around it is the control height (--target-h), an invisible area, like every other control.
-            "before:absolute before:top-1/2 before:left-1/2 before:h-[var(--target-h)] before:w-[max(100%,var(--target-h))] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']",
+            // The track is the control height (--target-h) tall and a little under twice that wide, like every other control.
+            "inline-flex h-[var(--target-h)] w-[calc(var(--target-h)*1.8)] shrink-0 cursor-pointer items-center rounded border border-line-strong bg-surface p-0.5 outline-none transition-colors duration-150",
             "focus-visible:outline focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-ink-muted",
             "data-[checked]:border-ok-line data-[checked]:bg-ok-soft data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
           )}
           {...rest}
         >
-          <BaseSwitch.Thumb className="block size-3.5 rounded bg-line-strong transition-[transform,background-color] duration-150 ease-out data-[checked]:translate-x-4 data-[checked]:bg-ok" />
+          <BaseSwitch.Thumb className="block size-[calc(var(--target-h)-6px)] rounded bg-line-strong transition-[transform,background-color] duration-150 ease-out data-[checked]:translate-x-[calc(var(--target-h)*0.8)] data-[checked]:bg-ok" />
         </BaseSwitch.Root>
         <span className="min-w-0 text-ink">{label}</span>
       </label>
       {description ? (
-        <span id={descriptionId} className="pl-12 text-ink-faint">
+        <span id={descriptionId} className="pl-[calc(var(--target-h)*1.8+0.75rem)] text-ink-faint">
           {description}
         </span>
       ) : null}

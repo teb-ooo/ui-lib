@@ -12,11 +12,10 @@ describe("mobile rules", () => {
     expect(css).toMatch(/--target-h:\s*1\.75rem;/);
     expect(css.match(/--target-h:/g)).toHaveLength(1);
   });
-  it("a checkbox has an invisible target the size of --target-h, and keeps its 16px look", () => {
+  it("a checkbox is --target-h square, drawn by the variable and not by a fixed size", () => {
     const c = read("src/components/checkbox.tsx");
-    expect(c).toContain("before:size-[var(--target-h)]");
+    expect(c).toContain("size-[var(--target-h)]");
     expect(c).not.toContain("before:-inset-3.5");
-    expect(c).toContain("size-4");
   });
   it("surfaces at the bottom edge leave room for the home indicator (zero unless the page sets viewport-fit=cover)", () => {
     for (const f of ["src/components/toast.tsx", "src/components/modal.tsx", "src/components/shell.tsx"]) expect(read(f), f).toContain("env(safe-area-inset-bottom)");
@@ -29,10 +28,11 @@ describe("mobile rules", () => {
 });
 
 describe("switch", () => {
-  it("has an invisible target the height of --target-h around its unchanged look", () => {
+  it("is --target-h tall, its thumb and travel following the variable", () => {
     const c = read("src/components/switch.tsx");
-    expect(c).toContain("before:h-[var(--target-h)]");
-    expect(c).toContain("h-5 w-9");
+    expect(c).toContain("h-[var(--target-h)]");
+    expect(c).toContain("var(--target-h)*0.8");
+    expect(c).not.toContain("h-5 w-9");
   });
 });
 
