@@ -21,7 +21,9 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(function Switch
           ref={ref}
           aria-describedby={description ? descriptionId : undefined}
           className={cn(
-            "inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded border border-line-strong bg-surface p-0.5 outline-none transition-colors duration-150",
+            "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded border border-line-strong bg-surface p-0.5 outline-none transition-colors duration-150",
+            // The switch keeps its look; the target around it is the control height (--target-h), an invisible area, like every other control.
+            "before:absolute before:top-1/2 before:left-1/2 before:h-[var(--target-h)] before:w-[max(100%,var(--target-h))] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']",
             "focus-visible:outline focus-visible:outline-solid focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-ink-muted",
             "data-[checked]:border-ok-line data-[checked]:bg-ok-soft data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
           )}

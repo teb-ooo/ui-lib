@@ -28,6 +28,14 @@ describe("mobile rules", () => {
   });
 });
 
+describe("switch", () => {
+  it("has an invisible target the height of --target-h around its unchanged look", () => {
+    const c = read("src/components/switch.tsx");
+    expect(c).toContain("before:h-[var(--target-h)]");
+    expect(c).toContain("h-5 w-9");
+  });
+});
+
 describe("zoom", () => {
   it("the theme turns off double-tap zoom on the page", () => {
     const css = read("theme.css");
