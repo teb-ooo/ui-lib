@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.133.1 (from 0.133.0)
+
+Fix: slide-away fine tuning did not slow a drag under real touch events, because the slider also follows a finger by `touchstart` and `touchmove` and set the value from the finger's position; a touch that starts on a thumb no longer reaches that. The speed note ("Fine 1/4") now shows in the label row also when `hideValue` is set. Nothing to change.
+
 ## To ui 0.133.0 (from 0.132.x)
 
 `Slider` and `RangeSlider`: the 0.132.0 prop `fineTuning` is renamed `fineDrag` (an app's request); the slow-down steps are now 48, 96 and 144px from the track's centre, the label reads "Fine 1/2", "Fine 1/4", "Fine 1/10", and `Slider nudge` adds minus and plus buttons (hold to repeat). Rename `fineTuning` if you set it.

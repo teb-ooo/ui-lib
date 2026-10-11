@@ -65,12 +65,19 @@ function Header({ label, readout, hideValue, labelId, speed }: { label: string; 
       <span id={labelId} className="text-ink-muted uppercase">
         {label}
       </span>
-      {hideValue ? null : (
-        <output aria-hidden="true" className="tabular-nums text-ink">
-          {speed !== null && speed !== undefined && speed < 1 ? <span className="mr-2 text-ink-faint">{fineName(speed)}</span> : null}
-          {readout}
-        </output>
-      )}
+      {/* The speed note is part of the label row even when the app draws its own value. */}
+      <span className="flex items-baseline gap-2">
+        {speed !== null && speed !== undefined && speed < 1 ? (
+          <span aria-hidden="true" data-fine-speed className="text-ink-faint">
+            {fineName(speed)}
+          </span>
+        ) : null}
+        {hideValue ? null : (
+          <output aria-hidden="true" className="tabular-nums text-ink">
+            {readout}
+          </output>
+        )}
+      </span>
     </div>
   );
 }

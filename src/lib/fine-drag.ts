@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 
 /** Distance from the track centre, in px, at which each slower speed begins: full speed on the track, then half, a quarter and a tenth. */
@@ -45,6 +45,19 @@ interface Options {
 export function useFineDrag({ enabled, min, max, step, values, onChange, onCommit, gap = 0 }: Options) {
   const control = useRef<HTMLDivElement | null>(null);
   const [factor, setFactor] = useState<number | null>(null);
+
+  // The slider also follows a finger by the browser's touch events (it listens for `touchstart` on its control and then
+  // `touchmove` on the document, and sets the value from the finger's absolute position), which would undo the slowing. A
+  // touch that starts on a thumb is ours: keep that `touchstart` from reaching the slider, so it never starts following.
+  useEffect(() => {
+    const area = control.current;
+    if (!enabled || !area) return;
+    const own = (ev: TouchEvent) => {
+      if ((ev.target as Element | null)?.closest?.("[data-fine-thumb]")) ev.stopPropagation();
+    };
+    area.addEventListener("touchstart", own, { capture: true });
+    return () => area.removeEventListener("touchstart", own, { capture: true });
+  }, [enabled]);
 
   const onPointerDownCapture = (e: PointerEvent<HTMLElement>) => {
     if (!enabled || e.pointerType === "mouse" || e.button !== 0) return;

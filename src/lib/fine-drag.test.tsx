@@ -48,11 +48,32 @@ describe("Slider fine tuning", () => {
     pointer(thumb, "pointerMove", 140, 114); // +40px of 200 = +20 at full speed
     expect(container.querySelector("output")?.textContent).toBe("70");
     pointer(thumb, "pointerMove", 180, 234); // 120px away (96 to 144): a quarter speed: +40px is +5
-    expect(container.querySelector("output")?.textContent).toContain("75");
-    expect(container.querySelector("output")?.textContent).toContain("Fine 1/4");
+    expect(container.querySelector("output")?.textContent).toBe("75");
+    expect(container.querySelector("[data-fine-speed]")?.textContent).toBe("Fine 1/4");
     pointer(thumb, "pointerUp", 180, 234);
     expect(onCommit).toHaveBeenLastCalledWith(75);
     expect(container.querySelector("output")?.textContent).toBe("75");
+  });
+
+  it("names the speed in the label row even when the app hides the value", () => {
+    const { container } = render(<Slider label="Gain" value={50} onValueChange={() => undefined} hideValue />);
+    control(container);
+    const thumb = container.querySelector("[data-fine-thumb]")!;
+    pointer(thumb, "pointerDown", 100, 114);
+    pointer(thumb, "pointerMove", 120, 214); // 100px away: a quarter
+    expect(container.querySelector("[data-fine-speed]")?.textContent).toBe("Fine 1/4");
+    expect(container.querySelector("output")).toBeNull();
+    pointer(thumb, "pointerUp", 120, 214);
+    expect(container.querySelector("[data-fine-speed]")).toBeNull();
+  });
+
+  it("keeps the slider's own touchstart following away from a thumb that is ours", () => {
+    const { container } = render(<Harness />);
+    const area = control(container);
+    const reached = vi.fn();
+    area.addEventListener("touchstart", reached);
+    container.querySelector("[data-fine-thumb]")!.dispatchEvent(new Event("touchstart", { bubbles: true, cancelable: true }));
+    expect(reached).not.toHaveBeenCalled();
   });
 
   it("does not take a mouse drag, and can be turned off", () => {
