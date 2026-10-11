@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.129.0 (from 0.128.x)
+
+The phone menu under the page is reversed (owner decision, to try): white under a dark page, black under a light one, like the other panels; the current page is reversed back inside it. Nothing to change.
+
 ## To ui 0.128.2 (from 0.128.1)
 
 Fix: the phone menu's width is declared where the menu can read it (0.128.0 and 0.128.1 left the menu as narrow as its content). Nothing to change.

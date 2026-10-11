@@ -99,7 +99,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
           ref={navRef}
           aria-label={drawerLabel}
           inert={!open}
-          className="absolute inset-y-0 left-0 w-[var(--shell-nav-w)] overflow-hidden bg-ground pt-[env(safe-area-inset-top)]"
+          className="panel-inverse absolute inset-y-0 left-0 w-[var(--shell-nav-w)] overflow-hidden rounded-none border-0 pt-[env(safe-area-inset-top)] text-ink"
         >
           <ShellContext.Provider value={{ inDrawer: true, closeDrawer: closeMenu }}>{sidebar}</ShellContext.Provider>
         </aside>
@@ -172,7 +172,7 @@ export function Shell({ sidebar = null, children, menuLabel = "Open menu", drawe
       */}
       {typeof document === "undefined"
         ? null
-        : createPortal(<div aria-hidden="true" data-edge-tint className="pointer-events-none fixed inset-x-0 bottom-0 h-[max(env(safe-area-inset-bottom),1px)] bg-ground" />, tintHost ?? document.body)}
+        : createPortal(<div aria-hidden="true" data-edge-tint className={cn("pointer-events-none fixed inset-x-0 bottom-0 h-[max(env(safe-area-inset-bottom),1px)]", menu && open ? "bg-ink" : "bg-ground")} />, tintHost ?? document.body)}
     </div>
     </ToastProvider>
   );
