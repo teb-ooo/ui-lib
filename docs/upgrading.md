@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.135.1 (from 0.135.0)
+
+One control height: `--control-h` is now an alias of `--target-h` (`--control-h: var(--target-h)`, 28px), so changing one variable changes everything; the slider's track area, the combobox's clear and open buttons and the platform bar's icons read it instead of a fixed 28px, and a keyboard hint (`Kbd`) is `--control-h` minus 4px (24px). A test fails if a component hard-codes the 28px height. Nothing to change.
+
 ## To ui 0.135.0 (from 0.134.x)
 
 `Checkbox` and `Switch` are drawn at the control height (owner decision): a checkbox is `--target-h` (28px) square, a switch is `--target-h` tall (about 50px wide) with its thumb and travel following the variable; the invisible tap areas of 0.134.1 and 0.134.3 are gone, the control itself is the target. A table's checkbox column fits (36px). Layouts that counted on a 16px box get a larger one. Nothing to change.

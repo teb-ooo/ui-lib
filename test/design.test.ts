@@ -243,7 +243,8 @@ describe.skipIf(!IS_UI_PACKAGE)("theme.css (ui package only)", () => {
   });
 
   it("has one control height, one radius", () => {
-    expect(css).toMatch(/--control-h:\s*1\.75rem;/);
+    expect(css).toMatch(/--target-h:\s*1\.75rem;/);
+    expect(css).toMatch(/--control-h:\s*var\(--target-h\);/);
     expect(css).toMatch(/--radius:\s*0\.25rem;/);
     // no second radius token (`--radius-*: initial` clears Tailwind's own)
     expect([...css.matchAll(/--radius-[a-z0-9]+\s*:/g)].map((m) => m[0])).toEqual([]);

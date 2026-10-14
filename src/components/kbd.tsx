@@ -106,7 +106,7 @@ export function parseShortcut(shortcut: string, apple: boolean): KeyLabel[][] {
 // One key is a square keycap: as tall as it is wide for a single character (1.5rem both ways), wider only for words
 // such as Ctrl or Space. A fixed height with the line height reset centres the glyph in the box instead of in a taller line box.
 const kbdClass =
-  "inline-flex h-6 min-w-6 items-center justify-center rounded border border-line bg-surface px-1.5 leading-none text-ink-muted " +
+  "inline-flex h-[calc(var(--control-h)-4px)] min-w-[calc(var(--control-h)-4px)] items-center justify-center rounded border border-line bg-surface px-1.5 leading-none text-ink-muted " +
   // Subtle: while the real key is down, the keycap darkens a touch and sits a pixel lower.
   "transition-colors data-[pressed]:translate-y-px data-[pressed]:border-line-strong data-[pressed]:bg-surface-raised data-[pressed]:text-ink";
 
@@ -118,7 +118,7 @@ const glyphNudge: Record<string, number> = { "⌃": 3.9, "↵": 0.75, "⌥": -0.
 // A chord (two or more keys pressed together) is one box: the keys sit inside it, each lights as its real key goes down, and
 // when all are down the box itself lights.
 const chordClass =
-  "inline-flex h-6 items-stretch gap-0.5 rounded border border-line bg-surface p-0.5 text-ink-muted " +
+  "inline-flex h-[calc(var(--control-h)-4px)] items-stretch gap-0.5 rounded border border-line bg-surface p-0.5 text-ink-muted " +
   // The same pressed look as one keycap: darker, a stronger edge, a pixel lower. No other highlight.
   "transition-colors data-[complete]:translate-y-px data-[complete]:border-line-strong data-[complete]:bg-surface-raised data-[complete]:text-ink";
 const chordKeyClass =
@@ -135,7 +135,7 @@ function Chord({ keys, apple }: { keys: KeyLabel[]; apple: boolean }) {
   const flags = useKeysDown(keys.map((k) => keysFor(k.token, apple)));
   const all = flags.length > 0 && flags.every(Boolean);
   return (
-    <span data-complete={all ? "" : undefined} className={chordClass}>
+    <span data-chord="" data-complete={all ? "" : undefined} className={chordClass}>
       {keys.map((k, j) => (
         <kbd key={j} className={chordKeyClass} data-pressed={flags[j] ? "" : undefined}>
           <Glyph>{k.glyph}</Glyph>

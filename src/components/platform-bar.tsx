@@ -57,7 +57,7 @@ export interface PlatformBarProps {
 }
 
 const iconButton =
-  "relative isolate inline-flex size-7 shrink-0 cursor-pointer items-center max-sm:size-11 max-sm:-my-2 before:hidden max-sm:before:block before:absolute before:inset-2 before:-z-10 before:rounded before:content-[''] max-sm:hover:bg-transparent max-sm:focus-visible:bg-transparent max-sm:hover:before:bg-surface-raised max-sm:focus-visible:before:bg-surface-raised max-sm:focus-visible:ring-0 max-sm:focus-visible:before:ring-1 before:ring-ink-muted justify-center rounded border-0 bg-transparent p-0 text-ink-muted outline-none transition-colors hover:bg-surface-raised hover:text-ink focus-visible:bg-surface-raised focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink-muted";
+  "relative isolate inline-flex size-[var(--control-h)] shrink-0 cursor-pointer items-center max-sm:size-11 max-sm:-my-2 before:hidden max-sm:before:block before:absolute before:inset-2 before:-z-10 before:rounded before:content-[''] max-sm:hover:bg-transparent max-sm:focus-visible:bg-transparent max-sm:hover:before:bg-surface-raised max-sm:focus-visible:before:bg-surface-raised max-sm:focus-visible:ring-0 max-sm:focus-visible:before:ring-1 before:ring-ink-muted justify-center rounded border-0 bg-transparent p-0 text-ink-muted outline-none transition-colors hover:bg-surface-raised hover:text-ink focus-visible:bg-surface-raised focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink-muted";
 
 function Icon({ tip, shortcut, children, ...rest }: { tip: string; shortcut?: string; children: ReactNode } & Record<string, unknown>) {
   return (
@@ -245,7 +245,7 @@ export function PlatformBar({
       ) : null}
       {/* After the environment mark, so the dot appearing and disappearing moves nothing that is already there. */}
       {dot ? (
-        <LiveIndicator status={dot} tip className="size-7 justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
+        <LiveIndicator status={dot} tip className="size-[var(--control-h)] justify-center rounded outline-none focus-visible:ring-1 focus-visible:ring-ink-muted" />
       ) : null}
       <div className="flex-1" />
       {!user ? null : agentStatus ? (
@@ -284,7 +284,7 @@ export function PlatformBar({
         </Icon>
       ) : null}
       {user === undefined ? (
-        <span aria-hidden="true" className="size-7" />
+        <span aria-hidden="true" className="size-[var(--control-h)]" />
       ) : user === null ? (
         <Tooltip tip="Sign in" side="bottom">
           <a href={signInHref} aria-label="Sign in" className={iconButton}>

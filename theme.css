@@ -296,8 +296,9 @@
 
   /* The only control height and the only radius. --target-h is the height of what is pressed or clicked: one height at every
      width (owner decision: phone controls are the desktop's height). Every pressed control reads this variable. */
-  --control-h: 1.75rem;
   --target-h: 1.75rem;
+  /* The height of what is shown rather than pressed (chips, avatars, table rows) is the same one variable. */
+  --control-h: var(--target-h);
   --radius-*: initial;
   --radius: 0.25rem;
 }

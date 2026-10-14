@@ -173,7 +173,7 @@ export function Slider({ value, onValueChange, onValueCommit, label, min = 0, ma
         <div className="flex items-center gap-2">
           {nudge ? <NudgeButton dir={-1} label={`Decrease ${label}`} disabled={disabled} nudge={nudgeBy} commit={() => onValueCommit?.(latest.current)} /> : null}
           <div className="min-w-0 flex-1">
-            <BaseSlider.Control ref={fine.ref} onPointerDownCapture={fine.onPointerDownCapture} className="flex h-7 w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
+            <BaseSlider.Control ref={fine.ref} onPointerDownCapture={fine.onPointerDownCapture} className="flex h-[var(--control-h)] w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
               <BaseSlider.Track className={track}>
                 <BaseSlider.Indicator className={indicator} />
                 <BaseSlider.Thumb data-fine-thumb={0} className={thumb} getAriaLabel={() => label} getAriaValueText={(_f, v) => text(v)} />
@@ -225,7 +225,7 @@ export function RangeSlider({ value, onValueChange, onValueCommit, label, min = 
         aria-labelledby={labelId}
         aria-describedby={description ? descriptionId : undefined}
       >
-        <BaseSlider.Control ref={fine.ref} onPointerDownCapture={fine.onPointerDownCapture} className="flex h-7 w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
+        <BaseSlider.Control ref={fine.ref} onPointerDownCapture={fine.onPointerDownCapture} className="flex h-[var(--control-h)] w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
           <BaseSlider.Track className={track}>
             <BaseSlider.Indicator className={indicator} />
             {[0, 1].map((i) => (

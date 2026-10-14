@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -46,5 +46,20 @@ describe("zoom", () => {
 describe("the shell", () => {
   it("contains what is drawn inside it, so a fixed element in the page cannot make the document scroll", () => {
     expect(read("src/components/shell.tsx")).toMatch(/h-dvh[^"]*contain-paint/);
+  });
+});
+
+describe("one control height", () => {
+  it("no component hard-codes the 28px control height: they read --control-h or --target-h", () => {
+    const dir = join(import.meta.dirname, "..", "src", "components");
+    const offenders: string[] = [];
+    for (const f of readdirSync(dir)) {
+      if (!f.endsWith(".tsx") || f.includes(".test.") || f.includes(".stories.")) continue;
+      const text = readFileSync(join(dir, f), "utf8");
+      text.split("\n").forEach((line, i) => {
+        if (/(^|[^-\w])(?:min-)?(?:h|size|w)-7\b|\bh-\[1\.75rem\]|\bh-\[28px\]|\bsize-\[28px\]/u.test(line)) offenders.push(`${f}:${i + 1}`);
+      });
+    }
+    expect(offenders).toEqual([]);
   });
 });

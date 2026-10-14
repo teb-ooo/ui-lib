@@ -10,8 +10,8 @@ describe("Kbd squares", () => {
   it("a single character is a square keycap: as tall as it is wide", () => {
     render(<Kbd shortcut="g" />);
     const cls = screen.getByText("G").className;
-    expect(cls).toContain("h-6");
-    expect(cls).toContain("min-w-6");
+    expect(cls).toContain("h-[calc(var(--control-h)-4px)]");
+    expect(cls).toContain("min-w-[calc(var(--control-h)-4px)]");
     expect(cls).toContain("leading-none");
   });
 });
@@ -92,7 +92,7 @@ describe("Kbd chord box", () => {
         <Kbd shortcut="g" />
       </>,
     );
-    const boxes = container.querySelectorAll("[data-complete], span.inline-flex.h-6");
+    const boxes = container.querySelectorAll("[data-complete], span[data-chord]");
     expect(container.querySelectorAll("kbd")).toHaveLength(4);
     const first = container.querySelector("[role=group] span span") as HTMLElement;
     expect(first.querySelectorAll("kbd")).toHaveLength(3);
@@ -101,7 +101,7 @@ describe("Kbd chord box", () => {
 
   it("each key lights as it goes down and the box lights only when all are down", () => {
     const { container } = render(<Kbd shortcut="ctrl+shift+n" />);
-    const box = container.querySelector("span.inline-flex.h-6") as HTMLElement;
+    const box = container.querySelector("span[data-chord]") as HTMLElement;
     expect(box.hasAttribute("data-complete")).toBe(false);
     down("Control");
     down("Shift");
@@ -118,7 +118,7 @@ describe("Kbd chord box", () => {
 
   it("a sequence has a box per chord step", () => {
     const { container } = render(<Kbd shortcut="g i" />);
-    expect(container.querySelectorAll("span.inline-flex.h-6")).toHaveLength(0);
+    expect(container.querySelectorAll("span[data-chord]")).toHaveLength(0);
     expect(container.querySelectorAll("kbd")).toHaveLength(2);
   });
 });
@@ -132,7 +132,7 @@ describe("Kbd chord highlight matches a single key", () => {
       </>,
     );
     const single = (container.querySelector("kbd") as HTMLElement).className;
-    const chord = (container.querySelector("span.h-6") as HTMLElement).className;
+    const chord = (container.querySelector("span[data-chord]") as HTMLElement).className;
     for (const cls of ["data-[pressed]:translate-y-px", "data-[pressed]:border-line-strong", "data-[pressed]:bg-surface-raised"]) {
       expect(single).toContain(cls);
       expect(chord).toContain(cls.replace("data-[pressed]", "data-[complete]"));
