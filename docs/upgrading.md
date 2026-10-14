@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.135.2 (from 0.135.1)
+
+Docs only: `@teb-ooo/*` packages are exempt from the 14-day release-age gate, so an app upgrades to any published `@teb-ooo/ui` version at once. An earlier release note (0.124.0's, as relayed) said upgrades go under the gate; they do not.
+
 ## To ui 0.135.1 (from 0.135.0)
 
 One control height: `--control-h` is now an alias of `--target-h` (`--control-h: var(--target-h)`, 28px), so changing one variable changes everything; the slider's track area, the combobox's clear and open buttons and the platform bar's icons read it instead of a fixed 28px, and a keyboard hint (`Kbd`) is `--control-h` minus 4px (24px). A test fails if a component hard-codes the 28px height. Nothing to change.
