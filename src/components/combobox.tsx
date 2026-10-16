@@ -40,7 +40,7 @@ export type ComboboxProps = SingleComboboxProps | MultiComboboxProps;
 
 const popup = "anim-fade panel-inverse panel-float z-50 max-h-[min(20rem,var(--available-height))] w-[var(--anchor-width)] min-w-56 overflow-y-auto overscroll-contain p-1 text-ink outline-none";
 const itemClass =
-  "flex min-h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[highlighted]:bg-surface-raised";
+  "flex min-h-[var(--target-h)] cursor-pointer items-center gap-2 rounded px-2 outline-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[highlighted]:bg-surface-raised";
 
 /** Search-as-you-type list for long option lists such as assignees or labels; with `multiple`, the chosen options show as chips. */
 export function Combobox(props: ComboboxProps) {
@@ -61,7 +61,7 @@ export function Combobox(props: ComboboxProps) {
           <BaseCombobox.Empty className="px-2 py-1 text-ink-faint empty:hidden">{emptyLabel}</BaseCombobox.Empty>
           <BaseCombobox.List>
             {(o: Option) => (
-              <BaseCombobox.Item key={o.value} value={o.value} data-option-value={o.value} aria-describedby={describedBy(o.value)} className={itemClass}>
+              <BaseCombobox.Item key={o.value} value={o.value} data-option-value={o.value} aria-describedby={describedBy(o.value)} className={itemClass} {...(o.disabled ? { disabled: true } : {})}>
                 {o.adornment !== undefined ? <OptionAdornment>{o.adornment}</OptionAdornment> : null}
                 <span className="min-w-0 flex-1 truncate">{o.label}</span>
                 {o.count !== undefined ? <span className="text-ink-faint">{o.count}</span> : null}

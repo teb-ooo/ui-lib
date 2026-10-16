@@ -73,3 +73,26 @@ export const WithOptionAdornments = () => {
   );
 };
 WithOptionAdornments.storyMeta = { description: "An option's adornment is drawn at the left edge of its row, edge to edge, and at the start of the closed select for the chosen option. Give it its own width; it is decoration, so the label says what it is. Combobox takes the same." } satisfies StoryMeta;
+
+export const GroupsAndDisabled = () => {
+  const [added, setAdded] = useState<string[]>([]);
+  return (
+    <div className="flex flex-col gap-3">
+      <Select
+        label="Add a filter"
+        placeholder="Add a filter"
+        value={null}
+        onValueChange={(v) => v && setAdded((a) => [...a, v])}
+        options={[
+          { value: "median", label: "Median", group: "Denoise" },
+          { value: "bilateral", label: "Bilateral", group: "Denoise" },
+          { value: "unsharp", label: "Unsharp mask", group: "Sharpen", tip: "Sharpens edges." },
+          { value: "deblur", label: "Deblur", group: "Sharpen", disabled: true, tip: "At most 8 filters." },
+          { value: "gamma", label: "Gamma", group: "Exponent" },
+        ]}
+      />
+      <p className="text-ink-muted">Added: {added.length ? added.join(", ") : "none"}</p>
+    </div>
+  );
+};
+GroupsAndDisabled.storyMeta = { description: "group puts consecutive options under a quiet heading; disabled is inert but reachable, so its tip can say why. With value null it is an action dropdown: the trigger keeps its placeholder." } satisfies StoryMeta;

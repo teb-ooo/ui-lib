@@ -826,6 +826,7 @@ Also accepts the props of `AdornmentProps`.
 - `value`: `string | null`. The chosen value, or null for none.
 - `onValueChange`: `(value: string | null) => void`
 - `label`: `string`. Accessible name.
+- `unavailableLabel?`: `string`, default "unavailable". Read after a disabled option's label by a screen reader.
 - `emptyLabel?`: `string`, default "No options". Shown in the open list when there are no options.
 - `placeholder?`: `string`. Shown while nothing is chosen.
 - `disabled?`: `boolean`

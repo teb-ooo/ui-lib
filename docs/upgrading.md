@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.137.0 (from 0.136.x)
+
+New: `Select` options take `group` (a heading over consecutive options, exposed as a named `group`) and `disabled` (inert but reachable, so its `tip` can say why); `Select unavailableLabel`. A `Combobox` option can be `disabled` too. Nothing to change.
+
 ## To ui 0.136.0 (from 0.135.x)
 
 New: `Slider orientation="vertical"` (top is max; the same keys and fine tuning) with `hideLabel`, and `VolumeControl` (a speaker button that opens a vertical volume slider hanging from the icon). Nothing to change.
