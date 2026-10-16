@@ -873,6 +873,7 @@ Also accepts the props of `Common`.
 - `value`: `number`
 - `onValueChange`: `(value: number) => void`
 - `onValueCommit?`: `(value: number) => void`. Called once when the person lets go or finishes a key press: the moment to send a change that is expensive to apply.
+- `orientation?`: `"horizontal" | "vertical"`, default "horizontal". `vertical` stands the track up: the top is `max`, the bottom `min`, the same keys (Up and Right raise, Down and Left lower), the same fine tuning (the finger slides sideways away from the track to slow it). Give it a height with `className` (`h-40` when it has none). A vertical slider has no minus and plus buttons.
 - `nudge?`: `boolean`, default false. A minus and a plus button at the ends of the track that move the value by one `step` (hold to repeat). A `Slider` only.
 
 ### SplitPane
@@ -1040,6 +1041,25 @@ See `VirtualListInner`: a generic, forwarded-ref component.
 - `onEndReached?`: `() => void`. Called when the scroll comes within `endThreshold` pixels of the end, for loading the next page. Once per length of the list.
 - `endThreshold?`: `number`, default 240
 - `className?`: `string`. Layout classes. The list fills its parent's height and scrolls inside it, so give it a height (`h-96`, `flex-1 min-h-0`).
+
+### VolumeControl
+
+component: `import { VolumeControl } from "@teb-ooo/ui"`
+
+A speaker button that opens a vertical volume slider over itself: the icon stays where it is and the panel hangs from it as one surface, the icon at the top and a vertical `Slider` below (the top is loudest, the bottom is silent). The icon follows the level (muted, low, high), and the icon in the panel is a button that toggles mute. It closes on Escape or a press outside, and is the same small column on a phone, not a bottom panel. The app owns the volume and the muted state.
+
+- `value`: `number`. The volume from 0 to 1.
+- `onValueChange`: `(value: number) => void`
+- `onValueCommit?`: `(value: number) => void`. Called once when the person lets go of the slider or finishes a key press.
+- `muted?`: `boolean`. The sound is switched off whatever the volume is: the icon shows it, and the panel's icon button toggles it.
+- `onMutedChange?`: `(muted: boolean) => void`. Called when the icon button in the panel is pressed, and with `false` when the slider is raised from the bottom while muted.
+- `label?`: `string`, default "Volume". Accessible name of the slider and the panel.
+- `muteLabel?`: `string`, default "Mute" and "Unmute". Name of the icon button while the sound is on and while it is muted.
+- `unmuteLabel?`: `string`
+- `step?`: `number`, default 0.01. What the slider moves by.
+- `disabled?`: `boolean`
+- `sliderClassName?`: `string`, default "h-32". Height of the slider in the panel.
+- `className?`: `string`
 
 ### Types
 

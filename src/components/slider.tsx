@@ -22,6 +22,8 @@ interface Common {
   description?: ReactNode;
   /** Hide the value next to the label (when the app draws its own readout). @default false */
   hideValue?: boolean;
+  /** Keep the label for screen readers only (the control says what it is by its icon). @default false */
+  hideLabel?: boolean;
   disabled?: boolean;
   /**
    * Slide-away fine tuning for a finger or a pen (not a mouse): while a thumb is dragged, moving the finger up or down away from
@@ -37,6 +39,12 @@ export interface SliderProps extends Common {
   onValueChange: (value: number) => void;
   /** Called once when the person lets go or finishes a key press: the moment to send a change that is expensive to apply. */
   onValueCommit?: (value: number) => void;
+  /**
+   * `vertical` stands the track up: the top is `max`, the bottom `min`, the same keys (Up and Right raise, Down and Left lower),
+   * the same fine tuning (the finger slides sideways away from the track to slow it). Give it a height with `className`
+   * (`h-40` when it has none). A vertical slider has no minus and plus buttons. @default "horizontal"
+   */
+  orientation?: "horizontal" | "vertical";
   /** A minus and a plus button at the ends of the track that move the value by one `step` (hold to repeat). A `Slider` only. @default false */
   nudge?: boolean;
 }
@@ -59,10 +67,17 @@ const thumb = cn(
   "data-[disabled]:cursor-not-allowed data-[disabled]:border-line-strong data-[disabled]:opacity-50",
 );
 
-function Header({ label, readout, hideValue, labelId, speed }: { label: string; readout: string; hideValue: boolean | undefined; labelId: string; speed?: number | null }) {
+function Header({ label, readout, hideValue, hideLabel, labelId, speed }: { label: string; readout: string; hideValue: boolean | undefined; hideLabel?: boolean | undefined; labelId: string; speed?: number | null }) {
+  if (hideLabel && hideValue) {
+    return (
+      <span id={labelId} className="sr-only">
+        {label}
+      </span>
+    );
+  }
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <span id={labelId} className="text-ink-muted uppercase">
+      <span id={labelId} className={hideLabel ? "sr-only" : "text-ink-muted uppercase"}>
         {label}
       </span>
       {/* The speed note is part of the label row even when the app draws its own value. */}
@@ -130,13 +145,14 @@ function body({ unit, format }: Pick<Common, "unit" | "format">) {
  * Chooses one number on a scale by dragging a thumb or with the keyboard (arrows, Home, End, PageUp, PageDown).
  * The thumb has a 28px touch target. The value is shown next to the label and spoken with its unit.
  */
-export function Slider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, unit, format, description, hideValue, disabled, fineDrag = true, nudge = false, className }: SliderProps) {
+export function Slider({ value, onValueChange, onValueCommit, label, min = 0, max = 100, step = 1, largeStep, unit, format, description, hideValue, hideLabel, disabled, fineDrag = true, orientation = "horizontal", nudge = false, className }: SliderProps) {
   const text = body({ unit, format });
   const fine = useFineDrag({
     enabled: fineDrag && !disabled,
     min,
     max,
     step,
+    vertical: orientation === "vertical",
     values: () => [value],
     onChange: (v) => onValueChange(v[0] ?? value),
     ...(onValueCommit ? { onCommit: (v: number[]) => onValueCommit(v[0] ?? value) } : {}),
@@ -156,9 +172,10 @@ export function Slider({ value, onValueChange, onValueCommit, label, min = 0, ma
   const labelId = useId();
   const descriptionId = useId();
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
-      <Header label={label} readout={text(value)} hideValue={hideValue} labelId={labelId} speed={fine.factor} />
+    <div className={cn("flex flex-col gap-1", orientation === "vertical" && "h-40 items-center", className)}>
+      <Header label={label} readout={text(value)} hideValue={hideValue} hideLabel={hideLabel} labelId={labelId} speed={fine.factor} />
       <BaseSlider.Root
+        {...(orientation === "vertical" ? { orientation: "vertical" as const, className: "flex min-h-0 flex-1" } : {})}
         value={value}
         min={min}
         max={max}
@@ -170,17 +187,24 @@ export function Slider({ value, onValueChange, onValueCommit, label, min = 0, ma
         aria-labelledby={labelId}
         aria-describedby={description ? descriptionId : undefined}
       >
-        <div className="flex items-center gap-2">
-          {nudge ? <NudgeButton dir={-1} label={`Decrease ${label}`} disabled={disabled} nudge={nudgeBy} commit={() => onValueCommit?.(latest.current)} /> : null}
-          <div className="min-w-0 flex-1">
-            <BaseSlider.Control ref={fine.ref} onPointerDownCapture={fine.onPointerDownCapture} className="flex h-[var(--control-h)] w-full cursor-pointer touch-none items-center select-none data-[disabled]:cursor-not-allowed">
-              <BaseSlider.Track className={track}>
-                <BaseSlider.Indicator className={indicator} />
+        <div className={cn("flex items-center gap-2", orientation === "vertical" && "min-h-0 flex-1")}>
+          {nudge && orientation !== "vertical" ? <NudgeButton dir={-1} label={`Decrease ${label}`} disabled={disabled} nudge={nudgeBy} commit={() => onValueCommit?.(latest.current)} /> : null}
+          <div className={cn("min-w-0 flex-1", orientation === "vertical" && "flex min-h-0 justify-center")}>
+            <BaseSlider.Control
+              ref={fine.ref}
+              onPointerDownCapture={fine.onPointerDownCapture}
+              className={cn(
+                "flex cursor-pointer touch-none select-none data-[disabled]:cursor-not-allowed",
+                orientation === "vertical" ? "h-full w-[var(--control-h)] items-stretch justify-center" : "h-[var(--control-h)] w-full items-center",
+              )}
+            >
+              <BaseSlider.Track className={orientation === "vertical" ? "relative h-full w-1 rounded bg-line-strong" : track}>
+                <BaseSlider.Indicator className={orientation === "vertical" ? "absolute w-full rounded bg-ink-muted data-[disabled]:bg-ink-faint" : indicator} />
                 <BaseSlider.Thumb data-fine-thumb={0} className={thumb} getAriaLabel={() => label} getAriaValueText={(_f, v) => text(v)} />
               </BaseSlider.Track>
             </BaseSlider.Control>
           </div>
-          {nudge ? <NudgeButton dir={1} label={`Increase ${label}`} disabled={disabled} nudge={nudgeBy} commit={() => onValueCommit?.(latest.current)} /> : null}
+          {nudge && orientation !== "vertical" ? <NudgeButton dir={1} label={`Increase ${label}`} disabled={disabled} nudge={nudgeBy} commit={() => onValueCommit?.(latest.current)} /> : null}
         </div>
       </BaseSlider.Root>
       {description ? (

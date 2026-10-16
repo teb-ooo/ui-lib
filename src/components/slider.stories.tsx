@@ -44,3 +44,9 @@ export const Range = () => {
   return <RangeSlider label="Passband" value={value} onValueChange={setValue} min={0} max={6000} step={50} minGap={100} unit="Hz" className="w-72 max-w-full" />;
 };
 Range.storyMeta = { description: "Two thumbs; they keep 100 Hz apart and cannot cross." } satisfies StoryMeta;
+
+export const Vertical = () => {
+  const [value, setValue] = useState(60);
+  return <Slider orientation="vertical" label="Level" value={value} onValueChange={setValue} unit="%" className="h-48" />;
+};
+Vertical.storyMeta = { description: "orientation=vertical: the top is max, the bottom min; Up and Right raise it. Give it a height with className. On a touch screen sliding the finger sideways away from the track slows it." } satisfies StoryMeta;

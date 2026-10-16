@@ -34,6 +34,8 @@ interface Options {
   onCommit?: (values: number[]) => void;
   /** Least distance between neighbouring thumbs. */
   gap?: number;
+  /** A vertical track: the value rises going up, and the distance that slows the thumb is sideways. */
+  vertical?: boolean;
 }
 
 /**
@@ -42,7 +44,7 @@ interface Options {
  * and `ref` on the slider's control and mark each thumb `data-fine-thumb={index}`; a mouse, the keyboard and a tap on the track
  * are left to the slider itself. `factor` is the current speed while a drag is on, else null.
  */
-export function useFineDrag({ enabled, min, max, step, values, onChange, onCommit, gap = 0 }: Options) {
+export function useFineDrag({ enabled, min, max, step, values, onChange, onCommit, gap = 0, vertical = false }: Options) {
   const control = useRef<HTMLDivElement | null>(null);
   const [factor, setFactor] = useState<number | null>(null);
 
@@ -72,9 +74,12 @@ export function useFineDrag({ enabled, min, max, step, values, onChange, onCommi
     thumbEl.setPointerCapture?.(e.pointerId);
 
     const rect = area.getBoundingClientRect();
-    const trackY = rect.top + rect.height / 2;
+    // Along the track the value grows to the right, or upward; across it is the distance from the track's centre line.
+    const across = (ev: { clientX: number; clientY: number }) => (vertical ? ev.clientX - (rect.left + rect.width / 2) : ev.clientY - (rect.top + rect.height / 2));
+    const along = (ev: { clientX: number; clientY: number }) => (vertical ? -ev.clientY : ev.clientX);
+    const length = vertical ? rect.height : rect.width;
     const span = max - min;
-    let x = e.clientX;
+    let x = along(e);
     const current = values();
     let exact = current[thumb] ?? min;
     let latest = current;
@@ -83,9 +88,9 @@ export function useFineDrag({ enabled, min, max, step, values, onChange, onCommi
     const snap = (v: number) => Math.round((v - min) / step) * step + min;
     const move = (ev: globalThis.PointerEvent) => {
       if (ev.pointerId !== e.pointerId) return;
-      const f = fineFactor(ev.clientY - trackY);
-      exact += ((ev.clientX - x) / rect.width) * span * f;
-      x = ev.clientX;
+      const f = fineFactor(across(ev));
+      exact += ((along(ev) - x) / length) * span * f;
+      x = along(ev);
       const base = latest.slice();
       const low = thumb > 0 ? (base[thumb - 1] ?? min) + gap : min;
       const high = thumb < base.length - 1 ? (base[thumb + 1] ?? max) - gap : max;

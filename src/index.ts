@@ -7,6 +7,8 @@ export { Field } from "./components/field";
 export type { FieldProps } from "./components/field";
 export { DateField } from "./components/date-field";
 export type { DateFieldProps } from "./components/date-field";
+export { VolumeControl } from "./components/volume-control";
+export type { VolumeControlProps } from "./components/volume-control";
 export { Modal } from "./components/modal";
 export type { ModalProps, ModalVariant } from "./components/modal";
 export { Avatar, initialsOf } from "./components/avatar";
