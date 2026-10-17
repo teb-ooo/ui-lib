@@ -209,6 +209,20 @@ Also accepts the props of `Omit<HTMLAttributes<HTMLDivElement>, "className">`.
 - `width?`: `ContainerWidth`, default "default". Maximum width: narrow 40rem (reading, forms), default 64rem, wide 90rem (tables), full (no limit).
 - `className?`: `string`
 
+### CoverImage
+
+component: `import { CoverImage } from "@teb-ooo/ui"`
+
+A banner picture at the top of a page, edge to edge of its container (put it outside the page's `Container`, like a `PageHeader` band): the picture is cropped to a fixed height with its middle kept, fades in when loaded, and draws nothing if it cannot be loaded (not a broken-image icon). Its `actions` appear on hover or focus, and always on a touch screen.
+
+- `src?`: `string | null`. The picture's address, or none: then a quiet "Add cover" row (when `onAdd` is given) or nothing.
+- `alt`: `string`. What the picture shows ("" for a decorative one).
+- `actions?`: `ReactNode`. Buttons for the cover (Change cover, Generate, Remove): drawn over the picture's top right, shown while the pointer is over the banner or focus is inside it, and always on a touch screen.
+- `onAdd?`: `() => void`. Called by the quiet "Add cover" row shown while there is no `src`. Without it nothing is drawn for no cover.
+- `addLabel?`: `string`, default "Add cover". Label of that row.
+- `size?`: `"compact" | "tall"`, default "tall". Height of the banner: `compact` is 12rem, `tall` is 16rem. It is 10rem on a phone either way.
+- `className?`: `string`
+
 ### DataTable
 
 component: `import { DataTable } from "@teb-ooo/ui"`
