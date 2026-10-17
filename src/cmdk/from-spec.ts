@@ -18,7 +18,8 @@ export interface PaletteActionTag {
    * Where it applies: the router's route pattern (`/rule/$code`), whether a selected row is needed, and what that row
    * must hold: `field: { status: "staged" }` (or a list of accepted values) shows the command only while the published
    * selection has that value, so "Apply" appears only for a staged proposal. `field` implies `needs: "selection"`.
-   * With no `when` the command shows only once two characters are typed.
+   * With no `when` and no `role` the command shows only once two characters are typed; a `role`-scoped one is in the empty
+   * palette like the commands of the screen.
    */
   when?: {
     route?: string;
@@ -52,6 +53,11 @@ export interface PaletteActionTag {
      * `also` lists fixed values offered before the list's own ("platform" beside the apps). The field is a select; if the list cannot be loaded it stays a text box.
      */
     options?: Record<string, { from: string; value: string; label?: string; also?: string[] }>;
+    /**
+     * The help line under a prompted field's input, by field name. Without it the schema's `description` is used, which is often
+     * written for an agent ("an app's agent may leave it out"): say it for a person here, or `""` to show none.
+     */
+    help?: Record<string, string>;
   };
   /** `true` asks "<title>?"; a string is the question (`{name}` filled as in the title). A DELETE asks by default; `false` turns that off. */
   confirm?: boolean | string;
@@ -187,6 +193,9 @@ export function paletteProblems(doc: OpenApiDocument): string[] {
       if (method === "get") out.push(`${where}: an action must change something (use a source for a list)`);
       if (!tag.group) out.push(`${where}: an action needs a group`);
       if (tag.role !== undefined && tag.role !== "admin" && tag.role !== "owner") out.push(`${where}: role must be "admin" or "owner"`);
+      for (const name of Object.keys(tag.form?.help ?? {})) {
+        if (!promptedNames(tag).includes(name)) out.push(`${where}: form.help names "${name}", which is not a prompted argument`);
+      }
       for (const [name, ref] of Object.entries(tag.when?.differs ?? {})) {
         if (!/^(user|route)\.\w+$/u.test(ref)) out.push(`${where}: when.differs.${name} must be "user.<field>" or "route.<param>"`);
       }
@@ -265,6 +274,17 @@ function applies(tag: PaletteActionTag, ctx: PaletteContext): boolean {
   return true;
 }
 
+/** The form's fields with their help line taken from `form.help` where it names one (`""` shows none). */
+function helped<F extends { name: string; description?: string }>(fields: F[], help: Record<string, string> | undefined): F[] {
+  if (!help) return fields;
+  return fields.map((f) => {
+    if (!(f.name in help)) return f;
+    const { description: _was, ...rest } = f;
+    const text = help[f.name];
+    return (text ? { ...rest, description: text } : rest) as F;
+  });
+}
+
 /**
  * The commands the tags describe, for where the person is now. A command whose route, selection, title names or
  * arguments do not resolve here is left out. An action with no `when` appears once two characters are typed. Choosing
@@ -308,7 +328,7 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
       ...(tag.hint ? { hint: tag.hint } : {}),
       ...(tag.keywords ? { keywords: tag.keywords } : {}),
       ...(method === "delete" ? { destructive: true } : {}),
-      ...(tag.when === undefined ? { minChars: 2 } : {}),
+      ...(tag.when === undefined && tag.role === undefined ? { minChars: 2 } : {}),
       run: async () => {
         const act = async (more: Record<string, string | number | boolean>) => {
           await runtime.call({ operationId, method, path, args: { ...args, ...more } });
@@ -320,7 +340,7 @@ export function commandsFromSpec(doc: OpenApiDocument, ctx: PaletteContext, runt
         };
         // A form step is its own confirmation: the palette steps through the fields, then a review that submits.
         if (form !== null) {
-          return { form: { title, submitLabel: tag.form?.submit ?? title.split(" ")[0] ?? "Submit", fields: form.fields, ...(Object.keys(loaders).length > 0 ? { loadOptions: loaders } : {}), schema: form.schema, submit: act } };
+          return { form: { title, submitLabel: tag.form?.submit ?? title.split(" ")[0] ?? "Submit", fields: helped(form.fields, tag.form?.help), ...(Object.keys(loaders).length > 0 ? { loadOptions: loaders } : {}), schema: form.schema, submit: act } };
         }
         if (ask !== null && !(await runtime.confirm(ask, { danger: method === "delete" }))) return;
         await act({});

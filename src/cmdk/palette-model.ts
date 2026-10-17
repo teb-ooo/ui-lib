@@ -77,6 +77,17 @@ export function buildPaletteModel({ query, commands, recents, root, external = [
     sections.push({ group: ext.group, rows, ...(ext.status === "done" ? {} : { status: ext.status }) });
   }
 
+  // A row whose title is exactly what was typed (a rule's code, an entry's name) comes first, with its section: the groups
+  // otherwise follow the order the sources and commands were registered in, so an exact match could sit under another group.
+  if (q !== "") {
+    const norm = (s: string) => s.trim().toLowerCase();
+    const isExact = (r: PaletteRow) => norm(r.label) === norm(q);
+    for (const sec of sections) sec.rows.sort((a, b) => Number(isExact(b)) - Number(isExact(a)));
+    sections.sort((a, b) => Number(b.rows.some(isExact)) - Number(a.rows.some(isExact)));
+    let n = 0;
+    for (const s of sections) for (const r of s.rows) r.index = n++;
+  }
+
   // The empty palette leads with what the app offers here (its own groups, the current page's commands); the generic groups
   // (every route, General, Platform) follow. A query keeps the order of the best match.
   if (q === "" && root) {

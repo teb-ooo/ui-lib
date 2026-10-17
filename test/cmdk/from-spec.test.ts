@@ -158,3 +158,55 @@ describe("paletteProblems and untaggedActions", () => {
     expect(untaggedActions(doc)).toEqual(["POST /api/untagged (untagged)"]);
   });
 });
+
+describe("review fixes (rb)", () => {
+  it("an action with a role and no `when` is in the empty palette; one with neither waits for two characters", () => {
+    const d = {
+      paths: {
+        "/api/rules": { post: { operationId: "new-rule", "x-palette": { title: "New rule", group: "Rules", role: "admin" } } },
+        "/api/notes": { post: { operationId: "new-note", "x-palette": { title: "New note", group: "Notes" } } },
+      },
+    } as OpenApiDocument;
+    const cmds = commandsFromSpec(d, { route: "/", params: {}, selection: null, user: { is_admin: true } }, runtime());
+    expect(cmds.find((c) => c.title === "New rule")?.minChars).toBeUndefined();
+    expect(cmds.find((c) => c.title === "New note")?.minChars).toBe(2);
+  });
+
+  it("form.help replaces a schema description written for an agent, and an empty string shows none", async () => {
+    const d = {
+      paths: {
+        "/api/rules": {
+          post: {
+            operationId: "new-rule",
+            requestBody: { content: { "application/json": { schema: { type: "object", required: ["code", "text"], properties: { code: { type: "string", description: "an app's agent may leave it out" }, text: { type: "string", description: "The rule text, one sentence." } } } } } },
+            "x-palette": { title: "New rule", group: "Rules", args: { code: "prompt", text: "prompt" }, form: { fields: ["code", "text"], help: { code: "A short code, like UI-abc.", text: "" } } },
+          },
+        },
+      },
+    } as unknown as OpenApiDocument;
+    const cmd = commandsFromSpec(d, { route: "/", params: {}, selection: null }, runtime())[0]!;
+    const result = (await cmd.run?.({} as never)) as { form: { fields: Array<{ name: string; description?: string }> } };
+    const byName = Object.fromEntries(result.form.fields.map((f) => [f.name, f.description]));
+    expect(byName.code).toBe("A short code, like UI-abc.");
+    expect(byName.text).toBeUndefined();
+  });
+});
+
+describe("an exact match ranks first", () => {
+  it("a row titled exactly what was typed leads, with its section, over groups that come earlier", () => {
+    const cmd = (id: string, title: string, group: string) => ({ id, title, group, run: () => undefined });
+    const model = buildPaletteModel({
+      query: "UI-wvq",
+      commands: [],
+      recents: [],
+      root: true,
+      external: [
+        { group: "Exceptions", status: "done", commands: [cmd("e1", "UI-wvq exception for rb", "Exceptions")] },
+        { group: "Rules", status: "done", commands: [cmd("r1", "UI-wvq", "Rules")] },
+      ] as never,
+    });
+    expect(model.sections.map((s) => s.group)).toEqual(["Rules", "Exceptions"]);
+    expect(model.rows[0]?.command.id).toBe("r1");
+    expect(model.rows.map((r) => r.index)).toEqual([0, 1]);
+  });
+});
