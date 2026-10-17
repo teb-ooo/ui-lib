@@ -86,3 +86,89 @@ export function suggestExtension<T>(o: SuggestExtensionOptions<T>) {
     },
   });
 }
+
+export interface ImageBlockOptions {
+  /** The address of an image by id, or null when the editor has none (then the node is drawn as a quiet placeholder). */
+  src: (id: string) => string | null;
+}
+
+/**
+ * A picture as a block: attributes `id` (the app's image id), `alt` and, for an image that is not canon yet, `draft: true`
+ * (a block cannot carry the draft mark, so it is an attribute; it is left out of the JSON when false). The picture's `src`
+ * comes from the editor's `images` prop. It is atomic and selectable (Backspace or Delete removes it), drawn in read-only mode
+ * too; a picture that fails to load is drawn as nothing in read-only mode, and as a quiet line with its alt text while editing,
+ * so it can still be selected and removed.
+ */
+export const ImageBlock = Node.create<ImageBlockOptions>({
+  name: "image",
+  group: "block",
+  atom: true,
+  selectable: true,
+  draggable: true,
+  addOptions: () => ({ src: () => null }),
+  addAttributes: () => ({
+    id: { default: "", rendered: false },
+    alt: { default: "", rendered: false },
+    draft: { default: undefined, rendered: false },
+  }),
+  parseHTML: () => [
+    {
+      tag: "figure[data-image-id]",
+      getAttrs: (el) => {
+        const e = el as HTMLElement;
+        return { id: e.getAttribute("data-image-id") ?? "", alt: e.querySelector("img")?.getAttribute("alt") ?? "", draft: e.hasAttribute("data-draft") ? true : undefined };
+      },
+    },
+  ],
+  renderHTML: ({ node }) => [
+    "figure",
+    { "data-image-id": node.attrs.id as string, ...(node.attrs.draft ? { "data-draft": "" } : {}), class: "my-3", contenteditable: "false" },
+    ["img", { alt: node.attrs.alt as string }],
+  ],
+  renderText: ({ node }) => (node.attrs.alt as string) || "",
+  addNodeView() {
+    const options = this.options;
+    return ({ node: first, editor }) => {
+      const dom = document.createElement("figure");
+      dom.contentEditable = "false";
+      dom.className = "my-3";
+      const draw = (attrs: { id: string; alt: string; draft?: boolean }) => {
+        dom.setAttribute("data-image-id", attrs.id);
+        if (attrs.draft) dom.setAttribute("data-draft", "");
+        else dom.removeAttribute("data-draft");
+        dom.className = attrs.draft ? "my-3 opacity-60" : "my-3";
+        dom.replaceChildren();
+        const src = options.src(attrs.id);
+        const placeholder = () => {
+          // Read-only: nothing, like ImagePreview. Editing: a quiet line, so the block can be selected and removed.
+          if (editor.isEditable) {
+            const line = document.createElement("div");
+            line.className = "flex min-h-[var(--control-h)] items-center rounded border border-line px-2 text-ink-faint";
+            line.textContent = attrs.alt || "Image";
+            dom.replaceChildren(line);
+          } else dom.replaceChildren();
+        };
+        if (!src) {
+          placeholder();
+          return;
+        }
+        const img = document.createElement("img");
+        img.alt = attrs.alt;
+        img.loading = "lazy";
+        img.className = "mx-auto block max-h-[32rem] max-w-full rounded";
+        img.addEventListener("error", placeholder);
+        img.src = src;
+        dom.append(img);
+      };
+      draw(first.attrs as { id: string; alt: string; draft?: boolean });
+      return {
+        dom,
+        update: (updated) => {
+          if (updated.type.name !== "image") return false;
+          draw(updated.attrs as { id: string; alt: string; draft?: boolean });
+          return true;
+        },
+      };
+    };
+  },
+});

@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.140.0 (from 0.139.x)
+
+New: `RichTextEditor images={{ src, pick }}` (a block `image` node `{ id, alt, draft? }`, an "Image" row in the `/` menu, Backspace removes a selected picture, the Draft button marks it). Nothing to change; an app that stores documents should keep the node even where it does not pass `images`.
+
 ## To ui 0.139.0 (from 0.138.x)
 
 Palette, from rb's review: a row titled exactly what was typed ranks first, with its section; an `x-palette` action with a `role` and no `when` shows in the empty palette; `x-palette.form.help` sets a prompted field's help line (the schema's `description` is used without it). Nothing to change.

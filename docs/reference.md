@@ -1292,6 +1292,7 @@ The shared writing surface: page-like rich text with a formatting toolbar that a
 - `placeholder?`: `string`
 - `readOnly?`: `boolean`
 - `mentions?`: `{ search: (query: string) => Promise<MentionItem[]> | MentionItem[]; /** Called when a mention chip is clicked. */ onClick?: (id: string) => void; }`. Entries to link: typing \`[[\` searches them and Enter inserts an atomic mention chip.
+- `images?`: `{ src: (id: string) => string; pick: () => Promise<{ id: string; alt: string } | null>; }`. Pictures in the body: a block `image` node `{ id, alt }` (and `draft: true` for one that is not canon yet), drawn from `src(id)`; the `/` menu offers "Image", which calls `pick` (open a file chooser or the app's image library, answer the chosen picture or null). Without `images` the menu does not offer it, and a document that already holds an image keeps it (drawn as a quiet line). A selected image is removed with Backspace or Delete; the draft button marks or unmarks it.
 - `draft?`: `{ label: string }`. Adds the draft mark (muted text that is not canon yet) and a toolbar toggle named \`label\`.
 - `validateHref?`: `(href: string) => boolean`. Which link targets are allowed. Links are not autolinked; this validates a pasted or parsed \`href\`. Default: http, https and mailto.
 - `variant?`: `"page" | "inline"`, default "page". \`page\`: at least 6rem tall, a click on the empty area below the text focuses the end. \`inline\`: as tall as its text.

@@ -1070,6 +1070,11 @@ input.display-lg {
   .prose input[type="checkbox"] {
     margin-right: 0.5rem;
   }
+  /* A picture in the editor: the one selected by the keyboard or a click has the focus ring. */
+  .prose figure[data-image-id].ProseMirror-selectednode {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
   .prose li:has(> input[type="checkbox"]),
   .prose li.task-list-item {
     list-style: none;

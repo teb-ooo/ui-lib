@@ -62,3 +62,29 @@ Inline.storyMeta = { description: "The inline variant is as tall as its text, fo
 
 export const ReadOnly = () => <RichTextEditor label="Body" value={start} onChange={() => undefined} readOnly />;
 ReadOnly.storyMeta = { description: "Read-only: the same typography, no formatting buttons, mention chips still clickable." } satisfies StoryMeta;
+
+const sample = (n: number) => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='480' height='200'><rect width='480' height='200' fill='%23888'/><text x='20' y='110' font-size='28' fill='white'>Picture ${n}</text></svg>`)}`;
+
+export const WithImages = () => {
+  const [value, setValue] = useState<JSONContent>({
+    type: "doc",
+    content: [
+      { type: "paragraph", content: [{ type: "text", text: "A picture sits in the text as its own block." }] },
+      { type: "image", attrs: { id: "1", alt: "Picture 1" } },
+      { type: "image", attrs: { id: "2", alt: "A draft picture", draft: true } },
+      { type: "paragraph" },
+    ],
+  });
+  return (
+    <div className="pt-10">
+      <RichTextEditor
+        label="Body"
+        value={value}
+        onChange={setValue}
+        draft={{ label: "Draft" }}
+        images={{ src: (id) => sample(Number(id)), pick: async () => ({ id: String(1 + Math.floor(Math.random() * 3)), alt: "A picture" }) }}
+      />
+    </div>
+  );
+};
+WithImages.storyMeta = { description: "images={{ src, pick }}: type / and choose Image; click a picture and press Backspace to remove it; with it selected the Draft button marks it as not canon yet." } satisfies StoryMeta;

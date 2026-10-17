@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RichTextEditor } from "./index";
 
@@ -97,5 +97,77 @@ describe("toolbar placement and Cmd+I", () => {
     await userEvent.click(plus);
     await waitFor(() => expect(JSON.stringify(onChange.mock.calls.at(-1)?.[0])).toContain('"/"'));
     await waitFor(() => expect(screen.queryByRole("button", { name: "Insert block" })).toBeNull());
+  });
+});
+
+describe("images in the body", () => {
+  const withImage = (draft?: boolean) => ({
+    type: "doc",
+    content: [
+      { type: "paragraph", content: [{ type: "text", text: "Before" }] },
+      { type: "image", attrs: { id: "img-1", alt: "A map of the coast", ...(draft ? { draft: true } : {}) } },
+    ],
+  });
+  const images = (pick: () => Promise<{ id: string; alt: string } | null> = async () => null) => ({ src: (id: string) => `/api/images/${id}/content`, pick });
+
+  it("draws an image block from images.src, in read-only mode too, and marks a draft one", async () => {
+    const { rerender } = render(<RichTextEditor label="Body" value={withImage()} onChange={() => undefined} images={images()} readOnly />);
+    const box = await screen.findByRole("textbox", { name: "Body" });
+    const figure = box.querySelector("figure[data-image-id]") as HTMLElement;
+    expect(figure.getAttribute("data-image-id")).toBe("img-1");
+    const img = figure.querySelector("img") as HTMLImageElement;
+    expect(img.getAttribute("src")).toBe("/api/images/img-1/content");
+    expect(img.alt).toBe("A map of the coast");
+    expect(figure.hasAttribute("data-draft")).toBe(false);
+    rerender(<RichTextEditor label="Body" value={withImage(true)} onChange={() => undefined} images={images()} readOnly />);
+    await waitFor(() => expect(box.querySelector("figure[data-image-id]")?.hasAttribute("data-draft")).toBe(true));
+  });
+
+  it("round-trips: an edit elsewhere keeps the image node with its attributes and adds nothing to them", async () => {
+    const onChange = vi.fn();
+    render(<RichTextEditor label="Body" value={withImage()} onChange={onChange} images={images()} />);
+    const box = await screen.findByRole("textbox", { name: "Body" });
+    box.focus();
+    await userEvent.keyboard("!");
+    await waitFor(() => expect(onChange).toHaveBeenCalled());
+    const out = onChange.mock.calls.at(-1)?.[0] as { content: Array<{ type: string; attrs?: Record<string, unknown> }> };
+    const node = out.content.find((n) => n.type === "image");
+    expect(JSON.parse(JSON.stringify(node?.attrs))).toEqual({ id: "img-1", alt: "A map of the coast" });
+  });
+
+  it("a picture that fails to load is nothing in read-only mode and a quiet line with its alt text while editing", async () => {
+    render(<RichTextEditor label="Body" value={withImage()} onChange={() => undefined} images={images()} readOnly />);
+    const box = await screen.findByRole("textbox", { name: "Body" });
+    (box.querySelector("img") as HTMLImageElement).dispatchEvent(new Event("error"));
+    expect((box.querySelector("figure[data-image-id]") as HTMLElement).textContent).toBe("");
+    cleanup();
+    render(<RichTextEditor label="Body" value={withImage()} onChange={() => undefined} images={images()} />);
+    const editing = await screen.findByRole("textbox", { name: "Body" });
+    await waitFor(() => expect(editing.querySelector("img")).not.toBeNull());
+    (editing.querySelector("img") as HTMLImageElement).dispatchEvent(new Event("error"));
+    await waitFor(() => expect((editing.querySelector("figure[data-image-id]") as HTMLElement).textContent).toBe("A map of the coast"));
+  });
+
+  it("without the images prop the document keeps the node (as a quiet line) and the menu does not offer Image", async () => {
+    render(<RichTextEditor label="Body" value={withImage()} onChange={() => undefined} />);
+    const box = await screen.findByRole("textbox", { name: "Body" });
+    expect((box.querySelector("figure[data-image-id]") as HTMLElement).textContent).toBe("A map of the coast");
+    box.focus();
+    await userEvent.keyboard("/");
+    await screen.findByRole("listbox");
+    expect(screen.queryByRole("option", { name: "Image" })).toBeNull();
+  });
+
+  it("the / menu offers Image, calls pick, and inserts the chosen picture", async () => {
+    const onChange = vi.fn();
+    const pick = vi.fn(async () => ({ id: "img-9", alt: "A new one" }));
+    render(<RichTextEditor label="Body" value={{ type: "doc" }} onChange={onChange} images={images(pick)} />);
+    const box = await screen.findByRole("textbox", { name: "Body" });
+    box.focus();
+    await userEvent.keyboard("/Image");
+    await userEvent.click(await screen.findByRole("option", { name: "Image" }));
+    await waitFor(() => expect(pick).toHaveBeenCalled());
+    await waitFor(() => expect(JSON.stringify(onChange.mock.calls.at(-1)?.[0])).toContain('"id":"img-9"'));
+    expect(JSON.stringify(onChange.mock.calls.at(-1)?.[0])).toContain('"alt":"A new one"');
   });
 });

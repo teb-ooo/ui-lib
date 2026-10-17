@@ -8,7 +8,7 @@ import { Bold, Check, Code, Heading2, Italic, Link2, List, ListOrdered, Plus, Qu
 import { Button, Input, SuggestionList, handleSuggestionKey } from "@teb-ooo/ui";
 import type { SuggestionItem } from "@teb-ooo/ui";
 import { cn } from "../lib/cn";
-import { Draft, Mention, suggestExtension } from "./extensions";
+import { Draft, ImageBlock, Mention, suggestExtension } from "./extensions";
 import type { SuggestionBridge, SuggestionState } from "./extensions";
 import { usePortalContainer } from "../lib/theme-scope";
 
@@ -34,6 +34,16 @@ export interface RichTextEditorProps {
     search: (query: string) => Promise<MentionItem[]> | MentionItem[];
     /** Called when a mention chip is clicked. */
     onClick?: (id: string) => void;
+  };
+  /**
+   * Pictures in the body: a block `image` node `{ id, alt }` (and `draft: true` for one that is not canon yet), drawn from
+   * `src(id)`; the `/` menu offers "Image", which calls `pick` (open a file chooser or the app's image library, answer the
+   * chosen picture or null). Without `images` the menu does not offer it, and a document that already holds an image keeps it
+   * (drawn as a quiet line). A selected image is removed with Backspace or Delete; the draft button marks or unmarks it.
+   */
+  images?: {
+    src: (id: string) => string;
+    pick: () => Promise<{ id: string; alt: string } | null>;
   };
   /** Adds the draft mark (muted text that is not canon yet) and a toolbar toggle named \`label\`. */
   draft?: { label: string };
@@ -90,7 +100,7 @@ const closedList = <T,>(): ListState<T> => ({ open: false, items: [], index: 0, 
  * \`@tiptap/suggestion\`) are optional peer dependencies the app installs. External changes to \`value\` replace the content
  * only while the editor is not focused.
  */
-export function RichTextEditor({ label, value, onChange, placeholder, readOnly = false, mentions, draft, validateHref = defaultValidate, variant = "page", onFocusEnd, toolbar = "reserved", selectionToolbar = true, className }: RichTextEditorProps) {
+export function RichTextEditor({ label, value, onChange, placeholder, readOnly = false, mentions, images, draft, validateHref = defaultValidate, variant = "page", onFocusEnd, toolbar = "reserved", selectionToolbar = true, className }: RichTextEditorProps) {
   const portalContainer = usePortalContainer();
   const [slash, setSlash] = useState<ListState<SuggestionItem>>(closedList());
   const [ment, setMent] = useState<ListState<SuggestionItem>>(closedList());
@@ -101,8 +111,8 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
   const mentRef = useRef(ment);
   slashRef.current = slash;
   mentRef.current = ment;
-  const latest = useRef({ onChange, mentions, validateHref, value });
-  latest.current = { onChange, mentions, validateHref, value };
+  const latest = useRef({ onChange, mentions, images, validateHref, value });
+  latest.current = { onChange, mentions, images, validateHref, value };
 
   const extensions = useMemo(() => {
     const bridge = <T extends SuggestionItem>(get: () => ListState<T>, set: (s: ListState<T>) => void): SuggestionBridge<T> => ({
@@ -130,11 +140,12 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
       Placeholder.configure({ placeholder: placeholder ?? "" }),
       Mention,
       Draft,
+      ImageBlock.configure({ src: (id) => latest.current.images?.src(id) ?? null }),
       suggestExtension<SuggestionItem>({
         name: "slashMenu",
         char: "/",
         startOfLine: false,
-        items: (q) => [...BLOCKS, ...(latest.current.mentions ? [{ id: "link", label: "Link an entry" }] : [])].filter((b) => b.label.toLowerCase().includes(q.toLowerCase())),
+        items: (q) => [...BLOCKS, ...(latest.current.images ? [{ id: "image", label: "Image" }] : []), ...(latest.current.mentions ? [{ id: "link", label: "Link an entry" }] : [])].filter((b) => b.label.toLowerCase().includes(q.toLowerCase())),
         command: ({ editor, range, item }) => {
           const chain = editor.chain().focus().deleteRange(range);
           if (item.id === "heading") chain.setNode("heading", { level: 2 }).run();
@@ -144,6 +155,12 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
           else if (item.id === "quote") chain.setBlockquote().run();
           else if (item.id === "divider") chain.setHorizontalRule().run();
           else if (item.id === "link") chain.insertContent("[[").run();
+          else if (item.id === "image") {
+            chain.run();
+            void latest.current.images?.pick().then((picked) => {
+              if (picked) editor.chain().focus().insertContent({ type: "image", attrs: { id: picked.id, alt: picked.alt } }).run();
+            });
+          }
           else chain.run();
         },
         bridge: bridge(() => slashRef.current, setSlash),
@@ -203,7 +220,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
     editor,
     selector: ({ editor: e }) =>
       e
-        ? { focused: e.isFocused, bold: e.isActive("bold"), italic: e.isActive("italic"), code: e.isActive("code"), h2: e.isActive("heading", { level: 2 }), bullet: e.isActive("bulletList"), numbered: e.isActive("orderedList"), quote: e.isActive("blockquote"), draft: e.isActive("draft"), link: e.isActive("link"), canLink: !e.state.selection.empty || e.isActive("link"), selecting: !e.state.selection.empty, emptyLine: e.state.selection.empty && e.state.selection.$from.depth === 1 && e.state.selection.$from.parent.type.name === "paragraph" && e.state.selection.$from.parent.content.size === 0 }
+        ? { focused: e.isFocused, bold: e.isActive("bold"), italic: e.isActive("italic"), code: e.isActive("code"), h2: e.isActive("heading", { level: 2 }), bullet: e.isActive("bulletList"), numbered: e.isActive("orderedList"), quote: e.isActive("blockquote"), draft: e.isActive("draft") || (e.isActive("image") && Boolean(e.getAttributes("image").draft)), link: e.isActive("link"), canLink: !e.state.selection.empty || e.isActive("link"), selecting: !e.state.selection.empty, emptyLine: e.state.selection.empty && e.state.selection.$from.depth === 1 && e.state.selection.$from.parent.type.name === "paragraph" && e.state.selection.$from.parent.content.size === 0 }
         : null,
   });
 
@@ -212,6 +229,11 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
   }, [link === null]);
 
   if (!editor) return null;
+  // The draft button marks the selected text, or a selected picture (a block cannot carry a mark: it has a `draft` attribute).
+  const toggleDraft = () => {
+    if (editor.isActive("image")) editor.chain().focus().updateAttributes("image", { draft: editor.getAttributes("image").draft ? undefined : true }).run();
+    else editor.chain().focus().toggleMark("draft").run();
+  };
   const selectionRect = (): DOMRect | null => {
     try {
       const { from, to } = editor.state.selection;
@@ -292,7 +314,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
           {tb("Numbered list", <ListOrdered className="size-4" aria-hidden="true" />, active?.numbered, () => editor.chain().focus().toggleOrderedList().run())}
           {tb("Quote", <Quote className="size-4" aria-hidden="true" />, active?.quote, () => editor.chain().focus().toggleBlockquote().run())}
           {tb("Link", <Link2 className="size-4" aria-hidden="true" />, active?.link, () => (active?.canLink ? openLink() : undefined))}
-          {draft ? tb(draft.label, <Stamp className="size-4" aria-hidden="true" />, active?.draft, () => editor.chain().focus().toggleMark("draft").run()) : null}
+          {draft ? tb(draft.label, <Stamp className="size-4" aria-hidden="true" />, active?.draft, toggleDraft) : null}
           {link && !showSelection ? linkField_() : null}
         </div>
       )}
@@ -334,7 +356,7 @@ export function RichTextEditor({ label, value, onChange, placeholder, readOnly =
                       {tb("Italic", <Italic className="size-4" aria-hidden="true" />, active?.italic, () => editor.chain().focus().toggleItalic().run())}
                       {tb("Code", <Code className="size-4" aria-hidden="true" />, active?.code, () => editor.chain().focus().toggleCode().run())}
                       {tb("Link", <Link2 className="size-4" aria-hidden="true" />, active?.link, openLink)}
-                      {draft ? tb(draft.label, <Stamp className="size-4" aria-hidden="true" />, active?.draft, () => editor.chain().focus().toggleMark("draft").run()) : null}
+                      {draft ? tb(draft.label, <Stamp className="size-4" aria-hidden="true" />, active?.draft, toggleDraft) : null}
                     </>
                   )}
                 </div>
