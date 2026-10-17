@@ -125,7 +125,6 @@ export function Select({ options, value, onValueChange, label, placeholder, empt
         {panel.backdropClass ? <BaseSelect.Backdrop className={panel.backdropClass} /> : null}
         <BaseSelect.Positioner sideOffset={4} align="start" alignItemWithTrigger={false} style={panel.style} className="z-50 outline-none">
           <BaseSelect.Popup className={panel.popupClass("anim-fade panel-inverse panel-float min-w-[var(--anchor-width)] p-1 text-ink outline-none")}>
-            {panel.handle}
             {options.length === 0 ? <p className="px-2 py-1 text-ink-faint">{emptyLabel}</p> : null}
             <BaseSelect.List ref={highlightRef} className={phone ? "" : "max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain"}>
               {groupsOf(options).map((g, i) => {
@@ -152,7 +151,7 @@ export function Select({ options, value, onValueChange, label, placeholder, empt
                   items
                 ) : (
                   <BaseSelect.Group key={`${g.group}-${i}`}>
-                    <BaseSelect.GroupLabel className="px-2 pt-2 pb-1 text-ink-faint uppercase">{g.group}</BaseSelect.GroupLabel>
+                    <BaseSelect.GroupLabel className="px-2 pt-2 pb-1 text-ink-muted uppercase">{g.group}</BaseSelect.GroupLabel>
                     {items}
                   </BaseSelect.Group>
                 );

@@ -99,6 +99,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
               {startAdornment !== undefined ? <Adornment>{startAdornment}</Adornment> : null}
               <BaseNumberField.Input
                 ref={(node) => setBothRefs(inner, ref, node as HTMLInputElement | null)}
+                data-embedded=""
                 className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-inherit outline-none tabular-nums"
                 onKeyDown={commitOnEnter}
               />

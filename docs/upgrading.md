@@ -6,6 +6,18 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.138.0 (from 0.137.x)
+
+Owner fixes, one release:
+
+- `SplitPane`: the first drag of the divider (or arrow key) before the list was ever resized no longer makes the divider jump to the default width; it starts from the width the list has.
+- An input inside another box (an adorned `Input`, a `NumberField`'s box, a `Combobox`, the palette's search row) no longer draws its own pink ring inside the box: it is marked `data-embedded` and the box reversing shows the focus.
+- The grab handle is only on a `Modal` on a phone (where dragging it closes the panel); the anchored panels (`Select`, `Combobox`, `Menu`, `Popover`, the account and column menus) have none.
+- A `Select` group heading is `text-ink-muted` (a step lighter) instead of `text-ink-faint`.
+- A `Select` option's tip has an arrow pointing at the option.
+
+Nothing to change.
+
 ## To ui 0.137.0 (from 0.136.x)
 
 New: `Select` options take `group` (a heading over consecutive options, exposed as a named `group`) and `disabled` (inert but reachable, so its `tip` can say why); `Select unavailableLabel`. A `Combobox` option can be `disabled` too. Nothing to change.

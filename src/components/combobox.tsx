@@ -56,8 +56,7 @@ export function Combobox(props: ComboboxProps) {
     <BaseCombobox.Portal container={container}>
       {panel.backdropClass ? <BaseCombobox.Backdrop className={panel.backdropClass} /> : null}
       <BaseCombobox.Positioner sideOffset={4} align="start" style={panel.style} className="z-50 outline-none">
-        <BaseCombobox.Popup ref={highlightRef} className={panel.popupClass(popup, "max-h-[45dvh] px-1")}>
-          {panel.handle}
+        <BaseCombobox.Popup ref={highlightRef} className={panel.popupClass(popup, "max-h-[45dvh] px-1 pt-1")}>
           <BaseCombobox.Empty className="px-2 py-1 text-ink-faint empty:hidden">{emptyLabel}</BaseCombobox.Empty>
           <BaseCombobox.List>
             {(o: Option) => (
@@ -91,7 +90,7 @@ export function Combobox(props: ComboboxProps) {
                 </BaseCombobox.ChipRemove>
               </BaseCombobox.Chip>
             ))}
-            <BaseCombobox.Input aria-label={label} placeholder={props.value.length > 0 ? "" : (placeholder ?? label)} className="min-w-16 flex-1 bg-transparent outline-none" />
+            <BaseCombobox.Input data-embedded="" aria-label={label} placeholder={props.value.length > 0 ? "" : (placeholder ?? label)} className="min-w-16 flex-1 bg-transparent outline-none" />
             {endAdornment !== undefined ? <Adornment>{endAdornment}</Adornment> : null}
           </BaseCombobox.Chips>
         </BaseCombobox.InputGroup>
@@ -108,7 +107,7 @@ export function Combobox(props: ComboboxProps) {
       <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} onOpenChange={(o) => panel.onOpenChange(o)} disabled={disabled}>
         <BaseCombobox.InputGroup className={cn("input flex w-56 max-w-full items-center gap-2 pr-0", className)}>
           {start !== undefined ? <Adornment>{start}</Adornment> : null}
-          <BaseCombobox.Input aria-label={label} placeholder={placeholder ?? label} className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-inherit outline-none" />
+          <BaseCombobox.Input data-embedded="" aria-label={label} placeholder={placeholder ?? label} className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-inherit outline-none" />
           {endAdornment !== undefined ? <Adornment>{endAdornment}</Adornment> : null}
           <div className="flex h-full shrink-0 items-center">
             <BaseCombobox.Clear aria-label="Clear" className="flex size-[var(--control-h)] cursor-pointer items-center justify-center text-ink-faint hover:text-ink">
@@ -127,7 +126,7 @@ export function Combobox(props: ComboboxProps) {
   return (
     <BaseCombobox.Root items={items} value={props.value} onValueChange={props.onValueChange} onOpenChange={(o) => panel.onOpenChange(o)} disabled={disabled}>
       <BaseCombobox.InputGroup className={cn("relative w-56 max-w-full", className)}>
-        <BaseCombobox.Input aria-label={label} placeholder={placeholder ?? label} className="input pr-[3.25rem]" />
+        <BaseCombobox.Input data-embedded="" aria-label={label} placeholder={placeholder ?? label} className="input pr-[3.25rem]" />
         <div className="absolute top-0 right-0 flex h-full items-center">
           <BaseCombobox.Clear aria-label="Clear" className="flex size-[var(--control-h)] cursor-pointer items-center justify-center text-ink-faint hover:text-ink">
             <X aria-hidden="true" className="size-3" />

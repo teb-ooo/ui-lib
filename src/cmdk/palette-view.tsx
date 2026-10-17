@@ -160,6 +160,7 @@ export function PaletteView(props: PaletteViewProps) {
           placeholder={props.placeholder}
           onChange={(e) => props.onQueryChange(e.target.value)}
           onKeyDown={props.onKeyDown}
+          data-embedded=""
           className="border-0 bg-transparent px-0 text-ink focus:bg-transparent focus-visible:outline-none"
         />
         {props.onClose ? (

@@ -159,7 +159,7 @@ export function PanelBody({ children }: { children: ReactNode }) {
 
 /**
  * Everything a Base UI popup needs to be a bottom panel on a phone, in one call: `style` for the positioner, `backdropClass`
- * for its `Backdrop` part, `handle` to render, and `popupClass(desktop)` for the popup (the panel classes on a phone,
+ * for its `Backdrop` part, and `popupClass(desktop)` for the popup (the panel classes on a phone,
  * `desktop` elsewhere). It also puts the panel in the stack: pass `onOpenChange` to the popup's root (with the app's own
  * handler, if any, and its controlled `open`) and every panel under this one steps back.
  */
@@ -177,7 +177,6 @@ export function usePanel(controlledOpen?: boolean, initiallyOpen = false) {
       own?.(next, ...details);
     },
     backdropClass: phone ? PANEL_BACKDROP : null,
-    handle: phone ? <PanelHandle /> : null,
-    popupClass: (desktop: string, phoneExtra = "px-1") => (phone ? cn(PANEL_POPUP, phoneExtra) : desktop),
+    popupClass: (desktop: string, phoneExtra = "px-1 pt-1") => (phone ? cn(PANEL_POPUP, phoneExtra) : desktop),
   };
 }

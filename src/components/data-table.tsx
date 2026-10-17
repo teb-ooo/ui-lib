@@ -309,7 +309,6 @@ function ColumnMenu<T>({
         {panel.backdropClass ? <Menu.Backdrop className={panel.backdropClass} /> : null}
         <Menu.Positioner align="end" sideOffset={4} style={panel.style} className="z-50">
           <Menu.Popup className={panel.popupClass("anim-fade panel-inverse panel-float min-w-40 p-1 text-ink outline-none")}>
-            {panel.handle}
             {hideable.map((c) => (
               <Menu.CheckboxItem
                 key={c.id}

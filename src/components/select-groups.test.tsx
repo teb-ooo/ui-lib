@@ -55,3 +55,26 @@ describe("Select option groups and disabled options", () => {
     expect(onHighlight).toHaveBeenLastCalledWith(null);
   });
 });
+
+describe("Select group headings and option tips", () => {
+  it("a heading is a step lighter than the options (ink-muted, upper case)", async () => {
+    const user = userEvent.setup();
+    render(<Select label="Add a filter" placeholder="Add a filter" options={options} value={null} onValueChange={() => undefined} />);
+    await user.click(screen.getByRole("combobox", { name: "Add a filter" }));
+    const heading = await screen.findByText("Denoise");
+    expect(heading.className).toContain("text-ink-muted");
+    expect(heading.className).toContain("uppercase");
+  });
+
+  it("a tip carries an arrow that points at its option", async () => {
+    const user = userEvent.setup();
+    render(<Select label="Add a filter" placeholder="Add a filter" options={options} value={null} onValueChange={() => undefined} />);
+    await user.click(screen.getByRole("combobox", { name: "Add a filter" }));
+    await screen.findByRole("group", { name: "Sharpen" });
+    await user.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}");
+    const tip = await screen.findByRole("tooltip");
+    const arrow = tip.querySelector(".popover-arrow");
+    expect(arrow).not.toBeNull();
+    expect(arrow?.getAttribute("data-side")).toMatch(/left|right|top|bottom/);
+  });
+});

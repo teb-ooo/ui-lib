@@ -50,6 +50,14 @@
 :focus-visible {
   outline: 2px solid var(--color-focus);
 }
+/*
+ * The one exception: an input drawn inside another box (an adorned field, a number field's box, a combobox's chips box, the
+ * palette's search row) has no ring of its own, because the box shows the focus (a focused `.input` reverses). It is marked
+ * `data-embedded`; this rule is unlayered with a higher specificity than the ring above, which `outline-none` could not beat.
+ */
+[data-embedded]:focus-visible {
+  outline: none;
+}
 
 @theme static {
   /* Offer one gray: the tinted ramps are removed, the pure one stays. */

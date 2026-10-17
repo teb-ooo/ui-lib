@@ -147,8 +147,7 @@ export function Popover(props: PopoverProps) {
       <BasePopover.Portal container={container}>
         {sheet.backdropClass ? <BasePopover.Backdrop className={sheet.backdropClass} /> : null}
         <BasePopover.Positioner side={side} align={align} sideOffset={OFFSET} arrowPadding={ARROW_PADDING} collisionPadding={8} style={sheet.style} className="z-50 outline-none">
-          <BasePopover.Popup aria-label={title} className={sheet.popupClass(cn(panel, "flex w-72 max-w-[calc(100vw-1rem)] flex-col gap-2 p-3", className), "flex flex-col gap-2 px-3")}>
-            {sheet.handle}
+          <BasePopover.Popup aria-label={title} className={sheet.popupClass(cn(panel, "flex w-72 max-w-[calc(100vw-1rem)] flex-col gap-2 p-3", className), "flex flex-col gap-2 px-3 pt-3")}>
             {showTitle || showClose ? (
               <div className="flex items-start justify-between gap-3">
                 {showTitle ? <BasePopover.Title className="text-ink">{title}</BasePopover.Title> : <span />}

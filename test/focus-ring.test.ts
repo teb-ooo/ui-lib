@@ -19,3 +19,13 @@ describe("focus ring", () => {
     expect(missing).toEqual([]);
   });
 });
+
+describe("embedded inputs", () => {
+  it("an input inside another box is marked data-embedded and the theme drops its own ring (the box shows the focus)", () => {
+    const css = readFileSync(join(import.meta.dirname, "..", "theme.css"), "utf8");
+    expect(css).toMatch(/\[data-embedded\]:focus-visible\s*\{\s*outline:\s*none;/);
+    for (const f of ["src/components/input.tsx", "src/components/number-field.tsx", "src/components/combobox.tsx", "src/cmdk/palette-view.tsx"]) {
+      expect(readFileSync(join(import.meta.dirname, "..", f), "utf8"), f).toContain('data-embedded=""');
+    }
+  });
+});

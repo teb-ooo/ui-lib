@@ -85,6 +85,13 @@ export function SplitPane({
   const dragging = useRef<{ startX: number; startSize: number } | null>(null);
 
   const root = useRef<HTMLDivElement | null>(null);
+  const listBox = useRef<HTMLDivElement | null>(null);
+  // Until the divider is moved the list's width is a percentage of the pane (see below), not `size`: a drag or a key must start
+  // from the width the person sees, or the divider jumps to `size` on the first move.
+  const shownSize = () => {
+    const w = listBox.current?.getBoundingClientRect().width ?? 0;
+    return sized || w === 0 ? size : w / remPx();
+  };
   // The list never takes the last 6rem of the pane: the detail always keeps a usable strip, whatever maxSize says.
   const room = () => {
     const w = root.current?.getBoundingClientRect().width ?? 0;
@@ -129,8 +136,8 @@ export function SplitPane({
   }
 
   const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "ArrowLeft") change(size - STEP);
-    else if (e.key === "ArrowRight") change(size + STEP);
+    if (e.key === "ArrowLeft") change(shownSize() - STEP);
+    else if (e.key === "ArrowRight") change(shownSize() + STEP);
     else if (e.key === "Home") change(minSize);
     else if (e.key === "End") change(maxSize);
     else return;
@@ -138,7 +145,7 @@ export function SplitPane({
     save();
   };
   const onPointerDown = (e: PointerEvent) => {
-    dragging.current = { startX: e.clientX, startSize: size };
+    dragging.current = { startX: e.clientX, startSize: shownSize() };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
   const onPointerMove = (e: PointerEvent) => {
@@ -148,7 +155,7 @@ export function SplitPane({
 
   return (
     <div ref={root} className={cn("flex h-full min-h-0", className)}>
-      <div className="min-h-0 shrink-0" style={{ width: sized ? `${size}rem` : `clamp(${defaultSize}rem, 38%, ${Math.min(maxSize, AUTO_MAX)}rem)` }}>
+      <div ref={listBox} className="min-h-0 shrink-0" style={{ width: sized ? `${size}rem` : `clamp(${defaultSize}rem, 38%, ${Math.min(maxSize, AUTO_MAX)}rem)` }}>
         {list}
       </div>
       {resizable ? (

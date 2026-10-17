@@ -21,6 +21,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input({ c
       {startAdornment !== undefined ? <Adornment>{startAdornment}</Adornment> : null}
       <BaseInput
         ref={(node) => setBothRefs(inner, ref, node as HTMLInputElement | null)}
+        data-embedded=""
         className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-inherit outline-none"
         {...rest}
       />

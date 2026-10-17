@@ -4,6 +4,10 @@ import { useHighlight } from "./use-highlight";
 
 interface Placed {
   text: ReactNode;
+  /** Which side of the list the tip is on: its arrow points back at the option. */
+  side: "left" | "right" | "top" | "bottom";
+  /** Where the arrow sits along the tip's edge, in px from the tip's top (beside the list) or left (above or below it). */
+  arrow: number;
   top: number;
   left?: number;
   right?: number;
@@ -41,10 +45,15 @@ export function useOptionTip(tips: ReadonlyMap<string, ReactNode>, onHighlight: 
     const i = item.getBoundingClientRect();
     const p = popup.getBoundingClientRect();
     const width = Math.min(320, window.innerWidth - 16);
-    if (p.right + 8 + width <= window.innerWidth - 8) setPlaced({ text, top: i.top, left: p.right + 8 });
-    else if (p.left - 8 - width >= 8) setPlaced({ text, top: i.top, right: window.innerWidth - p.left + 8 });
-    else if (p.bottom + 8 + 64 <= window.innerHeight) setPlaced({ text, top: p.bottom + 8, left: 8 });
-    else setPlaced({ text, top: 0, bottom: window.innerHeight - p.top + 8, left: 8 });
+    // The arrow points at the middle of the option: beside the list its height is the option's middle (the tip starts at the
+    // option's top), above or below the list its place along the edge is the option's middle.
+    const beside = i.height / 2 - 5;
+    const along = Math.min(Math.max(i.left + i.width / 2 - 8 - 5, 8), width - 18);
+    // `side` is where the tip is: the arrow is on its edge nearest the list and points at it.
+    if (p.right + 8 + width <= window.innerWidth - 8) setPlaced({ text, side: "right", arrow: beside, top: i.top, left: p.right + 8 });
+    else if (p.left - 8 - width >= 8) setPlaced({ text, side: "left", arrow: beside, top: i.top, right: window.innerWidth - p.left + 8 });
+    else if (p.bottom + 8 + 64 <= window.innerHeight) setPlaced({ text, side: "bottom", arrow: along, top: p.bottom + 8, left: 8 });
+    else setPlaced({ text, side: "top", arrow: along, top: 0, bottom: window.innerHeight - p.top + 8, left: 8 });
   }, [tips]);
 
   const ref = useHighlight((v) => {
@@ -86,6 +95,13 @@ export function useOptionTip(tips: ReadonlyMap<string, ReactNode>, onHighlight: 
         className="panel-inverse panel-float pointer-events-none fixed z-[60] max-w-[min(20rem,calc(100vw-1rem))] px-2 py-1 text-ink"
       >
         {placed.text}
+        {/* The arrow's own geometry (and its side naming) is the popover's: it points at the option. */}
+        <span
+          aria-hidden="true"
+          data-side={placed.side}
+          className="popover-arrow"
+          style={placed.side === "left" || placed.side === "right" ? { top: placed.arrow } : { left: placed.arrow }}
+        />
       </div>
     ) : null;
   return { ref: hold, tip, describedBy: (v: string) => (v === value && text !== undefined ? id : undefined) };

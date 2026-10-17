@@ -77,7 +77,6 @@ export function Menu({ trigger, items, side = "bottom", align = "start", classNa
         {panel.backdropClass ? <BaseMenu.Backdrop className={panel.backdropClass} /> : null}
         <BaseMenu.Positioner side={side} align={align} sideOffset={4} collisionPadding={8} style={panel.style} className="z-50 outline-none">
           <BaseMenu.Popup className={panel.popupClass(cn("anim-fade panel-inverse panel-float min-w-48 p-1 text-ink outline-none", className))}>
-            {panel.handle}
             {items.map((entry) => {
               if (entry.type === "separator") return <BaseMenu.Separator key={entry.id} className="my-1 h-px bg-line" />;
               if (entry.type === "heading")
