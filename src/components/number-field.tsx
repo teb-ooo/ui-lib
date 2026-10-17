@@ -7,6 +7,8 @@ import { Button } from "./button";
 import { Adornment, focusInside, setBothRefs } from "./adornment";
 import type { AdornmentProps } from "./adornment";
 import { Field } from "./field";
+import { TONE_TEXT } from "../lib/tone";
+import type { ControlTone } from "../lib/tone";
 
 export interface NumberFieldProps extends AdornmentProps {
   /** Visible name, tied to the input. */
@@ -37,6 +39,8 @@ export interface NumberFieldProps extends AdornmentProps {
   error?: ReactNode;
   disabled?: boolean;
   readOnly?: boolean;
+  /** The tone of the value, for a state that is not the default one (for example `link` while a recording plays). */
+  tone?: ControlTone;
   /** Layout classes (the width). */
   className?: string;
 }
@@ -47,7 +51,7 @@ export interface NumberFieldProps extends AdornmentProps {
  * Digits are tabular so the figure does not shift as it changes.
  */
 export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(function NumberField(
-  { label, hideLabel, value, onValueChange, onValueCommit, min, max, step = 1, largeStep, smallStep, unit, format, steppers = true, description, error, disabled, readOnly, className, startAdornment, endAdornment },
+  { label, hideLabel, value, onValueChange, onValueCommit, min, max, step = 1, largeStep, smallStep, unit, format, steppers = true, description, error, disabled, readOnly, tone, className, startAdornment, endAdornment },
   ref,
 ) {
   const inner = useRef<HTMLInputElement | null>(null);
@@ -100,7 +104,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
               <BaseNumberField.Input
                 ref={(node) => setBothRefs(inner, ref, node as HTMLInputElement | null)}
                 data-embedded=""
-                className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-inherit outline-none tabular-nums"
+                className={cn("h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-right outline-none tabular-nums", tone ? TONE_TEXT[tone] : "text-inherit")}
                 onKeyDown={commitOnEnter}
               />
               {unit ? <Adornment>{unit}</Adornment> : null}
@@ -108,7 +112,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
             </div>
           ) : (
             <div className="relative min-w-0 flex-1">
-              <BaseNumberField.Input ref={ref} className={cn("input text-right tabular-nums", unit && "pr-10")} onKeyDown={commitOnEnter} />
+              <BaseNumberField.Input ref={ref} className={cn("input text-right tabular-nums", unit && "pr-10", tone && TONE_TEXT[tone])} onKeyDown={commitOnEnter} />
               {unit ? (
                 <span aria-hidden="true" className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-ink-faint">
                   {unit}

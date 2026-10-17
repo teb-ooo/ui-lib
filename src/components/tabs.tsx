@@ -39,6 +39,8 @@ export interface TabsProps {
    * on the gutter: for tabs that sit directly under a `PageHeader` or in a `PageBody` with `gutter`. @default false
    */
   gutter?: boolean;
+  /** Something at the right end of the tab bar, outside the scrolling tabs (a button for the whole panel area, such as "Save buffer"). */
+  trailing?: ReactNode;
   /** Layout classes for the whole component. */
   className?: string;
 }
@@ -48,7 +50,7 @@ export interface TabsProps {
  * pill that zips from tab to tab (it squashes while it moves, then springs back), and on a narrow screen the row scrolls sideways instead of wrapping. Use `ToggleGroup` to filter, not to
  * switch panels.
  */
-export function Tabs({ tabs, value, onValueChange, label, activation = "automatic", keepMounted = false, fill = false, gutter = false, className }: TabsProps) {
+export function Tabs({ tabs, value, onValueChange, label, activation = "automatic", keepMounted = false, fill = false, gutter = false, trailing, className }: TabsProps) {
   const indicator = useRef<HTMLSpanElement>(null);
   const previous = useRef<number | null>(null);
   const index = tabs.findIndex((t) => t.value === value);
@@ -74,11 +76,11 @@ export function Tabs({ tabs, value, onValueChange, label, activation = "automati
   return (
     <BaseTabs.Root value={value} onValueChange={(v) => onValueChange(String(v))} className={cn("flex min-h-0 flex-col", className)}>
       {/* The bar: the tabs always sit in a padded band with a rule under it, so they never run against an edge. */}
-      <div className={cn("shrink-0 border-b border-line px-2 py-2", gutter && "px-4 md:px-6")}>
+      <div className={cn("flex shrink-0 items-center gap-2 border-b border-line px-2 py-2", gutter && "px-4 md:px-6")}>
       <BaseTabs.List
         aria-label={label}
         activateOnFocus={activation === "automatic"}
-        className="relative -mx-2 flex gap-1 overflow-x-auto px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="relative -mx-2 flex min-w-0 flex-1 gap-1 overflow-x-auto px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {tabs.map((t) => (
           <BaseTabs.Tab
@@ -100,6 +102,7 @@ export function Tabs({ tabs, value, onValueChange, label, activation = "automati
           className="absolute top-(--active-tab-top) left-(--active-tab-left) h-(--active-tab-height) w-(--active-tab-width) rounded border border-line bg-surface-raised transition-[left,width] duration-[360ms] ease-[cubic-bezier(0.34,1.3,0.64,1)] motion-reduce:transition-none"
         />
       </BaseTabs.List>
+      {trailing ? <div className="flex shrink-0 items-center gap-1">{trailing}</div> : null}
       </div>
       {tabs.map((t) => (
         <BaseTabs.Panel key={t.value} value={t.value} keepMounted={keepMounted} className={cn("min-h-0 flex-1 pt-3 outline-none", fill && "flex flex-col overflow-auto")}>

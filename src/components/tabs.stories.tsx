@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Scissors } from "lucide-react";
+import { Button } from "./button";
 import { Tabs } from "./tabs";
 import type { StoryDefault, StoryMeta } from "../stories";
 
@@ -51,3 +53,21 @@ export const Gutter = () => {
   );
 };
 Gutter.storyMeta = { description: "gutter lines the first tab up with the page text above it; the rule still runs edge to edge." } satisfies StoryMeta;
+
+export const Trailing = () => {
+  const [value, setValue] = useState("filters");
+  return (
+    <Tabs
+      label="Radio panels"
+      value={value}
+      onValueChange={setValue}
+      className="w-[28rem] max-w-full"
+      trailing={<Button tip="Save buffer" icon={<Scissors aria-hidden="true" className="size-4" />} aria-label="Save buffer" />}
+      tabs={[
+        { value: "filters", label: "Filters", panel: <p className="text-ink-muted">Passband, notch and noise settings.</p> },
+        { value: "decoders", label: "Decoders", panel: <p className="text-ink-muted">CW, FT8 and RTTY decoders.</p> },
+      ]}
+    />
+  );
+};
+Trailing.storyMeta = { description: "trailing: a button (or any control) at the right end of the bar, outside the scrolling tabs." } satisfies StoryMeta;

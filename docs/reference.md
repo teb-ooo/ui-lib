@@ -673,6 +673,7 @@ Also accepts the props of `AdornmentProps`.
 - `error?`: `ReactNode`
 - `disabled?`: `boolean`
 - `readOnly?`: `boolean`
+- `tone?`: `ControlTone`. The tone of the value, for a state that is not the default one (for example `link` while a recording plays).
 - `className?`: `string`. Layout classes (the width).
 
 ### Page
@@ -966,6 +967,7 @@ Tabs: a row of tabs and one panel at a time. Left and Right (and Home and End) m
 - `keepMounted?`: `boolean`, default false. Keep every panel mounted (hidden) so their state survives switching.
 - `fill?`: `boolean`, default false. The panels fill the height under the tab row and scroll inside it (a `flex` column), so a table or a form can fill the tabs' screen. Use it only when the tabs are the body of a `Page`: there must not be another scroller around them.
 - `gutter?`: `boolean`, default false. Line the bar's padding up with the page gutter (16px, 24px from `md`) instead of its own 8px, so the first tab's pill sits on the gutter: for tabs that sit directly under a `PageHeader` or in a `PageBody` with `gutter`.
+- `trailing?`: `ReactNode`. Something at the right end of the tab bar, outside the scrolling tabs (a button for the whole panel area, such as "Save buffer").
 - `className?`: `string`. Layout classes for the whole component.
 
 ### Textarea

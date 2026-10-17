@@ -3,7 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { Card, DataTable, Field, Input, Prose, Select } from "../index";
+import { Card, DataTable, Field, Input, NumberField, Prose, Select, Tabs, ToggleGroup } from "../index";
 
 describe("interface review fixes", () => {
   it("a Field can keep a line free for its error so the fields below do not move", () => {
@@ -58,5 +58,27 @@ describe("interface review fixes", () => {
     expect(within(strip).getByRole("button", { name: "Close issues" })).toBeTruthy();
     await userEvent.click(within(strip).getByRole("button", { name: "Clear selection" }));
     expect(onChange).toHaveBeenLastCalledWith(new Set());
+  });
+});
+
+describe("tone and trailing", () => {
+  it("Tabs draws a trailing control at the end of the bar, outside the tab list", () => {
+    render(<Tabs label="Panels" value="a" onValueChange={() => undefined} trailing={<button type="button">Save buffer</button>} tabs={[{ value: "a", label: "A", panel: "x" }]} />);
+    const list = screen.getByRole("tablist", { name: "Panels" });
+    const save = screen.getByRole("button", { name: "Save buffer" });
+    expect(list.contains(save)).toBe(false);
+    expect(list.parentElement?.contains(save)).toBe(true);
+  });
+
+  it("a ToggleGroup's toggled-on options and a NumberField's value can take a state tone", () => {
+    render(
+      <>
+        <ToggleGroup label="Mode" tone="link" value="usb" onValueChange={() => undefined} options={[{ value: "usb", label: "USB" }, { value: "lsb", label: "LSB" }]} />
+        <NumberField label="Frequency" value={7074} onValueChange={() => undefined} tone="link" />
+      </>,
+    );
+    expect(screen.getByRole("button", { name: "USB" }).className).toContain("data-[active]:bg-link-soft");
+    expect(screen.getByRole("button", { name: "USB" }).className).toContain("data-[active]:text-link");
+    expect(screen.getByRole("textbox", { name: "Frequency" }).className).toContain("text-link");
   });
 });
