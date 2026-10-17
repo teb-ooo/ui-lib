@@ -43,7 +43,7 @@ Compact.storyMeta = { description: "size=compact: 12rem tall (10rem on a phone).
 
 export const Missing = () => (
   <div className="flex flex-col gap-2">
-    <CoverImage src="/does-not-exist.png" alt="Missing" />
+    <CoverImage src="data:image/png;base64,AAAA" alt="Missing" />
     <p className="px-4 text-ink-muted">The picture could not be loaded, so nothing is drawn above this line.</p>
   </div>
 );
