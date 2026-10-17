@@ -8,7 +8,7 @@ The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), bec
 
 ## To ui 0.138.1 (from 0.138.0)
 
-Fix: in a `PageHeader size="compact"` the filters (children) now wrap to their own row on a phone instead of running over the actions (lore). Nothing to change.
+Fix: in a `PageHeader size="compact"` the filters (children) now wrap to their own row on a phone instead of running over the actions (an app's review). Nothing to change.
 
 ## To ui 0.138.0 (from 0.137.x)
 
