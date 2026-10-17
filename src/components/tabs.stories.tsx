@@ -55,7 +55,7 @@ export const Gutter = () => {
 Gutter.storyMeta = { description: "gutter lines the first tab up with the page text above it; the rule still runs edge to edge." } satisfies StoryMeta;
 
 export const Trailing = () => {
-  const [value, setValue] = useState("filters");
+  const [value, setValue] = useState("receive");
   return (
     <Tabs
       label="Radio panels"
@@ -64,8 +64,8 @@ export const Trailing = () => {
       className="w-[28rem] max-w-full"
       trailing={<Button tip="Save buffer" icon={<Scissors aria-hidden="true" className="size-4" />} aria-label="Save buffer" />}
       tabs={[
-        { value: "filters", label: "Filters", panel: <p className="text-ink-muted">Passband, notch and noise settings.</p> },
-        { value: "decoders", label: "Decoders", panel: <p className="text-ink-muted">CW, FT8 and RTTY decoders.</p> },
+        { value: "receive", label: "Receive", panel: <p className="text-ink-muted">Receiver settings.</p> },
+        { value: "transmit", label: "Transmit", panel: <p className="text-ink-muted">Transmitter settings.</p> },
       ]}
     />
   );

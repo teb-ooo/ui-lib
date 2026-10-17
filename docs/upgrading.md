@@ -6,6 +6,10 @@ What an app must change when it moves between versions, newest first; only what 
 
 The `@teb-ooo/web` peer is now `^0.9.10` (was `^0.7.5 || ^0.8.0 || ^0.9.0`), because `QueryState` uses `describeError`. An app on an older web moves to 0.9.10 or newer first (nothing else in web changed for it). New: `QueryState` and `ErrorState`.
 
+## To ui 0.142.1 (from 0.142.0)
+
+Gallery story only (the Trailing example's tab names). Nothing to change.
+
 ## To ui 0.142.0 (from 0.141.x)
 
 New: `Tabs trailing` (a control at the right end of the bar), and `tone` on `ToggleGroup` and `NumberField` (the state tones). Nothing to change.
