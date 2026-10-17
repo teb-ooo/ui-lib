@@ -187,7 +187,7 @@ export function Slider({ value, onValueChange, onValueCommit, label, min = 0, ma
         aria-labelledby={labelId}
         aria-describedby={description ? descriptionId : undefined}
       >
-        <div className={cn("flex items-center gap-2", orientation === "vertical" && "min-h-0 flex-1")}>
+        <div className={cn("flex gap-2", orientation === "vertical" ? "min-h-0 flex-1 items-stretch" : "items-center")}>
           {nudge && orientation !== "vertical" ? <NudgeButton dir={-1} label={`Decrease ${label}`} disabled={disabled} nudge={nudgeBy} commit={() => onValueCommit?.(latest.current)} /> : null}
           <div className={cn("min-w-0 flex-1", orientation === "vertical" && "flex min-h-0 justify-center")}>
             <BaseSlider.Control
