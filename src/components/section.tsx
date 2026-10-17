@@ -70,7 +70,8 @@ export const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(function Page
         <Container width={width} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2">
           <h1 className="min-w-0 break-words text-ink">{title}</h1>
           {description ? <p className="min-w-0 truncate text-ink-muted">{description}</p> : null}
-          {children ? <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{children}</div> : <div className="flex-1" />}
+          {/* min-w gives the filters a basis: with none (flex-1 alone) the row never wraps and they run over the actions on a phone. */}
+          {children ? <div className="flex min-w-[min(100%,14rem)] flex-1 flex-wrap items-center gap-2">{children}</div> : <div className="flex-1" />}
           {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
         </Container>
       </section>
